@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - hardening/**
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: analyze
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Haskell
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: '9.4.5'
+          enable-stack: true
+          stack-version: 'latest'
+
+      - name: Cache Stack
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.stack
+            analyze/.stack-work
+          key: ${{ runner.os }}-stack-${{ hashFiles('analyze/stack.yaml.lock', 'analyze/analyze.cabal') }}
+          restore-keys: |
+            ${{ runner.os }}-stack-
+
+      - name: Build and run unit tests
+        run: stack test --no-terminal
+
+      - name: Build executable
+        run: stack build --no-terminal
+
+      - name: Smoke-test bundled PDF fixtures
+        run: |
+          set -euo pipefail
+          for fixture in ../fixtures/2022orlaw0001.pdf ../fixtures/2022orlaw0002.pdf; do
+            out="$(mktemp)"
+            stack exec -- analyze "$fixture" --tika-jar ../tika-app-2.8.0.jar > "$out"
+            jq -e '.year and .chapter and .bill and .affectedSections and .validation' "$out" >/dev/null
+            jq -e '.validation.validationStatus | IN("Verified", "ParsedUnverified", "Conflict")' "$out" >/dev/null
+          done
