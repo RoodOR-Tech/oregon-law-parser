@@ -11,7 +11,6 @@ import           GHC.IO.Exception
 import           Cli
 import           Tika
 
-
 main ∷ IO ()
 main = do
   (errCode, rawHTML, stderr') ← runTika =<< getOptions
@@ -20,20 +19,22 @@ main = do
 
   B.putStr (tikaOutputToJson rawHTML)
 
-
 tikaOutputToJson ∷ String → B.ByteString
 tikaOutputToJson = paragraphs ⋙ makeAmendment ⋙ encodePretty
 
-
 makeAmendment ∷ [String] → Amendment
 makeAmendment phrases =
-  Amendment {
+  let summaryText = phrases |> findSummary
+      titleChanges = summaryText |> findChangedStatutes
+      bodyChanges = phrases |> findBodyChangedStatutes
+  in Amendment {
     bill             = phrases |> findCitation |> makeBill,
-    summary          = phrases |> findSummary,
-    affectedSections = phrases |> findSummary |> findChangedStatutes,
+    summary          = summaryText,
+    affectedSections = selectBestChangeSet titleChanges bodyChanges,
     year             = phrases |> findYear,
     effectiveDate    = phrases |> findEffectiveDate,
-    chapter          = phrases |> findChapter
+    chapter          = phrases |> findChapter,
+    validation       = reconcileChangeSets titleChanges bodyChanges
   }
 
 -- Function application operator from Elm, F#, and Elixir
