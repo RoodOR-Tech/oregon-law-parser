@@ -118,6 +118,7 @@ jobs:
             --manifest ../gold/manifest.json \
             --results-dir ../gold-results \
             --report ../gold-quality-report.json
+          jq -e '.gatePassed == true and .releaseCertifying == true and .goldDocuments >= .releaseCertificationMinimumDocuments' ../gold-quality-report.json >/dev/null
 
       - name: Build conflict review report
         if: always()
