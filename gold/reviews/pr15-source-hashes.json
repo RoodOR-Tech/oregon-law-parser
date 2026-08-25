@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "pullRequest": 15,
+  "stagingRun": {
+    "workflow": "Gold source staging",
+    "runNumber": 31,
+    "runId": 32891205010,
+    "headSha": "97add0af57511a162a7cb241902e99e24ac12ed1",
+    "artifactId": 9579531992,
+    "artifactName": "gold-source-hashes",
+    "artifactDigest": "sha256:b37ad2114265c65baf0961fa2f54ac30486833e9de8325c4ddb3ac724852100e",
+    "result": "success"
+  },
+  "documents": [
+    {
+      "id": "2010orlaw0023",
+      "sourceUrl": "https://olis.oregonlegislature.gov/liz/2010S1/Downloads/MeasureDocument/SB993/Enrolled",
+      "sha256": "bc883632be94eb200d8a9d5f9792a0234eaaff6b08d37d837987770c36e98894",
+      "bytes": 72290
+    },
+    {
+      "id": "2010orlaw0050",
+      "sourceUrl": "https://olis.oregonlegislature.gov/liz/2010S1/Downloads/MeasureDocument/HB3668/Enrolled",
+      "sha256": "6126f962e35a5b12c71d7a4f83011296ad2043d2dda4a80d5c944b1d8ceefe4e",
+      "bytes": 26055
+    },
+    {
+      "id": "2010orlaw0083",
+      "sourceUrl": "https://olis.oregonlegislature.gov/liz/2010S1/Downloads/MeasureDocument/SB1025/Enrolled",
+      "sha256": "ccfa9954807f0b39c2272502980bfeee2f5f31990d60fb0c059dee592173281b",
+      "bytes": 19821
+    },
+    {
+      "id": "2010orlaw0091",
+      "sourceUrl": "https://olis.oregonlegislature.gov/liz/2010S1/Downloads/MeasureDocument/HB3663/Enrolled",
+      "sha256": "bdca0681554e9ad443f4052ae597e351459aa0b28c1576cb17a73cc226ee0689",
+      "bytes": 22873
+    }
+  ]
+}
