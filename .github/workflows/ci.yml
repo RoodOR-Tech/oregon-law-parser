@@ -78,6 +78,7 @@ jobs:
             --manifest ../gold/manifest.json \
             --repo-root .. \
             --report ../gold-fixture-acquisition.json
+          jq -e '.valid == true and ([.documents[].hashPinned] | all)' ../gold-fixture-acquisition.json >/dev/null
 
       - name: Validate gold corpus review metadata
         run: |
@@ -85,6 +86,24 @@ jobs:
           python3 ../tools/validate_gold_manifest.py \
             --manifest ../gold/manifest.json \
             --repo-root .. | tee ../gold-manifest-validation.json
+          jq -e '.valid == true and .allFixturesHashPinned == true' ../gold-manifest-validation.json >/dev/null
+
+      - name: Report gold corpus coverage
+        run: |
+          set -euo pipefail
+          python3 ../tools/report_gold_coverage.py \
+            --manifest ../gold/manifest.json \
+            --report ../gold-coverage-report.json
+          jq -e '.schemaVersion == 1 and .documentCount >= 1 and (.coverage | type == "array")' ../gold-coverage-report.json >/dev/null
+
+      - name: Suggest next gold candidates
+        run: |
+          set -euo pipefail
+          python3 ../tools/suggest_gold_candidates.py \
+            --lc-csv ../data/legislative-counsel/2026-sample.csv \
+            --manifest ../gold/manifest.json \
+            --report ../gold-candidate-suggestions.json
+          jq -e '.schemaVersion == 1 and (.candidates | type == "array")' ../gold-candidate-suggestions.json >/dev/null
 
       - name: Evaluate gold-standard corpus
         run: |
@@ -127,6 +146,24 @@ jobs:
         with:
           name: gold-manifest-validation
           path: gold-manifest-validation.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload gold coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gold-coverage-report
+          path: gold-coverage-report.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload gold candidate suggestions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gold-candidate-suggestions
+          path: gold-candidate-suggestions.json
           if-no-files-found: warn
           retention-days: 30
 
