@@ -1660,8 +1660,8 @@
     },
     {
       "id": "2010orlaw0023",
-      "fixture": "gold-fixtures/2010orlaw0023.pdf",
-      "sourceUrl": "https://olis.oregonlegislature.gov/liz/2010S1/Downloads/MeasureDocument/SB993/Enrolled",
+      "fixture": "gold-fixtures/2010orlaw0023.html",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2010orLaw0023.html",
       "caseTags": [
         "special-session",
         "mixed-amendment-repeal",
@@ -1672,7 +1672,7 @@
         "emergency-clause",
         "remote-acquisition"
       ],
-      "reviewBasis": "Independently reviewed against Oregon Laws 2010 Special Session chapter 23 and the official 2010 A&R tables. SB 993 amends ORS 725.010, 725.045, 725.340 and 725.370 and expressly repeals ten ORS sections in section 34. The act also contains many incidental ORS references in newly enacted lending provisions, making it a strong false-positive stress case. The emergency clause and chapter footer establish the March 4, 2010 effective date. Source staging uses the authoritative OLIS enrolled-bill PDF because per-chapter PDFs are not published for this session; chapter identity and effective date remain independently verified against the official Oregon Laws chapter text.",
+      "reviewBasis": "Independently reviewed against Oregon Laws 2010 Special Session chapter 23 and the official 2010 A&R tables. SB 993 amends ORS 725.010, 725.045, 725.340 and 725.370 and expressly repeals ten ORS sections in section 34. The act also contains many incidental ORS references in newly enacted lending provisions, making it a strong false-positive stress case. The emergency clause and chapter footer establish the March 4, 2010 effective date. The gold fixture uses the authoritative published Oregon Laws chapter HTML because this special session is published as per-chapter HTML rather than per-chapter PDF; the source hash was independently staged and verified before promotion.",
       "reviewSources": [
         "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2010orLaw0023.html",
         "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2010AR.pdf"
@@ -1706,13 +1706,13 @@
           ]
         }
       },
-      "sourceSha256": "bc883632be94eb200d8a9d5f9792a0234eaaff6b08d37d837987770c36e98894",
+      "sourceSha256": "9cdedbbacade24f22b1076cc9af49e83ac994d907f338c70ccf73fa2ab879e04",
       "reviewStatus": "independently-reviewed"
     },
     {
       "id": "2010orlaw0050",
-      "fixture": "gold-fixtures/2010orlaw0050.pdf",
-      "sourceUrl": "https://olis.oregonlegislature.gov/liz/2010S1/Downloads/MeasureDocument/HB3668/Enrolled",
+      "fixture": "gold-fixtures/2010orlaw0050.html",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2010orLaw0050.html",
       "caseTags": [
         "special-session",
         "negative-control",
@@ -1723,7 +1723,7 @@
         "emergency-clause",
         "remote-acquisition"
       ],
-      "reviewBasis": "Independently reviewed against Oregon Laws 2010 Special Session chapter 50 and the official 2010 A&R tables. HB 3668 amends section 13, chapter 549, Oregon Laws 2009 and contains several ORS citations inside that amended uncodified text, but it does not operatively amend or repeal any ORS section. The emergency clause and chapter footer establish the March 10, 2010 effective date. Source staging uses the authoritative OLIS enrolled-bill PDF because per-chapter PDFs are not published for this session; chapter identity and effective date remain independently verified against the official Oregon Laws chapter text.",
+      "reviewBasis": "Independently reviewed against Oregon Laws 2010 Special Session chapter 50 and the official 2010 A&R tables. HB 3668 amends section 13, chapter 549, Oregon Laws 2009 and contains several ORS citations inside that amended uncodified text, but it does not operatively amend or repeal any ORS section. The emergency clause and chapter footer establish the March 10, 2010 effective date. The gold fixture uses the authoritative published Oregon Laws chapter HTML because this special session is published as per-chapter HTML rather than per-chapter PDF; the source hash was independently staged and verified before promotion.",
       "reviewSources": [
         "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2010orLaw0050.html",
         "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2010AR.pdf"
@@ -1741,13 +1741,13 @@
           "repealed": []
         }
       },
-      "sourceSha256": "6126f962e35a5b12c71d7a4f83011296ad2043d2dda4a80d5c944b1d8ceefe4e",
+      "sourceSha256": "fa92a3784bbaeae574fc0118f71eed3e4dd82ff5306b6c974999fb0e0e7447b8",
       "reviewStatus": "independently-reviewed"
     },
     {
       "id": "2010orlaw0083",
-      "fixture": "gold-fixtures/2010orlaw0083.pdf",
-      "sourceUrl": "https://olis.oregonlegislature.gov/liz/2010S1/Downloads/MeasureDocument/SB1025/Enrolled",
+      "fixture": "gold-fixtures/2010orlaw0083.html",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2010orLaw0083.html",
       "caseTags": [
         "special-session",
         "negative-control",
@@ -1757,7 +1757,7 @@
         "emergency-clause",
         "remote-acquisition"
       ],
-      "reviewBasis": "Independently reviewed against Oregon Laws 2010 Special Session chapter 83 and the official 2010 A&R tables. SB 1025 adds section 2 of the act to ORS chapter 455 but does not amend or repeal an existing ORS section. Incidental ORS 455.148 and 455.150 references appear inside the newly enacted text and must not be treated as amendments. The emergency clause and chapter footer establish the March 18, 2010 effective date. Source staging uses the authoritative OLIS enrolled-bill PDF because per-chapter PDFs are not published for this session; chapter identity and effective date remain independently verified against the official Oregon Laws chapter text.",
+      "reviewBasis": "Independently reviewed against Oregon Laws 2010 Special Session chapter 83 and the official 2010 A&R tables. SB 1025 adds section 2 of the act to ORS chapter 455 but does not amend or repeal an existing ORS section. Incidental ORS 455.148 and 455.150 references appear inside the newly enacted text and must not be treated as amendments. The emergency clause and chapter footer establish the March 18, 2010 effective date. The gold fixture uses the authoritative published Oregon Laws chapter HTML because this special session is published as per-chapter HTML rather than per-chapter PDF; the source hash was independently staged and verified before promotion.",
       "reviewSources": [
         "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2010orLaw0083.html",
         "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2010AR.pdf"
@@ -1775,13 +1775,13 @@
           "repealed": []
         }
       },
-      "sourceSha256": "ccfa9954807f0b39c2272502980bfeee2f5f31990d60fb0c059dee592173281b",
+      "sourceSha256": "357410f86bd31d431ac0f6a9327c712279c78305f7340d9eee34f97c0f10b008",
       "reviewStatus": "independently-reviewed"
     },
     {
       "id": "2010orlaw0091",
-      "fixture": "gold-fixtures/2010orlaw0091.pdf",
-      "sourceUrl": "https://olis.oregonlegislature.gov/liz/2010S1/Downloads/MeasureDocument/HB3663/Enrolled",
+      "fixture": "gold-fixtures/2010orlaw0091.html",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2010orLaw0091.html",
       "caseTags": [
         "special-session",
         "multiple-ors-amendments",
@@ -1789,7 +1789,7 @@
         "delayed-effective-date",
         "remote-acquisition"
       ],
-      "reviewBasis": "Independently reviewed against Oregon Laws 2010 Special Session chapter 91 and the official 2010 A&R tables. HB 3663 amends only ORS 109.640 and 109.650. The replacement text contains several other ORS citations that are references rather than operative amendments. The chapter footer establishes the January 1, 2011 effective date. Source staging uses the authoritative OLIS enrolled-bill PDF because per-chapter PDFs are not published for this session; chapter identity and effective date remain independently verified against the official Oregon Laws chapter text.",
+      "reviewBasis": "Independently reviewed against Oregon Laws 2010 Special Session chapter 91 and the official 2010 A&R tables. HB 3663 amends only ORS 109.640 and 109.650. The replacement text contains several other ORS citations that are references rather than operative amendments. The chapter footer establishes the January 1, 2011 effective date. The gold fixture uses the authoritative published Oregon Laws chapter HTML because this special session is published as per-chapter HTML rather than per-chapter PDF; the source hash was independently staged and verified before promotion.",
       "reviewSources": [
         "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2010orLaw0091.html",
         "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2010AR.pdf"
@@ -1810,7 +1810,7 @@
           "repealed": []
         }
       },
-      "sourceSha256": "bdca0681554e9ad443f4052ae597e351459aa0b28c1576cb17a73cc226ee0689",
+      "sourceSha256": "c0bd73e74efcd460a484d4563f6f743b16968bbf16275bf06203d8938462eeba",
       "reviewStatus": "independently-reviewed"
     }
   ]
