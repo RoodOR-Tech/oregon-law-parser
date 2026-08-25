@@ -17,6 +17,15 @@ spec = do
     it "changes a newline to a space" $ do
       fixWhitespace "and\nthe story" `shouldBe` "and the story"
 
+  describe "join" $ do
+    it "normalizes line-wrap hyphenation before parser matching" $ do
+      join ["SECTION 9. ORS 316.417 and 317.504 are re-\npealed."]
+        `shouldBe` "SECTION 9. ORS 316.417 and 317.504 are repealed."
+
+    it "removes PDF extraction control artifacts inside words" $ do
+      join ["SECTION 4. ORS 305.280, as amended by sec\x0002tion 34, is amended to read:"]
+        `shouldBe` "SECTION 4. ORS 305.280, as amended by section 34, is amended to read:"
+
   describe "cleanUp" $ do
     it "handles extra text" $ do
       let input = "Relating to the state transient lodging tax; creating\nnew provisions; amending ORS 284.131 and\n320.305; prescribing an effective date; and pro-\nviding for revenue raising that requires approval\nby a three-fifths majority.\nWhereas Enrolled House Bill 2267 (chapter 818,"
