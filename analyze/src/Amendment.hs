@@ -167,7 +167,7 @@ extractOperativeSections markers blocks =
 extractBlock ∷ [String] → String → [SectionNumber]
 extractBlock markers block =
   case firstPresentMarker markers block of
-    Just marker -> sectionNumbers (before marker block)
+    Just marker -> sectionNumbers (beforeMarker marker block)
     Nothing     -> []
 
 firstPresentMarker ∷ [String] → String → Maybe String
@@ -176,8 +176,8 @@ firstPresentMarker (marker:rest) input
   | marker `isInfixOf` input = Just marker
   | otherwise                = firstPresentMarker rest input
 
-before ∷ String → String → String
-before marker input =
+beforeMarker ∷ String → String → String
+beforeMarker marker input =
   case split marker input of
     (prefix:_) -> prefix
     []         -> input
