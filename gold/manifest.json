@@ -51,7 +51,7 @@
       "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orLaw0033.pdf",
       "reviewStatus": "independently-reviewed",
       "caseTags": ["conditional-amendments", "duplicate-ors-amendment-paths", "act-section-repeals", "false-repeal-control", "multiple-ors-amendments", "emergency-clause", "remote-acquisition"],
-      "reviewBasis": "Independently verified against Oregon Laws 2022 chapter 33 and the official 2022 Oregon Laws amended-and-repealed table. SB 1501 amends the same twelve ORS sections through its primary amendment sections and again through conditional fallback amendments in sections 65 through 76. Section 60 conditionally repeals numerous sections of the 2022 Act, not ORS sections. The expected ORS set therefore contains twelve unique amended sections and no ORS repeals. The emergency clause made the Act effective March 17, 2022.",
+      "reviewBasis": "Independently verified against Oregon Laws 2022 chapter 33 and the official 2022 Oregon Laws amended-and-repealed table. SB 1501 amends twelve ORS sections through its primary amendment sections and again through conditional fallback amendments in sections 65 through 76, and separately amends ORS 105.810 as a conforming amendment in section 77. Section 60 conditionally repeals numerous sections of the 2022 Act, not ORS sections. The expected ORS set therefore contains thirteen unique amended sections and no ORS repeals. The emergency clause made the Act effective March 17, 2022.",
       "reviewSources": [
         "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orLaw0033.pdf",
         "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022OrLawAR.pdf"
@@ -62,7 +62,7 @@
         "bill": {"billType": "SB", "billNumber": 1501},
         "effectiveDate": "2022-03-17",
         "affectedSections": {
-          "amended": ["195.308", "496.252", "496.254", "527.620", "527.630", "527.680", "527.685", "527.714", "527.990", "527.992", "610.060", "610.105"],
+          "amended": ["105.810", "195.308", "496.252", "496.254", "527.620", "527.630", "527.680", "527.685", "527.714", "527.990", "527.992", "610.060", "610.105"],
           "repealed": []
         }
       }
