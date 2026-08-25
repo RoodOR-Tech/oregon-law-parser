@@ -33,6 +33,25 @@ data ChangeSet =
     repealed ∷ [SectionNumber]
   } deriving (Eq, Show, Generic)
 
+data ChangeAction
+  = AmendmentAction
+  | RepealAction
+  deriving (Eq, Show, Generic)
+
+data EvidenceSource
+  = TitleEvidence
+  | OperativeBodyEvidence
+  deriving (Eq, Show, Generic)
+
+data SectionEvidence =
+  SectionEvidence {
+    evidenceSectionNumber ∷ SectionNumber,
+    evidenceAction        ∷ ChangeAction,
+    evidenceSource        ∷ EvidenceSource,
+    evidenceSectionClause ∷ Maybe String,
+    evidenceText          ∷ String
+  } deriving (Eq, Show, Generic)
+
 data ValidationStatus
   = Verified
   | ParsedUnverified
@@ -45,7 +64,8 @@ data Validation =
     validationStatus ∷ ValidationStatus,
     titleBodyMatch   ∷ Bool,
     titleSections    ∷ ChangeSet,
-    bodySections     ∷ ChangeSet
+    bodySections     ∷ ChangeSet,
+    sectionEvidence  ∷ [SectionEvidence]
   } deriving (Eq, Show, Generic)
 
 data ParseErrorCode
@@ -79,6 +99,9 @@ instance ToJSON Amendment
 instance ToJSON Bill
 instance ToJSON BillType
 instance ToJSON ChangeSet
+instance ToJSON ChangeAction
+instance ToJSON EvidenceSource
+instance ToJSON SectionEvidence
 instance ToJSON Validation
 instance ToJSON ValidationStatus
 instance ToJSON ParseError
@@ -145,49 +168,69 @@ findSectionNumbers phrases =
     & unique
     & sort
 
--- Parse the title/summary declaration. Kept as a secondary source of evidence.
 findChangedStatutes ∷ String → ChangeSet
-findChangedStatutes title =
-  let clauses = split "; " title
-      extractFrom section = findSectionNumbers ∘ filter (\c → section `isSubsequenceOf` c) $ clauses
-  in ChangeSet {
-    amended  = extractFrom "amending",
-    repealed = extractFrom "repealing"
-  }
+findChangedStatutes title = changeSetFromEvidence (findTitleEvidence title)
 
--- Parse operative SECTION clauses in the enrolled/session law body.
--- Only text before the operative marker is considered, preventing ORS references
--- inside the amended statutory text from being mistaken for affected sections.
+findTitleEvidence ∷ String → [SectionEvidence]
+findTitleEvidence title =
+  let clauses = split "; " title
+      evidenceFor action needle clause
+        | needle `isSubsequenceOf` clause =
+            map (\section -> SectionEvidence section action TitleEvidence Nothing clause)
+              (findSectionNumbers [clause])
+        | otherwise = []
+  in concatMap (\clause ->
+       evidenceFor AmendmentAction "amending" clause
+         ++ evidenceFor RepealAction "repealing" clause) clauses
+
 findBodyChangedStatutes ∷ [String] → ChangeSet
-findBodyChangedStatutes phrases =
+findBodyChangedStatutes = changeSetFromEvidence . findBodyEvidence
+
+findBodyEvidence ∷ [String] → [SectionEvidence]
+findBodyEvidence phrases =
   let document = join phrases
       sectionBlocks = drop 1 (split "SECTION " document)
-      amendedSections = extractOperativeSections [" is amended to read", " are amended to read"] sectionBlocks
-      repealedSections = extractOperativeSections [" is repealed", " are repealed"] sectionBlocks
-  in ChangeSet {
-    amended = amendedSections,
-    repealed = repealedSections
+  in concatMap evidenceFromBlock sectionBlocks
+
+evidenceFromBlock ∷ String → [SectionEvidence]
+evidenceFromBlock block =
+  case operativeMarker block of
+    Just (action, marker) ->
+      let prefix = beforeMarker marker block
+          clause = firstMatch "^[0-9]+[A-Z]?" prefix
+          excerpt = prefix ++ marker
+      in map (\section -> SectionEvidence section action OperativeBodyEvidence clause excerpt)
+           (sectionNumbers prefix)
+    Nothing -> []
+
+operativeMarker ∷ String → Maybe (ChangeAction, String)
+operativeMarker block =
+  firstMatching
+    [ (AmendmentAction, " is amended to read")
+    , (AmendmentAction, " are amended to read")
+    , (RepealAction, " is repealed")
+    , (RepealAction, " are repealed")
+    ]
+  where
+    firstMatching [] = Nothing
+    firstMatching ((action, marker):rest)
+      | marker `isInfixOf` block = Just (action, marker)
+      | otherwise = firstMatching rest
+
+changeSetFromEvidence ∷ [SectionEvidence] → ChangeSet
+changeSetFromEvidence evidence =
+  ChangeSet {
+    amended = evidence
+      & filter ((== AmendmentAction) . evidenceAction)
+      & map evidenceSectionNumber
+      & unique
+      & sort,
+    repealed = evidence
+      & filter ((== RepealAction) . evidenceAction)
+      & map evidenceSectionNumber
+      & unique
+      & sort
   }
-
-extractOperativeSections ∷ [String] → [String] → [SectionNumber]
-extractOperativeSections markers blocks =
-  blocks
-    & map (extractBlock markers)
-    & flatten
-    & unique
-    & sort
-
-extractBlock ∷ [String] → String → [SectionNumber]
-extractBlock markers block =
-  case firstPresentMarker markers block of
-    Just marker -> sectionNumbers (beforeMarker marker block)
-    Nothing     -> []
-
-firstPresentMarker ∷ [String] → String → Maybe String
-firstPresentMarker [] _ = Nothing
-firstPresentMarker (marker:rest) input
-  | marker `isInfixOf` input = Just marker
-  | otherwise                = firstPresentMarker rest input
 
 beforeMarker ∷ String → String → String
 beforeMarker marker input =
@@ -195,9 +238,12 @@ beforeMarker marker input =
     (prefix:_) -> prefix
     []         -> input
 
--- Reconcile independent title and operative-body parsers.
 reconcileChangeSets ∷ ChangeSet → ChangeSet → Validation
 reconcileChangeSets titleChanges bodyChanges =
+  reconcileChangeSetsWithEvidence titleChanges bodyChanges []
+
+reconcileChangeSetsWithEvidence ∷ ChangeSet → ChangeSet → [SectionEvidence] → Validation
+reconcileChangeSetsWithEvidence titleChanges bodyChanges evidence =
   let same = titleChanges == bodyChanges
       bothEmpty = titleChanges == emptyChangeSet && bodyChanges == emptyChangeSet
       status
@@ -209,11 +255,10 @@ reconcileChangeSets titleChanges bodyChanges =
     validationStatus = status,
     titleBodyMatch = same,
     titleSections = titleChanges,
-    bodySections = bodyChanges
+    bodySections = bodyChanges,
+    sectionEvidence = evidence
   }
 
--- Prefer operative text whenever it produces evidence. The title remains a fallback
--- for legacy documents/layouts that the body parser cannot yet recognize.
 selectBestChangeSet ∷ ChangeSet → ChangeSet → ChangeSet
 selectBestChangeSet titleChanges bodyChanges
   | bodyChanges == emptyChangeSet = titleChanges
@@ -227,8 +272,11 @@ parseAmendment sourceProvenance phrases =
       parsedChapter = findChapter phrases
       parsedEffectiveDate = findEffectiveDate phrases
       summaryText = findSummary phrases
-      titleChanges = maybe emptyChangeSet findChangedStatutes summaryText
-      bodyChanges = findBodyChangedStatutes phrases
+      titleEvidence = maybe [] findTitleEvidence summaryText
+      bodyEvidence = findBodyEvidence phrases
+      titleChanges = changeSetFromEvidence titleEvidence
+      bodyChanges = changeSetFromEvidence bodyEvidence
+      allEvidence = titleEvidence ++ bodyEvidence
       errors =
         concat
           [ missingError MissingCitation "bill" "Could not find an HB/SB citation" (isNothing citation)
@@ -246,7 +294,7 @@ parseAmendment sourceProvenance phrases =
           year = yearValue,
           effectiveDate = effectiveDateValue,
           chapter = chapterValue,
-          validation = reconcileChangeSets titleChanges bodyChanges,
+          validation = reconcileChangeSetsWithEvidence titleChanges bodyChanges allEvidence,
           provenance = sourceProvenance
         }
     _ -> Left errors
@@ -263,7 +311,6 @@ invalidCitationError _ _ = []
 
 sectionNumbers ∷ String → [String]
 sectionNumbers phrase =
-  -- Match ORS section numbers like 40.230, 743A.144, and 475C.770.
   getAllTextMatches (phrase =~ "[0-9]{1,3}[A-Z]?\\.[0-9]{3}")
 
 flatten = concat
