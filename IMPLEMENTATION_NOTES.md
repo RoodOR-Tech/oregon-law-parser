@@ -1,26 +1,51 @@
-# Oregon Law Parser — Hardening Pass 1
+# Oregon Law Parser — Reliability Hardening
 
-This patch is intentionally conservative. It adds an independent parser for operative `SECTION` clauses and reconciles that output with the existing title/summary parser.
+## Pass 1 — operative-section validation
 
-## What changes
+The first hardening pass added an independent parser for operative `SECTION` clauses, reconciled it with title/summary evidence, expanded lettered ORS chapter support, added explicit validation states, and introduced GitHub Actions plus fixture smoke tests.
 
-1. `affectedSections` now prefers operative-body evidence when available.
-2. Existing title/summary parsing is retained as a fallback.
-3. Output adds a `validation` object containing:
-   - `validationStatus`: `Verified`, `ParsedUnverified`, or `Conflict`
-   - `titleBodyMatch`
-   - `titleSections`
-   - `bodySections`
-4. The ORS regex now permits any uppercase letter suffix (for example `475C.770`) instead of only A-C.
-5. Tests cover operative amendment/repeal clauses, false-positive prevention, lettered chapters, and reconciliation behavior.
+Validation states are:
+- `Verified`
+- `ParsedUnverified`
+- `Conflict`
+- `Incomplete`
 
-## Important limitation
+The first pass also added Oregon Legislative Counsel reconciliation scaffolding scoped by Oregon Laws year and chapter.
 
-This patch has not been compiled in the ChatGPT runtime because GHC/Stack/Cabal are not installed there. It should therefore be treated as a reviewable implementation patch, not a verified release.
+## Pass 2 — provenance and structured failures
 
-## Recommended merge sequence
+This pass removes crash-oriented parsing from the production path and makes source identity explicit.
 
-1. Run the existing Hspec suite.
-2. Run against the two existing PDF fixtures and compare JSON output.
-3. Add 25–50 real Oregon Laws fixtures before making operative-body output authoritative for all documents.
-4. Next hardening pass: Oregon LC A&R reconciliation, source hashes/provenance, structured parse errors, and a gold corpus with precision/recall gates.
+### Provenance
+
+Successful parser output now includes a `provenance` object with:
+- `sourcePath`: input PDF path
+- `sourceUrl`: optional canonical URL supplied with `--source-url`
+- `sourceSha256`: SHA-256 digest of the exact input PDF bytes
+- `processedAt`: UTC processing timestamp
+
+The SHA-256 digest allows downstream datasets to prove exactly which source bytes produced a record and detect silent source replacement.
+
+### Structured parse failures
+
+Required metadata extractors now return `Maybe` values instead of throwing `error`. The production parser aggregates missing or invalid fields into typed `ParseError` values. Current error codes are:
+- `MissingCitation`
+- `InvalidCitation`
+- `MissingYear`
+- `MissingChapter`
+- `MissingEffectiveDate`
+- `ExtractionFailed`
+
+When parsing fails, the CLI emits JSON containing `errors` plus `provenance` and exits non-zero. Missing summaries are represented as JSON `null` rather than the prior sentinel string.
+
+### CI enforcement
+
+The test suite covers malformed/missing metadata without exceptions and confirms provenance survives successful parsing. Fixture smoke tests require a 64-character lowercase SHA-256 digest and non-empty source path.
+
+## Remaining reliability work
+
+1. Ingest the full Oregon Legislative Counsel update tables rather than representative sample rows.
+2. Add a gold-standard corpus spanning sessions, special sessions, page layouts, repeals, amendments, added-to ranges, uncodified provisions, and known extraction edge cases.
+3. Record section-level evidence and page/`SECTION` provenance rather than only document-level provenance.
+4. Add precision/recall release gates and conflict-review reports.
+5. Replace remaining heuristic text cleanup, especially aggressive hyphen repair, with layout-aware normalization.
