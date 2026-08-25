@@ -71,6 +71,14 @@ jobs:
             jq -e '.provenance.sourcePath | length > 0' "$out" >/dev/null
           done
 
+      - name: Acquire gold corpus fixtures
+        run: |
+          set -euo pipefail
+          python3 ../tools/acquire_gold_fixtures.py \
+            --manifest ../gold/manifest.json \
+            --repo-root .. \
+            --report ../gold-fixture-acquisition.json
+
       - name: Validate gold corpus review metadata
         run: |
           set -euo pipefail
@@ -103,6 +111,15 @@ jobs:
               --report ../conflict-review-report.json
             jq -e '.schemaVersion == 1 and (.reviewCaseCount >= 0) and (.cases | type == "array")' ../conflict-review-report.json >/dev/null
           fi
+
+      - name: Upload gold fixture acquisition report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gold-fixture-acquisition
+          path: gold-fixture-acquisition.json
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Upload gold validation report
         if: always()
