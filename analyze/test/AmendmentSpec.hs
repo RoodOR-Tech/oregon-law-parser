@@ -48,6 +48,10 @@ spec = do
       let ps = ["Nope.", "Approved by the Governor March 3, 2016 Filed in the office of Secretary of State March 3, 2016 Effective date January 17, 2017"]
       findEffectiveDate ps `shouldBe` Just (fromGregorian 2017 1 17)
 
+    it "tolerates irregular PDF spacing in a special-session footer" $ do
+      let ps = ["Filed in the office of Secretary of State November 10, 2025", "Effective   date   December  31,  2025"]
+      findEffectiveDate ps `shouldBe` Just (fromGregorian 2025 12 31)
+
     it "returns Nothing when the effective date is absent" $ do
       findEffectiveDate ["No effective date here"] `shouldBe` Nothing
 
