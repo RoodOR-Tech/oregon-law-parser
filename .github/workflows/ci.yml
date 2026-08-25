@@ -71,6 +71,13 @@ jobs:
             jq -e '.provenance.sourcePath | length > 0' "$out" >/dev/null
           done
 
+      - name: Validate gold corpus review metadata
+        run: |
+          set -euo pipefail
+          python3 ../tools/validate_gold_manifest.py \
+            --manifest ../gold/manifest.json \
+            --repo-root .. | tee ../gold-manifest-validation.json
+
       - name: Evaluate gold-standard corpus
         run: |
           set -euo pipefail
@@ -96,6 +103,15 @@ jobs:
               --report ../conflict-review-report.json
             jq -e '.schemaVersion == 1 and (.reviewCaseCount >= 0) and (.cases | type == "array")' ../conflict-review-report.json >/dev/null
           fi
+
+      - name: Upload gold validation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gold-manifest-validation
+          path: gold-manifest-validation.json
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Upload gold quality report
         if: always()
