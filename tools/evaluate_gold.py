@@ -35,14 +35,54 @@ def main():
 
     for item in manifest["documents"]:
         result_path = results_dir / f'{item["id"]}.json'
+        expected = item["expected"]
+        expected_pairs = section_pairs(expected["affectedSections"])
+
         if not result_path.exists():
             failures.append(f'{item["id"]}: missing parser result {result_path}')
+            fn += len(expected_pairs)
+            documents.append({
+                "id": item["id"],
+                "parserFailed": True,
+                "parserErrors": [{"message": "missing parser result"}],
+                "truePositives": 0,
+                "falsePositives": [],
+                "falseNegatives": sorted([list(x) for x in expected_pairs]),
+                "metadataExactMatch": False,
+            })
             continue
 
-        actual = json.loads(result_path.read_text())
-        expected = item["expected"]
+        try:
+            actual = json.loads(result_path.read_text())
+        except (json.JSONDecodeError, OSError) as exc:
+            failures.append(f'{item["id"]}: unreadable parser result: {exc}')
+            fn += len(expected_pairs)
+            documents.append({
+                "id": item["id"],
+                "parserFailed": True,
+                "parserErrors": [{"message": str(exc)}],
+                "truePositives": 0,
+                "falsePositives": [],
+                "falseNegatives": sorted([list(x) for x in expected_pairs]),
+                "metadataExactMatch": False,
+            })
+            continue
 
-        expected_pairs = section_pairs(expected["affectedSections"])
+        parser_errors = actual.get("errors", [])
+        if parser_errors:
+            failures.append(f'{item["id"]}: parser returned structured failure: {json.dumps(parser_errors, sort_keys=True)}')
+            fn += len(expected_pairs)
+            documents.append({
+                "id": item["id"],
+                "parserFailed": True,
+                "parserErrors": parser_errors,
+                "truePositives": 0,
+                "falsePositives": [],
+                "falseNegatives": sorted([list(x) for x in expected_pairs]),
+                "metadataExactMatch": False,
+            })
+            continue
+
         actual_pairs = section_pairs(actual.get("affectedSections", {}))
         doc_tp = len(expected_pairs & actual_pairs)
         doc_fp = len(actual_pairs - expected_pairs)
@@ -61,6 +101,8 @@ def main():
 
         documents.append({
             "id": item["id"],
+            "parserFailed": False,
+            "parserErrors": [],
             "truePositives": doc_tp,
             "falsePositives": sorted([list(x) for x in actual_pairs - expected_pairs]),
             "falseNegatives": sorted([list(x) for x in expected_pairs - actual_pairs]),
@@ -103,9 +145,7 @@ def main():
     Path(args.report).write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2))
 
-    if not gate_passed:
-        return 1
-    return 0
+    return 0 if gate_passed else 1
 
 
 if __name__ == "__main__":
