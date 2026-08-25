@@ -19,6 +19,7 @@ executable analyze
   other-modules:       Amendment
                        , Cli
                        , LegislativeCounsel
+                       , Provenance
                        , StringOps
                        , Tika
   default-language:    Haskell2010
@@ -28,6 +29,7 @@ executable analyze
                        , aeson-pretty
                        , base-unicode-symbols
                        , bytestring
+                       , cryptonite
                        , HandsomeSoup
                        , hxt
                        , MissingH
@@ -41,7 +43,7 @@ test-suite tests
   ghc-options:         -Wall -fno-warn-missing-signatures
   hs-source-dirs:      test, src
   main-is:             Spec.hs
-  other-modules:       Amendment, AmendmentSpec, LegislativeCounsel, LegislativeCounselSpec, StringOps, StringOpsSpec, Tika, Cli
+  other-modules:       Amendment, AmendmentSpec, LegislativeCounsel, LegislativeCounselSpec, Provenance, StringOps, StringOpsSpec, Tika, Cli
   type:                exitcode-stdio-1.0
   default-language:    Haskell2010
   default-extensions:  UnicodeSyntax
@@ -50,6 +52,7 @@ test-suite tests
                        , aeson-pretty
                        , base-unicode-symbols
                        , bytestring
+                       , cryptonite
                        , optparse-applicative
                        , HandsomeSoup
                        , hspec
