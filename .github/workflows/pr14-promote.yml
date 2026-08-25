@@ -1,0 +1,63 @@
+name: Promote PR14 gold candidates
+
+on:
+  push:
+    branches:
+      - hardening/adversarial-gold-batch-7
+    paths:
+      - .github/workflows/pr14-promote.yml
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: hardening/adversarial-gold-batch-7
+          fetch-depth: 0
+      - name: Promote independently reviewed candidates with pinned hashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          hashes = {
+              "2012s1orlaw0001": "45c3a334ab768bfc6d6455409c706d36c8a1c055e18733d0eaa1f576e6665425",
+              "2013orlaw0028": "f3847bd4d478ac4c8fa10feabb6723bf22604d7b1eb9cee189abf57d82a6db43",
+              "2013orlaw0033": "64ea576e25fe901dea63656dc378e6305bcf19dd3decf184be4726096b0eef98",
+              "2015orlaw0614": "8915f8979241b96d316477f38553344433dcaa0c6c6195908d8176a72e6f683d",
+          }
+
+          manifest_path = Path("gold/manifest.json")
+          candidates_path = Path("gold/pending/pr14-candidates.json")
+          manifest = json.loads(manifest_path.read_text())
+          candidates = json.loads(candidates_path.read_text())
+          existing = {d["id"] for d in manifest["documents"]}
+
+          for candidate in candidates["documents"]:
+              cid = candidate["id"]
+              if cid in existing:
+                  continue
+              if cid not in hashes:
+                  raise SystemExit(f"Missing pinned hash for {cid}")
+              candidate["sourceSha256"] = hashes[cid]
+              candidate["reviewStatus"] = "independently-reviewed"
+              manifest["documents"].append(candidate)
+
+          if len(manifest["documents"]) != 38:
+              raise SystemExit(f"Expected 38 gold documents, found {len(manifest['documents'])}")
+
+          manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
+          PY
+          rm gold/pending/pr14-candidates.json
+          rm .github/workflows/pr14-promote.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add gold/manifest.json gold/pending/pr14-candidates.json .github/workflows/pr14-promote.yml
+          git commit -m "Promote PR14 reviewed gold cases to 38 laws"
+          git push origin HEAD:hardening/adversarial-gold-batch-7
