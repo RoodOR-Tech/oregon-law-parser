@@ -29,6 +29,7 @@ executable analyze
                        , aeson-pretty
                        , base-unicode-symbols
                        , bytestring
+                       , cassava
                        , cryptonite
                        , HandsomeSoup
                        , hxt
@@ -38,6 +39,7 @@ executable analyze
                        , regex-tdfa
                        , time
                        , text
+                       , vector
 
 test-suite tests
   ghc-options:         -Wall -fno-warn-missing-signatures
@@ -52,6 +54,7 @@ test-suite tests
                        , aeson-pretty
                        , base-unicode-symbols
                        , bytestring
+                       , cassava
                        , cryptonite
                        , optparse-applicative
                        , HandsomeSoup
@@ -64,3 +67,4 @@ test-suite tests
                        , regex-tdfa
                        , time
                        , text
+                       , vector
