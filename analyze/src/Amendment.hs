@@ -147,8 +147,9 @@ findEffectiveDate ∷ [String] → Maybe Day
 findEffectiveDate input = do
   matched ← input
     & join
-    & firstMatch "Effective date .+ [0-9]+, [0-9]{4}"
-  parseTimeM True defaultTimeLocale "Effective date %B %-d, %Y" matched
+    & firstMatch "Effective[[:space:]]+date[[:space:]]+[A-Za-z]+[[:space:]]+[0-9]{1,2},[[:space:]]+[0-9]{4}"
+  let normalized = unwords (splitWs matched)
+  parseTimeM True defaultTimeLocale "Effective date %B %-d, %Y" normalized
 
 findSummary ∷ [String] → Maybe String
 findSummary phrases =

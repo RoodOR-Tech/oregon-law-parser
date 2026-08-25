@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "purpose": "PR #9 staging file. Expectations are independently reviewed against authoritative Oregon session-law text and are not admitted to the gold corpus until source hashes are pinned.",
+  "documents": [
+    {
+      "id": "2025s1orlaw0001",
+      "fixture": "gold-fixtures/2025S1OrLaw0001.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025S1OrLaw0001.pdf",
+      "caseTags": ["special-session", "mixed-amendment-repeal", "multiple-ors-amendments", "ors-repeal", "large-document", "prior-session-law-cross-reference", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2025 special session chapter 1. HB 3991 lists 49 unique ORS amendments and four ORS repeals, plus separate prior-session-law changes. The 32-page act provides a high-volume special-session and mixed-change stress case. Section 102 and the chapter footer establish the December 31, 2025 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025S1OrLaw0001.pdf", "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025S1OrLawAR.pdf"],
+      "expected": {"year": 2025, "chapter": 1, "bill": {"billType": "HB", "billNumber": 3991}, "effectiveDate": "2025-12-31", "affectedSections": {"amended": ["171.861","184.620","184.623","184.659","184.665","295.103","319.010","319.020","319.390","319.520","319.530","319.550","319.671","319.700","319.883","319.885","319.915","320.550","366.506","366.772","366.805","367.095","377.841","383.009","801.041","801.042","803.090","803.420","803.422","803.445","810.530","818.225","818.400","823.012","823.023","823.027","823.085","825.005","825.104","825.141","825.250","825.326","825.450","825.474","825.476","825.480","825.492","825.555","825.990"], "repealed": ["319.665","319.890","383.150","825.486"]}}
+    },
+    {
+      "id": "2024orlaw0009",
+      "fixture": "gold-fixtures/2024orlaw0009.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0009.pdf",
+      "caseTags": ["mixed-amendment-repeal", "ors-repeal", "multiple-ors-amendments", "added-to-provision", "large-document", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2024 chapter 9 and the 2024 amended-and-repealed table. HB 4024 amends nine ORS sections and repeals three ORS sections while separately repealing chapter 3, Oregon Laws 2007. The expected repeal set therefore contains only the three ORS citations. The chapter footer establishes the June 6, 2024 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0009.pdf", "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024OrLawAR.pdf"],
+      "expected": {"year": 2024, "chapter": 9, "bill": {"billType": "HB", "billNumber": 4024}, "effectiveDate": "2024-06-06", "affectedSections": {"amended": ["162.005","260.005","260.042","260.232","260.266","260.345","260.402","260.715","260.995"], "repealed": ["260.275","260.281","260.285"]}}
+    },
+    {
+      "id": "2024orlaw0016",
+      "fixture": "gold-fixtures/2024orlaw0016.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0016.pdf",
+      "caseTags": ["lettered-ors-chapter", "mixed-amendment-repeal", "ors-repeal", "multiple-ors-amendments", "prior-session-law-cross-reference", "emergency-clause", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2024 chapter 16. HB 4121 amends twelve ORS sections, including ten sections in lettered chapter 475C, and repeals ORS 571.312 while separately amending a 2022 session-law section. The emergency clause and chapter footer establish the March 20, 2024 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0016.pdf", "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024OrLawAR.pdf"],
+      "expected": {"year": 2024, "chapter": 16, "bill": {"billType": "HB", "billNumber": 4121}, "effectiveDate": "2024-03-20", "affectedSections": {"amended": ["475C.049","475C.117","475C.197","475C.209","475C.265","475C.269","475C.273","475C.297","475C.742","475C.746","571.306","571.309"], "repealed": ["571.312"]}}
+    },
+    {
+      "id": "2025orlaw0285",
+      "fixture": "gold-fixtures/2025orlaw0285.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw0285.pdf",
+      "caseTags": ["lettered-ors-chapter", "multiple-ors-amendments", "prior-session-law-cross-reference", "emergency-clause", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2025 chapter 285. SB 162 amends nine ORS sections, including seven in chapter 475C, plus section 1, chapter 16, Oregon Laws 2024. The prior-session-law amendment is not labeled as an ORS change. The emergency clause and footer establish the June 9, 2025 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw0285.pdf"],
+      "expected": {"year": 2025, "chapter": 285, "bill": {"billType": "SB", "billNumber": 162}, "effectiveDate": "2025-06-09", "affectedSections": {"amended": ["133.565","475C.065","475C.085","475C.093","475C.097","475C.101","475C.105","475C.548","571.281"], "repealed": []}}
+    },
+    {
+      "id": "2026orlaw0030",
+      "fixture": "gold-fixtures/2026orlaw0030.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orLaw0030.pdf",
+      "caseTags": ["multiple-ors-amendments", "duplicate-ors-amendment-paths", "added-to-provision", "uncodified-session-law-amendment", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2026 chapter 30. HB 4027 amends four unique ORS sections. ORS 656.506 is amended in section 5 and amended again in section 7, providing a duplicate operative path that must deduplicate to one affected ORS section. Section 3 separately amends an uncodified section of the same 2026 Act. The footer establishes the June 5, 2026 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orLaw0030.pdf"],
+      "expected": {"year": 2026, "chapter": 30, "bill": {"billType": "HB", "billNumber": 4027}, "effectiveDate": "2026-06-05", "affectedSections": {"amended": ["279C.825","656.506","656.605","656.630"], "repealed": []}}
+    }
+  ]
+}
