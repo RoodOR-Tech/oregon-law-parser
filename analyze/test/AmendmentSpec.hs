@@ -1,7 +1,8 @@
 module AmendmentSpec where
 
 import           Amendment
-import           Data.Time  (fromGregorian)
+import           Data.Time   (UTCTime(..), fromGregorian)
+import           Provenance
 import           Test.Hspec
 
 main :: IO ()
@@ -16,30 +17,43 @@ spec = do
 
   describe "makeBill" $ do
     it "can parse a typical house bill" $ do
-      makeBill "HB 4047" `shouldBe` Bill { billType = HB, billNumber = 4047 }
+      makeBill "HB 4047" `shouldBe` Just (Bill { billType = HB, billNumber = 4047 })
 
     it "can parse a typical senate bill" $ do
-      makeBill "SB 1532" `shouldBe` Bill { billType = SB, billNumber = 1532 }
+      makeBill "SB 1532" `shouldBe` Just (Bill { billType = SB, billNumber = 1532 })
+
+    it "returns Nothing for malformed citations" $ do
+      makeBill "HB nope" `shouldBe` Nothing
 
   describe "findCitation" $ do
     it "can find it in an HB title" $ do
-      findCitation ["AN ACT HB 4047"] `shouldBe` "HB 4047"
+      findCitation ["AN ACT HB 4047"] `shouldBe` Just "HB 4047"
 
     it "can find it in an SB title" $ do
-      findCitation ["AN ACT SB 1234"] `shouldBe` "SB 1234"
+      findCitation ["AN ACT SB 1234"] `shouldBe` Just "SB 1234"
+
+    it "returns Nothing when a citation is absent" $ do
+      findCitation ["AN ACT"] `shouldBe` Nothing
 
   describe "findYear" $ do
     it "returns just the year" $ do
-      findYear ["OREGON LAWS 2016", "Some junk"] `shouldBe` 2016
+      findYear ["OREGON LAWS 2016", "Some junk"] `shouldBe` Just 2016
 
   describe "findChapter" $ do
     it "can find it" $ do
-      findChapter ["Chap. 102"] `shouldBe` 102
+      findChapter ["Chap. 102"] `shouldBe` Just 102
 
   describe "findEffectiveDate" $ do
     it "picks out the right one" $ do
       let ps = ["Nope.", "Approved by the Governor March 3, 2016 Filed in the office of Secretary of State March 3, 2016 Effective date January 17, 2017"]
-      findEffectiveDate ps `shouldBe` fromGregorian 2017 1 17
+      findEffectiveDate ps `shouldBe` Just (fromGregorian 2017 1 17)
+
+    it "returns Nothing when the effective date is absent" $ do
+      findEffectiveDate ["No effective date here"] `shouldBe` Nothing
+
+  describe "findSummary" $ do
+    it "uses Nothing instead of a sentinel string when unavailable" $ do
+      findSummary ["AN ACT HB 1"] `shouldBe` Nothing
 
   describe "findChangedStatutes" $ do
     it "picks out the amended and repealed correctly" $ do
@@ -82,3 +96,32 @@ spec = do
       let validation = reconcileChangeSets emptyChangeSet emptyChangeSet
       validationStatus validation `shouldBe` Incomplete
       titleBodyMatch validation `shouldBe` True
+
+  describe "parseAmendment" $ do
+    it "returns all missing required-field errors instead of throwing" $ do
+      let result = parseAmendment testProvenance ["OREGON LAWS 2026"]
+      case result of
+        Left errors -> do
+          map parseErrorCode errors `shouldContain` [MissingCitation]
+          map parseErrorCode errors `shouldContain` [MissingChapter]
+          map parseErrorCode errors `shouldContain` [MissingEffectiveDate]
+        Right _ -> expectationFailure "Expected structured parse errors"
+
+    it "preserves provenance on successful parses" $ do
+      let ps =
+            [ "OREGON LAWS 2026 Chap. 12 AN ACT HB 4047"
+            , "Relating to speed limits; amending ORS 811.111."
+            , "SECTION 1. ORS 811.111 is amended to read:"
+            , "Effective date January 17, 2027"
+            ]
+      case parseAmendment testProvenance ps of
+        Right amendment -> provenance amendment `shouldBe` testProvenance
+        Left errors -> expectationFailure ("Unexpected parse failure: " ++ show errors)
+
+testProvenance :: Provenance
+testProvenance = Provenance
+  { sourcePath = "fixture.pdf"
+  , sourceUrl = Just "https://example.test/fixture.pdf"
+  , sourceSha256 = replicate 64 'a'
+  , processedAt = UTCTime (fromGregorian 2026 1 1) 0
+  }

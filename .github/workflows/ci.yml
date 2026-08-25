@@ -62,6 +62,8 @@ jobs:
           for fixture in ../fixtures/2022orlaw0001.pdf ../fixtures/2022orlaw0002.pdf; do
             out="$(mktemp)"
             stack exec -- analyze "$fixture" --tika-jar ../tika-app-2.8.0.jar > "$out"
-            jq -e '.year and .chapter and .bill and .affectedSections and .validation' "$out" >/dev/null
+            jq -e '.year and .chapter and .bill and .affectedSections and .validation and .provenance' "$out" >/dev/null
             jq -e '.validation.validationStatus | IN("Verified", "ParsedUnverified", "Conflict", "Incomplete")' "$out" >/dev/null
+            jq -e '.provenance.sourceSha256 | test("^[0-9a-f]{64}$")' "$out" >/dev/null
+            jq -e '.provenance.sourcePath | length > 0' "$out" >/dev/null
           done

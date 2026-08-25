@@ -1,41 +1,38 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
 
 import           Amendment
-import           Control.Arrow.Unicode
-import           Control.Monad
+import           Control.Monad            (when)
+import           Data.Aeson               (object, (.=))
 import           Data.Aeson.Encode.Pretty (encodePretty)
 import qualified Data.ByteString.Lazy     as B
 import           Data.Eq.Unicode
-import           Data.Function            ((&))
 import           GHC.IO.Exception
+import           System.Exit              (exitFailure)
 import           Cli
+import           Provenance               (makeProvenance)
 import           Tika
 
 main ∷ IO ()
 main = do
-  (errCode, rawHTML, stderr') ← runTika =<< getOptions
-  when (errCode ≠ ExitSuccess)
-    (fail stderr')
+  options ← getOptions
+  sourceProvenance ← makeProvenance (inputFilePath options) (sourceUrl options)
+  (errCode, rawHTML, stderr') ← runTika options
 
-  B.putStr (tikaOutputToJson rawHTML)
+  when (errCode ≠ ExitSuccess) $ do
+    emitFailure sourceProvenance
+      [ParseError ExtractionFailed Nothing stderr']
+    exitFailure
 
-tikaOutputToJson ∷ String → B.ByteString
-tikaOutputToJson = paragraphs ⋙ makeAmendment ⋙ encodePretty
+  case parseAmendment sourceProvenance (paragraphs rawHTML) of
+    Right amendment → B.putStr (encodePretty amendment)
+    Left errors → do
+      emitFailure sourceProvenance errors
+      exitFailure
 
-makeAmendment ∷ [String] → Amendment
-makeAmendment phrases =
-  let summaryText = phrases |> findSummary
-      titleChanges = summaryText |> findChangedStatutes
-      bodyChanges = phrases |> findBodyChangedStatutes
-  in Amendment {
-    bill             = phrases |> findCitation |> makeBill,
-    summary          = summaryText,
-    affectedSections = selectBestChangeSet titleChanges bodyChanges,
-    year             = phrases |> findYear,
-    effectiveDate    = phrases |> findEffectiveDate,
-    chapter          = phrases |> findChapter,
-    validation       = reconcileChangeSets titleChanges bodyChanges
-  }
-
--- Function application operator from Elm, F#, and Elixir
-(|>) = (&)
+emitFailure provenanceValue errors =
+  B.putStr (encodePretty (object
+    [ "errors" .= errors
+    , "provenance" .= provenanceValue
+    ]))
