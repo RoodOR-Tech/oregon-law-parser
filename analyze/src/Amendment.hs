@@ -33,6 +33,7 @@ data ValidationStatus
   = Verified
   | ParsedUnverified
   | Conflict
+  | Incomplete
   deriving (Eq, Show, Generic)
 
 data Validation =
@@ -185,7 +186,9 @@ before marker input =
 reconcileChangeSets ∷ ChangeSet → ChangeSet → Validation
 reconcileChangeSets titleChanges bodyChanges =
   let same = titleChanges == bodyChanges
+      bothEmpty = titleChanges == emptyChangeSet && bodyChanges == emptyChangeSet
       status
+        | bothEmpty = Incomplete
         | same = Verified
         | bodyChanges == emptyChangeSet = ParsedUnverified
         | otherwise = Conflict
