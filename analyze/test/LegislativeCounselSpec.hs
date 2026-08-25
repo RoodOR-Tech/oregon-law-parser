@@ -73,6 +73,13 @@ spec = do
       lcValidationStatus (reconcileWithLegislativeCounsel 2026 108 parsed rows)
         `shouldBe` LCNoEvidence
 
+    it "does not treat added-to-only rows as amendment/repeal evidence" $ do
+      let parsed = emptyChangeSet
+          rows = [mkRecord "456.648 to 456.828" LCAddedTo 2026 91 "1"]
+          validation = reconcileWithLegislativeCounsel 2026 91 parsed rows
+      lcValidationStatus validation `shouldBe` LCNoEvidence
+      counselEvidence validation `shouldBe` rows
+
 mkRecord :: String -> LCAction -> Integer -> Integer -> String -> LCRecord
 mkRecord ors action sourceYear chapterNumber lawsSection = LCRecord
   { lcOrsSection = ors
