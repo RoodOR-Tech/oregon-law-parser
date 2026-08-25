@@ -77,6 +77,24 @@ spec = do
       let ps = ["SECTION 7. ORS 475C.770 is amended to read:"]
       findBodyChangedStatutes ps `shouldBe` ChangeSet { amended = ["475C.770"], repealed = [] }
 
+  describe "section evidence" $ do
+    it "retains operative SECTION number, action, source, and evidence text" $ do
+      let evidence = findBodyEvidence ["SECTION 12. ORS 475C.770 is amended to read:"]
+      evidence `shouldBe`
+        [ SectionEvidence
+            { evidenceSectionNumber = "475C.770"
+            , evidenceAction = AmendmentAction
+            , evidenceSource = OperativeBodyEvidence
+            , evidenceSectionClause = Just "12"
+            , evidenceText = "12. ORS 475C.770 is amended to read"
+            }
+        ]
+
+    it "retains title evidence independently from operative evidence" $ do
+      let evidence = findTitleEvidence "Relating to safety; amending ORS 811.111; repealing ORS 811.112."
+      map evidenceSource evidence `shouldBe` [TitleEvidence, TitleEvidence]
+      map evidenceSectionNumber evidence `shouldBe` ["811.111", "811.112"]
+
   describe "reconcileChangeSets" $ do
     it "marks matching independent parses as verified" $ do
       let changes = ChangeSet { amended = ["811.111"], repealed = [] }
@@ -107,7 +125,7 @@ spec = do
           map parseErrorCode errors `shouldContain` [MissingEffectiveDate]
         Right _ -> expectationFailure "Expected structured parse errors"
 
-    it "preserves provenance on successful parses" $ do
+    it "preserves provenance and section evidence on successful parses" $ do
       let ps =
             [ "OREGON LAWS 2026 Chap. 12 AN ACT HB 4047"
             , "Relating to speed limits; amending ORS 811.111."
@@ -115,7 +133,11 @@ spec = do
             , "Effective date January 17, 2027"
             ]
       case parseAmendment testProvenance ps of
-        Right amendment -> provenance amendment `shouldBe` testProvenance
+        Right amendment -> do
+          provenance amendment `shouldBe` testProvenance
+          length (sectionEvidence (validation amendment)) `shouldBe` 2
+          map evidenceSource (sectionEvidence (validation amendment))
+            `shouldContain` [OperativeBodyEvidence]
         Left errors -> expectationFailure ("Unexpected parse failure: " ++ show errors)
 
 testProvenance :: Provenance
