@@ -15,6 +15,15 @@ ALLOWED_HOSTS = {
 }
 
 
+def source_format(data):
+    if data.startswith(b"%PDF"):
+        return "pdf"
+    prefix = data[:4096].lstrip().lower()
+    if prefix.startswith(b"<!doctype html") or prefix.startswith(b"<html") or b"<html" in prefix:
+        return "html"
+    return None
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--candidates", required=True)
@@ -40,12 +49,16 @@ def main():
         except Exception as exc:
             errors.append(f"{doc_id}: download failed: {exc}")
             continue
-        if not data.startswith(b"%PDF"):
-            errors.append(f"{doc_id}: downloaded source is not a PDF")
+
+        fmt = source_format(data)
+        if fmt is None:
+            errors.append(f"{doc_id}: downloaded source is neither PDF nor recognizable HTML")
             continue
+
         results.append({
             "id": doc_id,
             "sourceUrl": source_url,
+            "sourceFormat": fmt,
             "sha256": hashlib.sha256(data).hexdigest(),
             "bytes": len(data),
         })
