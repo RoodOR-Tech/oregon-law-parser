@@ -24,14 +24,14 @@ jobs:
         run: |
           set -euo pipefail
           python3 tools/hash_gold_sources.py \
-            --candidates gold/pending/pr8-candidates.json \
-            --report pr8-source-hashes.json
-          jq -e '.valid == true and (.documents | length == 8) and ([.documents[].sha256 | test("^[0-9a-f]{64}$")] | all)' pr8-source-hashes.json >/dev/null
+            --candidates gold/pending/pr9-candidates.json \
+            --report pr9-source-hashes.json
+          jq -e '.valid == true and (.documents | length == 5) and ([.documents[].sha256 | test("^[0-9a-f]{64}$")] | all)' pr9-source-hashes.json >/dev/null
 
       - name: Upload source hash report
         uses: actions/upload-artifact@v4
         with:
-          name: pr8-source-hashes
-          path: pr8-source-hashes.json
+          name: pr9-source-hashes
+          path: pr9-source-hashes.json
           if-no-files-found: error
           retention-days: 30
