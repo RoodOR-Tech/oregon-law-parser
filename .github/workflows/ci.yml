@@ -4,13 +4,12 @@ on:
   push:
     branches:
       - master
-      - hardening/**
   pull_request:
     branches:
       - master
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
