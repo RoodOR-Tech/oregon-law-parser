@@ -19,6 +19,24 @@ def sha256_bytes(data):
     return hashlib.sha256(data).hexdigest()
 
 
+def source_format(data):
+    if data.startswith(b"%PDF"):
+        return "pdf"
+    prefix = data[:4096].lstrip().lower()
+    if prefix.startswith(b"<!doctype html") or prefix.startswith(b"<html") or b"<html" in prefix:
+        return "html"
+    return None
+
+
+def expected_format(fixture):
+    suffix = fixture.suffix.lower()
+    if suffix == ".pdf":
+        return "pdf"
+    if suffix in {".html", ".htm"}:
+        return "html"
+    return None
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--manifest", required=True)
@@ -37,9 +55,13 @@ def main():
         source_url = item["sourceUrl"]
         expected_hash = item.get("sourceSha256")
         host = urlparse(source_url).hostname
+        fixture_format = expected_format(fixture)
 
         if host not in ALLOWED_HOSTS:
             errors.append(f'{item["id"]}: source host not allowlisted: {host!r}')
+            continue
+        if fixture_format is None:
+            errors.append(f'{item["id"]}: unsupported fixture extension: {fixture.suffix!r}')
             continue
 
         if fixture.exists():
@@ -55,12 +77,23 @@ def main():
             except Exception as exc:
                 errors.append(f'{item["id"]}: download failed: {exc}')
                 continue
-            if not data.startswith(b"%PDF"):
-                errors.append(f'{item["id"]}: downloaded source is not a PDF')
+
+            actual_format = source_format(data)
+            if actual_format != fixture_format:
+                errors.append(
+                    f'{item["id"]}: downloaded source format {actual_format!r} does not match fixture format {fixture_format!r}'
+                )
                 continue
             digest = sha256_bytes(data)
             fixture.write_bytes(data)
             status = "downloaded"
+
+        actual_format = source_format(data)
+        if actual_format != fixture_format:
+            errors.append(
+                f'{item["id"]}: fixture format {actual_format!r} does not match expected format {fixture_format!r}'
+            )
+            continue
 
         if expected_hash and digest != expected_hash:
             errors.append(f'{item["id"]}: SHA-256 mismatch: expected {expected_hash}, got {digest}')
@@ -68,6 +101,7 @@ def main():
         acquired.append({
             "id": item["id"],
             "fixture": item["fixture"],
+            "sourceFormat": actual_format,
             "status": status,
             "sha256": digest,
             "hashPinned": bool(expected_hash),
