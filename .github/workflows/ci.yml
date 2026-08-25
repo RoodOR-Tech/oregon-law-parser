@@ -67,3 +67,24 @@ jobs:
             jq -e '.provenance.sourceSha256 | test("^[0-9a-f]{64}$")' "$out" >/dev/null
             jq -e '.provenance.sourcePath | length > 0' "$out" >/dev/null
           done
+
+      - name: Evaluate gold-standard corpus
+        run: |
+          set -euo pipefail
+          mkdir -p ../gold-results
+          while IFS=$'\t' read -r id fixture source_url; do
+            stack exec -- analyze "../$fixture" --tika-jar ../tika-app-2.8.0.jar --source-url "$source_url" > "../gold-results/$id.json"
+          done < <(jq -r '.documents[] | [.id, .fixture, .sourceUrl] | @tsv' ../gold/manifest.json)
+          python3 ../tools/evaluate_gold.py \
+            --manifest ../gold/manifest.json \
+            --results-dir ../gold-results \
+            --report ../gold-quality-report.json
+
+      - name: Upload gold quality report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gold-quality-report
+          path: gold-quality-report.json
+          if-no-files-found: warn
+          retention-days: 30

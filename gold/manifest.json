@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "reviewStatus": "seed-non-certifying",
+  "releaseCertificationMinimumDocuments": 50,
+  "qualityTargets": {
+    "sectionPrecision": 0.999,
+    "sectionRecall": 0.995,
+    "metadataExactMatch": 1.0
+  },
+  "documents": [
+    {
+      "id": "2022orlaw0002",
+      "fixture": "fixtures/2022orlaw0002.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orlaw0002.pdf",
+      "reviewBasis": "Manually verified against Oregon Laws 2022 chapter 2 session law",
+      "expected": {
+        "year": 2022,
+        "chapter": 2,
+        "bill": {"billType": "HB", "billNumber": 4015},
+        "effectiveDate": "2022-03-02",
+        "affectedSections": {
+          "amended": ["285B.746", "285B.749", "285B.753"],
+          "repealed": []
+        }
+      }
+    }
+  ]
+}
