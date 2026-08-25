@@ -14,59 +14,40 @@ The first pass also added Oregon Legislative Counsel reconciliation scaffolding 
 
 ## Pass 2 — provenance and structured failures
 
-The second pass removed crash-oriented parsing from the production path and made source identity explicit.
-
-### Provenance
-
-Successful parser output includes a `provenance` object with:
-- `sourcePath`: input PDF path
-- `sourceUrl`: optional canonical URL supplied with `--source-url`
-- `sourceSha256`: SHA-256 digest of the exact input PDF bytes
-- `processedAt`: UTC processing timestamp
-
-### Structured parse failures
-
-Required metadata extractors return `Maybe` values instead of throwing `error`. The production parser aggregates missing or invalid fields into typed `ParseError` values. When parsing fails, the CLI emits JSON containing `errors` plus `provenance` and exits non-zero. Missing summaries are represented as JSON `null`.
+The second pass removed crash-oriented parsing from the production path and made source identity explicit. Successful output includes source path, optional canonical URL, SHA-256 digest, and processing timestamp. Required metadata parsing now returns structured errors rather than terminating through `error` calls.
 
 ## Pass 3 — Legislative Counsel ingestion and section evidence
 
-This pass makes both parser evidence and independent LC evidence inspectable.
+The third pass made both parser evidence and independent LC evidence inspectable. Validation includes section-level title/body evidence, while typed LC CSV ingestion preserves source year, chapter, Oregon Laws section, source URL, volume, and action. `added_to` evidence is retained without being misclassified as amendment/repeal verification.
 
-### Section-level parser evidence
+## Pass 4 — gold-standard corpus and measurable quality gates
 
-The validation payload now includes `sectionEvidence` records. Each record preserves:
-- the affected ORS section number;
-- amendment or repeal action;
-- whether the evidence came from the title or operative body;
-- the Oregon Laws `SECTION` number when the operative body supplied the evidence; and
-- the normalized text that triggered the extraction.
+The fourth pass introduces a fixed gold corpus under `gold/` plus a deterministic evaluator under `tools/evaluate_gold.py`.
 
-This allows a `Conflict` to be reviewed against the exact parser evidence rather than only comparing final section sets.
+### Gold-label discipline
 
-### Legislative Counsel CSV ingestion
+Gold expectations must be independently reviewed against the underlying Oregon Laws document or another authoritative source. They must never be generated from the parser being evaluated.
 
-`LegislativeCounsel` now provides `loadLCRecords` and `decodeLCRecords` for the normalized LC CSV contract under `data/legislative-counsel/`. Ingestion uses typed CSV decoding and fails closed on malformed rows or unsupported action values.
+The seed corpus begins with Oregon Laws 2022 chapter 2, manually labeled for required metadata and ORS amendment/repeal actions.
 
-Each LC record preserves:
-- ORS section/range;
-- action (`amended`, `repealed`, or `added_to`);
-- Oregon Laws year, chapter, and section;
-- LC source URL; and
-- ORS source volume.
+### CI quality metrics
 
-Reconciliation remains scoped by both year and chapter. `added_to` rows are retained as evidence but are not counted as amendment/repeal evidence and therefore cannot independently produce `LCVerified` or `LCConflict`.
+CI now parses every manifest document and computes micro-averaged metrics over `(action, ORS section)` pairs:
 
-### Validation posture
+- section precision target: **>= 99.9%**
+- section recall target: **>= 99.5%**
+- required metadata exact-match target: **100%**
 
-The parser now has three independent audit layers:
-1. title/summary extraction;
-2. operative-body extraction with section-level evidence; and
-3. Legislative Counsel amendment/repeal reconciliation with retained LC records.
+A `gold-quality-report` artifact records true positives, false positives, false negatives, per-document discrepancies, measured rates, and target thresholds.
+
+### Certification maturity
+
+A passing quality gate only means the parser matches the currently reviewed corpus. The report separately exposes `releaseCertifying`; this remains false until at least 50 independently reviewed laws are present and all thresholds pass. The longer-term target remains 250-500 documents spanning regular and special sessions and known structural edge cases.
 
 ## Remaining reliability work
 
-1. Populate complete normalized LC datasets from the official update tables instead of the representative sample file.
-2. Build a gold-standard corpus spanning sessions, special sessions, page layouts, repeals, amendments, added-to ranges, uncodified provisions, and known extraction edge cases.
-3. Add page-level evidence coordinates when the extraction layer exposes reliable page boundaries.
-4. Add precision/recall release gates and conflict-review reports.
+1. Expand the gold corpus to at least 50 independently reviewed laws, then toward 250-500.
+2. Populate complete normalized LC datasets from official update tables and use them to accelerate independent corpus review.
+3. Add conflict-review reporting that joins parser evidence, LC evidence, and gold expectations.
+4. Add page-level evidence coordinates when extraction exposes reliable page boundaries.
 5. Replace remaining heuristic text cleanup, especially aggressive hyphen repair, with layout-aware normalization.
