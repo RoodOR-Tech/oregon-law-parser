@@ -40,7 +40,18 @@ jobs:
             ${{ runner.os }}-stack-
 
       - name: Build and run unit tests
-        run: stack test --no-terminal
+        run: |
+          set -o pipefail
+          stack test --no-terminal 2>&1 | tee stack-test.log
+
+      - name: Upload unit-test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stack-test-log
+          path: analyze/stack-test.log
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Build executable
         run: stack build --no-terminal
