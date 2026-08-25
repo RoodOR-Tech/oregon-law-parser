@@ -15,6 +15,15 @@ At minimum, review:
 - ORS sections repealed
 - unusual operative-section structure that could affect extraction
 
+Every admitted gold entry must also include:
+
+- `reviewStatus: "independently-reviewed"`
+- `reviewSources`: one or more authoritative Oregon legislative sources used for verification
+- `reviewBasis`: an explanation of the independent verification, including non-obvious negative controls or uncodified-law changes
+- `caseTags`: coverage characteristics exercised by the document
+
+CI runs `tools/validate_gold_manifest.py` before scoring the corpus. It rejects missing fixtures, undocumented review status, duplicate document IDs, duplicate expected section labels, missing expected metadata, and review sources outside approved Oregon legislative domains.
+
 ## Quality metrics
 
 The evaluator treats `(action, ORS section)` as the classification unit and computes micro-averaged precision and recall across the corpus.
@@ -29,14 +38,16 @@ A CI run fails if the current corpus falls below those thresholds.
 
 ## Certification maturity
 
-The initial corpus is deliberately marked `seed-non-certifying`. A green quality gate means the parser matches all reviewed examples currently in the corpus; it does **not** by itself establish production-grade accuracy.
+The corpus remains non-certifying while it is being expanded. A green quality gate means the parser matches all reviewed examples currently in the corpus; it does **not** by itself establish production-grade accuracy.
 
 `releaseCertifying` remains false until the manifest contains at least **50 independently reviewed session laws** and all quality thresholds pass. The longer-term target is 250-500 laws spanning regular and special sessions, amendments, repeals, lettered ORS chapters, session-law cross-references, added-to provisions, unusual layouts, and known extraction edge cases.
+
+See `CORPUS_PLAN.md` for the 50-law stratified sampling targets.
 
 ## Adding a document
 
 1. Add the source PDF under `fixtures/` or another stable corpus location.
-2. Verify the law against an authoritative Oregon source.
-3. Add one manifest entry with a stable `id`, fixture path, authoritative source URL, review basis, and expected output.
-4. Run CI and inspect the retained `gold-quality-report` artifact.
+2. Verify the law against authoritative Oregon legislative sources independent of parser output.
+3. Add one manifest entry with a stable `id`, fixture path, authoritative source URL, review status, review sources, review basis, case tags, and expected output.
+4. Run CI and inspect the retained `gold-manifest-validation`, `gold-quality-report`, and conflict-review artifacts.
 5. If parser output differs, resolve the parser or gold-label error explicitly; never update gold labels merely to make CI pass.
