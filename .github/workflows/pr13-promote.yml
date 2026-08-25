@@ -1,0 +1,59 @@
+name: PR13 one-shot gold promotion
+
+on:
+  push:
+    branches:
+      - hardening/adversarial-gold-batch-6
+    paths:
+      - '.github/workflows/pr13-promote.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: hardening/adversarial-gold-batch-6
+          fetch-depth: 0
+      - name: Promote reviewed PR13 candidates
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest_path = Path('gold/manifest.json')
+          pending_path = Path('gold/pending/pr13-candidates.json')
+          manifest = json.loads(manifest_path.read_text())
+          pending = json.loads(pending_path.read_text())
+          hashes = {
+              '2016orlaw0024': 'e1080c2eff40bea36f38d3d922105360cc3238ec4e8419a741418fb6f156a094',
+              '2016orlaw0083': 'ac41f028792a0df388d8794532b3f53d60b896eb94c79456f16e4dcfe4013cee',
+              '2016orlaw0121': '99391b7cb45bb3e0ef99b76a24a9b6e1d1e4747a8e3669c15681dffc0817c26a',
+          }
+          existing = {d['id'] for d in manifest['documents']}
+          for doc in pending['documents']:
+              if doc['id'] in existing:
+                  continue
+              if doc['id'] not in hashes:
+                  raise SystemExit(f"missing pinned hash for {doc['id']}")
+              promoted = dict(doc)
+              promoted['sourceSha256'] = hashes[doc['id']]
+              promoted['reviewStatus'] = 'independently-reviewed'
+              # Keep provenance fields and expectations unchanged.
+              manifest['documents'].append(promoted)
+          ids = [d['id'] for d in manifest['documents']]
+          if len(ids) != len(set(ids)):
+              raise SystemExit('duplicate document ids after promotion')
+          if len(manifest['documents']) != 34:
+              raise SystemExit(f"expected 34 documents, found {len(manifest['documents'])}")
+          manifest_path.write_text(json.dumps(manifest, indent=2) + '\n')
+          PY
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add gold/manifest.json
+          git diff --cached --quiet && exit 0
+          git commit -m 'Promote PR13 reviewed laws into gold corpus'
+          git push origin HEAD:hardening/adversarial-gold-batch-6
