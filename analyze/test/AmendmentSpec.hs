@@ -77,3 +77,8 @@ spec = do
       let titleChanges = ChangeSet { amended = ["811.111"], repealed = [] }
       selectBestChangeSet titleChanges emptyChangeSet `shouldBe` titleChanges
       validationStatus (reconcileChangeSets titleChanges emptyChangeSet) `shouldBe` ParsedUnverified
+
+    it "marks a complete lack of parser evidence as incomplete" $ do
+      let validation = reconcileChangeSets emptyChangeSet emptyChangeSet
+      validationStatus validation `shouldBe` Incomplete
+      titleBodyMatch validation `shouldBe` True
