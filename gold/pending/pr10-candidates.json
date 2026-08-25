@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "purpose": "PR #10 staging file. Expectations are independently reviewed against authoritative Oregon session-law text and are not admitted to the gold corpus until source hashes are pinned.",
+  "documents": [
+    {
+      "id": "2021orlaw0159",
+      "fixture": "gold-fixtures/2021orlaw0159.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021orlaw0159.pdf",
+      "caseTags": ["single-ors-amendment", "positive-control", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2021 chapter 159. HB 2549 amends only ORS 273.500. The chapter footer records an effective date of September 25, 2021.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021orlaw0159.pdf"],
+      "expected": {"year": 2021, "chapter": 159, "bill": {"billType": "HB", "billNumber": 2549}, "effectiveDate": "2021-09-25", "affectedSections": {"amended": ["273.500"], "repealed": []}}
+    },
+    {
+      "id": "2021s2orlaw0001",
+      "fixture": "gold-fixtures/2021S2OrLaws0001.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021S2OrLaws0001.pdf",
+      "caseTags": ["special-session", "negative-control", "no-ors-change", "uncodified-session-law-amendment", "prior-session-law-cross-reference", "incidental-ors-citations", "degraded-layout", "emergency-clause", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2021 second special session chapter 1. SB 891 amends only sections of prior Oregon Laws chapters, not ORS sections, even though the amended text contains many ORS citations and references to earlier ORS amendments. The published PDF/Tika text contains repeated soft-hyphen/control-artifact line breaks, making this a useful extraction-layout negative control. The emergency clause and footer establish the December 14, 2021 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021S2OrLaws0001.pdf"],
+      "expected": {"year": 2021, "chapter": 1, "bill": {"billType": "SB", "billNumber": 891}, "effectiveDate": "2021-12-14", "affectedSections": {"amended": [], "repealed": []}}
+    },
+    {
+      "id": "2024orlaw0048",
+      "fixture": "gold-fixtures/2024orlaw0048.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0048.pdf",
+      "caseTags": ["single-ors-amendment", "mixed-amendment-repeal", "ors-repeal", "act-section-repeal", "emergency-clause", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2024 chapter 48. SB 1509 expressly repeals ORS 508.792 and amends ORS 508.778, while section 4 separately repeals section 3 of the 2024 Act and must not be labeled as an ORS repeal. The emergency clause and footer establish the March 27, 2024 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0048.pdf"],
+      "expected": {"year": 2024, "chapter": 48, "bill": {"billType": "SB", "billNumber": 1509}, "effectiveDate": "2024-03-27", "affectedSections": {"amended": ["508.778"], "repealed": ["508.792"]}}
+    },
+    {
+      "id": "2023orlaw0507",
+      "fixture": "gold-fixtures/2023orlaw0507.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2023orlaw0507.pdf",
+      "caseTags": ["multiple-ors-amendments", "mixed-amendment-repeal", "ors-repeal", "added-to-provision", "large-document", "act-section-repeal", "emergency-clause", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2023 chapter 507. HB 2697 amends thirteen ORS sections and expressly repeals ORS 441.157. Section 32 also repeals section 15 of the 2023 Act, which is not an ORS repeal. The Act contains extensive added-to and operative-date provisions; section 35 and the chapter footer establish the September 1, 2023 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2023orlaw0507.pdf"],
+      "expected": {"year": 2023, "chapter": 507, "bill": {"billType": "HB", "billNumber": 2697}, "effectiveDate": "2023-09-01", "affectedSections": {"amended": ["441.020", "441.151", "441.152", "441.154", "441.155", "441.156", "441.164", "441.165", "441.171", "441.173", "441.175", "441.177", "653.261"], "repealed": ["441.157"]}}
+    }
+  ]
+}
