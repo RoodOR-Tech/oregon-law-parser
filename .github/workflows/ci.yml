@@ -45,7 +45,7 @@ jobs:
           stack test --no-terminal 2>&1 | tee stack-test.log
 
       - name: Test review tooling
-        run: python3 ../tools/test_build_conflict_report.py
+        run: python3 ../tools/test_build_conflict_report.py -v
 
       - name: Upload unit-test log
         if: always()
