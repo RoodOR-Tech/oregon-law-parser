@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "purpose": "PR #12 staging file. Expectations are independently reviewed against authoritative Oregon session-law text and are not admitted to the gold corpus until source hashes are pinned.",
+  "documents": [
+    {
+      "id": "2017orlaw0145",
+      "fixture": "gold-fixtures/2017orlaw0145.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0145.pdf",
+      "caseTags": ["single-ors-amendment", "positive-control", "incidental-ors-citations", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2017 chapter 145. HB 2090 expressly amends only ORS 646.607; the replacement text contains numerous incidental ORS citations that are not themselves amended. The chapter footer establishes the January 1, 2018 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0145.pdf"],
+      "expected": {"year": 2017, "chapter": 145, "bill": {"billType": "HB", "billNumber": 2090}, "effectiveDate": "2018-01-01", "affectedSections": {"amended": ["646.607"], "repealed": []}}
+    },
+    {
+      "id": "2017orlaw0519",
+      "fixture": "gold-fixtures/2017orlaw0519.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0519.pdf",
+      "caseTags": ["single-ors-amendment", "positive-control", "incidental-ors-citations", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2017 chapter 519. SB 257 expressly amends only ORS 162.415; references to ORS 162.405, 163A.005 and 136.427 occur inside replacement text and are not operative amendments. The chapter footer establishes the January 1, 2018 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0519.pdf"],
+      "expected": {"year": 2017, "chapter": 519, "bill": {"billType": "SB", "billNumber": 257}, "effectiveDate": "2018-01-01", "affectedSections": {"amended": ["162.415"], "repealed": []}}
+    },
+    {
+      "id": "2017orlaw0123",
+      "fixture": "gold-fixtures/2017orlaw0123.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0123.pdf",
+      "caseTags": ["single-ors-amendment", "positive-control", "incidental-ors-citations", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2017 chapter 123. HB 3176 expressly amends only ORS 137.090; several other ORS references occur solely in the replacement text. The chapter footer establishes the January 1, 2018 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0123.pdf"],
+      "expected": {"year": 2017, "chapter": 123, "bill": {"billType": "HB", "billNumber": 3176}, "effectiveDate": "2018-01-01", "affectedSections": {"amended": ["137.090"], "repealed": []}}
+    },
+    {
+      "id": "2017orlaw0033",
+      "fixture": "gold-fixtures/2017orlaw0033.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0033.pdf",
+      "caseTags": ["single-ors-amendment", "positive-control", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2017 chapter 33. HB 2123 expressly amends only ORS 179.580. The one-page chapter footer establishes the January 1, 2018 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0033.pdf"],
+      "expected": {"year": 2017, "chapter": 33, "bill": {"billType": "HB", "billNumber": 2123}, "effectiveDate": "2018-01-01", "affectedSections": {"amended": ["179.580"], "repealed": []}}
+    },
+    {
+      "id": "2018orlaw0087",
+      "fixture": "gold-fixtures/2018orlaw0087.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2018orlaw0087.pdf",
+      "caseTags": ["negative-control", "no-ors-change", "uncodified-session-law-amendment", "incidental-ors-citations", "emergency-clause", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2018 chapter 87. SB 5702 amends only sections of prior Oregon Laws chapters and enacts new uncodified financing provisions. Numerous ORS citations occur within those provisions, but no ORS section is operatively amended or repealed. The emergency clause and footer establish the April 3, 2018 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2018orlaw0087.pdf"],
+      "expected": {"year": 2018, "chapter": 87, "bill": {"billType": "SB", "billNumber": 5702}, "effectiveDate": "2018-04-03", "affectedSections": {"amended": [], "repealed": []}}
+    },
+    {
+      "id": "2019orlaw0099",
+      "fixture": "gold-fixtures/2019orlaw0099.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2019orlaw0099.pdf",
+      "caseTags": ["negative-control", "no-ors-change", "uncodified-session-law-amendment", "prior-session-law-cross-reference", "incidental-ors-citations", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2019 chapter 99. HB 2067 amends two uncodified sections from earlier Oregon Laws chapters and does not operatively amend or repeal any ORS section, despite multiple ORS citations inside the amended text. Section 3 and the footer establish the September 29, 2019 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2019orlaw0099.pdf"],
+      "expected": {"year": 2019, "chapter": 99, "bill": {"billType": "HB", "billNumber": 2067}, "effectiveDate": "2019-09-29", "affectedSections": {"amended": [], "repealed": []}}
+    }
+  ]
+}
