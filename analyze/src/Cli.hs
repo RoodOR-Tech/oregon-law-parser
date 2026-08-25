@@ -11,7 +11,8 @@ data Options =
   Options {
     inputFilePath  ∷ FilePath,
     tikaJarPath    ∷ Maybe FilePath,
-    javaExecutable ∷ String
+    javaExecutable ∷ String,
+    sourceUrl      ∷ Maybe String
   } deriving (Show)
 
 
@@ -32,16 +33,21 @@ optionsP =
   Options
   <$> argument str
      ( metavar "FILENAME"
-    <> help    "Path to .PFD-file" )
+    <> help    "Path to .PDF file" )
   <*> optional
      ( strOption
         ( short   't'
        <> long    "tika-jar"
        <> metavar "PATH_TO_JAR"
-       <> help    "Path to Tika's .JAR-file" ) )
+       <> help    "Path to Tika's .JAR file" ) )
   <*> strOption
      ( short   'j'
     <> long    "java-executable"
     <> value   "java"
     <> metavar "JAVA_EXECUTABLE"
-    <> help    "Name of Java exacutable" )
+    <> help    "Name of Java executable" )
+  <*> optional
+     ( strOption
+        ( long    "source-url"
+       <> metavar "URL"
+       <> help    "Canonical source URL for provenance" ) )
