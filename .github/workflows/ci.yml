@@ -44,6 +44,9 @@ jobs:
           set -o pipefail
           stack test --no-terminal 2>&1 | tee stack-test.log
 
+      - name: Test review tooling
+        run: python3 ../tools/test_build_conflict_report.py -v
+
       - name: Upload unit-test log
         if: always()
         uses: actions/upload-artifact@v4
@@ -80,11 +83,34 @@ jobs:
             --results-dir ../gold-results \
             --report ../gold-quality-report.json
 
+      - name: Build conflict review report
+        if: always()
+        run: |
+          set -euo pipefail
+          if [[ -f ../gold-quality-report.json && -d ../gold-results ]]; then
+            python3 ../tools/build_conflict_report.py \
+              --manifest ../gold/manifest.json \
+              --results-dir ../gold-results \
+              --quality-report ../gold-quality-report.json \
+              --lc-csv ../data/legislative-counsel/2026-sample.csv \
+              --report ../conflict-review-report.json
+            jq -e '.schemaVersion == 1 and (.reviewCaseCount >= 0) and (.cases | type == "array")' ../conflict-review-report.json >/dev/null
+          fi
+
       - name: Upload gold quality report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: gold-quality-report
           path: gold-quality-report.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload conflict review report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: conflict-review-report
+          path: conflict-review-report.json
           if-no-files-found: warn
           retention-days: 30
