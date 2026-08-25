@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "purpose": "PR #11 staging file. Expectations are independently reviewed against authoritative Oregon session-law text and are not admitted to the gold corpus until source hashes are pinned.",
+  "documents": [
+    {
+      "id": "2020s2orlaw0001",
+      "fixture": "gold-fixtures/2020S2OrLaws0001.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2020S2OrLaws0001.pdf",
+      "caseTags": ["special-session", "single-ors-amendment", "duplicate-ors-amendment-paths", "positive-control", "degraded-layout", "emergency-clause", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2020 second special session chapter 1. SB 1701 amends only ORS 657.150, first in section 1 and again in section 3 for a later operative period, so the expected ORS amendment set deduplicates to one section. The published PDF extraction contains repeated embedded line-break/control artifacts in hyphenated words, providing a degraded-layout control. The emergency clause and chapter footer establish the September 1, 2020 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2020S2OrLaws0001.pdf"],
+      "expected": {"year": 2020, "chapter": 1, "bill": {"billType": "SB", "billNumber": 1701}, "effectiveDate": "2020-09-01", "affectedSections": {"amended": ["657.150"], "repealed": []}}
+    },
+    {
+      "id": "2020s1orlaw0010",
+      "fixture": "gold-fixtures/2020S1OrLaws0010.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2020S1OrLaws0010.pdf",
+      "caseTags": ["special-session", "mixed-amendment-repeal", "multiple-ors-amendments", "ors-repeal", "degraded-layout", "emergency-clause", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2020 first special session chapter 10. HB 4210 amends six ORS sections and repeals ORS 809.210. The published PDF extraction contains frequent embedded control characters at visual hyphenation points across the title and operative text, providing a second degraded-layout stress case. The emergency clause and chapter footer establish the June 30, 2020 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2020S1OrLaws0010.pdf"],
+      "expected": {"year": 2020, "chapter": 10, "bill": {"billType": "HB", "billNumber": 4210}, "effectiveDate": "2020-06-30", "affectedSections": {"amended": ["807.010", "807.120", "809.380", "809.415", "809.416", "809.515"], "repealed": ["809.210"]}}
+    },
+    {
+      "id": "2020s2orlaw0003",
+      "fixture": "gold-fixtures/2020S2OrLaws0003.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2020S2OrLaws0003.pdf",
+      "caseTags": ["special-session", "mixed-amendment-repeal", "same-ors-amended-and-repealed", "multiple-ors-amendments", "ors-repeal", "prior-session-law-cross-reference", "emergency-clause", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2020 second special session chapter 3. HB 4301 amends ten ORS sections and later repeals ORS 161.235 and ORS 161.239. ORS 161.239 is deliberately present in both the amendment and repeal sets because section 3 amends it and section 17 later repeals it, making this an adversarial same-section dual-action case. A separate first-special-session section is also amended but is not an ORS label. The emergency clause and footer establish the September 1, 2020 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2020S2OrLaws0003.pdf"],
+      "expected": {"year": 2020, "chapter": 3, "bill": {"billType": "HB", "billNumber": 4301}, "effectiveDate": "2020-09-01", "affectedSections": {"amended": ["133.235", "133.245", "161.205", "161.239", "161.245", "161.265", "161.267", "426.080", "471.775", "475B.299"], "repealed": ["161.235", "161.239"]}}
+    },
+    {
+      "id": "2019orlaw0675",
+      "fixture": "gold-fixtures/2019orlaw0675.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2019orlaw0675.pdf",
+      "caseTags": ["multiple-ors-amendments", "ors-repeal", "prior-session-law-cross-reference", "uncodified-session-law-repeal", "large-document", "degraded-layout", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2019 chapter 675. SB 224 amends twenty-six ORS sections, repeals ORS 248.010, and separately amends earlier session-law sections while conditionally repealing numerous sections of chapter 70, Oregon Laws 2019; those uncodified repeals are not ORS labels. The older two-column PDF and extracted text contain extensive hard line wrapping and split-word artifacts. Section 35 and the chapter footer establish the September 29, 2019 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2019orlaw0675.pdf"],
+      "expected": {"year": 2019, "chapter": 675, "bill": {"billType": "SB", "billNumber": 224}, "effectiveDate": "2019-09-29", "affectedSections": {"amended": ["171.062", "246.021", "247.013", "247.940", "247.945", "247.965", "248.015", "248.017", "248.023", "248.024", "248.026", "248.029", "248.033", "248.035", "248.043", "249.013", "249.035", "249.037", "249.068", "249.072", "249.078", "249.865", "253.540", "253.565", "254.155", "255.012"], "repealed": ["248.010"]}}
+    }
+  ]
+}
