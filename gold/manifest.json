@@ -8,36 +8,1466 @@
     "metadataExactMatch": 1.0
   },
   "documents": [
-    {"id":"2022orlaw0001","fixture":"fixtures/2022orlaw0001.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orlaw0001.pdf","sourceSha256":"83527ffb467663cb6d9fde8647575942d727e8f41c78f61e368e8f89133d93a0","reviewStatus":"independently-reviewed","caseTags":["negative-control","uncodified-session-law-amendment","emergency-clause","no-ors-change"],"reviewBasis":"Independently verified against the enrolled HB 4014 text, OLIS chapter assignment, the 2022 Oregon Laws A&R table, and the House Journal signing notice. The Act amends section 1, chapter 544, Oregon Laws 2021 rather than an ORS section; therefore the expected ORS amendment/repeal set is empty. The emergency clause makes the Act effective on passage, and the Governor signing notice records March 2, 2022.","reviewSources":["https://olis.oregonlegislature.gov/liz/2022R1/Downloads/MeasureDocument/HB4014","https://olis.oregonlegislature.gov/liz/2022R1/Measures/Overview/HB4014","https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022OrLawAR.pdf","https://www.oregonlegislature.gov/chief-clerk/Documents/2022%20Regular%20Session%20Journal.pdf"],"expected":{"year":2022,"chapter":1,"bill":{"billType":"HB","billNumber":4014},"effectiveDate":"2022-03-02","affectedSections":{"amended":[],"repealed":[]}}},
-    {"id":"2022orlaw0002","fixture":"fixtures/2022orlaw0002.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orlaw0002.pdf","sourceSha256":"1a20a49386b2659e656b431d45cf0dbdc961093b556d6bca52094dc3b68376e3","reviewStatus":"independently-reviewed","caseTags":["multiple-ors-amendments","emergency-clause","positive-control"],"reviewBasis":"Manually verified against Oregon Laws 2022 chapter 2 session law and authoritative Oregon legislative metadata.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orlaw0002.pdf"],"expected":{"year":2022,"chapter":2,"bill":{"billType":"HB","billNumber":4015},"effectiveDate":"2022-03-02","affectedSections":{"amended":["285B.746","285B.749","285B.753"],"repealed":[]}}},
-    {"id":"2022orlaw0033","fixture":"gold-fixtures/2022orlaw0033.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orLaw0033.pdf","sourceSha256":"893027a13893d63cd05346b037eb3bdb9b85675497379012d6076e89fb53909c","reviewStatus":"independently-reviewed","caseTags":["conditional-amendments","duplicate-ors-amendment-paths","act-section-repeals","false-repeal-control","multiple-ors-amendments","emergency-clause","remote-acquisition"],"reviewBasis":"Independently verified against Oregon Laws 2022 chapter 33 and the official 2022 Oregon Laws amended-and-repealed table. SB 1501 amends twelve ORS sections through its primary amendment sections and again through conditional fallback amendments in sections 65 through 76, and separately amends ORS 105.810 as a conforming amendment in section 77. Section 60 conditionally repeals numerous sections of the 2022 Act, not ORS sections. The expected ORS set therefore contains thirteen unique amended sections and no ORS repeals. The emergency clause made the Act effective March 17, 2022.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orLaw0033.pdf","https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022OrLawAR.pdf"],"expected":{"year":2022,"chapter":33,"bill":{"billType":"SB","billNumber":1501},"effectiveDate":"2022-03-17","affectedSections":{"amended":["105.810","195.308","496.252","496.254","527.620","527.630","527.680","527.685","527.714","527.990","527.992","610.060","610.105"],"repealed":[]}}},
-    {"id":"2022orlaw0092","fixture":"gold-fixtures/2022orlaw0092.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orLaw0092.pdf","sourceSha256":"810c9b80baf5b734278566b9d9e9ba931c30390da2d6ee99c607feed7aaad6cb","reviewStatus":"independently-reviewed","caseTags":["multiple-ors-amendments","incidental-ors-citations","temporary-section-repeal","false-repeal-control","emergency-clause","remote-acquisition"],"reviewBasis":"Independently verified against Oregon Laws 2022 chapter 92 and the official 2022 Oregon Laws amended-and-repealed table. Sections 8 through 14 expressly amend seven ORS sections; section 16 repeals only section 15 of the 2022 Act and therefore must not be classified as an ORS repeal. The Act is SB 1549 and took effect March 23, 2022.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orLaw0092.pdf","https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022OrLawAR.pdf"],"expected":{"year":2022,"chapter":92,"bill":{"billType":"SB","billNumber":1549},"effectiveDate":"2022-03-23","affectedSections":{"amended":["658.015","676.565","676.579","676.590","676.613","676.622","676.625"],"repealed":[]}}},
-    {"id":"2026orlaw0011","fixture":"gold-fixtures/2026orlaw0011.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orlaw0011.pdf","sourceSha256":"9e004d28f68c1357660d45463a5485fcc9237ab792191933299980a13370982f","reviewStatus":"independently-reviewed","caseTags":["single-ors-amendment","positive-control","incidental-ors-citations","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2026 chapter 11. The title identifies HB 4029 and one ORS amendment, and section 7 expressly amends ORS 646.608. Numerous other ORS citations occur inside the new solar-contract provisions but are not themselves amended. Section 9 and the chapter footer establish the June 5, 2026 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orlaw0011.pdf"],"expected":{"year":2026,"chapter":11,"bill":{"billType":"HB","billNumber":4029},"effectiveDate":"2026-06-05","affectedSections":{"amended":["646.608"],"repealed":[]}}},
-    {"id":"2026orlaw0108","fixture":"gold-fixtures/2026orlaw0108.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orlaw0108.pdf","sourceSha256":"7619ed65e47d48c35d2c13919d9c7be739e1dd903374dadf93f164f8036eac9e","reviewStatus":"independently-reviewed","caseTags":["multiple-ors-amendments","uncodified-session-law-amendment","added-to-provision","prior-session-law-cross-reference","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2026 chapter 108. The chapter title lists nineteen ORS sections amended by HB 4037 plus a separate amendment to section 22, chapter 476, Oregon Laws 2025. Section 1 also adds a new provision to the ORS 307.213 to 307.237 series; that added-to relationship is evidence but is not labeled as an ORS amendment. Section 31 and the chapter footer establish the June 5, 2026 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orlaw0108.pdf"],"expected":{"year":2026,"chapter":108,"bill":{"billType":"HB","billNumber":4037},"effectiveDate":"2026-06-05","affectedSections":{"amended":["92.031","197.320","197A.140","197A.400","197A.445","270.010","270.030","270.100","307.213","307.214","307.216","307.221","307.225","307.227","307.229","307.231","307.233","455.628","458.352"],"repealed":[]}}},
-    {"id":"2025orlaw0371","fixture":"gold-fixtures/2025orlaw0371.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw0371.pdf","sourceSha256":"6af50b5e21306591bda9bacbb395db709141c044361a5e1030d1361472100f65","reviewStatus":"independently-reviewed","caseTags":["mixed-amendment-repeal","multiple-ors-amendments","ors-repeals","prior-session-law-cross-reference","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2025 chapter 371. The title identifies five amended ORS sections and two repealed ORS sections; sections 4 through 8 contain the amendments and section 9 expressly repeals ORS 316.417 and 317.504. Section 10 and the chapter footer establish the September 26, 2025 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw0371.pdf"],"expected":{"year":2025,"chapter":371,"bill":{"billType":"SB","billNumber":799},"effectiveDate":"2025-09-26","affectedSections":{"amended":["305.280","305.380","305.565","305.992","461.560"],"repealed":["316.417","317.504"]}}},
-    {"id":"2025orlaw0590","fixture":"gold-fixtures/2025orlaw0590.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw0590.pdf","sourceSha256":"db11ce429be8c8a63f7d2c4716671156285bbd90d8264f646af85e1c3c38e30b","reviewStatus":"independently-reviewed","caseTags":["mixed-amendment-repeal","multiple-ors-amendments","ors-repeals","uncodified-session-law-repeal","emergency-clause","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2025 chapter 590. The title identifies thirteen ORS amendments and seven ORS repeals, while section 1 separately repeals four sections of chapter 592, Oregon Laws 2021; only the seven ORS citations are labeled as ORS repeals. Section 22 declares an emergency and the chapter footer establishes the July 24, 2025 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw0590.pdf"],"expected":{"year":2025,"chapter":590,"bill":{"billType":"SB","billNumber":83},"effectiveDate":"2025-07-24","affectedSections":{"amended":["105.464","197.716","215.291","215.495","476.392","476.398","476.687","476.690","476.696","477.015","477.503","477.748","526.272"],"repealed":["455.612","455.614","476.390","476.394","477.027","477.161","477.490"]}}},
-    {"id":"2025orlaw0629","fixture":"gold-fixtures/2025orlaw0629.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw0629.pdf","sourceSha256":"8ffe06aeb829592586055d6d3b29be453ccfd7e05476f359169c9aaecda19cbf","reviewStatus":"independently-reviewed","caseTags":["mixed-amendment-repeal","ors-repeals","prior-session-law-cross-reference","conditional-provision","emergency-clause","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2025 chapter 629. The Act amends three ORS sections and also amends two sections from Oregon Laws 2023. Section 5 expressly repeals ORS 327.496, while section 3a contains a conditional provision tied to HB 2322 that does not change the ORS affected-section label set. The emergency clause makes the Act effective August 7, 2025.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw0629.pdf"],"expected":{"year":2025,"chapter":629,"bill":{"billType":"SB","billNumber":960},"effectiveDate":"2025-08-07","affectedSections":{"amended":["180.095","285B.420","411.139"],"repealed":["327.496"]}}},
-    {"id":"2023orlaw0519","fixture":"gold-fixtures/2023orlaw0519.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2023orlaw0519.pdf","sourceSha256":"bf20c52b32301a1183a5647ba60a81098943552bff056edfebee4c72e61df3c5","reviewStatus":"independently-reviewed","caseTags":["lettered-ors-chapter","multiple-ors-amendments","added-to-provision","incidental-ors-citations","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2023 chapter 519. HB 2931 amends twenty-three ORS sections, all in lettered chapter 475C; the title and section 28 enumerate the same amendment set. Sections 1 through 3 create and stage new provisions that contain many additional ORS citations but do not amend those cited sections. Section 30 and the footer establish the September 24, 2023 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2023orlaw0519.pdf"],"expected":{"year":2023,"chapter":519,"bill":{"billType":"HB","billNumber":2931},"effectiveDate":"2023-09-24","affectedSections":{"amended":["475C.009","475C.017","475C.021","475C.025","475C.037","475C.045","475C.053","475C.061","475C.157","475C.177","475C.225","475C.249","475C.261","475C.265","475C.273","475C.285","475C.473","475C.477","475C.485","475C.509","475C.517","475C.544","475C.548"],"repealed":[]}}},
-    {"id":"2024orlaw0110","fixture":"gold-fixtures/2024orlaw0110.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0110.pdf","sourceSha256":"d4af92e46829464b46b91a3d3d5148460ba624a1537c71d89f0a52c9494b401d","reviewStatus":"independently-reviewed","caseTags":["multiple-ors-amendments","large-document","added-to-provisions","incidental-ors-citations","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2024 chapter 110. SB 1537 is a 26-page housing measure with extensive new uncodified provisions and incidental ORS references, but its title identifies eight ORS sections amended. Section 68 and the chapter footer establish the June 6, 2024 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0110.pdf"],"expected":{"year":2024,"chapter":110,"bill":{"billType":"SB","billNumber":1537},"effectiveDate":"2024-06-06","affectedSections":{"amended":["183.471","197.015","197.195","197.335","197.843","215.427","227.178","455.770"],"repealed":[]}}},
-    {"id":"2025s1orlaw0002","fixture":"gold-fixtures/2025S1OrLaw0002.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025S1OrLaw0002.pdf","sourceSha256":"263a131b7a0b9d535688839df8990ceb02be3e966c66bfdee280a1f4a3893866","reviewStatus":"independently-reviewed","caseTags":["special-session","negative-control","no-ors-change","prior-session-law-cross-references","emergency-clause","remote-acquisition"],"reviewBasis":"Independently reviewed against Enrolled HB 3992 and the official 2025 special-session Oregon Laws foreword. The Act changes appropriations and expenditure limitations by reference to prior Oregon Laws chapters but does not amend or repeal any ORS section. The foreword identifies HB 3992 as chapter 2 and states that its emergency clause made it effective on passage on November 7, 2025.","reviewSources":["https://olis.oregonlegislature.gov/liz/2025S1/Downloads/MeasureDocument/HB3992/Enrolled","https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025S1Foreword.pdf"],"expected":{"year":2025,"chapter":2,"bill":{"billType":"HB","billNumber":3992},"effectiveDate":"2025-11-07","affectedSections":{"amended":[],"repealed":[]}}},
-    {"id":"2025s1orlaw0001","fixture":"gold-fixtures/2025S1OrLaw0001.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025S1OrLaw0001.pdf","sourceSha256":"42b1857148d5cb809dcb9022638780c434dcb75262644b04f227f35cce06979b","reviewStatus":"independently-reviewed","caseTags":["special-session","mixed-amendment-repeal","multiple-ors-amendments","ors-repeal","large-document","prior-session-law-cross-reference","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2025 special session chapter 1. HB 3991 lists 49 unique ORS amendments and four ORS repeals, plus separate prior-session-law changes. The 32-page act provides a high-volume special-session and mixed-change stress case. Section 102 and the chapter footer establish the December 31, 2025 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025S1OrLaw0001.pdf","https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025S1OrLawAR.pdf"],"expected":{"year":2025,"chapter":1,"bill":{"billType":"HB","billNumber":3991},"effectiveDate":"2025-12-31","affectedSections":{"amended":["171.861","184.620","184.623","184.659","184.665","295.103","319.010","319.020","319.390","319.520","319.530","319.550","319.671","319.700","319.883","319.885","319.915","320.550","366.506","366.772","366.805","367.095","377.841","383.009","801.041","801.042","803.090","803.420","803.422","803.445","810.530","818.225","818.400","823.012","823.023","823.027","823.085","825.005","825.104","825.141","825.250","825.326","825.450","825.474","825.476","825.480","825.492","825.555","825.990"],"repealed":["319.665","319.890","383.150","825.486"]}}},
-    {"id":"2024orlaw0009","fixture":"gold-fixtures/2024orlaw0009.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0009.pdf","sourceSha256":"055edebf5ae1890bf82ac501e89461155666d147fa50137b5c3fe63dea16a8d2","reviewStatus":"independently-reviewed","caseTags":["mixed-amendment-repeal","ors-repeal","multiple-ors-amendments","added-to-provision","large-document","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2024 chapter 9 and the 2024 amended-and-repealed table. HB 4024 amends nine ORS sections and repeals three ORS sections while separately repealing chapter 3, Oregon Laws 2007. The expected repeal set therefore contains only the three ORS citations. The chapter footer establishes the June 6, 2024 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0009.pdf","https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024OrLawAR.pdf"],"expected":{"year":2024,"chapter":9,"bill":{"billType":"HB","billNumber":4024},"effectiveDate":"2024-06-06","affectedSections":{"amended":["162.005","260.005","260.042","260.232","260.266","260.345","260.402","260.715","260.995"],"repealed":["260.275","260.281","260.285"]}}},
-    {"id":"2024orlaw0016","fixture":"gold-fixtures/2024orlaw0016.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0016.pdf","sourceSha256":"5ab4bdaae3c99740beadfb1b40270df075532b0b9598572a175a2392fa16a2c9","reviewStatus":"independently-reviewed","caseTags":["lettered-ors-chapter","mixed-amendment-repeal","ors-repeal","multiple-ors-amendments","prior-session-law-cross-reference","emergency-clause","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2024 chapter 16. HB 4121 amends twelve ORS sections, including ten sections in lettered chapter 475C, and repeals ORS 571.312 while separately amending a 2022 session-law section. The emergency clause and chapter footer establish the March 20, 2024 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0016.pdf","https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024OrLawAR.pdf"],"expected":{"year":2024,"chapter":16,"bill":{"billType":"HB","billNumber":4121},"effectiveDate":"2024-03-20","affectedSections":{"amended":["475C.049","475C.117","475C.197","475C.209","475C.265","475C.269","475C.273","475C.297","475C.742","475C.746","571.306","571.309"],"repealed":["571.312"]}}},
-    {"id":"2025orlaw0285","fixture":"gold-fixtures/2025orlaw0285.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw0285.pdf","sourceSha256":"6721b91d53482bfed8ebb921b4a9694545bcf95c194d3b63485737c051258cf5","reviewStatus":"independently-reviewed","caseTags":["lettered-ors-chapter","multiple-ors-amendments","prior-session-law-cross-reference","emergency-clause","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2025 chapter 285. SB 162 amends nine ORS sections, including seven in chapter 475C, plus section 1, chapter 16, Oregon Laws 2024. The prior-session-law amendment is not labeled as an ORS change. The emergency clause and footer establish the June 9, 2025 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw0285.pdf"],"expected":{"year":2025,"chapter":285,"bill":{"billType":"SB","billNumber":162},"effectiveDate":"2025-06-09","affectedSections":{"amended":["133.565","475C.065","475C.085","475C.093","475C.097","475C.101","475C.105","475C.548","571.281"],"repealed":[]}}},
-    {"id":"2026orlaw0030","fixture":"gold-fixtures/2026orlaw0030.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orLaw0030.pdf","sourceSha256":"06f124254eed96eb098e0738a7f5dace08b325013f5840e98d3fbe5f557437ce","reviewStatus":"independently-reviewed","caseTags":["multiple-ors-amendments","duplicate-ors-amendment-paths","added-to-provision","uncodified-session-law-amendment","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2026 chapter 30. HB 4027 amends four unique ORS sections. ORS 656.506 is amended in section 5 and amended again in section 7, providing a duplicate operative path that must deduplicate to one affected ORS section. Section 3 separately amends an uncodified section of the same 2026 Act. The footer establishes the June 5, 2026 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orLaw0030.pdf"],"expected":{"year":2026,"chapter":30,"bill":{"billType":"HB","billNumber":4027},"effectiveDate":"2026-06-05","affectedSections":{"amended":["279C.825","656.506","656.605","656.630"],"repealed":[]}}},
-    {"id":"2021orlaw0159","fixture":"gold-fixtures/2021orlaw0159.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021orlaw0159.pdf","sourceSha256":"5d9434a6d6469c9f61fb4a78fedbca47a070794fe2f3823c9f907feee8fc1c41","reviewStatus":"independently-reviewed","caseTags":["single-ors-amendment","positive-control","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2021 chapter 159. HB 2549 amends only ORS 273.500. The chapter footer records an effective date of September 25, 2021.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021orlaw0159.pdf"],"expected":{"year":2021,"chapter":159,"bill":{"billType":"HB","billNumber":2549},"effectiveDate":"2021-09-25","affectedSections":{"amended":["273.500"],"repealed":[]}}},
-    {"id":"2021s2orlaw0001","fixture":"gold-fixtures/2021S2OrLaws0001.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021S2OrLaws0001.pdf","sourceSha256":"f5acad148d4b570007c8166791c84a56f6e904d2202d487da34c26105195792e","reviewStatus":"independently-reviewed","caseTags":["special-session","negative-control","no-ors-change","uncodified-session-law-amendment","prior-session-law-cross-reference","incidental-ors-citations","degraded-layout","emergency-clause","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2021 second special session chapter 1. SB 891 amends only sections of prior Oregon Laws chapters, not ORS sections, even though the amended text contains many ORS citations and references to earlier ORS amendments. The published PDF/Tika text contains repeated soft-hyphen/control-artifact line breaks, making this a useful extraction-layout negative control. The emergency clause and footer establish the December 14, 2021 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021S2OrLaws0001.pdf"],"expected":{"year":2021,"chapter":1,"bill":{"billType":"SB","billNumber":891},"effectiveDate":"2021-12-14","affectedSections":{"amended":[],"repealed":[]}}},
-    {"id":"2024orlaw0048","fixture":"gold-fixtures/2024orlaw0048.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0048.pdf","sourceSha256":"b838bcf21c962b2712beac939470b182de3ad9fc4ca1e49cfc972befc1bda6bb","reviewStatus":"independently-reviewed","caseTags":["single-ors-amendment","mixed-amendment-repeal","ors-repeal","act-section-repeal","emergency-clause","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2024 chapter 48. SB 1509 expressly repeals ORS 508.792 and amends ORS 508.778, while section 4 separately repeals section 3 of the 2024 Act and must not be labeled as an ORS repeal. The emergency clause and footer establish the March 27, 2024 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0048.pdf"],"expected":{"year":2024,"chapter":48,"bill":{"billType":"SB","billNumber":1509},"effectiveDate":"2024-03-27","affectedSections":{"amended":["508.778"],"repealed":["508.792"]}}},
-    {"id":"2023orlaw0507","fixture":"gold-fixtures/2023orlaw0507.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2023orlaw0507.pdf","sourceSha256":"d60cfa74f8ed9717fe240c53851df205e7cd75db47114997ae8b7257343ec3a2","reviewStatus":"independently-reviewed","caseTags":["multiple-ors-amendments","mixed-amendment-repeal","ors-repeal","added-to-provision","large-document","act-section-repeal","emergency-clause","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2023 chapter 507. HB 2697 amends thirteen ORS sections and expressly repeals ORS 441.157. Section 32 also repeals section 15 of the 2023 Act, which is not an ORS repeal. The Act contains extensive added-to and operative-date provisions; section 35 and the chapter footer establish the September 1, 2023 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2023orlaw0507.pdf"],"expected":{"year":2023,"chapter":507,"bill":{"billType":"HB","billNumber":2697},"effectiveDate":"2023-09-01","affectedSections":{"amended":["441.020","441.151","441.152","441.154","441.155","441.156","441.164","441.165","441.171","441.173","441.175","441.177","653.261"],"repealed":["441.157"]}}},
-    {"id":"2020s2orlaw0001","fixture":"gold-fixtures/2020S2OrLaws0001.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2020S2OrLaws0001.pdf","sourceSha256":"60db8c2ad08284d3a49f6925326b901d988cd085463897b260b49823b75a3d52","reviewStatus":"independently-reviewed","caseTags":["special-session","single-ors-amendment","duplicate-ors-amendment-paths","positive-control","degraded-layout","emergency-clause","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2020 second special session chapter 1. SB 1701 amends only ORS 657.150, first in section 1 and again in section 3 for a later operative period, so the expected ORS amendment set deduplicates to one section. The published PDF extraction contains repeated embedded line-break/control artifacts in hyphenated words, providing a degraded-layout control. The emergency clause and chapter footer establish the September 1, 2020 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2020S2OrLaws0001.pdf"],"expected":{"year":2020,"chapter":1,"bill":{"billType":"SB","billNumber":1701},"effectiveDate":"2020-09-01","affectedSections":{"amended":["657.150"],"repealed":[]}}},
-    {"id":"2020s1orlaw0010","fixture":"gold-fixtures/2020S1OrLaws0010.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2020S1OrLaws0010.pdf","sourceSha256":"4cedca58a6fb44345e2b8d572d977a9b890b5fd54a4fc0abfc11891a5418969c","reviewStatus":"independently-reviewed","caseTags":["special-session","mixed-amendment-repeal","multiple-ors-amendments","ors-repeal","degraded-layout","emergency-clause","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2020 first special session chapter 10. HB 4210 amends six ORS sections and repeals ORS 809.210. The published PDF extraction contains frequent embedded control characters at visual hyphenation points across the title and operative text, providing a second degraded-layout stress case. The emergency clause and chapter footer establish the June 30, 2020 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2020S1OrLaws0010.pdf"],"expected":{"year":2020,"chapter":10,"bill":{"billType":"HB","billNumber":4210},"effectiveDate":"2020-06-30","affectedSections":{"amended":["807.010","807.120","809.380","809.415","809.416","809.515"],"repealed":["809.210"]}}},
-    {"id":"2020s2orlaw0003","fixture":"gold-fixtures/2020S2OrLaws0003.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2020S2OrLaws0003.pdf","sourceSha256":"fcbfd7df82ca982505a4403d6cb31776948805ed2194fae5aa5ca84c9e75ae0d","reviewStatus":"independently-reviewed","caseTags":["special-session","mixed-amendment-repeal","same-ors-amended-and-repealed","multiple-ors-amendments","ors-repeal","prior-session-law-cross-reference","emergency-clause","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2020 second special session chapter 3. HB 4301 amends ten ORS sections and later repeals ORS 161.235 and ORS 161.239. ORS 161.239 is deliberately present in both the amendment and repeal sets because section 3 amends it and section 17 later repeals it, making this an adversarial same-section dual-action case. A separate first-special-session section is also amended but is not an ORS label. The emergency clause and footer establish the September 1, 2020 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2020S2OrLaws0003.pdf"],"expected":{"year":2020,"chapter":3,"bill":{"billType":"HB","billNumber":4301},"effectiveDate":"2020-09-01","affectedSections":{"amended":["133.235","133.245","161.205","161.239","161.245","161.265","161.267","426.080","471.775","475B.299"],"repealed":["161.235","161.239"]}}},
-    {"id":"2019orlaw0675","fixture":"gold-fixtures/2019orlaw0675.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2019orlaw0675.pdf","sourceSha256":"21a96bd67fecb55c4a1154412ba85a5afc65b5c2342bea524880d12c1278257f","reviewStatus":"independently-reviewed","caseTags":["multiple-ors-amendments","ors-repeal","prior-session-law-cross-reference","uncodified-session-law-repeal","large-document","degraded-layout","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2019 chapter 675. SB 224 amends twenty-six ORS sections, repeals ORS 248.010, and separately amends earlier session-law sections while conditionally repealing numerous sections of chapter 70, Oregon Laws 2019; those uncodified repeals are not ORS labels. The older two-column PDF and extracted text contain extensive hard line wrapping and split-word artifacts. Section 35 and the chapter footer establish the September 29, 2019 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2019orlaw0675.pdf"],"expected":{"year":2019,"chapter":675,"bill":{"billType":"SB","billNumber":224},"effectiveDate":"2019-09-29","affectedSections":{"amended":["171.062","246.021","247.013","247.940","247.945","247.965","248.015","248.017","248.023","248.024","248.026","248.029","248.033","248.035","248.043","249.013","249.035","249.037","249.068","249.072","249.078","249.865","253.540","253.565","254.155","255.012"],"repealed":["248.010"]}}},
-    {"id":"2017orlaw0145","fixture":"gold-fixtures/2017orlaw0145.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0145.pdf","sourceSha256":"2420e5626330d8912e94f9f83bb065f0e9a92b64fabe4352c82890e4a1a7a4f5","reviewStatus":"independently-reviewed","caseTags":["single-ors-amendment","positive-control","incidental-ors-citations","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2017 chapter 145. HB 2090 expressly amends only ORS 646.607; the replacement text contains numerous incidental ORS citations that are not themselves amended. The chapter footer establishes the January 1, 2018 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0145.pdf"],"expected":{"year":2017,"chapter":145,"bill":{"billType":"HB","billNumber":2090},"effectiveDate":"2018-01-01","affectedSections":{"amended":["646.607"],"repealed":[]}}},
-    {"id":"2017orlaw0519","fixture":"gold-fixtures/2017orlaw0519.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0519.pdf","sourceSha256":"6e3cc7079168402876247135a54bc0c19172016fccb82c836cf5e2f71ce5fd43","reviewStatus":"independently-reviewed","caseTags":["single-ors-amendment","positive-control","incidental-ors-citations","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2017 chapter 519. SB 257 expressly amends only ORS 162.415; references to ORS 162.405, 163A.005 and 136.427 occur inside replacement text and are not operative amendments. The chapter footer establishes the January 1, 2018 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0519.pdf"],"expected":{"year":2017,"chapter":519,"bill":{"billType":"SB","billNumber":257},"effectiveDate":"2018-01-01","affectedSections":{"amended":["162.415"],"repealed":[]}}},
-    {"id":"2017orlaw0123","fixture":"gold-fixtures/2017orlaw0123.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0123.pdf","sourceSha256":"1bea7b2560f42d6cecbae098cfdc51b1e25a5c10f6ad377e45cdb8e44f8334ac","reviewStatus":"independently-reviewed","caseTags":["single-ors-amendment","positive-control","incidental-ors-citations","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2017 chapter 123. HB 3176 expressly amends only ORS 137.090; several other ORS references occur solely in the replacement text. The chapter footer establishes the January 1, 2018 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0123.pdf"],"expected":{"year":2017,"chapter":123,"bill":{"billType":"HB","billNumber":3176},"effectiveDate":"2018-01-01","affectedSections":{"amended":["137.090"],"repealed":[]}}},
-    {"id":"2017orlaw0033","fixture":"gold-fixtures/2017orlaw0033.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0033.pdf","sourceSha256":"2dc31f7969a956e88bac10e03779c098e4fb3433c9c43b9eaf997ab9103d2ad5","reviewStatus":"independently-reviewed","caseTags":["single-ors-amendment","positive-control","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2017 chapter 33. HB 2123 expressly amends only ORS 179.580. The one-page chapter footer establishes the January 1, 2018 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0033.pdf"],"expected":{"year":2017,"chapter":33,"bill":{"billType":"HB","billNumber":2123},"effectiveDate":"2018-01-01","affectedSections":{"amended":["179.580"],"repealed":[]}}},
-    {"id":"2018orlaw0087","fixture":"gold-fixtures/2018orlaw0087.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2018orlaw0087.pdf","sourceSha256":"52b59070cb970a58435bba24065420abeee0de26a85074bd8ee7c8fa77f359fe","reviewStatus":"independently-reviewed","caseTags":["negative-control","no-ors-change","uncodified-session-law-amendment","incidental-ors-citations","emergency-clause","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2018 chapter 87. SB 5702 amends only sections of prior Oregon Laws chapters and enacts new uncodified financing provisions. Numerous ORS citations occur within those provisions, but no ORS section is operatively amended or repealed. The emergency clause and footer establish the April 3, 2018 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2018orlaw0087.pdf"],"expected":{"year":2018,"chapter":87,"bill":{"billType":"SB","billNumber":5702},"effectiveDate":"2018-04-03","affectedSections":{"amended":[],"repealed":[]}}},
-    {"id":"2019orlaw0099","fixture":"gold-fixtures/2019orlaw0099.pdf","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2019orlaw0099.pdf","sourceSha256":"5b544e8ea64624248f24f062581405bced708f85a135ecd2375ca591b0635e45","reviewStatus":"independently-reviewed","caseTags":["negative-control","no-ors-change","uncodified-session-law-amendment","prior-session-law-cross-reference","incidental-ors-citations","remote-acquisition"],"reviewBasis":"Independently reviewed against Oregon Laws 2019 chapter 99. HB 2067 amends two uncodified sections from earlier Oregon Laws chapters and does not operatively amend or repeal any ORS section, despite multiple ORS citations inside the amended text. Section 3 and the footer establish the September 29, 2019 effective date.","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2019orlaw0099.pdf"],"expected":{"year":2019,"chapter":99,"bill":{"billType":"HB","billNumber":2067},"effectiveDate":"2019-09-29","affectedSections":{"amended":[],"repealed":[]}}}
+    {
+      "id": "2022orlaw0001",
+      "fixture": "fixtures/2022orlaw0001.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orlaw0001.pdf",
+      "sourceSha256": "83527ffb467663cb6d9fde8647575942d727e8f41c78f61e368e8f89133d93a0",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "negative-control",
+        "uncodified-session-law-amendment",
+        "emergency-clause",
+        "no-ors-change"
+      ],
+      "reviewBasis": "Independently verified against the enrolled HB 4014 text, OLIS chapter assignment, the 2022 Oregon Laws A&R table, and the House Journal signing notice. The Act amends section 1, chapter 544, Oregon Laws 2021 rather than an ORS section; therefore the expected ORS amendment/repeal set is empty. The emergency clause makes the Act effective on passage, and the Governor signing notice records March 2, 2022.",
+      "reviewSources": [
+        "https://olis.oregonlegislature.gov/liz/2022R1/Downloads/MeasureDocument/HB4014",
+        "https://olis.oregonlegislature.gov/liz/2022R1/Measures/Overview/HB4014",
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022OrLawAR.pdf",
+        "https://www.oregonlegislature.gov/chief-clerk/Documents/2022%20Regular%20Session%20Journal.pdf"
+      ],
+      "expected": {
+        "year": 2022,
+        "chapter": 1,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 4014
+        },
+        "effectiveDate": "2022-03-02",
+        "affectedSections": {
+          "amended": [],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2022orlaw0002",
+      "fixture": "fixtures/2022orlaw0002.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orlaw0002.pdf",
+      "sourceSha256": "1a20a49386b2659e656b431d45cf0dbdc961093b556d6bca52094dc3b68376e3",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "multiple-ors-amendments",
+        "emergency-clause",
+        "positive-control"
+      ],
+      "reviewBasis": "Manually verified against Oregon Laws 2022 chapter 2 session law and authoritative Oregon legislative metadata.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orlaw0002.pdf"
+      ],
+      "expected": {
+        "year": 2022,
+        "chapter": 2,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 4015
+        },
+        "effectiveDate": "2022-03-02",
+        "affectedSections": {
+          "amended": [
+            "285B.746",
+            "285B.749",
+            "285B.753"
+          ],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2022orlaw0033",
+      "fixture": "gold-fixtures/2022orlaw0033.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orLaw0033.pdf",
+      "sourceSha256": "893027a13893d63cd05346b037eb3bdb9b85675497379012d6076e89fb53909c",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "conditional-amendments",
+        "duplicate-ors-amendment-paths",
+        "act-section-repeals",
+        "false-repeal-control",
+        "multiple-ors-amendments",
+        "emergency-clause",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently verified against Oregon Laws 2022 chapter 33 and the official 2022 Oregon Laws amended-and-repealed table. SB 1501 amends twelve ORS sections through its primary amendment sections and again through conditional fallback amendments in sections 65 through 76, and separately amends ORS 105.810 as a conforming amendment in section 77. Section 60 conditionally repeals numerous sections of the 2022 Act, not ORS sections. The expected ORS set therefore contains thirteen unique amended sections and no ORS repeals. The emergency clause made the Act effective March 17, 2022.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orLaw0033.pdf",
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022OrLawAR.pdf"
+      ],
+      "expected": {
+        "year": 2022,
+        "chapter": 33,
+        "bill": {
+          "billType": "SB",
+          "billNumber": 1501
+        },
+        "effectiveDate": "2022-03-17",
+        "affectedSections": {
+          "amended": [
+            "105.810",
+            "195.308",
+            "496.252",
+            "496.254",
+            "527.620",
+            "527.630",
+            "527.680",
+            "527.685",
+            "527.714",
+            "527.990",
+            "527.992",
+            "610.060",
+            "610.105"
+          ],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2022orlaw0092",
+      "fixture": "gold-fixtures/2022orlaw0092.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orLaw0092.pdf",
+      "sourceSha256": "810c9b80baf5b734278566b9d9e9ba931c30390da2d6ee99c607feed7aaad6cb",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "multiple-ors-amendments",
+        "incidental-ors-citations",
+        "temporary-section-repeal",
+        "false-repeal-control",
+        "emergency-clause",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently verified against Oregon Laws 2022 chapter 92 and the official 2022 Oregon Laws amended-and-repealed table. Sections 8 through 14 expressly amend seven ORS sections; section 16 repeals only section 15 of the 2022 Act and therefore must not be classified as an ORS repeal. The Act is SB 1549 and took effect March 23, 2022.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orLaw0092.pdf",
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022OrLawAR.pdf"
+      ],
+      "expected": {
+        "year": 2022,
+        "chapter": 92,
+        "bill": {
+          "billType": "SB",
+          "billNumber": 1549
+        },
+        "effectiveDate": "2022-03-23",
+        "affectedSections": {
+          "amended": [
+            "658.015",
+            "676.565",
+            "676.579",
+            "676.590",
+            "676.613",
+            "676.622",
+            "676.625"
+          ],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2026orlaw0011",
+      "fixture": "gold-fixtures/2026orlaw0011.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orlaw0011.pdf",
+      "sourceSha256": "9e004d28f68c1357660d45463a5485fcc9237ab792191933299980a13370982f",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "single-ors-amendment",
+        "positive-control",
+        "incidental-ors-citations",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2026 chapter 11. The title identifies HB 4029 and one ORS amendment, and section 7 expressly amends ORS 646.608. Numerous other ORS citations occur inside the new solar-contract provisions but are not themselves amended. Section 9 and the chapter footer establish the June 5, 2026 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orlaw0011.pdf"
+      ],
+      "expected": {
+        "year": 2026,
+        "chapter": 11,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 4029
+        },
+        "effectiveDate": "2026-06-05",
+        "affectedSections": {
+          "amended": [
+            "646.608"
+          ],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2026orlaw0108",
+      "fixture": "gold-fixtures/2026orlaw0108.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orlaw0108.pdf",
+      "sourceSha256": "7619ed65e47d48c35d2c13919d9c7be739e1dd903374dadf93f164f8036eac9e",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "multiple-ors-amendments",
+        "uncodified-session-law-amendment",
+        "added-to-provision",
+        "prior-session-law-cross-reference",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2026 chapter 108. The chapter title lists nineteen ORS sections amended by HB 4037 plus a separate amendment to section 22, chapter 476, Oregon Laws 2025. Section 1 also adds a new provision to the ORS 307.213 to 307.237 series; that added-to relationship is evidence but is not labeled as an ORS amendment. Section 31 and the chapter footer establish the June 5, 2026 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orlaw0108.pdf"
+      ],
+      "expected": {
+        "year": 2026,
+        "chapter": 108,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 4037
+        },
+        "effectiveDate": "2026-06-05",
+        "affectedSections": {
+          "amended": [
+            "92.031",
+            "197.320",
+            "197A.140",
+            "197A.400",
+            "197A.445",
+            "270.010",
+            "270.030",
+            "270.100",
+            "307.213",
+            "307.214",
+            "307.216",
+            "307.221",
+            "307.225",
+            "307.227",
+            "307.229",
+            "307.231",
+            "307.233",
+            "455.628",
+            "458.352"
+          ],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2025orlaw0371",
+      "fixture": "gold-fixtures/2025orlaw0371.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw0371.pdf",
+      "sourceSha256": "6af50b5e21306591bda9bacbb395db709141c044361a5e1030d1361472100f65",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "mixed-amendment-repeal",
+        "multiple-ors-amendments",
+        "ors-repeals",
+        "prior-session-law-cross-reference",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2025 chapter 371. The title identifies five amended ORS sections and two repealed ORS sections; sections 4 through 8 contain the amendments and section 9 expressly repeals ORS 316.417 and 317.504. Section 10 and the chapter footer establish the September 26, 2025 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw0371.pdf"
+      ],
+      "expected": {
+        "year": 2025,
+        "chapter": 371,
+        "bill": {
+          "billType": "SB",
+          "billNumber": 799
+        },
+        "effectiveDate": "2025-09-26",
+        "affectedSections": {
+          "amended": [
+            "305.280",
+            "305.380",
+            "305.565",
+            "305.992",
+            "461.560"
+          ],
+          "repealed": [
+            "316.417",
+            "317.504"
+          ]
+        }
+      }
+    },
+    {
+      "id": "2025orlaw0590",
+      "fixture": "gold-fixtures/2025orlaw0590.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw0590.pdf",
+      "sourceSha256": "db11ce429be8c8a63f7d2c4716671156285bbd90d8264f646af85e1c3c38e30b",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "mixed-amendment-repeal",
+        "multiple-ors-amendments",
+        "ors-repeals",
+        "uncodified-session-law-repeal",
+        "emergency-clause",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2025 chapter 590. The title identifies thirteen ORS amendments and seven ORS repeals, while section 1 separately repeals four sections of chapter 592, Oregon Laws 2021; only the seven ORS citations are labeled as ORS repeals. Section 22 declares an emergency and the chapter footer establishes the July 24, 2025 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw0590.pdf"
+      ],
+      "expected": {
+        "year": 2025,
+        "chapter": 590,
+        "bill": {
+          "billType": "SB",
+          "billNumber": 83
+        },
+        "effectiveDate": "2025-07-24",
+        "affectedSections": {
+          "amended": [
+            "105.464",
+            "197.716",
+            "215.291",
+            "215.495",
+            "476.392",
+            "476.398",
+            "476.687",
+            "476.690",
+            "476.696",
+            "477.015",
+            "477.503",
+            "477.748",
+            "526.272"
+          ],
+          "repealed": [
+            "455.612",
+            "455.614",
+            "476.390",
+            "476.394",
+            "477.027",
+            "477.161",
+            "477.490"
+          ]
+        }
+      }
+    },
+    {
+      "id": "2025orlaw0629",
+      "fixture": "gold-fixtures/2025orlaw0629.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw0629.pdf",
+      "sourceSha256": "8ffe06aeb829592586055d6d3b29be453ccfd7e05476f359169c9aaecda19cbf",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "mixed-amendment-repeal",
+        "ors-repeals",
+        "prior-session-law-cross-reference",
+        "conditional-provision",
+        "emergency-clause",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2025 chapter 629. The Act amends three ORS sections and also amends two sections from Oregon Laws 2023. Section 5 expressly repeals ORS 327.496, while section 3a contains a conditional provision tied to HB 2322 that does not change the ORS affected-section label set. The emergency clause makes the Act effective August 7, 2025.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw0629.pdf"
+      ],
+      "expected": {
+        "year": 2025,
+        "chapter": 629,
+        "bill": {
+          "billType": "SB",
+          "billNumber": 960
+        },
+        "effectiveDate": "2025-08-07",
+        "affectedSections": {
+          "amended": [
+            "180.095",
+            "285B.420",
+            "411.139"
+          ],
+          "repealed": [
+            "327.496"
+          ]
+        }
+      }
+    },
+    {
+      "id": "2023orlaw0519",
+      "fixture": "gold-fixtures/2023orlaw0519.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2023orlaw0519.pdf",
+      "sourceSha256": "bf20c52b32301a1183a5647ba60a81098943552bff056edfebee4c72e61df3c5",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "lettered-ors-chapter",
+        "multiple-ors-amendments",
+        "added-to-provision",
+        "incidental-ors-citations",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2023 chapter 519. HB 2931 amends twenty-three ORS sections, all in lettered chapter 475C; the title and section 28 enumerate the same amendment set. Sections 1 through 3 create and stage new provisions that contain many additional ORS citations but do not amend those cited sections. Section 30 and the footer establish the September 24, 2023 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2023orlaw0519.pdf"
+      ],
+      "expected": {
+        "year": 2023,
+        "chapter": 519,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 2931
+        },
+        "effectiveDate": "2023-09-24",
+        "affectedSections": {
+          "amended": [
+            "475C.009",
+            "475C.017",
+            "475C.021",
+            "475C.025",
+            "475C.037",
+            "475C.045",
+            "475C.053",
+            "475C.061",
+            "475C.157",
+            "475C.177",
+            "475C.225",
+            "475C.249",
+            "475C.261",
+            "475C.265",
+            "475C.273",
+            "475C.285",
+            "475C.473",
+            "475C.477",
+            "475C.485",
+            "475C.509",
+            "475C.517",
+            "475C.544",
+            "475C.548"
+          ],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2024orlaw0110",
+      "fixture": "gold-fixtures/2024orlaw0110.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0110.pdf",
+      "sourceSha256": "d4af92e46829464b46b91a3d3d5148460ba624a1537c71d89f0a52c9494b401d",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "multiple-ors-amendments",
+        "large-document",
+        "added-to-provisions",
+        "incidental-ors-citations",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2024 chapter 110. SB 1537 is a 26-page housing measure with extensive new uncodified provisions and incidental ORS references, but its title identifies eight ORS sections amended. Section 68 and the chapter footer establish the June 6, 2024 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0110.pdf"
+      ],
+      "expected": {
+        "year": 2024,
+        "chapter": 110,
+        "bill": {
+          "billType": "SB",
+          "billNumber": 1537
+        },
+        "effectiveDate": "2024-06-06",
+        "affectedSections": {
+          "amended": [
+            "183.471",
+            "197.015",
+            "197.195",
+            "197.335",
+            "197.843",
+            "215.427",
+            "227.178",
+            "455.770"
+          ],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2025s1orlaw0002",
+      "fixture": "gold-fixtures/2025S1OrLaw0002.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025S1OrLaw0002.pdf",
+      "sourceSha256": "263a131b7a0b9d535688839df8990ceb02be3e966c66bfdee280a1f4a3893866",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "special-session",
+        "negative-control",
+        "no-ors-change",
+        "prior-session-law-cross-references",
+        "emergency-clause",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Enrolled HB 3992 and the official 2025 special-session Oregon Laws foreword. The Act changes appropriations and expenditure limitations by reference to prior Oregon Laws chapters but does not amend or repeal any ORS section. The foreword identifies HB 3992 as chapter 2 and states that its emergency clause made it effective on passage on November 7, 2025.",
+      "reviewSources": [
+        "https://olis.oregonlegislature.gov/liz/2025S1/Downloads/MeasureDocument/HB3992/Enrolled",
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025S1Foreword.pdf"
+      ],
+      "expected": {
+        "year": 2025,
+        "chapter": 2,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 3992
+        },
+        "effectiveDate": "2025-11-07",
+        "affectedSections": {
+          "amended": [],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2025s1orlaw0001",
+      "fixture": "gold-fixtures/2025S1OrLaw0001.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025S1OrLaw0001.pdf",
+      "sourceSha256": "42b1857148d5cb809dcb9022638780c434dcb75262644b04f227f35cce06979b",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "special-session",
+        "mixed-amendment-repeal",
+        "multiple-ors-amendments",
+        "ors-repeal",
+        "large-document",
+        "prior-session-law-cross-reference",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2025 special session chapter 1. HB 3991 lists 49 unique ORS amendments and four ORS repeals, plus separate prior-session-law changes. The 32-page act provides a high-volume special-session and mixed-change stress case. Section 102 and the chapter footer establish the December 31, 2025 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025S1OrLaw0001.pdf",
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025S1OrLawAR.pdf"
+      ],
+      "expected": {
+        "year": 2025,
+        "chapter": 1,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 3991
+        },
+        "effectiveDate": "2025-12-31",
+        "affectedSections": {
+          "amended": [
+            "171.861",
+            "184.620",
+            "184.623",
+            "184.659",
+            "184.665",
+            "295.103",
+            "319.010",
+            "319.020",
+            "319.390",
+            "319.520",
+            "319.530",
+            "319.550",
+            "319.671",
+            "319.700",
+            "319.883",
+            "319.885",
+            "319.915",
+            "320.550",
+            "366.506",
+            "366.772",
+            "366.805",
+            "367.095",
+            "377.841",
+            "383.009",
+            "801.041",
+            "801.042",
+            "803.090",
+            "803.420",
+            "803.422",
+            "803.445",
+            "810.530",
+            "818.225",
+            "818.400",
+            "823.012",
+            "823.023",
+            "823.027",
+            "823.085",
+            "825.005",
+            "825.104",
+            "825.141",
+            "825.250",
+            "825.326",
+            "825.450",
+            "825.474",
+            "825.476",
+            "825.480",
+            "825.492",
+            "825.555",
+            "825.990"
+          ],
+          "repealed": [
+            "319.665",
+            "319.890",
+            "383.150",
+            "825.486"
+          ]
+        }
+      }
+    },
+    {
+      "id": "2024orlaw0009",
+      "fixture": "gold-fixtures/2024orlaw0009.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0009.pdf",
+      "sourceSha256": "055edebf5ae1890bf82ac501e89461155666d147fa50137b5c3fe63dea16a8d2",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "mixed-amendment-repeal",
+        "ors-repeal",
+        "multiple-ors-amendments",
+        "added-to-provision",
+        "large-document",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2024 chapter 9 and the 2024 amended-and-repealed table. HB 4024 amends nine ORS sections and repeals three ORS sections while separately repealing chapter 3, Oregon Laws 2007. The expected repeal set therefore contains only the three ORS citations. The chapter footer establishes the June 6, 2024 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0009.pdf",
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024OrLawAR.pdf"
+      ],
+      "expected": {
+        "year": 2024,
+        "chapter": 9,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 4024
+        },
+        "effectiveDate": "2024-06-06",
+        "affectedSections": {
+          "amended": [
+            "162.005",
+            "260.005",
+            "260.042",
+            "260.232",
+            "260.266",
+            "260.345",
+            "260.402",
+            "260.715",
+            "260.995"
+          ],
+          "repealed": [
+            "260.275",
+            "260.281",
+            "260.285"
+          ]
+        }
+      }
+    },
+    {
+      "id": "2024orlaw0016",
+      "fixture": "gold-fixtures/2024orlaw0016.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0016.pdf",
+      "sourceSha256": "5ab4bdaae3c99740beadfb1b40270df075532b0b9598572a175a2392fa16a2c9",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "lettered-ors-chapter",
+        "mixed-amendment-repeal",
+        "ors-repeal",
+        "multiple-ors-amendments",
+        "prior-session-law-cross-reference",
+        "emergency-clause",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2024 chapter 16. HB 4121 amends twelve ORS sections, including ten sections in lettered chapter 475C, and repeals ORS 571.312 while separately amending a 2022 session-law section. The emergency clause and chapter footer establish the March 20, 2024 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0016.pdf",
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024OrLawAR.pdf"
+      ],
+      "expected": {
+        "year": 2024,
+        "chapter": 16,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 4121
+        },
+        "effectiveDate": "2024-03-20",
+        "affectedSections": {
+          "amended": [
+            "475C.049",
+            "475C.117",
+            "475C.197",
+            "475C.209",
+            "475C.265",
+            "475C.269",
+            "475C.273",
+            "475C.297",
+            "475C.742",
+            "475C.746",
+            "571.306",
+            "571.309"
+          ],
+          "repealed": [
+            "571.312"
+          ]
+        }
+      }
+    },
+    {
+      "id": "2025orlaw0285",
+      "fixture": "gold-fixtures/2025orlaw0285.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw0285.pdf",
+      "sourceSha256": "6721b91d53482bfed8ebb921b4a9694545bcf95c194d3b63485737c051258cf5",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "lettered-ors-chapter",
+        "multiple-ors-amendments",
+        "prior-session-law-cross-reference",
+        "emergency-clause",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2025 chapter 285. SB 162 amends nine ORS sections, including seven in chapter 475C, plus section 1, chapter 16, Oregon Laws 2024. The prior-session-law amendment is not labeled as an ORS change. The emergency clause and footer establish the June 9, 2025 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw0285.pdf"
+      ],
+      "expected": {
+        "year": 2025,
+        "chapter": 285,
+        "bill": {
+          "billType": "SB",
+          "billNumber": 162
+        },
+        "effectiveDate": "2025-06-09",
+        "affectedSections": {
+          "amended": [
+            "133.565",
+            "475C.065",
+            "475C.085",
+            "475C.093",
+            "475C.097",
+            "475C.101",
+            "475C.105",
+            "475C.548",
+            "571.281"
+          ],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2026orlaw0030",
+      "fixture": "gold-fixtures/2026orlaw0030.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orLaw0030.pdf",
+      "sourceSha256": "06f124254eed96eb098e0738a7f5dace08b325013f5840e98d3fbe5f557437ce",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "multiple-ors-amendments",
+        "duplicate-ors-amendment-paths",
+        "added-to-provision",
+        "uncodified-session-law-amendment",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2026 chapter 30. HB 4027 amends four unique ORS sections. ORS 656.506 is amended in section 5 and amended again in section 7, providing a duplicate operative path that must deduplicate to one affected ORS section. Section 3 separately amends an uncodified section of the same 2026 Act. The footer establishes the June 5, 2026 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orLaw0030.pdf"
+      ],
+      "expected": {
+        "year": 2026,
+        "chapter": 30,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 4027
+        },
+        "effectiveDate": "2026-06-05",
+        "affectedSections": {
+          "amended": [
+            "279C.825",
+            "656.506",
+            "656.605",
+            "656.630"
+          ],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2021orlaw0159",
+      "fixture": "gold-fixtures/2021orlaw0159.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021orlaw0159.pdf",
+      "sourceSha256": "5d9434a6d6469c9f61fb4a78fedbca47a070794fe2f3823c9f907feee8fc1c41",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "single-ors-amendment",
+        "positive-control",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2021 chapter 159. HB 2549 amends only ORS 273.500. The chapter footer records an effective date of September 25, 2021.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021orlaw0159.pdf"
+      ],
+      "expected": {
+        "year": 2021,
+        "chapter": 159,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 2549
+        },
+        "effectiveDate": "2021-09-25",
+        "affectedSections": {
+          "amended": [
+            "273.500"
+          ],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2021s2orlaw0001",
+      "fixture": "gold-fixtures/2021S2OrLaws0001.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021S2OrLaws0001.pdf",
+      "sourceSha256": "f5acad148d4b570007c8166791c84a56f6e904d2202d487da34c26105195792e",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "special-session",
+        "negative-control",
+        "no-ors-change",
+        "uncodified-session-law-amendment",
+        "prior-session-law-cross-reference",
+        "incidental-ors-citations",
+        "degraded-layout",
+        "emergency-clause",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2021 second special session chapter 1. SB 891 amends only sections of prior Oregon Laws chapters, not ORS sections, even though the amended text contains many ORS citations and references to earlier ORS amendments. The published PDF/Tika text contains repeated soft-hyphen/control-artifact line breaks, making this a useful extraction-layout negative control. The emergency clause and footer establish the December 14, 2021 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021S2OrLaws0001.pdf"
+      ],
+      "expected": {
+        "year": 2021,
+        "chapter": 1,
+        "bill": {
+          "billType": "SB",
+          "billNumber": 891
+        },
+        "effectiveDate": "2021-12-14",
+        "affectedSections": {
+          "amended": [],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2024orlaw0048",
+      "fixture": "gold-fixtures/2024orlaw0048.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0048.pdf",
+      "sourceSha256": "b838bcf21c962b2712beac939470b182de3ad9fc4ca1e49cfc972befc1bda6bb",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "single-ors-amendment",
+        "mixed-amendment-repeal",
+        "ors-repeal",
+        "act-section-repeal",
+        "emergency-clause",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2024 chapter 48. SB 1509 expressly repeals ORS 508.792 and amends ORS 508.778, while section 4 separately repeals section 3 of the 2024 Act and must not be labeled as an ORS repeal. The emergency clause and footer establish the March 27, 2024 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2024orLaw0048.pdf"
+      ],
+      "expected": {
+        "year": 2024,
+        "chapter": 48,
+        "bill": {
+          "billType": "SB",
+          "billNumber": 1509
+        },
+        "effectiveDate": "2024-03-27",
+        "affectedSections": {
+          "amended": [
+            "508.778"
+          ],
+          "repealed": [
+            "508.792"
+          ]
+        }
+      }
+    },
+    {
+      "id": "2023orlaw0507",
+      "fixture": "gold-fixtures/2023orlaw0507.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2023orlaw0507.pdf",
+      "sourceSha256": "d60cfa74f8ed9717fe240c53851df205e7cd75db47114997ae8b7257343ec3a2",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "multiple-ors-amendments",
+        "mixed-amendment-repeal",
+        "ors-repeal",
+        "added-to-provision",
+        "large-document",
+        "act-section-repeal",
+        "emergency-clause",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2023 chapter 507. HB 2697 amends thirteen ORS sections and expressly repeals ORS 441.157. Section 32 also repeals section 15 of the 2023 Act, which is not an ORS repeal. The Act contains extensive added-to and operative-date provisions; section 35 and the chapter footer establish the September 1, 2023 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2023orlaw0507.pdf"
+      ],
+      "expected": {
+        "year": 2023,
+        "chapter": 507,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 2697
+        },
+        "effectiveDate": "2023-09-01",
+        "affectedSections": {
+          "amended": [
+            "441.020",
+            "441.151",
+            "441.152",
+            "441.154",
+            "441.155",
+            "441.156",
+            "441.164",
+            "441.165",
+            "441.171",
+            "441.173",
+            "441.175",
+            "441.177",
+            "653.261"
+          ],
+          "repealed": [
+            "441.157"
+          ]
+        }
+      }
+    },
+    {
+      "id": "2020s2orlaw0001",
+      "fixture": "gold-fixtures/2020S2OrLaws0001.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2020S2OrLaws0001.pdf",
+      "sourceSha256": "60db8c2ad08284d3a49f6925326b901d988cd085463897b260b49823b75a3d52",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "special-session",
+        "single-ors-amendment",
+        "duplicate-ors-amendment-paths",
+        "positive-control",
+        "degraded-layout",
+        "emergency-clause",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2020 second special session chapter 1. SB 1701 amends only ORS 657.150, first in section 1 and again in section 3 for a later operative period, so the expected ORS amendment set deduplicates to one section. The published PDF extraction contains repeated embedded line-break/control artifacts in hyphenated words, providing a degraded-layout control. The emergency clause and chapter footer establish the September 1, 2020 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2020S2OrLaws0001.pdf"
+      ],
+      "expected": {
+        "year": 2020,
+        "chapter": 1,
+        "bill": {
+          "billType": "SB",
+          "billNumber": 1701
+        },
+        "effectiveDate": "2020-09-01",
+        "affectedSections": {
+          "amended": [
+            "657.150"
+          ],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2020s1orlaw0010",
+      "fixture": "gold-fixtures/2020S1OrLaws0010.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2020S1OrLaws0010.pdf",
+      "sourceSha256": "4cedca58a6fb44345e2b8d572d977a9b890b5fd54a4fc0abfc11891a5418969c",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "special-session",
+        "mixed-amendment-repeal",
+        "multiple-ors-amendments",
+        "ors-repeal",
+        "degraded-layout",
+        "emergency-clause",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2020 first special session chapter 10. HB 4210 amends six ORS sections and repeals ORS 809.210. The published PDF extraction contains frequent embedded control characters at visual hyphenation points across the title and operative text, providing a second degraded-layout stress case. The emergency clause and chapter footer establish the June 30, 2020 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2020S1OrLaws0010.pdf"
+      ],
+      "expected": {
+        "year": 2020,
+        "chapter": 10,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 4210
+        },
+        "effectiveDate": "2020-06-30",
+        "affectedSections": {
+          "amended": [
+            "807.010",
+            "807.120",
+            "809.380",
+            "809.415",
+            "809.416",
+            "809.515"
+          ],
+          "repealed": [
+            "809.210"
+          ]
+        }
+      }
+    },
+    {
+      "id": "2020s2orlaw0003",
+      "fixture": "gold-fixtures/2020S2OrLaws0003.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2020S2OrLaws0003.pdf",
+      "sourceSha256": "fcbfd7df82ca982505a4403d6cb31776948805ed2194fae5aa5ca84c9e75ae0d",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "special-session",
+        "mixed-amendment-repeal",
+        "same-ors-amended-and-repealed",
+        "multiple-ors-amendments",
+        "ors-repeal",
+        "prior-session-law-cross-reference",
+        "emergency-clause",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2020 second special session chapter 3. HB 4301 amends ten ORS sections and later repeals ORS 161.235 and ORS 161.239. ORS 161.239 is deliberately present in both the amendment and repeal sets because section 3 amends it and section 17 later repeals it, making this an adversarial same-section dual-action case. A separate first-special-session section is also amended but is not an ORS label. The emergency clause and footer establish the September 1, 2020 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2020S2OrLaws0003.pdf"
+      ],
+      "expected": {
+        "year": 2020,
+        "chapter": 3,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 4301
+        },
+        "effectiveDate": "2020-09-01",
+        "affectedSections": {
+          "amended": [
+            "133.235",
+            "133.245",
+            "161.205",
+            "161.239",
+            "161.245",
+            "161.265",
+            "161.267",
+            "426.080",
+            "471.775",
+            "475B.299"
+          ],
+          "repealed": [
+            "161.235",
+            "161.239"
+          ]
+        }
+      }
+    },
+    {
+      "id": "2019orlaw0675",
+      "fixture": "gold-fixtures/2019orlaw0675.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2019orlaw0675.pdf",
+      "sourceSha256": "21a96bd67fecb55c4a1154412ba85a5afc65b5c2342bea524880d12c1278257f",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "multiple-ors-amendments",
+        "ors-repeal",
+        "prior-session-law-cross-reference",
+        "uncodified-session-law-repeal",
+        "large-document",
+        "degraded-layout",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2019 chapter 675. SB 224 amends twenty-six ORS sections, repeals ORS 248.010, and separately amends earlier session-law sections while conditionally repealing numerous sections of chapter 70, Oregon Laws 2019; those uncodified repeals are not ORS labels. The older two-column PDF and extracted text contain extensive hard line wrapping and split-word artifacts. Section 35 and the chapter footer establish the September 29, 2019 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2019orlaw0675.pdf"
+      ],
+      "expected": {
+        "year": 2019,
+        "chapter": 675,
+        "bill": {
+          "billType": "SB",
+          "billNumber": 224
+        },
+        "effectiveDate": "2019-09-29",
+        "affectedSections": {
+          "amended": [
+            "171.062",
+            "246.021",
+            "247.013",
+            "247.940",
+            "247.945",
+            "247.965",
+            "248.015",
+            "248.017",
+            "248.023",
+            "248.024",
+            "248.026",
+            "248.029",
+            "248.033",
+            "248.035",
+            "248.043",
+            "249.013",
+            "249.035",
+            "249.037",
+            "249.068",
+            "249.072",
+            "249.078",
+            "249.865",
+            "253.540",
+            "253.565",
+            "254.155",
+            "255.012"
+          ],
+          "repealed": [
+            "248.010"
+          ]
+        }
+      }
+    },
+    {
+      "id": "2017orlaw0145",
+      "fixture": "gold-fixtures/2017orlaw0145.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0145.pdf",
+      "sourceSha256": "2420e5626330d8912e94f9f83bb065f0e9a92b64fabe4352c82890e4a1a7a4f5",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "single-ors-amendment",
+        "positive-control",
+        "incidental-ors-citations",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2017 chapter 145. HB 2090 expressly amends only ORS 646.607; the replacement text contains numerous incidental ORS citations that are not themselves amended. The chapter footer establishes the January 1, 2018 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0145.pdf"
+      ],
+      "expected": {
+        "year": 2017,
+        "chapter": 145,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 2090
+        },
+        "effectiveDate": "2018-01-01",
+        "affectedSections": {
+          "amended": [
+            "646.607"
+          ],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2017orlaw0519",
+      "fixture": "gold-fixtures/2017orlaw0519.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0519.pdf",
+      "sourceSha256": "6e3cc7079168402876247135a54bc0c19172016fccb82c836cf5e2f71ce5fd43",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "single-ors-amendment",
+        "positive-control",
+        "incidental-ors-citations",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2017 chapter 519. SB 257 expressly amends only ORS 162.415; references to ORS 162.405, 163A.005 and 136.427 occur inside replacement text and are not operative amendments. The chapter footer establishes the January 1, 2018 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0519.pdf"
+      ],
+      "expected": {
+        "year": 2017,
+        "chapter": 519,
+        "bill": {
+          "billType": "SB",
+          "billNumber": 257
+        },
+        "effectiveDate": "2018-01-01",
+        "affectedSections": {
+          "amended": [
+            "162.415"
+          ],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2017orlaw0123",
+      "fixture": "gold-fixtures/2017orlaw0123.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0123.pdf",
+      "sourceSha256": "1bea7b2560f42d6cecbae098cfdc51b1e25a5c10f6ad377e45cdb8e44f8334ac",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "single-ors-amendment",
+        "positive-control",
+        "incidental-ors-citations",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2017 chapter 123. HB 3176 expressly amends only ORS 137.090; several other ORS references occur solely in the replacement text. The chapter footer establishes the January 1, 2018 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0123.pdf"
+      ],
+      "expected": {
+        "year": 2017,
+        "chapter": 123,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 3176
+        },
+        "effectiveDate": "2018-01-01",
+        "affectedSections": {
+          "amended": [
+            "137.090"
+          ],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2017orlaw0033",
+      "fixture": "gold-fixtures/2017orlaw0033.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0033.pdf",
+      "sourceSha256": "2dc31f7969a956e88bac10e03779c098e4fb3433c9c43b9eaf997ab9103d2ad5",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "single-ors-amendment",
+        "positive-control",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2017 chapter 33. HB 2123 expressly amends only ORS 179.580. The one-page chapter footer establishes the January 1, 2018 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2017orlaw0033.pdf"
+      ],
+      "expected": {
+        "year": 2017,
+        "chapter": 33,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 2123
+        },
+        "effectiveDate": "2018-01-01",
+        "affectedSections": {
+          "amended": [
+            "179.580"
+          ],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2018orlaw0087",
+      "fixture": "gold-fixtures/2018orlaw0087.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2018orlaw0087.pdf",
+      "sourceSha256": "52b59070cb970a58435bba24065420abeee0de26a85074bd8ee7c8fa77f359fe",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "negative-control",
+        "no-ors-change",
+        "uncodified-session-law-amendment",
+        "incidental-ors-citations",
+        "emergency-clause",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2018 chapter 87. SB 5702 amends only sections of prior Oregon Laws chapters and enacts new uncodified financing provisions. Numerous ORS citations occur within those provisions, but no ORS section is operatively amended or repealed. The emergency clause and footer establish the April 3, 2018 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2018orlaw0087.pdf"
+      ],
+      "expected": {
+        "year": 2018,
+        "chapter": 87,
+        "bill": {
+          "billType": "SB",
+          "billNumber": 5702
+        },
+        "effectiveDate": "2018-04-03",
+        "affectedSections": {
+          "amended": [],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2019orlaw0099",
+      "fixture": "gold-fixtures/2019orlaw0099.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2019orlaw0099.pdf",
+      "sourceSha256": "5b544e8ea64624248f24f062581405bced708f85a135ecd2375ca591b0635e45",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": [
+        "negative-control",
+        "no-ors-change",
+        "uncodified-session-law-amendment",
+        "prior-session-law-cross-reference",
+        "incidental-ors-citations",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2019 chapter 99. HB 2067 amends two uncodified sections from earlier Oregon Laws chapters and does not operatively amend or repeal any ORS section, despite multiple ORS citations inside the amended text. Section 3 and the footer establish the September 29, 2019 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2019orlaw0099.pdf"
+      ],
+      "expected": {
+        "year": 2019,
+        "chapter": 99,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 2067
+        },
+        "effectiveDate": "2019-09-29",
+        "affectedSections": {
+          "amended": [],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2016orlaw0024",
+      "fixture": "gold-fixtures/2016orlaw0024.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2016orLaw0024.pdf",
+      "caseTags": [
+        "large-document",
+        "mixed-amendment-repeal",
+        "multiple-ors-amendments",
+        "ors-repeals",
+        "uncodified-session-law-repeal",
+        "added-to-provisions",
+        "emergency-clause",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2016 chapter 24 and the official 2016 A&R table. HB 4014 is a 32-page cannabis act with 45 unique ORS amendments, three express ORS repeals, multiple added-to provisions and separate repeals of sections 173 and 175b, chapter 614, Oregon Laws 2015. Only the three ORS citations in section 76 are labeled as ORS repeals. The emergency clause and chapter footer establish the March 3, 2016 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2016orLaw0024.pdf",
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2016R1ar.pdf"
+      ],
+      "expected": {
+        "year": 2016,
+        "chapter": 24,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 4014
+        },
+        "effectiveDate": "2016-03-03",
+        "affectedSections": {
+          "amended": [
+            "90.396",
+            "305.620",
+            "316.680",
+            "419C.239",
+            "419C.420",
+            "419C.443",
+            "471.001",
+            "471.775",
+            "475.245",
+            "475.752",
+            "475.856",
+            "475.858",
+            "475.860",
+            "475.862",
+            "475.864",
+            "475.898",
+            "475B.015",
+            "475B.063",
+            "475B.070",
+            "475B.075",
+            "475B.090",
+            "475B.100",
+            "475B.110",
+            "475B.150",
+            "475B.160",
+            "475B.185",
+            "475B.218",
+            "475B.235",
+            "475B.245",
+            "475B.250",
+            "475B.255",
+            "475B.340",
+            "475B.375",
+            "475B.415",
+            "475B.420",
+            "475B.428",
+            "475B.435",
+            "475B.443",
+            "475B.450",
+            "475B.705",
+            "475B.710",
+            "475B.760",
+            "475B.800",
+            "809.265",
+            "813.215"
+          ],
+          "repealed": [
+            "475B.120",
+            "475B.285",
+            "811.481"
+          ]
+        }
+      },
+      "sourceSha256": "e1080c2eff40bea36f38d3d922105360cc3238ec4e8419a741418fb6f156a094",
+      "reviewStatus": "independently-reviewed"
+    },
+    {
+      "id": "2016orlaw0083",
+      "fixture": "gold-fixtures/2016orlaw0083.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2016orLaw0083.pdf",
+      "caseTags": [
+        "mixed-amendment-repeal",
+        "multiple-ors-amendments",
+        "ors-repeal",
+        "added-to-provisions",
+        "uncodified-session-law-amendment",
+        "emergency-clause",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2016 chapter 83 and the official 2016 A&R table. SB 1511 amends fifteen ORS sections, repeals ORS 475B.080, creates multiple added-to provisions, and separately amends section 2, chapter 784, Oregon Laws 2015. The emergency clause and chapter footer establish the March 29, 2016 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2016orLaw0083.pdf",
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2016R1ar.pdf"
+      ],
+      "expected": {
+        "year": 2016,
+        "chapter": 83,
+        "bill": {
+          "billType": "SB",
+          "billNumber": 1511
+        },
+        "effectiveDate": "2016-03-29",
+        "affectedSections": {
+          "amended": [
+            "336.241",
+            "475B.015",
+            "475B.070",
+            "475B.090",
+            "475B.100",
+            "475B.110",
+            "475B.160",
+            "475B.245",
+            "475B.285",
+            "475B.345",
+            "475B.375",
+            "475B.450",
+            "475B.625",
+            "475B.730",
+            "475B.750"
+          ],
+          "repealed": [
+            "475B.080"
+          ]
+        }
+      },
+      "sourceSha256": "ac41f028792a0df388d8794532b3f53d60b896eb94c79456f16e4dcfe4013cee",
+      "reviewStatus": "independently-reviewed"
+    },
+    {
+      "id": "2016orlaw0121",
+      "fixture": "gold-fixtures/2016orlaw0121.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2016orLaw0121.pdf",
+      "caseTags": [
+        "negative-control",
+        "no-ors-change",
+        "uncodified-session-law-amendment",
+        "prior-session-law-cross-reference",
+        "incidental-ors-citations",
+        "emergency-clause",
+        "remote-acquisition"
+      ],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2016 chapter 121 and the official 2016 A&R table. HB 4018 amends six sections of chapter 539, Oregon Laws 2005 and contains incidental ORS references in the amended text, but it does not operatively amend or repeal any ORS section. The emergency clause and chapter footer establish the April 7, 2016 effective date.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2016orLaw0121.pdf",
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2016R1ar.pdf"
+      ],
+      "expected": {
+        "year": 2016,
+        "chapter": 121,
+        "bill": {
+          "billType": "HB",
+          "billNumber": 4018
+        },
+        "effectiveDate": "2016-04-07",
+        "affectedSections": {
+          "amended": [],
+          "repealed": []
+        }
+      },
+      "sourceSha256": "99391b7cb45bb3e0ef99b76a24a9b6e1d1e4747a8e3669c15681dffc0817c26a",
+      "reviewStatus": "independently-reviewed"
+    }
   ]
 }
