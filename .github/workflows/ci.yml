@@ -110,7 +110,9 @@ jobs:
           set -euo pipefail
           mkdir -p ../gold-results
           while IFS=$'\t' read -r id fixture source_url; do
-            stack exec -- analyze "../$fixture" --tika-jar ../tika-app-2.8.0.jar --source-url "$source_url" > "../gold-results/$id.json"
+            if ! stack exec -- analyze "../$fixture" --tika-jar ../tika-app-2.8.0.jar --source-url "$source_url" > "../gold-results/$id.json"; then
+              echo "Parser returned structured failure for $id" >&2
+            fi
           done < <(jq -r '.documents[] | [.id, .fixture, .sourceUrl] | @tsv' ../gold/manifest.json)
           python3 ../tools/evaluate_gold.py \
             --manifest ../gold/manifest.json \
