@@ -1580,7 +1580,7 @@
         "emergency-clause",
         "remote-acquisition"
       ],
-      "reviewBasis": "Independently reviewed against Oregon Laws 2015 chapter 614. HB 3400 is an 81-page marijuana implementation act whose title enumerates fifty-three unique ORS amendments and one ORS repeal, ORS 475.324, alongside extensive amendments and repeals of chapter 1, Oregon Laws 2015 and other session-law sections. Section 175a expressly repeals ORS 475.324; adjacent sections repeal only sections of the current or prior Acts. The emergency clause and footer establish the June 30, 2015 effective date.",
+      "reviewBasis": "Independently re-reviewed against Oregon Laws 2015 chapter 614 after a quality-gate discrepancy. HB 3400 is an 81-page marijuana implementation act whose title enumerates fifty-five unique ORS amendments, including ORS 133.525 and 133.721, and one ORS repeal, ORS 475.324, alongside extensive amendments and repeals of chapter 1, Oregon Laws 2015 and other session-law sections. Operative sections 139 and 140 amend ORS 133.525, sections 141 and 142 amend ORS 133.721, and ORS 133.521 does not occur in the Act. Section 175a expressly repeals ORS 475.324; adjacent sections repeal only sections of the current or prior Acts. The emergency clause and footer establish the June 30, 2015 effective date.",
       "reviewSources": [
         "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2015orLaw0614.pdf"
       ],
@@ -1595,7 +1595,8 @@
         "affectedSections": {
           "amended": [
             "133.005",
-            "133.521",
+            "133.525",
+            "133.721",
             "133.726",
             "153.005",
             "161.015",
