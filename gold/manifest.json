@@ -52,6 +52,28 @@
           "repealed": []
         }
       }
+    },
+    {
+      "id": "2022orlaw0092",
+      "fixture": "gold-fixtures/2022orlaw0092.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orLaw0092.pdf",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": ["multiple-ors-amendments", "incidental-ors-citations", "temporary-section-repeal", "false-repeal-control", "emergency-clause", "remote-acquisition"],
+      "reviewBasis": "Independently verified against Oregon Laws 2022 chapter 92 and the official 2022 Oregon Laws amended-and-repealed table. Sections 8 through 14 expressly amend seven ORS sections; section 16 repeals only section 15 of the 2022 Act and therefore must not be classified as an ORS repeal. The Act is SB 1549 and took effect March 23, 2022.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orLaw0092.pdf",
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022OrLawAR.pdf"
+      ],
+      "expected": {
+        "year": 2022,
+        "chapter": 92,
+        "bill": {"billType": "SB", "billNumber": 1549},
+        "effectiveDate": "2022-03-23",
+        "affectedSections": {
+          "amended": ["658.015", "676.565", "676.579", "676.590", "676.613", "676.622", "676.625"],
+          "repealed": []
+        }
+      }
     }
   ]
 }
