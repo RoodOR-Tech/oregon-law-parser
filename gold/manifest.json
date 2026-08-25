@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewStatus": "seed-non-certifying",
+  "reviewStatus": "expanding-non-certifying",
   "releaseCertificationMinimumDocuments": 50,
   "qualityTargets": {
     "sectionPrecision": 0.999,
@@ -9,10 +9,39 @@
   },
   "documents": [
     {
+      "id": "2022orlaw0001",
+      "fixture": "fixtures/2022orlaw0001.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orlaw0001.pdf",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": ["negative-control", "uncodified-session-law-amendment", "emergency-clause", "no-ors-change"],
+      "reviewBasis": "Independently verified against the enrolled HB 4014 text, OLIS chapter assignment, the 2022 Oregon Laws A&R table, and the House Journal signing notice. The Act amends section 1, chapter 544, Oregon Laws 2021 rather than an ORS section; therefore the expected ORS amendment/repeal set is empty. The emergency clause makes the Act effective on passage, and the Governor signing notice records March 2, 2022.",
+      "reviewSources": [
+        "https://olis.oregonlegislature.gov/liz/2022R1/Downloads/MeasureDocument/HB4014",
+        "https://olis.oregonlegislature.gov/liz/2022R1/Measures/Overview/HB4014",
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022OrLawAR.pdf",
+        "https://www.oregonlegislature.gov/chief-clerk/Documents/2022%20Regular%20Session%20Journal.pdf"
+      ],
+      "expected": {
+        "year": 2022,
+        "chapter": 1,
+        "bill": {"billType": "HB", "billNumber": 4014},
+        "effectiveDate": "2022-03-02",
+        "affectedSections": {
+          "amended": [],
+          "repealed": []
+        }
+      }
+    },
+    {
       "id": "2022orlaw0002",
       "fixture": "fixtures/2022orlaw0002.pdf",
       "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orlaw0002.pdf",
-      "reviewBasis": "Manually verified against Oregon Laws 2022 chapter 2 session law",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": ["multiple-ors-amendments", "emergency-clause", "positive-control"],
+      "reviewBasis": "Manually verified against Oregon Laws 2022 chapter 2 session law and authoritative Oregon legislative metadata.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orlaw0002.pdf"
+      ],
       "expected": {
         "year": 2022,
         "chapter": 2,
