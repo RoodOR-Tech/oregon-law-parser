@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "purpose": "PR #14 staging file. Expectations are independently reviewed against authoritative Oregon session-law text and are not admitted to the gold corpus until source hashes are pinned.",
+  "documents": [
+    {
+      "id": "2012s1orlaw0001",
+      "fixture": "gold-fixtures/2012S1OrLaws0001.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2012S1orLaws0001.pdf",
+      "caseTags": ["special-session", "negative-control", "no-ors-change", "added-to-provision", "incidental-ors-citations", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2012 special session chapter 1. HB 4200 adds sections 3 through 6 of the special-session Act to the ORS 314.605 to 314.675 series, but it does not amend or repeal an existing ORS section. The body contains many ORS citations inside the new provisions, making it a negative control for incidental statutory references. Section 8 and the chapter footer establish the March 15, 2013 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2012S1orLaws0001.pdf"],
+      "expected": {"year": 2012, "chapter": 1, "bill": {"billType": "HB", "billNumber": 4200}, "effectiveDate": "2013-03-15", "affectedSections": {"amended": [], "repealed": []}}
+    },
+    {
+      "id": "2013orlaw0028",
+      "fixture": "gold-fixtures/2013orlaw0028.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2013orLaw0028.pdf",
+      "caseTags": ["negative-control", "no-ors-change", "incidental-ors-citations", "emergency-clause", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2013 chapter 28. SB 1 creates a new Veterans Day employment provision and cites ORS 408.225 and ORS 659A.121 in its operative text, but nowhere amends or repeals an ORS section. The emergency clause and footer establish the April 4, 2013 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2013orLaw0028.pdf"],
+      "expected": {"year": 2013, "chapter": 28, "bill": {"billType": "SB", "billNumber": 1}, "effectiveDate": "2013-04-04", "affectedSections": {"amended": [], "repealed": []}}
+    },
+    {
+      "id": "2013orlaw0033",
+      "fixture": "gold-fixtures/2013orlaw0033.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2013orLaw0033.pdf",
+      "caseTags": ["repeal-only", "ors-repeal", "single-ors-change", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2013 chapter 33. HB 2141 contains one operative statutory change: section 1 expressly repeals ORS 565.330. Section 2 and the footer establish the October 7, 2013 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2013orLaw0033.pdf"],
+      "expected": {"year": 2013, "chapter": 33, "bill": {"billType": "HB", "billNumber": 2141}, "effectiveDate": "2013-10-07", "affectedSections": {"amended": [], "repealed": ["565.330"]}}
+    },
+    {
+      "id": "2015orlaw0614",
+      "fixture": "gold-fixtures/2015orlaw0614.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2015orLaw0614.pdf",
+      "caseTags": ["large-document", "multiple-ors-amendments", "ors-repeal", "mixed-amendment-repeal", "uncodified-session-law-amendment", "uncodified-session-law-repeal", "added-to-provisions", "incidental-ors-citations", "emergency-clause", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2015 chapter 614. HB 3400 is an 81-page marijuana implementation act whose title enumerates fifty-three unique ORS amendments and one ORS repeal, ORS 475.324, alongside extensive amendments and repeals of chapter 1, Oregon Laws 2015 and other session-law sections. Section 175a expressly repeals ORS 475.324; adjacent sections repeal only sections of the current or prior Acts. The emergency clause and footer establish the June 30, 2015 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2015orLaw0614.pdf"],
+      "expected": {"year": 2015, "chapter": 614, "bill": {"billType": "HB", "billNumber": 3400}, "effectiveDate": "2015-06-30", "affectedSections": {"amended": ["133.005", "133.521", "133.726", "153.005", "161.015", "161.705", "163.095", "165.805", "166.070", "181.010", "181.534", "181.537", "181.610", "181.645", "181.646", "238.005", "471.001", "471.360", "471.375", "471.675", "471.775", "475.300", "475.302", "475.303", "475.304", "475.306", "475.309", "475.312", "475.314", "475.316", "475.319", "475.320", "475.323", "475.326", "475.328", "475.331", "475.334", "475.338", "475.340", "475.342", "475.752", "475.856", "475.858", "475.860", "475.862", "475.864", "475.900", "475.904", "616.010", "659A.320", "659A.403", "659A.409", "659A.885", "802.250"], "repealed": ["475.324"]}}
+    }
+  ]
+}
