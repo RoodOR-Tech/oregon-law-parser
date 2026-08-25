@@ -26,10 +26,7 @@
         "chapter": 1,
         "bill": {"billType": "HB", "billNumber": 4014},
         "effectiveDate": "2022-03-02",
-        "affectedSections": {
-          "amended": [],
-          "repealed": []
-        }
+        "affectedSections": {"amended": [], "repealed": []}
       }
     },
     {
@@ -39,16 +36,33 @@
       "reviewStatus": "independently-reviewed",
       "caseTags": ["multiple-ors-amendments", "emergency-clause", "positive-control"],
       "reviewBasis": "Manually verified against Oregon Laws 2022 chapter 2 session law and authoritative Oregon legislative metadata.",
-      "reviewSources": [
-        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orlaw0002.pdf"
-      ],
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orlaw0002.pdf"],
       "expected": {
         "year": 2022,
         "chapter": 2,
         "bill": {"billType": "HB", "billNumber": 4015},
         "effectiveDate": "2022-03-02",
+        "affectedSections": {"amended": ["285B.746", "285B.749", "285B.753"], "repealed": []}
+      }
+    },
+    {
+      "id": "2022orlaw0033",
+      "fixture": "gold-fixtures/2022orlaw0033.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orLaw0033.pdf",
+      "reviewStatus": "independently-reviewed",
+      "caseTags": ["conditional-amendments", "duplicate-ors-amendment-paths", "act-section-repeals", "false-repeal-control", "multiple-ors-amendments", "emergency-clause", "remote-acquisition"],
+      "reviewBasis": "Independently verified against Oregon Laws 2022 chapter 33 and the official 2022 Oregon Laws amended-and-repealed table. SB 1501 amends the same twelve ORS sections through its primary amendment sections and again through conditional fallback amendments in sections 65 through 76. Section 60 conditionally repeals numerous sections of the 2022 Act, not ORS sections. The expected ORS set therefore contains twelve unique amended sections and no ORS repeals. The emergency clause made the Act effective March 17, 2022.",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022orLaw0033.pdf",
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2022OrLawAR.pdf"
+      ],
+      "expected": {
+        "year": 2022,
+        "chapter": 33,
+        "bill": {"billType": "SB", "billNumber": 1501},
+        "effectiveDate": "2022-03-17",
         "affectedSections": {
-          "amended": ["285B.746", "285B.749", "285B.753"],
+          "amended": ["195.308", "496.252", "496.254", "527.620", "527.630", "527.680", "527.685", "527.714", "527.990", "527.992", "610.060", "610.105"],
           "repealed": []
         }
       }
@@ -69,10 +83,7 @@
         "chapter": 92,
         "bill": {"billType": "SB", "billNumber": 1549},
         "effectiveDate": "2022-03-23",
-        "affectedSections": {
-          "amended": ["658.015", "676.565", "676.579", "676.590", "676.613", "676.622", "676.625"],
-          "repealed": []
-        }
+        "affectedSections": {"amended": ["658.015", "676.565", "676.579", "676.590", "676.613", "676.622", "676.625"], "repealed": []}
       }
     }
   ]
