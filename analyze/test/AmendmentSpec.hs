@@ -17,10 +17,10 @@ spec = do
 
   describe "makeBill" $ do
     it "can parse a typical house bill" $ do
-      makeBill "HB 4047" `shouldBe` Just Bill { billType = HB, billNumber = 4047 }
+      makeBill "HB 4047" `shouldBe` Just (Bill { billType = HB, billNumber = 4047 })
 
     it "can parse a typical senate bill" $ do
-      makeBill "SB 1532" `shouldBe` Just Bill { billType = SB, billNumber = 1532 }
+      makeBill "SB 1532" `shouldBe` Just (Bill { billType = SB, billNumber = 1532 })
 
     it "returns Nothing for malformed citations" $ do
       makeBill "HB nope" `shouldBe` Nothing
