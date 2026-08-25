@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "purpose": "PR #13 staging file. Expectations are independently reviewed against authoritative Oregon session-law text and the official 2016 A&R table and are not admitted to the gold corpus until source hashes are pinned.",
+  "documents": [
+    {
+      "id": "2016orlaw0024",
+      "fixture": "gold-fixtures/2016orlaw0024.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2016orLaw0024.pdf",
+      "caseTags": ["large-document", "mixed-amendment-repeal", "multiple-ors-amendments", "ors-repeals", "uncodified-session-law-repeal", "added-to-provisions", "emergency-clause", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2016 chapter 24 and the official 2016 A&R table. HB 4014 is a 32-page cannabis act with 45 unique ORS amendments, three express ORS repeals, multiple added-to provisions and separate repeals of sections 173 and 175b, chapter 614, Oregon Laws 2015. Only the three ORS citations in section 76 are labeled as ORS repeals. The emergency clause and chapter footer establish the March 3, 2016 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2016orLaw0024.pdf", "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2016R1ar.pdf"],
+      "expected": {"year": 2016, "chapter": 24, "bill": {"billType": "HB", "billNumber": 4014}, "effectiveDate": "2016-03-03", "affectedSections": {"amended": ["90.396", "305.620", "316.680", "419C.239", "419C.420", "419C.443", "471.001", "471.775", "475.245", "475.752", "475.856", "475.858", "475.860", "475.862", "475.864", "475.898", "475B.015", "475B.063", "475B.070", "475B.075", "475B.090", "475B.100", "475B.110", "475B.150", "475B.160", "475B.185", "475B.218", "475B.235", "475B.245", "475B.250", "475B.255", "475B.340", "475B.375", "475B.415", "475B.420", "475B.428", "475B.435", "475B.443", "475B.450", "475B.705", "475B.710", "475B.760", "475B.800", "809.265", "813.215"], "repealed": ["475B.120", "475B.285", "811.481"]}}
+    },
+    {
+      "id": "2016orlaw0083",
+      "fixture": "gold-fixtures/2016orlaw0083.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2016orLaw0083.pdf",
+      "caseTags": ["mixed-amendment-repeal", "multiple-ors-amendments", "ors-repeal", "added-to-provisions", "uncodified-session-law-amendment", "emergency-clause", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2016 chapter 83 and the official 2016 A&R table. SB 1511 amends fifteen ORS sections, repeals ORS 475B.080, creates multiple added-to provisions, and separately amends section 2, chapter 784, Oregon Laws 2015. The emergency clause and chapter footer establish the March 29, 2016 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2016orLaw0083.pdf", "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2016R1ar.pdf"],
+      "expected": {"year": 2016, "chapter": 83, "bill": {"billType": "SB", "billNumber": 1511}, "effectiveDate": "2016-03-29", "affectedSections": {"amended": ["336.241", "475B.015", "475B.070", "475B.090", "475B.100", "475B.110", "475B.160", "475B.245", "475B.285", "475B.345", "475B.375", "475B.450", "475B.625", "475B.730", "475B.750"], "repealed": ["475B.080"]}}
+    },
+    {
+      "id": "2016orlaw0121",
+      "fixture": "gold-fixtures/2016orlaw0121.pdf",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2016orLaw0121.pdf",
+      "caseTags": ["negative-control", "no-ors-change", "uncodified-session-law-amendment", "prior-session-law-cross-reference", "incidental-ors-citations", "emergency-clause", "remote-acquisition"],
+      "reviewBasis": "Independently reviewed against Oregon Laws 2016 chapter 121 and the official 2016 A&R table. HB 4018 amends six sections of chapter 539, Oregon Laws 2005 and contains incidental ORS references in the amended text, but it does not operatively amend or repeal any ORS section. The emergency clause and chapter footer establish the April 7, 2016 effective date.",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2016orLaw0121.pdf", "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2016R1ar.pdf"],
+      "expected": {"year": 2016, "chapter": 121, "bill": {"billType": "HB", "billNumber": 4018}, "effectiveDate": "2016-04-07", "affectedSections": {"amended": [], "repealed": []}}
+    }
+  ]
+}
