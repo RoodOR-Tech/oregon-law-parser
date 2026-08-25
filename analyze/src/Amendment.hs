@@ -51,10 +51,14 @@ findCitation ∷ [String] → Maybe String
 findCitation phrases = phrases & join & firstMatch "(HB|SB) [0-9]+"
 
 findYear ∷ [String] → Maybe Integer
-findYear input = do matched ← input & join & firstMatch "OREGON LAWS [0-9]{4}"; case splitWs matched of [] -> Nothing; xs -> readMaybe (last xs)
+findYear input = do
+  matched ← input & join & firstMatch "(OREGON LAWS|Oregon Laws) [0-9]{4}"
+  case splitWs matched of [] -> Nothing; xs -> readMaybe (last xs)
 
 findChapter ∷ [String] → Maybe Integer
-findChapter phrases = do matched ← phrases & join & firstMatch "Chap. [0-9]{1,3}"; case splitWs matched of [] -> Nothing; xs -> readMaybe (last xs)
+findChapter phrases = do
+  matched ← phrases & join & firstMatch "(Chap\\.|Chapter) [0-9]{1,4}"
+  case splitWs matched of [] -> Nothing; xs -> readMaybe (last xs)
 
 findEffectiveDate ∷ [String] → Maybe Day
 findEffectiveDate input = do

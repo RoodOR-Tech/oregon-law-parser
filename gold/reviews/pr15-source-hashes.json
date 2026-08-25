@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "pullRequest": 15,
+  "stagingRun": {
+    "workflow": "Gold source staging",
+    "runNumber": 37,
+    "runId": 32901952732,
+    "headSha": "cb2f2b2e2a8ed90c20edfe28ff5a435696c42340",
+    "artifactId": 9583499610,
+    "artifactName": "gold-source-hashes",
+    "artifactDigest": "sha256:c885fb94157dd848b423bb455cc424c9856ff1df78c0c7ec6380a34aa14c98e6",
+    "result": "success"
+  },
+  "documents": [
+    {
+      "id": "2010orlaw0023",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2010orLaw0023.html",
+      "sha256": "9cdedbbacade24f22b1076cc9af49e83ac994d907f338c70ccf73fa2ab879e04",
+      "sourceFormat": "html"
+    },
+    {
+      "id": "2010orlaw0050",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2010orLaw0050.html",
+      "sha256": "fa92a3784bbaeae574fc0118f71eed3e4dd82ff5306b6c974999fb0e0e7447b8",
+      "sourceFormat": "html"
+    },
+    {
+      "id": "2010orlaw0083",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2010orLaw0083.html",
+      "sha256": "357410f86bd31d431ac0f6a9327c712279c78305f7340d9eee34f97c0f10b008",
+      "sourceFormat": "html"
+    },
+    {
+      "id": "2010orlaw0091",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2010orLaw0091.html",
+      "sha256": "c0bd73e74efcd460a484d4563f6f743b16968bbf16275bf06203d8938462eeba",
+      "sourceFormat": "html"
+    }
+  ]
+}

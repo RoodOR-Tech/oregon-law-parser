@@ -32,18 +32,24 @@ jobs:
           fi
 
           mkdir -p source-hash-reports
+          status=0
           for candidate in "${candidates[@]}"; do
             base="$(basename "$candidate" .json)"
             report="source-hash-reports/${base}-source-hashes.json"
-            python3 tools/hash_gold_sources.py \
+            if ! python3 tools/hash_gold_sources.py \
               --candidates "$candidate" \
-              --report "$report"
-            jq -e '.valid == true and (.documents | length > 0) and ([.documents[].sha256 | test("^[0-9a-f]{64}$")] | all)' "$report" >/dev/null
+              --report "$report"; then
+              status=1
+            fi
+            if ! jq -e '.valid == true and (.documents | length > 0) and ([.documents[].sha256 | test("^[0-9a-f]{64}$")] | all)' "$report" >/dev/null; then
+              status=1
+            fi
           done
+          exit "$status"
 
       - name: Upload source hash reports
         uses: actions/upload-artifact@v4
-        if: hashFiles('source-hash-reports/*.json') != ''
+        if: always() && hashFiles('source-hash-reports/*.json') != ''
         with:
           name: gold-source-hashes
           path: source-hash-reports/*.json
