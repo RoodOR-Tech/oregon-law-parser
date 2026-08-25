@@ -39,9 +39,15 @@ spec = do
     it "returns just the year" $ do
       findYear ["OREGON LAWS 2016", "Some junk"] `shouldBe` Just 2016
 
+    it "parses the mixed-case legacy HTML chapter heading" $ do
+      findYear ["Chapter 23 Oregon Laws 2010 Special Session"] `shouldBe` Just 2010
+
   describe "findChapter" $ do
     it "can find it" $ do
       findChapter ["Chap. 102"] `shouldBe` Just 102
+
+    it "parses the legacy HTML chapter heading" $ do
+      findChapter ["Chapter 23 Oregon Laws 2010 Special Session"] `shouldBe` Just 23
 
   describe "findEffectiveDate" $ do
     it "picks out the right one" $ do
@@ -143,6 +149,22 @@ spec = do
           map evidenceSource (sectionEvidence (validation amendment))
             `shouldContain` [OperativeBodyEvidence]
         Left errors -> expectationFailure ("Unexpected parse failure: " ++ show errors)
+
+    it "parses legacy Oregon Laws HTML chapter metadata" $ do
+      let ps =
+            [ "Chapter 23 Oregon Laws 2010 Special Session"
+            , "AN ACT SB 993"
+            , "Relating to consumer lending; amending ORS 725.010; and declaring an emergency."
+            , "SECTION 29. ORS 725.010 is amended to read:"
+            , "Effective date March 4, 2010"
+            ]
+      case parseAmendment testProvenance ps of
+        Right amendment -> do
+          year amendment `shouldBe` 2010
+          chapter amendment `shouldBe` 23
+          bill amendment `shouldBe` Bill { billType = SB, billNumber = 993 }
+          effectiveDate amendment `shouldBe` fromGregorian 2010 3 4
+        Left errors -> expectationFailure ("Unexpected legacy HTML parse failure: " ++ show errors)
 
 testProvenance :: Provenance
 testProvenance = Provenance
