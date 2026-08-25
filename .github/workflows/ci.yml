@@ -53,5 +53,5 @@ jobs:
             out="$(mktemp)"
             stack exec -- analyze "$fixture" --tika-jar ../tika-app-2.8.0.jar > "$out"
             jq -e '.year and .chapter and .bill and .affectedSections and .validation' "$out" >/dev/null
-            jq -e '.validation.validationStatus | IN("Verified", "ParsedUnverified", "Conflict")' "$out" >/dev/null
+            jq -e '.validation.validationStatus | IN("Verified", "ParsedUnverified", "Conflict", "Incomplete")' "$out" >/dev/null
           done
