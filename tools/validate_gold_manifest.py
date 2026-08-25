@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from urllib.parse import urlparse
@@ -12,15 +13,20 @@ ALLOWED_SOURCE_HOSTS = {
     "olis.oregonlegislature.gov",
 }
 REQUIRED_EXPECTED_KEYS = {"year", "chapter", "bill", "effectiveDate", "affectedSections"}
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 def validate_document(item, repo_root):
     errors = []
     doc_id = item.get("id", "<missing-id>")
 
-    for key in ("id", "fixture", "sourceUrl", "reviewStatus", "reviewBasis", "reviewSources", "expected"):
+    for key in ("id", "fixture", "sourceUrl", "sourceSha256", "reviewStatus", "reviewBasis", "reviewSources", "expected"):
         if key not in item:
             errors.append(f"{doc_id}: missing required field {key}")
+
+    source_sha256 = item.get("sourceSha256")
+    if not isinstance(source_sha256, str) or not SHA256_RE.fullmatch(source_sha256):
+        errors.append(f"{doc_id}: sourceSha256 must be a lowercase 64-character SHA-256 digest")
 
     if item.get("reviewStatus") not in ALLOWED_REVIEW_STATUSES:
         errors.append(f"{doc_id}: reviewStatus must be independently-reviewed")
@@ -100,6 +106,7 @@ def main():
         "valid": not errors,
         "errors": errors,
         "coverageTags": sorted({tag for item in documents for tag in item.get("caseTags", [])}),
+        "allFixturesHashPinned": bool(documents) and all(bool(item.get("sourceSha256")) for item in documents),
     }
     print(json.dumps(report, indent=2))
 
