@@ -103,9 +103,9 @@ reconcileWithLegislativeCounsel ∷ Integer → Integer → ChangeSet → [LCRec
 reconcileWithLegislativeCounsel sourceYear chapterNumber parsed records =
   let evidence = lcRecordsForChapter sourceYear chapterNumber records
       counsel = lcChangeSetForChapter sourceYear chapterNumber records
-      hasEvidence = not (null evidence)
+      hasAmendmentOrRepealEvidence = counsel /= emptyChangeSet
       status
-        | not hasEvidence = LCNoEvidence
+        | not hasAmendmentOrRepealEvidence = LCNoEvidence
         | counsel == parsed = LCVerified
         | otherwise = LCConflict
   in LCValidation {
