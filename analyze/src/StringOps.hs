@@ -9,8 +9,7 @@ import Text.Regex.TDFA       ( (=~) )
 cleanUp ∷ String → String
 cleanUp a_string =
   let sentences =
-        fixWhitespace
-        ⋙  fixHyphenation
+        normalizeExtraction
         ⋙  splitIntoSentences
   in case sentences a_string of
     (x:_) -> x
@@ -18,11 +17,22 @@ cleanUp a_string =
 
 
 fixWhitespace ∷ String → String
-fixWhitespace = replace "\n" " "
+fixWhitespace = replace "\n" " " ⋙ replace "\r" " " ⋙ replace "\t" " "
 
 
 fixHyphenation ∷ String → String
 fixHyphenation = replace "- " ""
+
+
+stripExtractionArtifacts ∷ String → String
+stripExtractionArtifacts = filter (\c -> c /= '\x00ad' && c /= '\x0002')
+
+
+normalizeExtraction ∷ String → String
+normalizeExtraction =
+  fixWhitespace
+  ⋙ fixHyphenation
+  ⋙ stripExtractionArtifacts
 
 
 splitIntoSentences ∷ String → [String]
@@ -49,4 +59,4 @@ firstMatch regex input =
 -- More-conventional function names
 --
 join ∷ [String] → String
-join = unwords
+join = unwords ⋙ normalizeExtraction

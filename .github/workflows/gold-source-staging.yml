@@ -1,0 +1,37 @@
+name: Gold source staging
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'gold/pending/**'
+      - 'tools/hash_gold_sources.py'
+      - '.github/workflows/gold-source-staging.yml'
+
+concurrency:
+  group: gold-source-staging-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hash-sources:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Hash staged gold sources
+        run: |
+          set -euo pipefail
+          python3 tools/hash_gold_sources.py \
+            --candidates gold/pending/pr8-candidates.json \
+            --report pr8-source-hashes.json
+          jq -e '.valid == true and (.documents | length == 8) and ([.documents[].sha256 | test("^[0-9a-f]{64}$")] | all)' pr8-source-hashes.json >/dev/null
+
+      - name: Upload source hash report
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr8-source-hashes
+          path: pr8-source-hashes.json
+          if-no-files-found: error
+          retention-days: 30
