@@ -137,16 +137,19 @@ subsectionEvidence block = concatMap evidenceFromSubsection (drop 1 (split ") OR
             in if directTargetPrefix False prefix then map (\section -> SectionEvidence section action OperativeBodyEvidence clause excerpt) (sectionNumbers prefix) else []
           Nothing -> []
 
--- An operative target must be syntactically direct: a SECTION/subsection
--- prefix followed only by one or more ORS numbers and list separators before
--- the action marker. This rejects historical/narrative mentions that merely
--- contain a later phrase such as "is repealed".
+-- An operative target must be syntactically direct. It may include the
+-- Legislative Counsel's common qualification ", as amended by ...," before
+-- the action marker, but not arbitrary narrative text. This preserves valid
+-- historical-citation forms while rejecting prose that merely mentions a
+-- later repeal.
 directTargetPrefix ∷ Bool → String → Bool
 directTargetPrefix includeSectionClause prefix =
   let sectionStart = if includeSectionClause then "^[0-9]+[A-Za-z]?\\.[[:space:]]*(\\([0-9]+\\)[[:space:]]*)?" else "^"
       orsNumber = "[0-9]{1,3}[A-Z]?\\.[0-9]{3}"
       separator = "[[:space:]]*(,[[:space:]]*|[[:space:]]+and[[:space:]]+)(ORS[[:space:]]+)?"
-      patternText = sectionStart ++ "ORS[[:space:]]+" ++ orsNumber ++ "(" ++ separator ++ orsNumber ++ ")*[[:space:]]*$"
+      directTargets = "ORS[[:space:]]+" ++ orsNumber ++ "(" ++ separator ++ orsNumber ++ ")*"
+      amendedByQualifier = "([[:space:]]*,[[:space:]]*as amended by .*)?"
+      patternText = sectionStart ++ directTargets ++ amendedByQualifier ++ "[[:space:]]*$"
   in prefix =~ patternText
 
 operativeMarker ∷ String → Maybe (ChangeAction, String)
