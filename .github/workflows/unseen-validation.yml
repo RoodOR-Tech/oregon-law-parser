@@ -1,0 +1,122 @@
+name: Unseen validation evaluation
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: unseen-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: analyze
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build frozen validation manifest
+        run: |
+          set -euo pipefail
+          python3 ../tools/build_unseen_validation_manifest.py \
+            --selection ../validation/pending/unseen-25-candidates.json \
+            --hashes ../validation/reviews/unseen-25-source-hashes.json \
+            --reviews \
+              ../validation/reviews/batch1-2005-expectations.json \
+              ../validation/reviews/batch2-2007-expectations.json \
+              ../validation/reviews/batch3-2011-expectations.json \
+              ../validation/reviews/batch4-2021-2023-expectations.json \
+            --quality-targets-from ../gold/manifest.json \
+            --output ../validation-manifest.json
+          jq -e '.corpusType == "unseen-validation" and (.documents | length == 25) and ([.documents[].reviewStatus == "independently-reviewed"] | all)' ../validation-manifest.json >/dev/null
+
+      - name: Acquire pinned unseen fixtures
+        run: |
+          set -euo pipefail
+          python3 ../tools/acquire_gold_fixtures.py \
+            --manifest ../validation-manifest.json \
+            --repo-root .. \
+            --report ../validation-fixture-acquisition.json
+          jq -e '.valid == true and (.documents | length == 25) and ([.documents[].hashPinned] | all)' ../validation-fixture-acquisition.json >/dev/null
+
+      - name: Set up Haskell
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: '9.4.5'
+          enable-stack: true
+          stack-version: 'latest'
+
+      - name: Cache Stack
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.stack
+            analyze/.stack-work
+          key: ${{ runner.os }}-stack-${{ hashFiles('analyze/stack.yaml.lock', 'analyze/analyze.cabal') }}
+          restore-keys: |
+            ${{ runner.os }}-stack-
+
+      - name: Build executable
+        run: stack build --no-terminal
+
+      - name: Run parser on unseen corpus
+        run: |
+          set -euo pipefail
+          mkdir -p ../validation-results
+          while IFS=$'\t' read -r id fixture source_url; do
+            if ! stack exec -- analyze "../$fixture" --tika-jar ../tika-app-2.8.0.jar --source-url "$source_url" > "../validation-results/$id.json"; then
+              echo "Parser returned structured failure for $id" >&2
+            fi
+          done < <(jq -r '.documents[] | [.id, .fixture, .sourceUrl] | @tsv' ../validation-manifest.json)
+
+      - name: Evaluate unseen corpus
+        run: |
+          set -euo pipefail
+          python3 ../tools/evaluate_unseen_validation.py \
+            --manifest ../validation-manifest.json \
+            --results-dir ../validation-results \
+            --report ../unseen-validation-report.json
+
+      - name: Upload validation manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unseen-validation-manifest
+          path: validation-manifest.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload fixture acquisition report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unseen-validation-acquisition
+          path: validation-fixture-acquisition.json
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Upload unseen parser results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unseen-validation-results
+          path: validation-results/*.json
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Upload unseen validation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unseen-validation-report
+          path: unseen-validation-report.json
+          if-no-files-found: warn
+          retention-days: 90

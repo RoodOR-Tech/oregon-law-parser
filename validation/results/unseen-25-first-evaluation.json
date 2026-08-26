@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "corpusType": "unseen-validation",
+  "evaluationStatus": "first-parser-evaluation-after-frozen-review",
+  "evaluationRunId": 32972090026,
+  "workflowRunNumber": 2,
+  "evaluatedHeadSha": "7359c3262727d50c7856bbfce11e125389b54e5d",
+  "goldBaselineCommit": "b181cb61949b864163e3a4401e509f5a3e92cdd3",
+  "reviewFreezeMasterCommit": "cd747ab7c8e81e32d268e8ec229d55ff828b985f",
+  "reportArtifact": {
+    "id": 9608133365,
+    "digest": "sha256:3cc1d9388b6c718720f3b9f7ada14023fde382f37e8781400720bf1606a33871"
+  },
+  "resultsArtifact": {
+    "id": 9608132993,
+    "digest": "sha256:4cee5d5cded814a648933a1cd988883085511ca9399f4d7c50349f61b04376ce"
+  },
+  "manifestArtifact": {
+    "id": 9608132220,
+    "digest": "sha256:6f9f2c6941db6034c33564898266c03c82647145dae72803f4181e3a0903d8a1"
+  },
+  "acquisitionArtifact": {
+    "id": 9608132599,
+    "digest": "sha256:02ee106e1c0f90c4f40ab4603d37b03ce63c5f29b16713bc8529c70c98bb1d4e"
+  },
+  "validationDocuments": 25,
+  "gatePassed": true,
+  "metrics": {
+    "truePositives": 406,
+    "falsePositives": 0,
+    "falseNegatives": 0,
+    "sectionPrecision": 1.0,
+    "sectionRecall": 1.0,
+    "metadataExactMatch": 1.0
+  },
+  "targets": {
+    "sectionPrecision": 0.999,
+    "sectionRecall": 0.995,
+    "metadataExactMatch": 1.0
+  },
+  "methodology": {
+    "selectionFrozenBeforeParserEvaluation": true,
+    "sourceHashesFrozenBeforeParserEvaluation": true,
+    "allExpectationsIndependentlyReviewedBeforeParserEvaluation": true,
+    "goldCertificationCorpusModified": false,
+    "expectationsChangedInResponseToParserOutput": false
+  }
+}
