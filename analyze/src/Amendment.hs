@@ -143,10 +143,12 @@ subsectionEvidence block = concatMap evidenceFromSubsection (drop 1 (split ") OR
 -- a conditional "If ... becomes law," prefix; an ", as amended by ..."
 -- qualifier; and a mixed clause that pairs ORS targets with uncodified
 -- sections of a named Oregon Laws chapter. Those forms remain direct evidence
--- for the ORS citations. Arbitrary narrative remains rejected.
+-- for the ORS citations. A bounded "Repeals." heading is also allowed because
+-- Legislative Counsel sometimes inserts it between the SECTION number and the
+-- direct ORS target. Arbitrary narrative remains rejected.
 directTargetPrefix ∷ Bool → String → Bool
 directTargetPrefix includeSectionClause prefix =
-  let sectionStart = if includeSectionClause then "^[0-9]+[A-Za-z]?\\.[[:space:]]*(\\([0-9]+\\)[[:space:]]*)?" else "^"
+  let sectionStart = if includeSectionClause then "^[0-9]+[A-Za-z]?\\.[[:space:]]*(Repeals\\.[[:space:]]*)?(\\([0-9]+\\)[[:space:]]*)?" else "^"
       conditionalPrefix = "(If[[:space:]]+[^,]+[[:space:]]+becomes[[:space:]]+law,[[:space:]]*)?"
       orsNumber = "[0-9]{1,3}[A-Z]?\\.[0-9]{3}"
       separator = "[[:space:]]*(,[[:space:]]*|[[:space:]]+and[[:space:]]+)(ORS[[:space:]]+)?"
