@@ -1,0 +1,57 @@
+name: Validation source staging
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'validation/pending/**'
+      - 'tools/hash_gold_sources.py'
+      - '.github/workflows/validation-source-staging.yml'
+
+concurrency:
+  group: validation-source-staging-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hash-sources:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Hash unseen validation sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          candidates=(validation/pending/*-candidates.json)
+          if (( ${#candidates[@]} == 0 )); then
+            echo "No staged validation candidates; nothing to hash."
+            exit 0
+          fi
+
+          mkdir -p validation-source-hash-reports
+          status=0
+          for candidate in "${candidates[@]}"; do
+            base="$(basename "$candidate" .json)"
+            report="validation-source-hash-reports/${base}-source-hashes.json"
+            if ! python3 tools/hash_gold_sources.py \
+              --candidates "$candidate" \
+              --report "$report"; then
+              status=1
+            fi
+            if ! jq -e '.valid == true and (.documents | length > 0) and ([.documents[].sha256 | test("^[0-9a-f]{64}$")] | all)' "$report" >/dev/null; then
+              status=1
+            fi
+          done
+          exit "$status"
+
+      - name: Upload validation source hash reports
+        uses: actions/upload-artifact@v4
+        if: always() && hashFiles('validation-source-hash-reports/*.json') != ''
+        with:
+          name: validation-source-hashes
+          path: validation-source-hash-reports/*.json
+          if-no-files-found: error
+          retention-days: 30
