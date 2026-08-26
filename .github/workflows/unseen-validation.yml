@@ -1,15 +1,12 @@
 name: Unseen validation evaluation
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
     branches:
       - master
-    paths:
-      - 'validation/**'
-      - 'tools/build_unseen_validation_manifest.py'
-      - 'tools/evaluate_unseen_validation.py'
-      - 'tools/acquire_gold_fixtures.py'
-      - '.github/workflows/unseen-validation.yml'
   workflow_dispatch:
 
 concurrency:
