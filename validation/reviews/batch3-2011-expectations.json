@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "reviewStatus": "independently-reviewed",
+  "purpose": "Unseen validation review batch 3. Expectations were established directly from authoritative Oregon Laws chapter text before any parser evaluation of these cases. Direct ORS operations are kept distinct from amendments or repeals of prior- and same-session Oregon Laws sections.",
+  "documents": [
+    {
+      "id":"2011orlaw0118","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0118.html","sourceSha256":"0a7f787cdb1f3620cd6416f97f9e73511a5b76f74c3a69f49d28345fa9d327e9","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0118.html"],
+      "reviewBasis":"Oregon Laws 2011 chapter 118 identifies HB 2828. Sections 3 and 4 amend ORS 10.090 and 659A.885, section 5 repeals ORS 10.992, and section 2 is a new added-to-ORS-chapter provision rather than an ORS amendment. The official footer gives the January 1, 2012 effective date.",
+      "expected":{"year":2011,"chapter":118,"bill":{"billType":"HB","billNumber":2828},"effectiveDate":"2012-01-01","affectedSections":{"amended":["10.090","659A.885"],"repealed":["10.992"]}}
+    },
+    {
+      "id":"2011orlaw0129","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0129.html","sourceSha256":"4592facccd536f389b45bcd75051ff2bbdc0a76433e00bd6173444c82589d9c3","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0129.html"],
+      "reviewBasis":"Oregon Laws 2011 chapter 129 identifies HB 3558. Section 1 amends ORS 81.102 with no ORS repeal. Section 3 declares an emergency; the official footer gives May 19, 2011 as the effective date.",
+      "expected":{"year":2011,"chapter":129,"bill":{"billType":"HB","billNumber":3558},"effectiveDate":"2011-05-19","affectedSections":{"amended":["81.102"],"repealed":[]}}
+    },
+    {
+      "id":"2011orlaw0147","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0147.html","sourceSha256":"5cecf60aec7571236b1c5f76ec6cc565e562b52a32a81a0a36d46d5e3854712c","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0147.html"],
+      "reviewBasis":"Oregon Laws 2011 chapter 147 identifies HB 2254 and directly amends 29 ORS sections. Section 32 delays operation of the amendments to January 1, 2012, but section 33 declares an emergency and the official footer establishes the act's effective date as May 27, 2011.",
+      "expected":{"year":2011,"chapter":147,"bill":{"billType":"HB","billNumber":2254},"effectiveDate":"2011-05-27","affectedSections":{"amended":["60.472","60.637","60.654","60.707","60.787","62.455","62.607","62.685","63.470","63.654","63.707","63.787","65.637","65.654","65.707","65.787","67.342","67.645","67.665","67.710","70.355","70.440","70.505","70.610","128.595","128.599","554.307","648.005","648.025"],"repealed":[]}}
+    },
+    {
+      "id":"2011orlaw0300","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0300.html","sourceSha256":"039bff7aa9546df35b30f5ebe427a77912491946691e83ecd38d0032ba1406a5","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0300.html"],
+      "reviewBasis":"Oregon Laws 2011 chapter 300 identifies HB 3590. Section 1 directly amends ORS 811.210 as previously amended by a 2010 Oregon Laws chapter; that prior-session-law citation does not create another affected ORS section. The official footer gives the January 1, 2012 effective date.",
+      "expected":{"year":2011,"chapter":300,"bill":{"billType":"HB","billNumber":3590},"effectiveDate":"2012-01-01","affectedSections":{"amended":["811.210"],"repealed":[]}}
+    },
+    {
+      "id":"2011orlaw0347","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0347.html","sourceSha256":"80d9e54a8aa7a1a541fb4b0310430d1c217b97fea25fa93654585a4e66d9777e","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0347.html"],
+      "reviewBasis":"Oregon Laws 2011 chapter 347 identifies HB 2014. Section 1 amends ORS 146.750; statutory citations within the amended text are incidental. The official footer gives the January 1, 2012 effective date.",
+      "expected":{"year":2011,"chapter":347,"bill":{"billType":"HB","billNumber":2014},"effectiveDate":"2012-01-01","affectedSections":{"amended":["146.750"],"repealed":[]}}
+    },
+    {
+      "id":"2011orlaw0470","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0470.html","sourceSha256":"7f59e78f789c71248abd6642d525c3d6dba2791b2f7eac6838551473c9ecc5f4","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0470.html"],
+      "reviewBasis":"Oregon Laws 2011 chapter 470 identifies HB 2138 and directly amends eight ORS sections. Application provisions use later dates for particular amendments, but the official chapter footer gives January 1, 2012 as the act's effective date.",
+      "expected":{"year":2011,"chapter":470,"bill":{"billType":"HB","billNumber":2138},"effectiveDate":"2012-01-01","affectedSections":{"amended":["184.843","367.802","801.208","807.031","807.100","809.407","809.413","809.415"],"repealed":[]}}
+    },
+    {
+      "id":"2011orlaw0595","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0595.html","sourceSha256":"7d328912dd857ac5430601a2d518d075570204739c5b5c5ce665d93aab0d85ea","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0595.html"],
+      "reviewBasis":"Oregon Laws 2011 chapter 595 identifies HB 2710. The title and operative provisions enumerate 73 direct ORS amendments and 30 direct ORS repeals, plus many amendments and repeals of 2009, 2010 and same-session 2011 Oregon Laws sections. Those uncodified/session-law operations are not ORS changes. Section 189 declares an emergency with a specified July 1, 2011 effective date, confirmed by the footer.",
+      "expected":{"year":2011,"chapter":595,"bill":{"billType":"HB","billNumber":2710},"effectiveDate":"2011-07-01","affectedSections":{"amended":["1.202","2.560","8.125","9.572","9.576","9.820","18.999","20.190","21.010","21.125","21.270","21.615","24.115","24.135","24.190","34.340","36.520","36.522","36.524","36.610","36.615","46.405","46.425","46.455","46.461","46.465","46.475","46.488","46.570","51.080","51.310","52.635","55.011","55.095","105.130","105.938","106.120","107.434","107.795","109.100","109.787","110.426","112.820","114.515","114.720","125.060","125.075","125.605","125.842","125.845","130.045","130.355","130.400","133.055","135.265","135.921","137.225","137.540","138.560","166.274","180.345","181.823","181.826","182.040","205.360","305.490","352.066","417.825","419B.529","419B.555","701.133","813.210","813.240"],"repealed":["1.204","2.565","9.574","9.830","9.840","9.850","21.040","21.110","21.111","21.112","21.114","21.275","21.310","21.325","21.335","21.350","21.420","21.480","21.580","21.660","21.670","21.730","21.990","36.170","108.130","352.655","458.350","458.355","458.360","458.365"]}}
+    },
+    {
+      "id":"2011orlaw0703","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0703.html","sourceSha256":"bd2a3b481b3f1c9e1c36471af112b49b650e0c28e2a5a318137e04d77c2d2e1b","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0703.html"],
+      "reviewBasis":"Oregon Laws 2011 chapter 703 identifies SB 234 and directly amends 51 ORS sections without an ORS repeal. The long act contains extensive incidental statutory citations, making it a precision stress case. The official footer gives the January 1, 2012 effective date.",
+      "expected":{"year":2011,"chapter":703,"bill":{"billType":"SB","billNumber":234},"effectiveDate":"2012-01-01","affectedSections":{"amended":["30.803","31.740","40.460","97.970","124.050","127.675","137.476","162.257","163.165","163.213","166.070","181.637","192.519","315.622","352.223","353.450","419B.005","430.735","431.613","431.623","433.009","433.085","433.443","442.490","442.566","453.307","609.652","676.150","676.160","676.306","682.017","682.025","682.028","682.031","682.039","682.051","682.056","682.068","682.089","682.204","682.208","682.212","682.216","682.218","682.220","682.224","682.245","682.265","746.600","820.330","820.340"],"repealed":[]}}
+    }
+  ]
+}
