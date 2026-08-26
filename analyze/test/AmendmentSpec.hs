@@ -95,6 +95,14 @@ spec = do
       let ps = ["SECTION 4. ORS 659A.885, as amended by section 3, chapter 102, Oregon Laws 2010, is amended to read:"]
       findBodyChangedStatutes ps `shouldBe` ChangeSet { amended = ["659A.885"], repealed = [] }
 
+    it "extracts ORS targets from a mixed ORS and Oregon Laws repeal clause" $ do
+      let ps = ["SECTION 1. (1) ORS 455.612, 455.614, 476.390, 476.394, 477.027, 477.161 and 477.490 and sections 12a, 12b and 29, chapter 592, Oregon Laws 2021, are repealed."]
+      findBodyChangedStatutes ps `shouldBe` ChangeSet { amended = [], repealed = ["455.612", "455.614", "476.390", "476.394", "477.027", "477.161", "477.490"] }
+
+    it "accepts a conditional becomes-law prefix on a direct ORS amendment" $ do
+      let ps = ["SECTION 41. If House Bill 2191 becomes law, ORS 697.612, as amended by section 2, chapter 604, Oregon Laws 2009 (Enrolled House Bill 2191), is amended to read:"]
+      findBodyChangedStatutes ps `shouldBe` ChangeSet { amended = ["697.612"], repealed = [] }
+
     it "does not infer a current repeal from historical narrative" $ do
       let ps = ["SECTION 5. (1) ORS 458.620 (1)(f) (2019 Edition) and 458.667 (2019 Edition) established an account. (2) The account was abolished by prior law and the repeal of ORS 458.667 by prior law. (3) The repeal of ORS 458.667 by section 6 of this 2023 Act confirms the result. SECTION 6. ORS 458.667 is repealed."]
       findBodyChangedStatutes ps `shouldBe` ChangeSet { amended = [], repealed = ["458.667"] }
