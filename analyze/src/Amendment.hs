@@ -152,7 +152,7 @@ directTargetPrefix includeSectionClause prefix =
       directTargets = "ORS[[:space:]]+" ++ orsNumber ++ "(" ++ separator ++ orsNumber ++ ")*"
       uncodifiedTail = "([[:space:]]+and[[:space:]]+sections?[[:space:]]+[0-9A-Za-z]+([[:space:]]*,[[:space:]]*[0-9A-Za-z]+)*([[:space:]]+and[[:space:]]+[0-9A-Za-z]+)?,[[:space:]]+chapter[[:space:]]+[0-9]+,[[:space:]]+Oregon Laws[[:space:]]+[0-9]{4}([[:space:]]*\\([^)]*\\))?)?"
       amendedByQualifier = "([[:space:]]*,[[:space:]]*as amended by .*)?"
-      patternText = sectionStart ++ conditionalPrefix ++ directTargets ++ uncodifiedTail ++ amendedByQualifier ++ "[[:space:]]*$"
+      patternText = sectionStart ++ conditionalPrefix ++ directTargets ++ uncodifiedTail ++ amendedByQualifier ++ "[[:space:]]*,?[[:space:]]*$"
   in prefix =~ patternText
 
 operativeMarker ∷ String → Maybe (ChangeAction, String)
