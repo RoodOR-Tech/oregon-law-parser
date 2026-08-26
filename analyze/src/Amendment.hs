@@ -4,8 +4,9 @@ module Amendment where
 
 import           Data.Aeson        (ToJSON)
 import           Data.Function     ((&))
-import           Data.List         (isInfixOf, isPrefixOf, isSubsequenceOf, nub, sort)
+import           Data.List         (isInfixOf, isPrefixOf, minimumBy, nub, sort)
 import           Data.Maybe        (isNothing)
+import           Data.Ord          (comparing)
 import           Data.String.Utils (split, splitWs)
 import           Data.Time         (Day, defaultTimeLocale, parseTimeM)
 import           GHC.Generics
@@ -100,7 +101,7 @@ findChangedStatutes title = changeSetFromEvidence (findTitleEvidence title)
 findTitleEvidence ∷ String → [SectionEvidence]
 findTitleEvidence title =
   let clauses = split "; " title
-      evidenceFor action needle clause | needle `isSubsequenceOf` clause = map (\section -> SectionEvidence section action TitleEvidence Nothing clause) (findSectionNumbers [clause]) | otherwise = []
+      evidenceFor action needle clause | needle `isInfixOf` clause = map (\section -> SectionEvidence section action TitleEvidence Nothing clause) (findSectionNumbers [clause]) | otherwise = []
   in concatMap (\clause -> evidenceFor AmendmentAction "amending" clause ++ evidenceFor RepealAction "repealing" clause) clauses
 
 findBodyChangedStatutes ∷ [String] → ChangeSet
@@ -118,8 +119,7 @@ primaryEvidence block = case operativeMarker block of
     let prefix = beforeMarker marker block
         clause = firstMatch "^[0-9]+[A-Za-z]?" prefix
         excerpt = prefix ++ marker
-        directOrsTarget = case firstMatch "^[0-9]+[A-Za-z]?\\.[[:space:]]*(\\([0-9]+\\)[[:space:]]*)?ORS[[:space:]]" prefix of Just _ -> True; Nothing -> False
-    in if directOrsTarget then map (\section -> SectionEvidence section action OperativeBodyEvidence clause excerpt) (sectionNumbers prefix) else []
+    in if directTargetPrefix True prefix then map (\section -> SectionEvidence section action OperativeBodyEvidence clause excerpt) (sectionNumbers prefix) else []
   Nothing -> []
 
 -- Some SECTION blocks contain multiple numbered operative subclauses, e.g.
@@ -135,13 +135,41 @@ subsectionEvidence block = concatMap evidenceFromSubsection (drop 1 (split ") OR
             let prefix = beforeMarker marker candidate
                 excerpt = prefix ++ marker
                 clause = firstMatch "^[0-9]+[A-Za-z]?" block
-            in map (\section -> SectionEvidence section action OperativeBodyEvidence clause excerpt) (sectionNumbers prefix)
+            in if directTargetPrefix False prefix then map (\section -> SectionEvidence section action OperativeBodyEvidence clause excerpt) (sectionNumbers prefix) else []
           Nothing -> []
 
+-- Operative evidence is anchored to the SECTION/subsection syntax. Besides a
+-- direct ORS list, Legislative Counsel commonly uses three bounded forms:
+-- a conditional "If ... becomes law," prefix; an ", as amended by ..."
+-- qualifier; and a mixed clause that pairs ORS targets with uncodified
+-- sections of a named Oregon Laws chapter. Those forms remain direct evidence
+-- for the ORS citations. Arbitrary narrative remains rejected.
+directTargetPrefix ∷ Bool → String → Bool
+directTargetPrefix includeSectionClause prefix =
+  let sectionStart = if includeSectionClause then "^[0-9]+[A-Za-z]?\\.[[:space:]]*(\\([0-9]+\\)[[:space:]]*)?" else "^"
+      conditionalPrefix = "(If[[:space:]]+[^,]+[[:space:]]+becomes[[:space:]]+law,[[:space:]]*)?"
+      orsNumber = "[0-9]{1,3}[A-Z]?\\.[0-9]{3}"
+      separator = "[[:space:]]*(,[[:space:]]*|[[:space:]]+and[[:space:]]+)(ORS[[:space:]]+)?"
+      directTargets = "ORS[[:space:]]+" ++ orsNumber ++ "(" ++ separator ++ orsNumber ++ ")*"
+      uncodifiedTail = "([[:space:]]+and[[:space:]]+sections?[[:space:]]+[0-9A-Za-z]+([[:space:]]*,[[:space:]]*[0-9A-Za-z]+)*([[:space:]]+and[[:space:]]+[0-9A-Za-z]+)?,[[:space:]]+chapter[[:space:]]+[0-9]+,[[:space:]]+Oregon Laws[[:space:]]+[0-9]{4}([[:space:]]*\\([^)]*\\))?)?"
+      amendedByQualifier = "([[:space:]]*,[[:space:]]*as amended by .*)?"
+      patternText = sectionStart ++ conditionalPrefix ++ directTargets ++ uncodifiedTail ++ amendedByQualifier ++ "[[:space:]]*,?[[:space:]]*$"
+  in prefix =~ patternText
+
+-- A SECTION can contain multiple operative clauses. Choose the marker that
+-- occurs first in the text; marker-type priority can otherwise skip an earlier
+-- plural clause when a later singular clause is present in the same block.
 operativeMarker ∷ String → Maybe (ChangeAction, String)
-operativeMarker block = firstMatching
-  [ (AmendmentAction, " is amended to read"), (AmendmentAction, " are amended to read"), (RepealAction, " is repealed"), (RepealAction, " are repealed") ]
-  where firstMatching [] = Nothing; firstMatching ((action, marker):rest) | marker `isInfixOf` block = Just (action, marker) | otherwise = firstMatching rest
+operativeMarker block =
+  let candidates = filter (\(_, marker) -> marker `isInfixOf` block)
+        [ (AmendmentAction, " is amended to read")
+        , (AmendmentAction, " are amended to read")
+        , (RepealAction, " is repealed")
+        , (RepealAction, " are repealed")
+        ]
+  in case candidates of
+      [] -> Nothing
+      _ -> Just (minimumBy (comparing (\(_, marker) -> length (beforeMarker marker block))) candidates)
 
 changeSetFromEvidence ∷ [SectionEvidence] → ChangeSet
 changeSetFromEvidence evidence = ChangeSet
