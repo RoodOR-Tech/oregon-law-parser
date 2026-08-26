@@ -87,6 +87,10 @@ spec = do
       let ps = ["SECTION 5. ORS 180.650 and 180.660 are repealed."]
       findBodyChangedStatutes ps `shouldBe` ChangeSet { amended = [], repealed = ["180.650", "180.660"] }
 
+    it "accepts a Repeals heading before direct ORS targets" $ do
+      let ps = ["SECTION 16. Repeals. ORS 327.810 and 329.834 are repealed."]
+      findBodyChangedStatutes ps `shouldBe` ChangeSet { amended = [], repealed = ["327.810", "329.834"] }
+
     it "supports lettered ORS chapters beyond A-C" $ do
       let ps = ["SECTION 7. ORS 475C.770 is amended to read:"]
       findBodyChangedStatutes ps `shouldBe` ChangeSet { amended = ["475C.770"], repealed = [] }
