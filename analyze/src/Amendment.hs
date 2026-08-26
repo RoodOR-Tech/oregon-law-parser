@@ -137,19 +137,22 @@ subsectionEvidence block = concatMap evidenceFromSubsection (drop 1 (split ") OR
             in if directTargetPrefix False prefix then map (\section -> SectionEvidence section action OperativeBodyEvidence clause excerpt) (sectionNumbers prefix) else []
           Nothing -> []
 
--- An operative target must be syntactically direct. It may include the
--- Legislative Counsel's common qualification ", as amended by ...," before
--- the action marker, but not arbitrary narrative text. This preserves valid
--- historical-citation forms while rejecting prose that merely mentions a
--- later repeal.
+-- Operative evidence is anchored to the SECTION/subsection syntax. Besides a
+-- direct ORS list, Legislative Counsel commonly uses three bounded forms:
+-- a conditional "If ... becomes law," prefix; an ", as amended by ..."
+-- qualifier; and a mixed clause that pairs ORS targets with uncodified
+-- sections of a named Oregon Laws chapter. Those forms remain direct evidence
+-- for the ORS citations. Arbitrary narrative remains rejected.
 directTargetPrefix ∷ Bool → String → Bool
 directTargetPrefix includeSectionClause prefix =
   let sectionStart = if includeSectionClause then "^[0-9]+[A-Za-z]?\\.[[:space:]]*(\\([0-9]+\\)[[:space:]]*)?" else "^"
+      conditionalPrefix = "(If[[:space:]]+[^,]+[[:space:]]+becomes[[:space:]]+law,[[:space:]]*)?"
       orsNumber = "[0-9]{1,3}[A-Z]?\\.[0-9]{3}"
       separator = "[[:space:]]*(,[[:space:]]*|[[:space:]]+and[[:space:]]+)(ORS[[:space:]]+)?"
       directTargets = "ORS[[:space:]]+" ++ orsNumber ++ "(" ++ separator ++ orsNumber ++ ")*"
+      uncodifiedTail = "([[:space:]]+and[[:space:]]+sections?[[:space:]]+[0-9A-Za-z]+([[:space:]]*,[[:space:]]*[0-9A-Za-z]+)*([[:space:]]+and[[:space:]]+[0-9A-Za-z]+)?,[[:space:]]+chapter[[:space:]]+[0-9]+,[[:space:]]+Oregon Laws[[:space:]]+[0-9]{4}([[:space:]]*\\([^)]*\\))?)?"
       amendedByQualifier = "([[:space:]]*,[[:space:]]*as amended by .*)?"
-      patternText = sectionStart ++ directTargets ++ amendedByQualifier ++ "[[:space:]]*$"
+      patternText = sectionStart ++ conditionalPrefix ++ directTargets ++ uncodifiedTail ++ amendedByQualifier ++ "[[:space:]]*$"
   in prefix =~ patternText
 
 operativeMarker ∷ String → Maybe (ChangeAction, String)
