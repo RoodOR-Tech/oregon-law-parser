@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "reviewStatus": "independently-reviewed",
+  "purpose": "Unseen validation review batch 2. Expectations were established directly from authoritative Oregon Laws chapter text before any parser evaluation of these cases.",
+  "documents": [
+    {
+      "id": "2007orlaw0064",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007orLaw0064.html",
+      "sourceSha256": "70c80b70993e85e52afcf70cbc51f2f9879d18915a3d54f339d1e01532f2439c",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007orLaw0064.html"],
+      "reviewBasis": "Oregon Laws 2007 chapter 64 identifies HB 2365. Section 1 amends ORS 93.180 and the chapter contains no ORS repeal. The official footer gives the January 1, 2008 effective date.",
+      "expected": {"year":2007,"chapter":64,"bill":{"billType":"HB","billNumber":2365},"effectiveDate":"2008-01-01","affectedSections":{"amended":["93.180"],"repealed":[]}}
+    },
+    {
+      "id": "2007orlaw0100",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007orLaw0100.html",
+      "sourceSha256": "1c3d01fa83b86316b5d63d6ad446db6e4d821539a1aed3e608724891935dbbfb",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007orLaw0100.html"],
+      "reviewBasis": "Oregon Laws 2007 chapter 100 identifies SB 2. The act and its summary section enumerate 33 ORS amendments and the express repeal of ORS 236.380. The official footer gives the January 1, 2008 effective date.",
+      "expected": {
+        "year":2007,"chapter":100,"bill":{"billType":"SB","billNumber":2},"effectiveDate":"2008-01-01",
+        "affectedSections":{
+          "amended":["10.030","20.107","30.860","93.270","109.035","166.155","166.165","174.100","179.750","192.630","240.306","338.125","353.100","418.648","418.925","421.352","430.550","443.739","458.505","659.850","659A.003","659A.006","659A.030","659A.403","659A.406","659A.409","659A.421","659A.424","659A.805","659A.815","659A.885","660.139","744.353"],
+          "repealed":["236.380"]
+        }
+      }
+    },
+    {
+      "id": "2007orlaw0181",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007orLaw0181.html",
+      "sourceSha256": "7ed70470f56571bc95dc4807fd1dac2e34f34a8b8a603a4f5299409e77ac3636",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007orLaw0181.html"],
+      "reviewBasis": "Oregon Laws 2007 chapter 181 identifies SB 950. Section 1 amends ORS 192.502; the many ORS references inside the amended text are incidental and there is no ORS repeal. The official footer gives the January 1, 2008 effective date.",
+      "expected": {"year":2007,"chapter":181,"bill":{"billType":"SB","billNumber":950},"effectiveDate":"2008-01-01","affectedSections":{"amended":["192.502"],"repealed":[]}}
+    },
+    {
+      "id": "2007orlaw0301",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007orLaw0301.html",
+      "sourceSha256": "a88fcd3b96e06a58cd5f5ddf817e9c89f36adff802533becb39b938a575adb9b",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007orLaw0301.html"],
+      "reviewBasis": "Oregon Laws 2007 chapter 301 identifies SB 838. The title and operative sections establish 15 ORS amendments and no ORS repeal; the repeal of section 25 of the 2007 Act is uncodified and is not an ORS repeal. Section 48 declares an emergency and the official footer gives the June 6, 2007 effective date.",
+      "expected": {
+        "year":2007,"chapter":301,"bill":{"billType":"SB","billNumber":838},"effectiveDate":"2007-06-06",
+        "affectedSections":{"amended":["261.010","261.030","261.050","261.235","261.250","261.253","261.305","261.335","261.348","261.355","262.005","262.015","262.075","757.612","757.687"],"repealed":[]}
+      }
+    },
+    {
+      "id": "2007orlaw0601",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007orLaw0601.html",
+      "sourceSha256": "99869f141618a3212ca1d0781827dd81bfcd4d1d008a2c4e03eb3edab7c2c9bf",
+      "reviewSources": ["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007orLaw0601.html"],
+      "reviewBasis": "Oregon Laws 2007 chapter 601 identifies SB 480. Sections 2 and 3 amend ORS 811.210 and 811.215 with no ORS repeal. Section 5 specifies a July 1, 2007 effective date, also recorded in the official footer.",
+      "expected": {"year":2007,"chapter":601,"bill":{"billType":"SB","billNumber":480},"effectiveDate":"2007-07-01","affectedSections":{"amended":["811.210","811.215"],"repealed":[]}}
+    }
+  ]
+}
