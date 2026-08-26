@@ -91,6 +91,10 @@ spec = do
       let ps = ["SECTION 7. ORS 475C.770 is amended to read:"]
       findBodyChangedStatutes ps `shouldBe` ChangeSet { amended = ["475C.770"], repealed = [] }
 
+    it "allows an as-amended-by qualifier before an operative amendment" $ do
+      let ps = ["SECTION 4. ORS 659A.885, as amended by section 3, chapter 102, Oregon Laws 2010, is amended to read:"]
+      findBodyChangedStatutes ps `shouldBe` ChangeSet { amended = ["659A.885"], repealed = [] }
+
     it "does not infer a current repeal from historical narrative" $ do
       let ps = ["SECTION 5. (1) ORS 458.620 (1)(f) (2019 Edition) and 458.667 (2019 Edition) established an account. (2) The account was abolished by prior law and the repeal of ORS 458.667 by prior law. (3) The repeal of ORS 458.667 by section 6 of this 2023 Act confirms the result. SECTION 6. ORS 458.667 is repealed."]
       findBodyChangedStatutes ps `shouldBe` ChangeSet { amended = [], repealed = ["458.667"] }
