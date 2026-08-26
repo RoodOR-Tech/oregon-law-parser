@@ -25,7 +25,7 @@ data ParseErrorCode = MissingCitation | InvalidCitation | MissingYear | MissingC
 data ParseError = ParseError { parseErrorCode ∷ ParseErrorCode, parseErrorField ∷ Maybe String, parseErrorMessage ∷ String } deriving (Eq, Show, Generic)
 type SectionNumber = String
 data Bill = Bill { billType ∷ BillType, billNumber ∷ Integer } deriving (Show, Eq, Generic)
-data BillType = HB | SB deriving (Read, Show, Eq, Generic)
+data BillType = HB | SB | BallotMeasure deriving (Read, Show, Eq, Generic)
 
 instance ToJSON Amendment
 instance ToJSON Bill
@@ -45,10 +45,11 @@ emptyChangeSet = ChangeSet { amended = [], repealed = [] }
 makeBill ∷ String → Maybe Bill
 makeBill citation = case splitWs citation of
   [chamber, number] -> do parsedType ← readMaybe chamber; parsedNumber ← readMaybe number; pure Bill { billType = parsedType, billNumber = parsedNumber }
+  ["Ballot", "Measure", "No.", number] -> do parsedNumber ← readMaybe number; pure Bill { billType = BallotMeasure, billNumber = parsedNumber }
   _ -> Nothing
 
 findCitation ∷ [String] → Maybe String
-findCitation phrases = phrases & join & firstMatch "(HB|SB) [0-9]+"
+findCitation phrases = phrases & join & firstMatch "(HB|SB) [0-9]+|Ballot Measure No\\. [0-9]+"
 
 findYear ∷ [String] → Maybe Integer
 findYear input = do
@@ -60,10 +61,30 @@ findChapter phrases = do
   matched ← phrases & join & firstMatch "(Chap\\.|Chapter) [0-9]{1,4}"
   case splitWs matched of [] -> Nothing; xs -> readMaybe (last xs)
 
+parseNamedDate ∷ String → Maybe Day
+parseNamedDate matched = parseTimeM True defaultTimeLocale "%B %-d, %Y" (unwords (splitWs matched))
+
+findDateAfter ∷ String → String → Maybe Day
+findDateAfter marker document = case drop 1 (split marker document) of
+  (suffix:_) -> firstMatch "[A-Za-z]+[[:space:]]+[0-9]{1,2},[[:space:]]+[0-9]{4}" suffix >>= parseNamedDate
+  [] -> Nothing
+
 findEffectiveDate ∷ [String] → Maybe Day
-findEffectiveDate input = do
-  matched ← input & join & firstMatch "Effective[[:space:]]+date[[:space:]]+[A-Za-z]+[[:space:]]+[0-9]{1,2},[[:space:]]+[0-9]{4}"
-  parseTimeM True defaultTimeLocale "Effective date %B %-d, %Y" (unwords (splitWs matched))
+findEffectiveDate input =
+  let document = join input
+      ordinary = do
+        matched ← firstMatch "Effective[[:space:]]+date[[:space:]]+[A-Za-z]+[[:space:]]+[0-9]{1,2},[[:space:]]+[0-9]{4}" document
+        dateText ← firstMatch "[A-Za-z]+[[:space:]]+[0-9]{1,2},[[:space:]]+[0-9]{4}" matched
+        parseNamedDate dateText
+      referredAct = findDateAfter "Act takes effect" document
+      initiative = if "Ballot Measure No." `isInfixOf` document && "full force and effect" `isInfixOf` document
+        then findDateAfter "Governor dated" document
+        else Nothing
+  in case ordinary of
+      Just dateValue -> Just dateValue
+      Nothing -> case referredAct of
+        Just dateValue -> Just dateValue
+        Nothing -> initiative
 
 findSummary ∷ [String] → Maybe String
 findSummary phrases = case filter isSummary phrases of [aSummary] → Just (cleanUp aSummary); _ → Nothing
@@ -147,7 +168,7 @@ parseAmendment sourceProvenance phrases =
   let citation = findCitation phrases; parsedBill = citation >>= makeBill; parsedYear = findYear phrases; parsedChapter = findChapter phrases; parsedEffectiveDate = findEffectiveDate phrases
       summaryText = findSummary phrases; titleEvidence = maybe [] findTitleEvidence summaryText; bodyEvidence = findBodyEvidence phrases
       titleChanges = changeSetFromEvidence titleEvidence; bodyChanges = changeSetFromEvidence bodyEvidence; allEvidence = titleEvidence ++ bodyEvidence
-      errors = concat [ missingError MissingCitation "bill" "Could not find an HB/SB citation" (isNothing citation), invalidCitationError citation parsedBill, missingError MissingYear "year" "Could not find the Oregon Laws year" (isNothing parsedYear), missingError MissingChapter "chapter" "Could not find the Oregon Laws chapter" (isNothing parsedChapter), missingError MissingEffectiveDate "effectiveDate" "Could not parse the effective date" (isNothing parsedEffectiveDate) ]
+      errors = concat [ missingError MissingCitation "bill" "Could not find an HB/SB or ballot-measure citation" (isNothing citation), invalidCitationError citation parsedBill, missingError MissingYear "year" "Could not find the Oregon Laws year" (isNothing parsedYear), missingError MissingChapter "chapter" "Could not find the Oregon Laws chapter" (isNothing parsedChapter), missingError MissingEffectiveDate "effectiveDate" "Could not parse the effective date" (isNothing parsedEffectiveDate) ]
   in case (parsedBill, parsedYear, parsedEffectiveDate, parsedChapter) of
     (Just billValue, Just yearValue, Just effectiveDateValue, Just chapterValue) | null errors -> Right Amendment { bill = billValue, summary = summaryText, affectedSections = selectBestChangeSet titleChanges bodyChanges, year = yearValue, effectiveDate = effectiveDateValue, chapter = chapterValue, validation = reconcileChangeSetsWithEvidence titleChanges bodyChanges allEvidence, provenance = sourceProvenance }
     _ -> Left errors
