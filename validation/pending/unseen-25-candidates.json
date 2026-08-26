@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Frozen 25-law unseen validation selection. Cases were selected before parser evaluation. Expected labels are intentionally absent until authoritative-source independent review is completed.",
+  "selectionStatus": "frozen-unreviewed",
+  "goldBaselineCommit": "b181cb61949b864163e3a4401e509f5a3e92cdd3",
+  "documents": [
+    {"id":"2005orlaw0014","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005orLaw0014ses.html","caseTags":["legacy-html","mixed-amendment-repeal","multiple-ors-amendments","multiple-ors-repeals"]},
+    {"id":"2005orlaw0195","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005orLaw0195ses.html","caseTags":["legacy-html","mixed-amendment-repeal","multiple-ors-amendments","ors-repeal"]},
+    {"id":"2005orlaw0264","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005orLaw0264ses.html","caseTags":["legacy-html","large-document","multiple-ors-amendments","emergency-clause"]},
+    {"id":"2005orlaw0746","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005orLaw0746ses.html","caseTags":["legacy-html","mixed-amendment-repeal","single-ors-amendment","multiple-ors-repeals","added-to-provisions"]},
+    {"id":"2005orlaw0825","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005orLaw0825ses.html","caseTags":["legacy-html","mixed-amendment-repeal","multiple-ors-amendments","multiple-ors-repeals","emergency-clause"]},
+    {"id":"2007orlaw0064","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007orLaw0064.html","caseTags":["legacy-html","single-ors-amendment","delayed-effective-date"]},
+    {"id":"2007orlaw0100","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007orLaw0100.html","caseTags":["legacy-html","large-document","mixed-amendment-repeal","multiple-ors-amendments","ors-repeal"]},
+    {"id":"2007orlaw0181","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007orLaw0181.html","caseTags":["legacy-html","single-ors-amendment","incidental-ors-citations"]},
+    {"id":"2007orlaw0301","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007orLaw0301.html","caseTags":["legacy-html","large-document","multiple-ors-amendments","emergency-clause"]},
+    {"id":"2007orlaw0601","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007orLaw0601.html","caseTags":["legacy-html","multiple-ors-amendments","emergency-clause"]},
+    {"id":"2011orlaw0118","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0118.html","caseTags":["legacy-html","mixed-amendment-repeal","multiple-ors-amendments","ors-repeal","added-to-provisions"]},
+    {"id":"2011orlaw0129","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0129.html","caseTags":["legacy-html","single-ors-amendment","emergency-clause"]},
+    {"id":"2011orlaw0147","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0147.html","caseTags":["legacy-html","large-document","multiple-ors-amendments","emergency-clause"]},
+    {"id":"2011orlaw0300","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0300.html","caseTags":["legacy-html","single-ors-amendment","prior-session-law-cross-reference"]},
+    {"id":"2011orlaw0347","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0347.html","caseTags":["legacy-html","single-ors-amendment","incidental-ors-citations"]},
+    {"id":"2011orlaw0470","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0470.html","caseTags":["legacy-html","multiple-ors-amendments","transportation"]},
+    {"id":"2011orlaw0595","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0595.html","caseTags":["legacy-html","very-large-document","same-session-law-amendment","same-session-law-repeal","conditional-amendments"]},
+    {"id":"2011orlaw0703","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2011orLaw0703.html","caseTags":["legacy-html","very-large-document","multiple-ors-amendments","incidental-ors-citations"]},
+    {"id":"2021orlaw0021","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021orlaw0021.pdf","caseTags":["pdf","mixed-amendment-repeal","multiple-ors-amendments","ors-repeal"]},
+    {"id":"2021orlaw0338","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021orlaw0338.pdf","caseTags":["pdf","multiple-ors-amendments","prior-session-law-cross-reference","emergency-clause"]},
+    {"id":"2021orlaw0453","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021orlaw0453.pdf","caseTags":["pdf","mixed-amendment-repeal","multiple-ors-amendments","ors-repeal","emergency-clause"]},
+    {"id":"2021orlaw0653","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021orlaw0653.pdf","caseTags":["pdf","mixed-amendment-repeal","multiple-ors-amendments","ors-repeal"]},
+    {"id":"2023orlaw0103","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2023orlaw0103.pdf","caseTags":["pdf","mixed-amendment-repeal","multiple-ors-amendments","ors-repeal","prescribed-effective-date"]},
+    {"id":"2023orlaw0400","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2023orlaw0400.pdf","caseTags":["pdf","very-large-document","mixed-amendment-repeal","multiple-ors-amendments","multiple-ors-repeals","prescribed-effective-date"]},
+    {"id":"2023orlaw0593","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2023orlaw0593.pdf","caseTags":["pdf","multiple-ors-amendments","same-session-law-repeal","emergency-clause"]}
+  ]
+}
