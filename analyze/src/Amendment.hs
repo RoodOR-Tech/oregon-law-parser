@@ -4,8 +4,9 @@ module Amendment where
 
 import           Data.Aeson        (ToJSON)
 import           Data.Function     ((&))
-import           Data.List         (isInfixOf, isPrefixOf, nub, sort)
+import           Data.List         (isInfixOf, isPrefixOf, minimumBy, nub, sort)
 import           Data.Maybe        (isNothing)
+import           Data.Ord          (comparing)
 import           Data.String.Utils (split, splitWs)
 import           Data.Time         (Day, defaultTimeLocale, parseTimeM)
 import           GHC.Generics
@@ -155,10 +156,20 @@ directTargetPrefix includeSectionClause prefix =
       patternText = sectionStart ++ conditionalPrefix ++ directTargets ++ uncodifiedTail ++ amendedByQualifier ++ "[[:space:]]*,?[[:space:]]*$"
   in prefix =~ patternText
 
+-- A SECTION can contain multiple operative clauses. Choose the marker that
+-- occurs first in the text; marker-type priority can otherwise skip an earlier
+-- plural clause when a later singular clause is present in the same block.
 operativeMarker ∷ String → Maybe (ChangeAction, String)
-operativeMarker block = firstMatching
-  [ (AmendmentAction, " is amended to read"), (AmendmentAction, " are amended to read"), (RepealAction, " is repealed"), (RepealAction, " are repealed") ]
-  where firstMatching [] = Nothing; firstMatching ((action, marker):rest) | marker `isInfixOf` block = Just (action, marker) | otherwise = firstMatching rest
+operativeMarker block =
+  let candidates = filter (\(_, marker) -> marker `isInfixOf` block)
+        [ (AmendmentAction, " is amended to read")
+        , (AmendmentAction, " are amended to read")
+        , (RepealAction, " is repealed")
+        , (RepealAction, " are repealed")
+        ]
+  in case candidates of
+      [] -> Nothing
+      _ -> Just (minimumBy (comparing (\(_, marker) -> length (beforeMarker marker block))) candidates)
 
 changeSetFromEvidence ∷ [SectionEvidence] → ChangeSet
 changeSetFromEvidence evidence = ChangeSet
