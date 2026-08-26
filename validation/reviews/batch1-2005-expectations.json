@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "reviewStatus": "independently-reviewed",
+  "purpose": "Unseen validation review batch 1. Expectations were established from authoritative Oregon Laws chapter text and the official 2005 amended/repealed comparative table before any parser evaluation of these cases.",
+  "documents": [
+    {
+      "id": "2005orlaw0014",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005orLaw0014ses.html",
+      "sourceSha256": "bcca22d084812ee3c9f6e36de91812592cdd94f4560d87647f40213094767705",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005orLaw0014ses.html",
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005_2_AR.pdf"
+      ],
+      "reviewBasis": "Oregon Laws 2005 chapter 14 identifies HB 2083; sections 2, 3 and 4 amend ORS 537.330, 537.130 and 537.793; section 5 expressly repeals nine ORS sections. The official chapter footer gives the January 1, 2006 effective date.",
+      "expected": {
+        "year": 2005,
+        "chapter": 14,
+        "bill": {"billType": "HB", "billNumber": 2083},
+        "effectiveDate": "2006-01-01",
+        "affectedSections": {
+          "amended": ["537.130", "537.330", "537.793"],
+          "repealed": ["537.015", "537.017", "537.020", "537.022", "537.025", "537.027", "537.030", "537.032", "537.788"]
+        }
+      }
+    },
+    {
+      "id": "2005orlaw0195",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005orLaw0195ses.html",
+      "sourceSha256": "50eb45c2e0c3e45862c3313f23ef208ffb95753e36187ba1f35056e6613d3463",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005orLaw0195ses.html",
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005_2_AR.pdf"
+      ],
+      "reviewBasis": "Oregon Laws 2005 chapter 195 identifies SB 78; sections 1 and 2 amend ORS 811.725 and 802.040 and section 3 repeals ORS 810.470. The official chapter footer gives the January 1, 2006 effective date.",
+      "expected": {
+        "year": 2005,
+        "chapter": 195,
+        "bill": {"billType": "SB", "billNumber": 78},
+        "effectiveDate": "2006-01-01",
+        "affectedSections": {
+          "amended": ["802.040", "811.725"],
+          "repealed": ["810.470"]
+        }
+      }
+    },
+    {
+      "id": "2005orlaw0264",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005orLaw0264ses.html",
+      "sourceSha256": "2e9c178dc6a9394d10ddee1f200432d5f0dc319976953590d4523eb16acbe330",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005orLaw0264ses.html",
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005_2_AR.pdf"
+      ],
+      "reviewBasis": "Oregon Laws 2005 chapter 264 identifies HB 2145 and operatively amends 24 ORS sections without an ORS repeal. Section 25 declares an emergency and the official footer records approval and effective date June 20, 2005.",
+      "expected": {
+        "year": 2005,
+        "chapter": 264,
+        "bill": {"billType": "HB", "billNumber": 2145},
+        "effectiveDate": "2005-06-20",
+        "affectedSections": {
+          "amended": ["137.530", "137.540", "137.545", "137.547", "137.553", "137.570", "137.580", "137.590", "137.595", "137.610", "137.620", "137.630", "144.331", "161.336", "161.585", "161.675", "163.095", "167.310", "181.589", "181.860", "426.335", "430.560", "433.060", "433.407"],
+          "repealed": []
+        }
+      }
+    },
+    {
+      "id": "2005orlaw0746",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005orLaw0746ses.html",
+      "sourceSha256": "9a9899c34b9dabecba640e10d138347ff1bcb33f062aec6457cf23c1907add60",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005orLaw0746ses.html",
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005_2_AR.pdf"
+      ],
+      "reviewBasis": "Oregon Laws 2005 chapter 746 identifies SB 591. A new section is added to the Oregon Vehicle Code but is not an ORS amendment; section 3 amends ORS 811.360 and section 4 repeals ORS 811.010, 811.040 and 811.045. The official chapter footer gives the January 1, 2006 effective date.",
+      "expected": {
+        "year": 2005,
+        "chapter": 746,
+        "bill": {"billType": "SB", "billNumber": 591},
+        "effectiveDate": "2006-01-01",
+        "affectedSections": {
+          "amended": ["811.360"],
+          "repealed": ["811.010", "811.040", "811.045"]
+        }
+      }
+    },
+    {
+      "id": "2005orlaw0825",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005orLaw0825ses.html",
+      "sourceSha256": "1ffefa5d35f26eac965405bb2bb0ef3a108757fdba68d0eb7d5d59c0fe24ea84",
+      "reviewSources": [
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005orLaw0825ses.html",
+        "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005_2_AR.pdf"
+      ],
+      "reviewBasis": "Oregon Laws 2005 chapter 825 identifies HB 2101 and amends ten ORS sections. Section 19 repeals ORS 453.510, 453.517 and 453.527, with that repeal becoming operative January 1, 2006; the act itself contains an emergency clause and the official chapter footer establishes the overall effective date as September 2, 2005.",
+      "expected": {
+        "year": 2005,
+        "chapter": 825,
+        "bill": {"billType": "HB", "billNumber": 2101},
+        "effectiveDate": "2005-09-02",
+        "affectedSections": {
+          "amended": ["401.025", "401.270", "401.305", "401.515", "453.307", "453.317", "453.520", "453.825", "466.620", "654.196"],
+          "repealed": ["453.510", "453.517", "453.527"]
+        }
+      }
+    }
+  ]
+}
