@@ -8,6 +8,7 @@ from pathlib import Path
 
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 VALIDATION_STATUSES = {"Verified", "ParsedUnverified", "Conflict", "Incomplete"}
+VALID_BILL_TYPES = {"HB", "SB", "BallotMeasure"}
 
 
 def main():
@@ -72,8 +73,8 @@ def main():
             mismatches.append({"field": "year", "expected": args.year, "actual": actual.get("year")})
         if actual.get("chapter") != chapter:
             mismatches.append({"field": "chapter", "expected": chapter, "actual": actual.get("chapter")})
-        if not isinstance(actual.get("bill"), dict) or actual["bill"].get("billType") not in {"HB", "SB"} or not isinstance(actual["bill"].get("billNumber"), int):
-            mismatches.append({"field": "bill", "expected": "HB/SB with integer billNumber", "actual": actual.get("bill")})
+        if not isinstance(actual.get("bill"), dict) or actual["bill"].get("billType") not in VALID_BILL_TYPES or not isinstance(actual["bill"].get("billNumber"), int):
+            mismatches.append({"field": "bill", "expected": "HB/SB/BallotMeasure with integer billNumber", "actual": actual.get("bill")})
         if not isinstance(actual.get("effectiveDate"), str) or not actual.get("effectiveDate"):
             mismatches.append({"field": "effectiveDate", "expected": "non-empty date", "actual": actual.get("effectiveDate")})
         if mismatches:
