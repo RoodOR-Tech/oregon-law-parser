@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "reviewStatus": "independently-reviewed",
+  "purpose": "Unseen validation review batch 4. Expectations were established from authoritative Oregon Laws PDFs before any parser evaluation of these validation cases. Direct ORS changes are kept distinct from prior- and same-session Oregon Laws operations and from delayed operative dates.",
+  "documents": [
+    {
+      "id":"2021orlaw0021","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021orlaw0021.pdf","sourceSha256":"cdc38eb6f06099dddeda40f3c8d1da6a9418afa60cb026417002a1f72b856253","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021orlaw0021.pdf"],
+      "reviewBasis":"Oregon Laws 2021 chapter 21 identifies HB 2039. Sections 1 to 3 amend ORS 656.021, 656.455 and 731.475 and section 4 repeals ORS 656.750. The official footer gives the January 1, 2022 effective date.",
+      "expected":{"year":2021,"chapter":21,"bill":{"billType":"HB","billNumber":2039},"effectiveDate":"2022-01-01","affectedSections":{"amended":["656.021","656.455","731.475"],"repealed":["656.750"]}}
+    },
+    {
+      "id":"2021orlaw0338","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021orlaw0338.pdf","sourceSha256":"e34b33e713bd2d0bc36775480ca3701c0848b19047b042d2bdce4e3449e9c009","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021orlaw0338.pdf"],
+      "reviewBasis":"Oregon Laws 2021 chapter 338 identifies SB 556. The act directly amends nine ORS sections and separately amends section 12b, chapter 19, Oregon Laws 2020 (first special session), which is not an additional ORS change. Section 11 declares an emergency and the official footer gives June 15, 2021 as the effective date.",
+      "expected":{"year":2021,"chapter":338,"bill":{"billType":"SB","billNumber":556},"effectiveDate":"2021-06-15","affectedSections":{"amended":["441.025","441.060","441.062","441.157","443.019","443.415","443.436","443.705","443.860"],"repealed":[]}}
+    },
+    {
+      "id":"2021orlaw0453","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021orlaw0453.pdf","sourceSha256":"949d93a8b2f8d2499d2bf772980bca2730cf91c92dd0867ed2da6c0d997d0681","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021orlaw0453.pdf"],
+      "reviewBasis":"Oregon Laws 2021 chapter 453 identifies HB 2359. The act directly amends seven ORS sections and repeals ORS 657.048. Section 22 declares an emergency and the official footer gives July 14, 2021 as the effective date.",
+      "expected":{"year":2021,"chapter":453,"bill":{"billType":"HB","billNumber":2359},"effectiveDate":"2021-07-14","affectedSections":{"amended":["413.550","413.552","413.556","413.558","414.572","656.027","657.046"],"repealed":["657.048"]}}
+    },
+    {
+      "id":"2021orlaw0653","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021orlaw0653.pdf","sourceSha256":"493629b74034ff7f98bd89a721ebf9e8660e782f76b11b081807c2fa49d76103","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2021orlaw0653.pdf"],
+      "reviewBasis":"Oregon Laws 2021 chapter 653 identifies SB 620. Sections 2 to 7 amend six ORS sections and section 1 repeals ORS 423.570. The official footer gives the January 1, 2022 effective date.",
+      "expected":{"year":2021,"chapter":653,"bill":{"billType":"SB","billNumber":620},"effectiveDate":"2022-01-01","affectedSections":{"amended":["133.865","137.540","137.630","144.089","144.102","144.103"],"repealed":["423.570"]}}
+    },
+    {
+      "id":"2023orlaw0103","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2023orlaw0103.pdf","sourceSha256":"c564aad990f6d9496e1c574a854901018121a72d3d454329b2c77823836979ef","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2023orlaw0103.pdf"],
+      "reviewBasis":"Oregon Laws 2023 chapter 103 identifies SB 310. The act directly amends seven ORS sections and repeals ORS 646.790. Section 10 prescribes the 91st-day-after-adjournment effective date, resolved by the official footer to September 24, 2023.",
+      "expected":{"year":2023,"chapter":103,"bill":{"billType":"SB","billNumber":310},"effectiveDate":"2023-09-24","affectedSections":{"amended":["646.705","646.760","646.770","646.775","646.780","646.815","646.990"],"repealed":["646.790"]}}
+    },
+    {
+      "id":"2023orlaw0400","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2023orlaw0400.pdf","sourceSha256":"3fab76d8fbbea98b22d94c10460a8229b92a42450dc4987548b20f7757dc4bd1","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2023orlaw0400.pdf"],
+      "reviewBasis":"Oregon Laws 2023 chapter 400 identifies HB 2099. The title and operative provisions enumerate 42 direct ORS amendments and eight direct ORS repeals. Section 52 delays operation of a subset to January 1, 2024, while section 54 and the official footer establish the act's effective date as September 24, 2023.",
+      "expected":{"year":2023,"chapter":400,"bill":{"billType":"HB","billNumber":2099},"effectiveDate":"2023-09-24","affectedSections":{"amended":["87.152","153.083","184.742","319.520","319.530","319.550","366.805","367.081","646A.090","802.031","802.600","803.102","803.120","803.212","803.530","803.552","805.103","805.210","805.250","807.080","807.220","807.230","807.310","809.520","819.482","820.110","822.015","822.020","822.025","822.027","822.030","822.033","822.035","822.040","822.045","822.050","822.060","822.310","822.315","822.515","822.700","822.990"],"repealed":["805.117","805.242","822.505","822.510","822.520","822.525","822.530","822.535"]}}
+    },
+    {
+      "id":"2023orlaw0593","sourceUrl":"https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2023orlaw0593.pdf","sourceSha256":"b5e268cdde70c319dbcc443d310b9777e03954989dff15835ea0b2afed8010bc","reviewSources":["https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2023orlaw0593.pdf"],
+      "reviewBasis":"Oregon Laws 2023 chapter 593 identifies HB 2395 and directly amends 14 ORS sections. It repeals section 7a, chapter 500, Oregon Laws 2023, but that same-session-law repeal is not an ORS repeal. Section 29 declares an emergency and the official footer gives August 4, 2023 as the effective date.",
+      "expected":{"year":2023,"chapter":593,"bill":{"billType":"HB","billNumber":2395},"effectiveDate":"2023-08-04","affectedSections":{"amended":["146.100","339.867","339.869","339.870","339.871","430.389","431A.855","431A.865","475.525","475.744","689.681","689.682","689.684","689.686"],"repealed":[]}}
+    }
+  ]
+}
