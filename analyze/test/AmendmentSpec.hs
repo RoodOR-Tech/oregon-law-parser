@@ -74,6 +74,10 @@ spec = do
       let title = "Relating to criminal impersonation; creating new provisions; and amending ORS 161.005 and 162.365."
       findChangedStatutes title `shouldBe` ChangeSet { amended = ["161.005", "162.365"], repealed = [] }
 
+    it "does not treat an amending clause as a repeal by subsequence" $ do
+      let title = "Relating to state financial administration; amending ORS 92.365, 92.415, 100.670 and 336.221 and sections 3 and 4, chapter 441, Oregon Laws 2023; repealing sections 3, 11 and 12, chapter 4, Oregon Laws 2013; and declaring an emergency."
+      findChangedStatutes title `shouldBe` ChangeSet { amended = ["100.670", "336.221", "92.365", "92.415"], repealed = [] }
+
   describe "findBodyChangedStatutes" $ do
     it "uses the operative amendment clause" $ do
       let ps = ["SECTION 2. ORS 811.111 is amended to read:", "811.111. A later body reference to ORS 999.999 must not be treated as another amended statute."]
@@ -86,6 +90,10 @@ spec = do
     it "supports lettered ORS chapters beyond A-C" $ do
       let ps = ["SECTION 7. ORS 475C.770 is amended to read:"]
       findBodyChangedStatutes ps `shouldBe` ChangeSet { amended = ["475C.770"], repealed = [] }
+
+    it "does not infer a current repeal from historical narrative" $ do
+      let ps = ["SECTION 5. (1) ORS 458.620 (1)(f) (2019 Edition) and 458.667 (2019 Edition) established an account. (2) The account was abolished by prior law and the repeal of ORS 458.667 by prior law. (3) The repeal of ORS 458.667 by section 6 of this 2023 Act confirms the result. SECTION 6. ORS 458.667 is repealed."]
+      findBodyChangedStatutes ps `shouldBe` ChangeSet { amended = [], repealed = ["458.667"] }
 
   describe "section evidence" $ do
     it "retains operative SECTION number, action, source, and evidence text" $ do
