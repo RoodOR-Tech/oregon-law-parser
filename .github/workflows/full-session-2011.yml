@@ -72,9 +72,15 @@ jobs:
             local padded="$1"
             local chapter=$((10#$padded))
             local id="2011orlaw${padded}"
-            local fixture="../session-fixtures/${id}.pdf"
+            local fixture
             local source_url
+            fixture="$(jq -r --argjson chapter "$chapter" '.documents[] | select(.chapter == $chapter and .ok == true) | .fixture' ../session-acquisition-report.json)"
             source_url="$(jq -r --argjson chapter "$chapter" '.documents[] | select(.chapter == $chapter and .ok == true) | .sourceUrl' ../session-acquisition-report.json)"
+            if [[ -z "$fixture" || "$fixture" == "null" ]]; then
+              printf '%s\t%s\n' "$id" "source-missing" >> ../session-parser-exit-codes.tsv
+              return 0
+            fi
+            fixture="../${fixture}"
             if [[ ! -f "$fixture" ]]; then
               printf '%s\t%s\n' "$id" "source-missing" >> ../session-parser-exit-codes.tsv
               return 0
