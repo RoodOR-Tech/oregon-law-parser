@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Operational scale test across the 2025 regular-session Oregon Laws chapter range. This is not a gold or unseen-validation corpus and must not be used to rewrite either benchmark.",
+  "sessionYear": 2025,
+  "firstChapter": 1,
+  "lastChapter": 634,
+  "expectedDocuments": 634,
+  "sourcePattern": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw{chapter:04d}.pdf",
+  "rangeReference": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025orlaw0634.pdf",
+  "reviewPolicy": "Operational failures and Conflict/ParsedUnverified/Incomplete outputs are review queues. They do not change frozen certification or unseen-validation expectations without separate authoritative review."
+}
