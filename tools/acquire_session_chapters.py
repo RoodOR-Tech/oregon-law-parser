@@ -10,49 +10,60 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{year}orlaw{chapter:04d}.pdf"
+MODERN_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{year}orlaw{chapter:04d}.pdf"
+LEGACY_REGULAR_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{year}R1orLaw{chapter:04d}ss.pdf"
 USER_AGENT = "oregon-law-parser-session-scale/1"
+
+
+def source_url_candidates(year, chapter):
+    urls = [MODERN_BASE_URL.format(year=year, chapter=chapter)]
+    # Oregon's older regular-session archive uses an R1/...ss filename convention.
+    # Keep the modern URL first so existing sessions retain their established source
+    # provenance, and fall back only for years where the legacy archive is relevant.
+    if year <= 2014:
+        urls.append(LEGACY_REGULAR_BASE_URL.format(year=year, chapter=chapter))
+    return urls
 
 
 def fetch_one(year, chapter, output_dir, retries, timeout):
     doc_id = f"{year}orlaw{chapter:04d}"
-    url = BASE_URL.format(year=year, chapter=chapter)
+    urls = source_url_candidates(year, chapter)
     path = output_dir / f"{doc_id}.pdf"
     context = ssl.create_default_context()
     last_error = None
+    attempted_urls = []
     for attempt in range(1, retries + 1):
-        try:
-            request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-            with urllib.request.urlopen(request, context=context, timeout=timeout) as response:
-                data = response.read()
-            if not data.startswith(b"%PDF"):
+        for url in urls:
+            attempted_urls.append(url)
+            try:
+                request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+                with urllib.request.urlopen(request, context=context, timeout=timeout) as response:
+                    data = response.read()
+                if not data.startswith(b"%PDF"):
+                    last_error = f"downloaded source is not a PDF: {url}"
+                    continue
+                digest = hashlib.sha256(data).hexdigest()
+                path.write_bytes(data)
                 return {
                     "id": doc_id,
                     "chapter": chapter,
                     "sourceUrl": url,
-                    "ok": False,
-                    "error": "downloaded source is not a PDF",
+                    "fixture": str(path),
+                    "ok": True,
+                    "sha256": digest,
+                    "bytes": len(data),
+                    "attempts": attempt,
+                    "sourceUrlsTried": attempted_urls,
                 }
-            digest = hashlib.sha256(data).hexdigest()
-            path.write_bytes(data)
-            return {
-                "id": doc_id,
-                "chapter": chapter,
-                "sourceUrl": url,
-                "fixture": str(path),
-                "ok": True,
-                "sha256": digest,
-                "bytes": len(data),
-                "attempts": attempt,
-            }
-        except (urllib.error.URLError, TimeoutError, OSError) as exc:
-            last_error = str(exc)
-            if attempt < retries:
-                time.sleep(min(2 ** (attempt - 1), 8))
+            except (urllib.error.URLError, TimeoutError, OSError) as exc:
+                last_error = f"{url}: {exc}"
+        if attempt < retries:
+            time.sleep(min(2 ** (attempt - 1), 8))
     return {
         "id": doc_id,
         "chapter": chapter,
-        "sourceUrl": url,
+        "sourceUrl": urls[0],
+        "sourceUrlsTried": attempted_urls,
         "ok": False,
         "error": last_error or "unknown download error",
         "attempts": retries,
