@@ -45,20 +45,20 @@ jobs:
         working-directory: analyze
         run: stack build --no-terminal
 
-      - name: Acquire 2016 Oregon Laws chapters 1-123
+      - name: Acquire 2016 Oregon Laws chapters 1-124
         shell: bash
         run: |
           set -o pipefail
           python3 tools/acquire_session_chapters.py \
             --year 2016 \
             --first-chapter 1 \
-            --last-chapter 123 \
+            --last-chapter 124 \
             --output-dir session-fixtures \
             --report session-acquisition-report.json \
             --workers 10 \
             --retries 3 \
             --timeout 60 || true
-          jq -e '.schemaVersion == 1 and .expectedDocuments == 123' session-acquisition-report.json >/dev/null
+          jq -e '.schemaVersion == 1 and .expectedDocuments == 124' session-acquisition-report.json >/dev/null
 
       - name: Parse complete acquired session
         working-directory: analyze
@@ -85,8 +85,8 @@ jobs:
             return 0
           }
           export -f parse_one
-          seq -w 0001 0123 | xargs -P 4 -I{} bash -c 'parse_one "$1"' _ {}
-          test "$(wc -l < ../session-parser-exit-codes.tsv)" -eq 123
+          seq -w 0001 0124 | xargs -P 4 -I{} bash -c 'parse_one "$1"' _ {}
+          test "$(wc -l < ../session-parser-exit-codes.tsv)" -eq 124
 
       - name: Summarize operational run
         id: summarize
@@ -96,7 +96,7 @@ jobs:
           python3 tools/summarize_session_run.py \
             --year 2016 \
             --first-chapter 1 \
-            --last-chapter 123 \
+            --last-chapter 124 \
             --acquisition-report session-acquisition-report.json \
             --results-dir session-results \
             --report session-operational-report.json
@@ -138,4 +138,4 @@ jobs:
         shell: bash
         run: |
           test -f session-operational-report.json
-          jq -e '.operationalGatePassed == true and .expectedDocuments == 123 and .acquiredDocuments == 123 and .parsedDocuments == 123' session-operational-report.json >/dev/null
+          jq -e '.operationalGatePassed == true and .expectedDocuments == 124 and .acquiredDocuments == 124 and .parsedDocuments == 124' session-operational-report.json >/dev/null
