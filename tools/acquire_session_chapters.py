@@ -13,25 +13,38 @@ from pathlib import Path
 MODERN_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{year}orlaw{chapter:04d}.pdf"
 LEGACY_REGULAR_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{year}R1orLaw{chapter:04d}ss.pdf"
 LEGACY_ADVANCE_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{year}adv{chapter:04d}ss.pdf"
+LEGACY_HTML_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{year}orLaw{chapter:04d}.html"
 USER_AGENT = "oregon-law-parser-session-scale/1"
 
 
 def source_url_candidates(year, chapter):
     urls = [MODERN_BASE_URL.format(year=year, chapter=chapter)]
-    # Oregon's older archive uses multiple regular-session filename conventions.
-    # Keep the modern URL first so established sessions retain their source provenance,
-    # then try the known legacy forms without replacing or normalizing the successful URL.
+    # Oregon's older archive uses multiple regular-session source conventions.
+    # Keep established PDF URLs first so existing session provenance remains stable.
     if year <= 2014:
         urls.append(LEGACY_REGULAR_BASE_URL.format(year=year, chapter=chapter))
     if year == 2012:
         urls.append(LEGACY_ADVANCE_BASE_URL.format(year=year, chapter=chapter))
+    # The 2011 and older archive exposes enacted chapters as official HTML pages.
+    # Preserve the exact successful URL and source bytes rather than synthesizing a PDF.
+    if year <= 2011:
+        urls.append(LEGACY_HTML_BASE_URL.format(year=year, chapter=chapter))
     return urls
+
+
+def source_kind(url, data):
+    if data.startswith(b"%PDF"):
+        return "pdf"
+    if url.lower().endswith(".html"):
+        prefix = data[:4096].lower()
+        if b"<html" in prefix or b"<!doctype html" in prefix:
+            return "html"
+    return None
 
 
 def fetch_one(year, chapter, output_dir, retries, timeout):
     doc_id = f"{year}orlaw{chapter:04d}"
     urls = source_url_candidates(year, chapter)
-    path = output_dir / f"{doc_id}.pdf"
     context = ssl.create_default_context()
     last_error = None
     attempted_urls = []
@@ -42,15 +55,18 @@ def fetch_one(year, chapter, output_dir, retries, timeout):
                 request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
                 with urllib.request.urlopen(request, context=context, timeout=timeout) as response:
                     data = response.read()
-                if not data.startswith(b"%PDF"):
-                    last_error = f"downloaded source is not a PDF: {url}"
+                kind = source_kind(url, data)
+                if kind is None:
+                    last_error = f"downloaded source has unsupported format: {url}"
                     continue
+                path = output_dir / f"{doc_id}.{kind}"
                 digest = hashlib.sha256(data).hexdigest()
                 path.write_bytes(data)
                 return {
                     "id": doc_id,
                     "chapter": chapter,
                     "sourceUrl": url,
+                    "sourceFormat": kind,
                     "fixture": str(path),
                     "ok": True,
                     "sha256": digest,
