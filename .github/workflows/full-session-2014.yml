@@ -70,11 +70,17 @@ jobs:
           export PATH="$PATH"
           parse_one() {
             local padded="$1"
+            local chapter=$((10#$padded))
             local id="2014orlaw${padded}"
             local fixture="../session-fixtures/${id}.pdf"
-            local source_url="https://www.oregonlegislature.gov/bills_laws/lawsstatutes/${id}.pdf"
+            local source_url
+            source_url="$(jq -r --argjson chapter "$chapter" '.documents[] | select(.chapter == $chapter and .ok == true) | .sourceUrl' ../session-acquisition-report.json)"
             if [[ ! -f "$fixture" ]]; then
               printf '%s\t%s\n' "$id" "source-missing" >> ../session-parser-exit-codes.tsv
+              return 0
+            fi
+            if [[ -z "$source_url" || "$source_url" == "null" ]]; then
+              printf '%s\t%s\n' "$id" "source-url-missing" >> ../session-parser-exit-codes.tsv
               return 0
             fi
             set +e
