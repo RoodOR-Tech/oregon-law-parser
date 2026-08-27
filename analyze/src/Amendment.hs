@@ -150,7 +150,7 @@ directTargetPrefix ∷ Bool → String → Bool
 directTargetPrefix includeSectionClause prefix =
   let sectionStart = if includeSectionClause then "^[0-9]+[A-Za-z]?\\.[[:space:]]*(Repeals\\.[[:space:]]*)?(\\([0-9]+\\)[[:space:]]*)?" else "^"
       conditionalPrefix = "(If[[:space:]]+[^,]+[[:space:]]+becomes[[:space:]]+law,[[:space:]]*)?"
-      orsNumber = "[0-9]{1,3}[A-Z]?\\.[0-9]{3}"
+      orsNumber = "[0-9]{1,3}[A-Z]?\\.[0-9]{3,4}"
       separator = "[[:space:]]*(,[[:space:]]*|[[:space:]]+and[[:space:]]+)(ORS[[:space:]]+)?"
       directTargets = "ORS[[:space:]]+" ++ orsNumber ++ "(" ++ separator ++ orsNumber ++ ")*"
       uncodifiedTail = "([[:space:]]+and[[:space:]]+sections?[[:space:]]+[0-9A-Za-z]+([[:space:]]*,[[:space:]]*[0-9A-Za-z]+)*([[:space:]]+and[[:space:]]+[0-9A-Za-z]+)?,[[:space:]]+chapter[[:space:]]+[0-9]+,[[:space:]]+Oregon Laws[[:space:]]+[0-9]{4}([[:space:]]*\\([^)]*\\))?)?"
@@ -210,4 +210,4 @@ invalidCitationError (Just citation) Nothing = [ParseError InvalidCitation (Just
 invalidCitationError _ _ = []
 
 sectionNumbers ∷ String → [String]
-sectionNumbers phrase = getAllTextMatches (phrase =~ "[0-9]{1,3}[A-Z]?\\.[0-9]{3}")
+sectionNumbers phrase = getAllTextMatches (phrase =~ "[0-9]{1,3}[A-Z]?\\.[0-9]{3,4}")
