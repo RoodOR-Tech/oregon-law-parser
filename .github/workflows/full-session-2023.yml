@@ -5,6 +5,7 @@ on:
     branches:
       - master
     paths:
+      - '.github/workflows/full-session-2021.yml'
       - '.github/workflows/full-session-2022.yml'
       - '.github/workflows/full-session-2023.yml'
       - '.github/workflows/full-session-2024.yml'
@@ -12,6 +13,7 @@ on:
       - 'analyze/**'
       - 'tools/acquire_session_chapters.py'
       - 'tools/summarize_session_run.py'
+      - 'operations/2021-session-plan.json'
       - 'operations/2022-session-plan.json'
       - 'operations/2023-session-plan.json'
       - 'operations/2024-session-plan.json'
