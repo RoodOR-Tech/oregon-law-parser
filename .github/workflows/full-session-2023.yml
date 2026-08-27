@@ -7,11 +7,13 @@ on:
     paths:
       - '.github/workflows/full-session-2023.yml'
       - '.github/workflows/full-session-2024.yml'
+      - '.github/workflows/full-session-2025.yml'
       - 'analyze/**'
       - 'tools/acquire_session_chapters.py'
       - 'tools/summarize_session_run.py'
       - 'operations/2023-session-plan.json'
       - 'operations/2024-session-plan.json'
+      - 'operations/2025-session-plan.json'
   workflow_dispatch:
 
 concurrency:
