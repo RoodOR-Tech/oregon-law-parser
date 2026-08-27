@@ -1,0 +1,141 @@
+name: Full-session operational test (2025)
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/full-session-2025.yml'
+      - 'analyze/**'
+      - 'tools/acquire_session_chapters.py'
+      - 'tools/summarize_session_run.py'
+      - 'operations/2025-session-plan.json'
+  workflow_dispatch:
+
+concurrency:
+  group: full-session-2025-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  session-scale:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Haskell
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: '9.4.5'
+          enable-stack: true
+          stack-version: 'latest'
+
+      - name: Cache Stack
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.stack
+            analyze/.stack-work
+          key: ${{ runner.os }}-stack-${{ hashFiles('analyze/stack.yaml.lock', 'analyze/analyze.cabal') }}
+          restore-keys: |
+            ${{ runner.os }}-stack-
+
+      - name: Build executable
+        working-directory: analyze
+        run: stack build --no-terminal
+
+      - name: Acquire 2025 Oregon Laws chapters 1-634
+        shell: bash
+        run: |
+          set -o pipefail
+          python3 tools/acquire_session_chapters.py \
+            --year 2025 \
+            --first-chapter 1 \
+            --last-chapter 634 \
+            --output-dir session-fixtures \
+            --report session-acquisition-report.json \
+            --workers 10 \
+            --retries 3 \
+            --timeout 60 || true
+          jq -e '.schemaVersion == 1 and .expectedDocuments == 634' session-acquisition-report.json >/dev/null
+
+      - name: Parse complete acquired session
+        working-directory: analyze
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ../session-results
+          : > ../session-parser-exit-codes.tsv
+          export PATH="$PATH"
+          parse_one() {
+            local padded="$1"
+            local id="2025orlaw${padded}"
+            local fixture="../session-fixtures/${id}.pdf"
+            local source_url="https://www.oregonlegislature.gov/bills_laws/lawsstatutes/${id}.pdf"
+            if [[ ! -f "$fixture" ]]; then
+              printf '%s\t%s\n' "$id" "source-missing" >> ../session-parser-exit-codes.tsv
+              return 0
+            fi
+            set +e
+            timeout 120s stack exec -- analyze "$fixture" --tika-jar ../tika-app-2.8.0.jar --source-url "$source_url" > "../session-results/${id}.json"
+            code=$?
+            set -e
+            printf '%s\t%s\n' "$id" "$code" >> ../session-parser-exit-codes.tsv
+            return 0
+          }
+          export -f parse_one
+          seq -w 0001 0634 | xargs -P 4 -I{} bash -c 'parse_one "$1"' _ {}
+          test "$(wc -l < ../session-parser-exit-codes.tsv)" -eq 634
+
+      - name: Summarize operational run
+        id: summarize
+        shell: bash
+        run: |
+          set +e
+          python3 tools/summarize_session_run.py \
+            --year 2025 \
+            --first-chapter 1 \
+            --last-chapter 634 \
+            --acquisition-report session-acquisition-report.json \
+            --results-dir session-results \
+            --report session-operational-report.json
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Upload session acquisition report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: session-2025-acquisition
+          path: session-acquisition-report.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload session parser results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: session-2025-parser-results
+          path: |
+            session-results/*.json
+            session-parser-exit-codes.tsv
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Upload operational summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: session-2025-operational-report
+          path: session-operational-report.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Enforce operational hard gate
+        if: always()
+        shell: bash
+        run: |
+          test -f session-operational-report.json
+          jq -e '.operationalGatePassed == true and .expectedDocuments == 634 and .acquiredDocuments == 634 and .parsedDocuments == 634' session-operational-report.json >/dev/null
