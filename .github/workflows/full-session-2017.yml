@@ -1,4 +1,4 @@
-name: Full-session operational test (2023)
+name: Full-session operational test (2017)
 
 on:
   pull_request:
@@ -6,30 +6,14 @@ on:
       - master
     paths:
       - '.github/workflows/full-session-2017.yml'
-      - '.github/workflows/full-session-2018.yml'
-      - '.github/workflows/full-session-2019.yml'
-      - '.github/workflows/full-session-2020.yml'
-      - '.github/workflows/full-session-2021.yml'
-      - '.github/workflows/full-session-2022.yml'
-      - '.github/workflows/full-session-2023.yml'
-      - '.github/workflows/full-session-2024.yml'
-      - '.github/workflows/full-session-2025.yml'
       - 'analyze/**'
       - 'tools/acquire_session_chapters.py'
       - 'tools/summarize_session_run.py'
       - 'operations/2017-session-plan.json'
-      - 'operations/2018-session-plan.json'
-      - 'operations/2019-session-plan.json'
-      - 'operations/2020-session-plan.json'
-      - 'operations/2021-session-plan.json'
-      - 'operations/2022-session-plan.json'
-      - 'operations/2023-session-plan.json'
-      - 'operations/2024-session-plan.json'
-      - 'operations/2025-session-plan.json'
   workflow_dispatch:
 
 concurrency:
-  group: full-session-2023-${{ github.event.pull_request.number || github.ref }}
+  group: full-session-2017-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -61,20 +45,20 @@ jobs:
         working-directory: analyze
         run: stack build --no-terminal
 
-      - name: Acquire 2023 Oregon Laws chapters 1-615
+      - name: Acquire 2017 Oregon Laws chapters 1-750
         shell: bash
         run: |
           set -o pipefail
           python3 tools/acquire_session_chapters.py \
-            --year 2023 \
+            --year 2017 \
             --first-chapter 1 \
-            --last-chapter 615 \
+            --last-chapter 750 \
             --output-dir session-fixtures \
             --report session-acquisition-report.json \
             --workers 10 \
             --retries 3 \
             --timeout 60 || true
-          jq -e '.schemaVersion == 1 and .expectedDocuments == 615' session-acquisition-report.json >/dev/null
+          jq -e '.schemaVersion == 1 and .expectedDocuments == 750' session-acquisition-report.json >/dev/null
 
       - name: Parse complete acquired session
         working-directory: analyze
@@ -86,7 +70,7 @@ jobs:
           export PATH="$PATH"
           parse_one() {
             local padded="$1"
-            local id="2023orlaw${padded}"
+            local id="2017orlaw${padded}"
             local fixture="../session-fixtures/${id}.pdf"
             local source_url="https://www.oregonlegislature.gov/bills_laws/lawsstatutes/${id}.pdf"
             if [[ ! -f "$fixture" ]]; then
@@ -101,8 +85,8 @@ jobs:
             return 0
           }
           export -f parse_one
-          seq -w 0001 0615 | xargs -P 4 -I{} bash -c 'parse_one "$1"' _ {}
-          test "$(wc -l < ../session-parser-exit-codes.tsv)" -eq 615
+          seq -w 0001 0750 | xargs -P 4 -I{} bash -c 'parse_one "$1"' _ {}
+          test "$(wc -l < ../session-parser-exit-codes.tsv)" -eq 750
 
       - name: Summarize operational run
         id: summarize
@@ -110,9 +94,9 @@ jobs:
         run: |
           set +e
           python3 tools/summarize_session_run.py \
-            --year 2023 \
+            --year 2017 \
             --first-chapter 1 \
-            --last-chapter 615 \
+            --last-chapter 750 \
             --acquisition-report session-acquisition-report.json \
             --results-dir session-results \
             --report session-operational-report.json
@@ -124,7 +108,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: session-2023-acquisition
+          name: session-2017-acquisition
           path: session-acquisition-report.json
           if-no-files-found: error
           retention-days: 90
@@ -133,7 +117,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: session-2023-parser-results
+          name: session-2017-parser-results
           path: |
             session-results/*.json
             session-parser-exit-codes.tsv
@@ -144,7 +128,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: session-2023-operational-report
+          name: session-2017-operational-report
           path: session-operational-report.json
           if-no-files-found: error
           retention-days: 90
@@ -154,4 +138,4 @@ jobs:
         shell: bash
         run: |
           test -f session-operational-report.json
-          jq -e '.operationalGatePassed == true and .expectedDocuments == 615 and .acquiredDocuments == 615 and .parsedDocuments == 615' session-operational-report.json >/dev/null
+          jq -e '.operationalGatePassed == true and .expectedDocuments == 750 and .acquiredDocuments == 750 and .parsedDocuments == 750' session-operational-report.json >/dev/null
