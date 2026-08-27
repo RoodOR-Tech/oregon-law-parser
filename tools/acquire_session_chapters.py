@@ -12,16 +12,19 @@ from pathlib import Path
 
 MODERN_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{year}orlaw{chapter:04d}.pdf"
 LEGACY_REGULAR_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{year}R1orLaw{chapter:04d}ss.pdf"
+LEGACY_ADVANCE_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{year}adv{chapter:04d}ss.pdf"
 USER_AGENT = "oregon-law-parser-session-scale/1"
 
 
 def source_url_candidates(year, chapter):
     urls = [MODERN_BASE_URL.format(year=year, chapter=chapter)]
-    # Oregon's older regular-session archive uses an R1/...ss filename convention.
-    # Keep the modern URL first so existing sessions retain their established source
-    # provenance, and fall back only for years where the legacy archive is relevant.
+    # Oregon's older archive uses multiple regular-session filename conventions.
+    # Keep the modern URL first so established sessions retain their source provenance,
+    # then try the known legacy forms without replacing or normalizing the successful URL.
     if year <= 2014:
         urls.append(LEGACY_REGULAR_BASE_URL.format(year=year, chapter=chapter))
+    if year == 2012:
+        urls.append(LEGACY_ADVANCE_BASE_URL.format(year=year, chapter=chapter))
     return urls
 
 
