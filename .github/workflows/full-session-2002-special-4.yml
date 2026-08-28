@@ -1,0 +1,154 @@
+name: Full-session operational test (2002 Special 4)
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/full-session-2002-special-4.yml'
+      - 'analyze/**'
+      - 'tools/acquire_session_chapters.py'
+      - 'tools/summarize_session_run.py'
+      - 'operations/2002-special-4-session-plan.json'
+  workflow_dispatch:
+
+concurrency:
+  group: full-session-2002-special-4-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  session-scale:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Haskell
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: '9.4.5'
+          enable-stack: true
+          stack-version: 'latest'
+
+      - name: Cache Stack
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.stack
+            analyze/.stack-work
+          key: ${{ runner.os }}-stack-${{ hashFiles('analyze/stack.yaml.lock', 'analyze/analyze.cabal') }}
+          restore-keys: |
+            ${{ runner.os }}-stack-
+
+      - name: Build executable
+        working-directory: analyze
+        run: stack build --no-terminal
+
+      - name: Acquire 2002 fourth-special-session Oregon Laws chapter 1
+        shell: bash
+        run: |
+          set -o pipefail
+          python3 tools/acquire_session_chapters.py \
+            --year 2002 \
+            --special-session 4 \
+            --first-chapter 1 \
+            --last-chapter 1 \
+            --output-dir session-fixtures \
+            --report session-acquisition-report.json \
+            --workers 1 \
+            --retries 3 \
+            --timeout 60 || true
+          jq -e '.schemaVersion == 1 and .sessionYear == 2002 and .specialSession == 4 and .expectedDocuments == 1' session-acquisition-report.json >/dev/null
+
+      - name: Parse complete acquired session
+        working-directory: analyze
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ../session-results
+          : > ../session-parser-exit-codes.tsv
+          export PATH="$PATH"
+          parse_one() {
+            local padded="$1"
+            local chapter=$((10#$padded))
+            local id="2002orlaw${padded}"
+            local fixture
+            local source_url
+            fixture="$(jq -r --argjson chapter "$chapter" '.documents[] | select(.chapter == $chapter and .ok == true) | .fixture' ../session-acquisition-report.json)"
+            source_url="$(jq -r --argjson chapter "$chapter" '.documents[] | select(.chapter == $chapter and .ok == true) | .sourceUrl' ../session-acquisition-report.json)"
+            if [[ -z "$fixture" || "$fixture" == "null" ]]; then
+              printf '%s\t%s\n' "$id" "source-missing" >> ../session-parser-exit-codes.tsv
+              return 0
+            fi
+            fixture="../${fixture}"
+            if [[ ! -f "$fixture" ]]; then
+              printf '%s\t%s\n' "$id" "source-missing" >> ../session-parser-exit-codes.tsv
+              return 0
+            fi
+            if [[ -z "$source_url" || "$source_url" == "null" ]]; then
+              printf '%s\t%s\n' "$id" "source-url-missing" >> ../session-parser-exit-codes.tsv
+              return 0
+            fi
+            set +e
+            timeout 120s stack exec -- analyze "$fixture" --tika-jar ../tika-app-2.8.0.jar --source-url "$source_url" > "../session-results/${id}.json"
+            code=$?
+            set -e
+            printf '%s\t%s\n' "$id" "$code" >> ../session-parser-exit-codes.tsv
+            return 0
+          }
+          export -f parse_one
+          seq -w 0001 0001 | xargs -P 1 -I{} bash -c 'parse_one "$1"' _ {}
+          test "$(wc -l < ../session-parser-exit-codes.tsv)" -eq 1
+
+      - name: Summarize operational run
+        id: summarize
+        shell: bash
+        run: |
+          set +e
+          python3 tools/summarize_session_run.py \
+            --year 2002 \
+            --first-chapter 1 \
+            --last-chapter 1 \
+            --acquisition-report session-acquisition-report.json \
+            --results-dir session-results \
+            --report session-operational-report.json
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Upload session acquisition report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: session-2002-special-4-acquisition
+          path: session-acquisition-report.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload session parser results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: session-2002-special-4-parser-results
+          path: |
+            session-results/*.json
+            session-parser-exit-codes.tsv
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Upload operational summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: session-2002-special-4-operational-report
+          path: session-operational-report.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Enforce operational hard gate
+        if: always()
+        shell: bash
+        run: |
+          test -f session-operational-report.json
+          jq -e '.operationalGatePassed == true and .expectedDocuments == 1 and .acquiredDocuments == 1 and .parsedDocuments == 1' session-operational-report.json >/dev/null
