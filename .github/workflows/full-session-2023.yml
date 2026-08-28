@@ -5,6 +5,7 @@ on:
     branches:
       - master
     paths:
+      - '.github/workflows/full-session-2008.yml'
       - '.github/workflows/full-session-2009.yml'
       - '.github/workflows/full-session-2010.yml'
       - '.github/workflows/full-session-2011.yml'
@@ -25,6 +26,7 @@ on:
       - 'analyze/**'
       - 'tools/acquire_session_chapters.py'
       - 'tools/summarize_session_run.py'
+      - 'operations/2008-session-plan.json'
       - 'operations/2009-session-plan.json'
       - 'operations/2010-session-plan.json'
       - 'operations/2011-session-plan.json'
