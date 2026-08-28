@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Operational scale test across the 2002 fifth special-session Oregon Laws chapter range. This is not a gold or unseen-validation corpus and must not be used to rewrite either benchmark.",
+  "sessionYear": 2002,
+  "specialSession": 5,
+  "firstChapter": 1,
+  "lastChapter": 4,
+  "expectedDocuments": 4,
+  "sourcePattern": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2002orLaw{chapter:04d}ss5.pdf",
+  "rangeReference": "https://www.oregonlegislature.gov/bills_laws/ors/2002ss5.pdf",
+  "reviewPolicy": "Operational failures and Conflict/ParsedUnverified/Incomplete outputs are review queues. They do not change frozen certification or unseen-validation expectations without separate authoritative review."
+}

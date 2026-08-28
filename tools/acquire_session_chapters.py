@@ -14,6 +14,7 @@ MODERN_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{ye
 LEGACY_REGULAR_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{year}R1orLaw{chapter:04d}ss.pdf"
 LEGACY_ADVANCE_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{year}adv{chapter:04d}ss.pdf"
 LEGACY_HTML_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{year}orLaw{chapter:04d}.html"
+SPECIAL_SESSION_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{year}orLaw{chapter:04d}ss{special_session}.pdf"
 LEGACY_2007_SESSION_HTML_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007R1{chapter:04d}.html"
 LEGACY_2006_SPECIAL_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2006orLaw{chapter:04d}ss1.pdf"
 LEGACY_2005_SESSION_HTML_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005orLaw{chapter:04d}ses.html"
@@ -22,7 +23,7 @@ LEGACY_2003_SESSION_HTM_BASE_URL = "https://www.oregonlegislature.gov/bills_laws
 USER_AGENT = "oregon-law-parser-session-scale/1"
 
 
-def source_url_candidates(year, chapter):
+def source_url_candidates(year, chapter, special_session=None):
     urls = [MODERN_BASE_URL.format(year=year, chapter=chapter)]
     # Oregon's older archive uses multiple regular-session source conventions.
     # Keep established PDF URLs first so existing session provenance remains stable.
@@ -34,6 +35,13 @@ def source_url_candidates(year, chapter):
     # Preserve the exact successful URL and source bytes rather than synthesizing a PDF.
     if year <= 2011:
         urls.append(LEGACY_HTML_BASE_URL.format(year=year, chapter=chapter))
+    # An explicitly selected special session uses the archive's ssN suffix. Keep this
+    # after every established default candidate so existing regular-session provenance
+    # remains stable, while allowing multiple special sessions in the same year.
+    if special_session is not None:
+        urls.append(SPECIAL_SESSION_BASE_URL.format(
+            year=year, chapter=chapter, special_session=special_session
+        ))
     # A subset of the 2007 regular-session archive uses the older session-prefixed
     # HTML naming convention (for example 2007R10070.html and 2007R10071.html).
     # Keep this as the final fallback so previously successful source provenance is stable.
@@ -68,9 +76,9 @@ def source_kind(url, data):
     return None
 
 
-def fetch_one(year, chapter, output_dir, retries, timeout):
+def fetch_one(year, chapter, output_dir, retries, timeout, special_session=None):
     doc_id = f"{year}orlaw{chapter:04d}"
-    urls = source_url_candidates(year, chapter)
+    urls = source_url_candidates(year, chapter, special_session)
     context = ssl.create_default_context()
     last_error = None
     attempted_urls = []
@@ -118,6 +126,7 @@ def fetch_one(year, chapter, output_dir, retries, timeout):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--year", type=int, required=True)
+    parser.add_argument("--special-session", type=int)
     parser.add_argument("--first-chapter", type=int, default=1)
     parser.add_argument("--last-chapter", type=int, required=True)
     parser.add_argument("--output-dir", required=True)
@@ -131,6 +140,8 @@ def main():
         parser.error("invalid chapter range")
     if not 1 <= args.workers <= 32:
         parser.error("workers must be between 1 and 32")
+    if args.special_session is not None and args.special_session < 1:
+        parser.error("special-session must be a positive integer")
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -139,7 +150,15 @@ def main():
     results = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as pool:
         futures = [
-            pool.submit(fetch_one, args.year, chapter, output_dir, args.retries, args.timeout)
+            pool.submit(
+                fetch_one,
+                args.year,
+                chapter,
+                output_dir,
+                args.retries,
+                args.timeout,
+                args.special_session,
+            )
             for chapter in chapters
         ]
         for future in concurrent.futures.as_completed(futures):
@@ -153,6 +172,7 @@ def main():
     report = {
         "schemaVersion": 1,
         "sessionYear": args.year,
+        "specialSession": args.special_session,
         "firstChapter": args.first_chapter,
         "lastChapter": args.last_chapter,
         "expectedDocuments": len(chapters),
