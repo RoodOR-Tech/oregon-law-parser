@@ -5,6 +5,7 @@ on:
     branches:
       - master
     paths:
+      - '.github/workflows/full-session-2002-special-1.yml'
       - '.github/workflows/full-session-2002-special-2.yml'
       - '.github/workflows/full-session-2002-special-3.yml'
       - '.github/workflows/full-session-2002-special-4.yml'
@@ -34,6 +35,7 @@ on:
       - 'analyze/**'
       - 'tools/acquire_session_chapters.py'
       - 'tools/summarize_session_run.py'
+      - 'operations/2002-special-1-session-plan.json'
       - 'operations/2002-special-2-session-plan.json'
       - 'operations/2002-special-3-session-plan.json'
       - 'operations/2002-special-4-session-plan.json'
