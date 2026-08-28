@@ -17,6 +17,8 @@ LEGACY_HTML_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatute
 LEGACY_2007_SESSION_HTML_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007R1{chapter:04d}.html"
 LEGACY_2006_SPECIAL_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2006orLaw{chapter:04d}ss1.pdf"
 LEGACY_2005_SESSION_HTML_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005orLaw{chapter:04d}ses.html"
+LEGACY_2003_SESSION_HTML_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2003orLaw{chapter:04d}ses.html"
+LEGACY_2003_SESSION_HTM_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2003orLaw{chapter:04d}ses.htm"
 USER_AGENT = "oregon-law-parser-session-scale/1"
 
 
@@ -47,13 +49,19 @@ def source_url_candidates(year, chapter):
     # year-specific fallback last so all later-session acquisition provenance is stable.
     if year == 2005:
         urls.append(LEGACY_2005_SESSION_HTML_BASE_URL.format(chapter=chapter))
+    # The 2003 regular-session archive predominantly uses the ses.html convention,
+    # but at least chapter 14 is published by the official archive as ses.htm.
+    # Try .htm only after .html so every already-successful source URL and hash is stable.
+    if year == 2003:
+        urls.append(LEGACY_2003_SESSION_HTML_BASE_URL.format(chapter=chapter))
+        urls.append(LEGACY_2003_SESSION_HTM_BASE_URL.format(chapter=chapter))
     return urls
 
 
 def source_kind(url, data):
     if data.startswith(b"%PDF"):
         return "pdf"
-    if url.lower().endswith(".html"):
+    if url.lower().endswith((".html", ".htm")):
         prefix = data[:4096].lower()
         if b"<html" in prefix or b"<!doctype html" in prefix:
             return "html"

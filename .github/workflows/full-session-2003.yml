@@ -1,4 +1,4 @@
-name: Full-session operational test (2023)
+name: Full-session operational test (2003)
 
 on:
   pull_request:
@@ -6,56 +6,14 @@ on:
       - master
     paths:
       - '.github/workflows/full-session-2003.yml'
-      - '.github/workflows/full-session-2005.yml'
-      - '.github/workflows/full-session-2006.yml'
-      - '.github/workflows/full-session-2007.yml'
-      - '.github/workflows/full-session-2008.yml'
-      - '.github/workflows/full-session-2009.yml'
-      - '.github/workflows/full-session-2010.yml'
-      - '.github/workflows/full-session-2011.yml'
-      - '.github/workflows/full-session-2012.yml'
-      - '.github/workflows/full-session-2013.yml'
-      - '.github/workflows/full-session-2014.yml'
-      - '.github/workflows/full-session-2015.yml'
-      - '.github/workflows/full-session-2016.yml'
-      - '.github/workflows/full-session-2017.yml'
-      - '.github/workflows/full-session-2018.yml'
-      - '.github/workflows/full-session-2019.yml'
-      - '.github/workflows/full-session-2020.yml'
-      - '.github/workflows/full-session-2021.yml'
-      - '.github/workflows/full-session-2022.yml'
-      - '.github/workflows/full-session-2023.yml'
-      - '.github/workflows/full-session-2024.yml'
-      - '.github/workflows/full-session-2025.yml'
       - 'analyze/**'
       - 'tools/acquire_session_chapters.py'
       - 'tools/summarize_session_run.py'
       - 'operations/2003-session-plan.json'
-      - 'operations/2005-session-plan.json'
-      - 'operations/2006-session-plan.json'
-      - 'operations/2007-session-plan.json'
-      - 'operations/2008-session-plan.json'
-      - 'operations/2009-session-plan.json'
-      - 'operations/2010-session-plan.json'
-      - 'operations/2011-session-plan.json'
-      - 'operations/2012-session-plan.json'
-      - 'operations/2013-session-plan.json'
-      - 'operations/2014-session-plan.json'
-      - 'operations/2015-session-plan.json'
-      - 'operations/2016-session-plan.json'
-      - 'operations/2017-session-plan.json'
-      - 'operations/2018-session-plan.json'
-      - 'operations/2019-session-plan.json'
-      - 'operations/2020-session-plan.json'
-      - 'operations/2021-session-plan.json'
-      - 'operations/2022-session-plan.json'
-      - 'operations/2023-session-plan.json'
-      - 'operations/2024-session-plan.json'
-      - 'operations/2025-session-plan.json'
   workflow_dispatch:
 
 concurrency:
-  group: full-session-2023-${{ github.event.pull_request.number || github.ref }}
+  group: full-session-2003-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -65,14 +23,12 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-
       - name: Set up Haskell
         uses: haskell-actions/setup@v2
         with:
           ghc-version: '9.4.5'
           enable-stack: true
           stack-version: 'latest'
-
       - name: Cache Stack
         uses: actions/cache@v4
         with:
@@ -82,26 +38,23 @@ jobs:
           key: ${{ runner.os }}-stack-${{ hashFiles('analyze/stack.yaml.lock', 'analyze/analyze.cabal') }}
           restore-keys: |
             ${{ runner.os }}-stack-
-
       - name: Build executable
         working-directory: analyze
         run: stack build --no-terminal
-
-      - name: Acquire 2023 Oregon Laws chapters 1-615
+      - name: Acquire 2003 Oregon Laws chapters 1-819
         shell: bash
         run: |
           set -o pipefail
           python3 tools/acquire_session_chapters.py \
-            --year 2023 \
+            --year 2003 \
             --first-chapter 1 \
-            --last-chapter 615 \
+            --last-chapter 819 \
             --output-dir session-fixtures \
             --report session-acquisition-report.json \
             --workers 10 \
             --retries 3 \
             --timeout 60 || true
-          jq -e '.schemaVersion == 1 and .expectedDocuments == 615' session-acquisition-report.json >/dev/null
-
+          jq -e '.schemaVersion == 1 and .expectedDocuments == 819' session-acquisition-report.json >/dev/null
       - name: Parse complete acquired session
         working-directory: analyze
         shell: bash
@@ -112,11 +65,23 @@ jobs:
           export PATH="$PATH"
           parse_one() {
             local padded="$1"
-            local id="2023orlaw${padded}"
-            local fixture="../session-fixtures/${id}.pdf"
-            local source_url="https://www.oregonlegislature.gov/bills_laws/lawsstatutes/${id}.pdf"
+            local chapter=$((10#$padded))
+            local id="2003orlaw${padded}"
+            local fixture
+            local source_url
+            fixture="$(jq -r --argjson chapter "$chapter" '.documents[] | select(.chapter == $chapter and .ok == true) | .fixture' ../session-acquisition-report.json)"
+            source_url="$(jq -r --argjson chapter "$chapter" '.documents[] | select(.chapter == $chapter and .ok == true) | .sourceUrl' ../session-acquisition-report.json)"
+            if [[ -z "$fixture" || "$fixture" == "null" ]]; then
+              printf '%s\t%s\n' "$id" "source-missing" >> ../session-parser-exit-codes.tsv
+              return 0
+            fi
+            fixture="../${fixture}"
             if [[ ! -f "$fixture" ]]; then
               printf '%s\t%s\n' "$id" "source-missing" >> ../session-parser-exit-codes.tsv
+              return 0
+            fi
+            if [[ -z "$source_url" || "$source_url" == "null" ]]; then
+              printf '%s\t%s\n' "$id" "source-url-missing" >> ../session-parser-exit-codes.tsv
               return 0
             fi
             set +e
@@ -127,57 +92,52 @@ jobs:
             return 0
           }
           export -f parse_one
-          seq -w 0001 0615 | xargs -P 4 -I{} bash -c 'parse_one "$1"' _ {}
-          test "$(wc -l < ../session-parser-exit-codes.tsv)" -eq 615
-
+          seq -w 0001 0819 | xargs -P 4 -I{} bash -c 'parse_one "$1"' _ {}
+          test "$(wc -l < ../session-parser-exit-codes.tsv)" -eq 819
       - name: Summarize operational run
         id: summarize
         shell: bash
         run: |
           set +e
           python3 tools/summarize_session_run.py \
-            --year 2023 \
+            --year 2003 \
             --first-chapter 1 \
-            --last-chapter 615 \
+            --last-chapter 819 \
             --acquisition-report session-acquisition-report.json \
             --results-dir session-results \
             --report session-operational-report.json
           code=$?
           echo "exit_code=$code" >> "$GITHUB_OUTPUT"
           exit 0
-
       - name: Upload session acquisition report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: session-2023-acquisition
+          name: session-2003-acquisition
           path: session-acquisition-report.json
           if-no-files-found: error
           retention-days: 90
-
       - name: Upload session parser results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: session-2023-parser-results
+          name: session-2003-parser-results
           path: |
             session-results/*.json
             session-parser-exit-codes.tsv
           if-no-files-found: warn
           retention-days: 90
-
       - name: Upload operational summary
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: session-2023-operational-report
+          name: session-2003-operational-report
           path: session-operational-report.json
           if-no-files-found: error
           retention-days: 90
-
       - name: Enforce operational hard gate
         if: always()
         shell: bash
         run: |
           test -f session-operational-report.json
-          jq -e '.operationalGatePassed == true and .expectedDocuments == 615 and .acquiredDocuments == 615 and .parsedDocuments == 615' session-operational-report.json >/dev/null
+          jq -e '.operationalGatePassed == true and .expectedDocuments == 819 and .acquiredDocuments == 819 and .parsedDocuments == 819' session-operational-report.json >/dev/null
