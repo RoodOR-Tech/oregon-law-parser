@@ -55,14 +55,12 @@ findCitation phrases = phrases & join & firstMatch "(HB|SB) [0-9]+|Ballot Measur
 findYear ∷ [String] → Maybe Integer
 findYear input =
   let document = join input
-      parseMatchedYear matched = case splitWs matched of [] -> Nothing; xs -> readMaybe (xs !! (length xs - 2))
-      actYear = firstMatch "(This|this) [0-9]{4} Act" document >>= parseMatchedYear
-      headingYear = do
-        matched ← firstMatch "(OREGON LAWS|Oregon Laws) [0-9]{4}" document
-        case splitWs matched of [] -> Nothing; xs -> readMaybe (last xs)
-  in case actYear of
-      Just yearValue -> Just yearValue
-      Nothing -> headingYear
+      headingMatches = getAllTextMatches (document =~ "(OREGON LAWS|Oregon Laws) [0-9]{4}")
+      actMatches = getAllTextMatches (document =~ "(This|this) [0-9]{4} Act")
+      headingYears = [yearValue | matched <- headingMatches, let tokens = splitWs matched, not (null tokens), Just yearValue <- [readMaybe (last tokens)]]
+      actYears = [yearValue | matched <- actMatches, let tokens = splitWs matched, length tokens == 3, Just yearValue <- [readMaybe (tokens !! 1)]]
+      candidates = headingYears ++ actYears
+  in case candidates of [] -> Nothing; years -> Just (maximum years)
 
 findChapter ∷ [String] → Maybe Integer
 findChapter phrases = do
