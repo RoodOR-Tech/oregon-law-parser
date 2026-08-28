@@ -52,15 +52,32 @@ makeBill citation = case splitWs citation of
 findCitation ∷ [String] → Maybe String
 findCitation phrases = phrases & join & firstMatch "(HB|SB) [0-9]+|Ballot Measure No\\. [0-9]+"
 
-findYear ∷ [String] → Maybe Integer
-findYear input =
+yearCandidates ∷ [String] → [Integer]
+yearCandidates input =
   let document = join input
       headingMatches = getAllTextMatches (document =~ "(OREGON LAWS|Oregon Laws) [0-9]{4}")
       actMatches = getAllTextMatches (document =~ "(This|this) [0-9]{4} Act")
       headingYears = [yearValue | matched <- headingMatches, let tokens = splitWs matched, not (null tokens), Just yearValue <- [readMaybe (last tokens)]]
       actYears = [yearValue | matched <- actMatches, let tokens = splitWs matched, length tokens == 3, Just yearValue <- [readMaybe (tokens !! 1)]]
-      candidates = headingYears ++ actYears
-  in case candidates of [] -> Nothing; years -> Just (maximum years)
+  in nub (headingYears ++ actYears)
+
+findYear ∷ [String] → Maybe Integer
+findYear input = case yearCandidates input of [] -> Nothing; years -> Just (maximum years)
+
+findSourceYear ∷ Provenance → Maybe Integer
+findSourceYear sourceProvenance =
+  let location = case sourceUrl sourceProvenance of Just url -> url; Nothing -> sourcePath sourceProvenance
+  in do
+    matched ← firstMatch "[0-9]{4}([Ss][0-9]+)?[Oo][Rr][Ll]aw|[0-9]{4}adv" location
+    yearText ← firstMatch "[0-9]{4}" matched
+    readMaybe yearText
+
+findYearWithProvenance ∷ Provenance → [String] → Maybe Integer
+findYearWithProvenance sourceProvenance input =
+  let candidates = yearCandidates input
+  in case findSourceYear sourceProvenance of
+      Just sourceYear | sourceYear `elem` candidates -> Just sourceYear
+      _ -> case candidates of [] -> Nothing; years -> Just (maximum years)
 
 findChapter ∷ [String] → Maybe Integer
 findChapter phrases = do
@@ -188,7 +205,7 @@ selectBestChangeSet titleChanges bodyChanges | bodyChanges == emptyChangeSet = t
 
 parseAmendment ∷ Provenance → [String] → Either [ParseError] Amendment
 parseAmendment sourceProvenance phrases =
-  let citation = findCitation phrases; parsedBill = citation >>= makeBill; parsedYear = findYear phrases; parsedChapter = findChapter phrases; parsedEffectiveDate = findEffectiveDate phrases
+  let citation = findCitation phrases; parsedBill = citation >>= makeBill; parsedYear = findYearWithProvenance sourceProvenance phrases; parsedChapter = findChapter phrases; parsedEffectiveDate = findEffectiveDate phrases
       summaryText = findSummary phrases; titleEvidence = maybe [] findTitleEvidence summaryText; bodyEvidence = findBodyEvidence phrases
       titleChanges = changeSetFromEvidence titleEvidence; bodyChanges = changeSetFromEvidence bodyEvidence; allEvidence = titleEvidence ++ bodyEvidence
       errors = concat [ missingError MissingCitation "bill" "Could not find an HB/SB or ballot-measure citation" (isNothing citation), invalidCitationError citation parsedBill, missingError MissingYear "year" "Could not find the Oregon Laws year" (isNothing parsedYear), missingError MissingChapter "chapter" "Could not find the Oregon Laws chapter" (isNothing parsedChapter), missingError MissingEffectiveDate "effectiveDate" "Could not parse the effective date" (isNothing parsedEffectiveDate) ]
