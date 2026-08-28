@@ -1,6 +1,8 @@
 module Legacy2010Spec where
 
 import Amendment
+import Data.Time (UTCTime(..), fromGregorian)
+import Provenance
 import Test.Hspec
 
 spec :: Spec
@@ -23,3 +25,15 @@ spec = do
         , "SECTION 1. Section 4 of this 2007 Act is amended."
         , "SECTION 8. This 2010 Act takes effect on passage."
         ] `shouldBe` Just 2010
+
+    it "uses Oregon Laws source provenance to reject a future-act reference" $ do
+      let source = Provenance
+            { sourcePath = "2025s1orlaw0001.pdf"
+            , sourceUrl = Just "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2025S1OrLaw0001.pdf"
+            , sourceSha256 = replicate 64 'a'
+            , processedAt = UTCTime (fromGregorian 2025 12 1) 0
+            }
+      findYearWithProvenance source
+        [ "OREGON LAWS 2025 Special Session Chap. 1"
+        , "SECTION 9. If this 2026 Act becomes law, ..."
+        ] `shouldBe` Just 2025
