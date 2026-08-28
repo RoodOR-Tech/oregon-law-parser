@@ -16,6 +16,7 @@ LEGACY_ADVANCE_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstat
 LEGACY_HTML_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{year}orLaw{chapter:04d}.html"
 LEGACY_2007_SESSION_HTML_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007R1{chapter:04d}.html"
 LEGACY_2006_SPECIAL_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2006orLaw{chapter:04d}ss1.pdf"
+LEGACY_2005_SESSION_HTML_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005orLaw{chapter:04d}ses.html"
 USER_AGENT = "oregon-law-parser-session-scale/1"
 
 
@@ -41,6 +42,11 @@ def source_url_candidates(year, chapter):
     # all previously successful acquisition URLs and hashes remain unchanged.
     if year == 2006:
         urls.append(LEGACY_2006_SPECIAL_BASE_URL.format(chapter=chapter))
+    # The 2005 regular-session archive uses a ses suffix on enacted-law HTML pages
+    # (for example 2005orLaw0438ses.html and 2005orLaw0739ses.html). Keep this
+    # year-specific fallback last so all later-session acquisition provenance is stable.
+    if year == 2005:
+        urls.append(LEGACY_2005_SESSION_HTML_BASE_URL.format(chapter=chapter))
     return urls
 
 
