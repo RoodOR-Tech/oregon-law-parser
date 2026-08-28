@@ -113,8 +113,8 @@ findEffectiveDate input =
         dateText ← firstMatch "[A-Za-z]+[[:space:]]+[0-9]{1,2},[[:space:]]+[0-9]{4}" matched
         parseNamedDate dateText
       referredAct = findDateAfter "Act takes effect" document
-      referredElection = if "referred to the people" `isInfixOf` document && "Act takes effect 30 days after the election" `isInfixOf` document
-        then addDays 30 <$> findDateAfter "general election on" document
+      referredElection = if "referred to the people" `isInfixOf` document || "submitted to the people" `isInfixOf` document
+        then addDays 30 <$> findDateAfter "election" document
         else Nothing
       initiative = if "Ballot Measure No." `isInfixOf` document && "full force and effect" `isInfixOf` document
         then findDateAfter "Governor dated" document
