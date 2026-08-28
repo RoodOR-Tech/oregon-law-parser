@@ -52,10 +52,32 @@ makeBill citation = case splitWs citation of
 findCitation ∷ [String] → Maybe String
 findCitation phrases = phrases & join & firstMatch "(HB|SB) [0-9]+|Ballot Measure No\\. [0-9]+"
 
+yearCandidates ∷ [String] → [Integer]
+yearCandidates input =
+  let document = join input
+      headingMatches = getAllTextMatches (document =~ "(OREGON LAWS|Oregon Laws) [0-9]{4}")
+      actMatches = getAllTextMatches (document =~ "(This|this) [0-9]{4} Act")
+      headingYears = [yearValue | matched <- headingMatches, let tokens = splitWs matched, not (null tokens), Just yearValue <- [readMaybe (last tokens)]]
+      actYears = [yearValue | matched <- actMatches, let tokens = splitWs matched, length tokens == 3, Just yearValue <- [readMaybe (tokens !! 1)]]
+  in nub (headingYears ++ actYears)
+
 findYear ∷ [String] → Maybe Integer
-findYear input = do
-  matched ← input & join & firstMatch "(OREGON LAWS|Oregon Laws) [0-9]{4}"
-  case splitWs matched of [] -> Nothing; xs -> readMaybe (last xs)
+findYear input = case yearCandidates input of [] -> Nothing; years -> Just (maximum years)
+
+findSourceYear ∷ Provenance → Maybe Integer
+findSourceYear sourceProvenance =
+  let location = case sourceUrl sourceProvenance of Just url -> url; Nothing -> sourcePath sourceProvenance
+  in do
+    matched ← firstMatch "[0-9]{4}([Ss][0-9]+)?[Oo][Rr][Ll]aw|[0-9]{4}adv" location
+    yearText ← firstMatch "[0-9]{4}" matched
+    readMaybe yearText
+
+findYearWithProvenance ∷ Provenance → [String] → Maybe Integer
+findYearWithProvenance sourceProvenance input =
+  let candidates = yearCandidates input
+  in case findSourceYear sourceProvenance of
+      Just sourceYear | sourceYear `elem` candidates -> Just sourceYear
+      _ -> case candidates of [] -> Nothing; years -> Just (maximum years)
 
 findChapter ∷ [String] → Maybe Integer
 findChapter phrases = do
@@ -88,9 +110,11 @@ findEffectiveDate input =
         Nothing -> initiative
 
 findSummary ∷ [String] → Maybe String
-findSummary phrases = case filter isSummary phrases of [aSummary] → Just (cleanUp aSummary); _ → Nothing
+findSummary phrases =
+  let normalized = map (unwords . splitWs . cleanUp) phrases
+  in case filter isSummary normalized of [aSummary] → Just aSummary; _ → Nothing
 isSummary ∷ String → Bool
-isSummary sentence = "Relating to" `isPrefixOf` sentence
+isSummary sentence = "Relating to" `isPrefixOf` unwords (splitWs sentence)
 
 findSectionNumbers ∷ [String] → [SectionNumber]
 findSectionNumbers phrases = phrases & map sectionNumbers & concat & nub & sort
@@ -122,9 +146,6 @@ primaryEvidence block = case operativeMarker block of
     in if directTargetPrefix True prefix then map (\section -> SectionEvidence section action OperativeBodyEvidence clause excerpt) (sectionNumbers prefix) else []
   Nothing -> []
 
--- Some SECTION blocks contain multiple numbered operative subclauses, e.g.
--- (1) ORS x is repealed. (2) ORS y is repealed. Parse each explicit
--- subsection target independently instead of stopping at the first marker.
 subsectionEvidence ∷ String → [SectionEvidence]
 subsectionEvidence block = concatMap evidenceFromSubsection (drop 1 (split ") ORS " block))
   where
@@ -138,14 +159,6 @@ subsectionEvidence block = concatMap evidenceFromSubsection (drop 1 (split ") OR
             in if directTargetPrefix False prefix then map (\section -> SectionEvidence section action OperativeBodyEvidence clause excerpt) (sectionNumbers prefix) else []
           Nothing -> []
 
--- Operative evidence is anchored to the SECTION/subsection syntax. Besides a
--- direct ORS list, Legislative Counsel commonly uses three bounded forms:
--- a conditional "If ... becomes law," prefix; an ", as amended by ..."
--- qualifier; and a mixed clause that pairs ORS targets with uncodified
--- sections of a named Oregon Laws chapter. Those forms remain direct evidence
--- for the ORS citations. A bounded "Repeals." heading is also allowed because
--- Legislative Counsel sometimes inserts it between the SECTION number and the
--- direct ORS target. Arbitrary narrative remains rejected.
 directTargetPrefix ∷ Bool → String → Bool
 directTargetPrefix includeSectionClause prefix =
   let sectionStart = if includeSectionClause then "^[0-9]+[A-Za-z]?\\.[[:space:]]*(Repeals\\.[[:space:]]*)?(\\([0-9]+\\)[[:space:]]*)?" else "^"
@@ -158,9 +171,6 @@ directTargetPrefix includeSectionClause prefix =
       patternText = sectionStart ++ conditionalPrefix ++ directTargets ++ uncodifiedTail ++ amendedByQualifier ++ "[[:space:]]*,?[[:space:]]*$"
   in prefix =~ patternText
 
--- A SECTION can contain multiple operative clauses. Choose the marker that
--- occurs first in the text; marker-type priority can otherwise skip an earlier
--- plural clause when a later singular clause is present in the same block.
 operativeMarker ∷ String → Maybe (ChangeAction, String)
 operativeMarker block =
   let candidates = filter (\(_, marker) -> marker `isInfixOf` block)
@@ -195,7 +205,7 @@ selectBestChangeSet titleChanges bodyChanges | bodyChanges == emptyChangeSet = t
 
 parseAmendment ∷ Provenance → [String] → Either [ParseError] Amendment
 parseAmendment sourceProvenance phrases =
-  let citation = findCitation phrases; parsedBill = citation >>= makeBill; parsedYear = findYear phrases; parsedChapter = findChapter phrases; parsedEffectiveDate = findEffectiveDate phrases
+  let citation = findCitation phrases; parsedBill = citation >>= makeBill; parsedYear = findYearWithProvenance sourceProvenance phrases; parsedChapter = findChapter phrases; parsedEffectiveDate = findEffectiveDate phrases
       summaryText = findSummary phrases; titleEvidence = maybe [] findTitleEvidence summaryText; bodyEvidence = findBodyEvidence phrases
       titleChanges = changeSetFromEvidence titleEvidence; bodyChanges = changeSetFromEvidence bodyEvidence; allEvidence = titleEvidence ++ bodyEvidence
       errors = concat [ missingError MissingCitation "bill" "Could not find an HB/SB or ballot-measure citation" (isNothing citation), invalidCitationError citation parsedBill, missingError MissingYear "year" "Could not find the Oregon Laws year" (isNothing parsedYear), missingError MissingChapter "chapter" "Could not find the Oregon Laws chapter" (isNothing parsedChapter), missingError MissingEffectiveDate "effectiveDate" "Could not parse the effective date" (isNothing parsedEffectiveDate) ]
