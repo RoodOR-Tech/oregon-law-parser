@@ -8,7 +8,7 @@ import           Data.List         (isInfixOf, isPrefixOf, minimumBy, nub, sort)
 import           Data.Maybe        (isNothing)
 import           Data.Ord          (comparing)
 import           Data.String.Utils (split, splitWs)
-import           Data.Time         (Day, defaultTimeLocale, parseTimeM)
+import           Data.Time         (Day, addDays, defaultTimeLocale, parseTimeM)
 import           GHC.Generics
 import           Provenance
 import           StringOps
@@ -113,6 +113,9 @@ findEffectiveDate input =
         dateText ← firstMatch "[A-Za-z]+[[:space:]]+[0-9]{1,2},[[:space:]]+[0-9]{4}" matched
         parseNamedDate dateText
       referredAct = findDateAfter "Act takes effect" document
+      referredElection = if "referred to the people" `isInfixOf` document && "Act takes effect 30 days after the election" `isInfixOf` document
+        then addDays 30 <$> findDateAfter "general election on" document
+        else Nothing
       initiative = if "Ballot Measure No." `isInfixOf` document && "full force and effect" `isInfixOf` document
         then findDateAfter "Governor dated" document
         else Nothing
@@ -120,7 +123,9 @@ findEffectiveDate input =
       Just dateValue -> Just dateValue
       Nothing -> case referredAct of
         Just dateValue -> Just dateValue
-        Nothing -> initiative
+        Nothing -> case referredElection of
+          Just dateValue -> Just dateValue
+          Nothing -> initiative
 
 findSummary ∷ [String] → Maybe String
 findSummary phrases =
