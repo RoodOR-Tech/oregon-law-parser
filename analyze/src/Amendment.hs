@@ -53,9 +53,16 @@ findCitation ∷ [String] → Maybe String
 findCitation phrases = phrases & join & firstMatch "(HB|SB) [0-9]+|Ballot Measure No\\. [0-9]+"
 
 findYear ∷ [String] → Maybe Integer
-findYear input = do
-  matched ← input & join & firstMatch "(OREGON LAWS|Oregon Laws) [0-9]{4}"
-  case splitWs matched of [] -> Nothing; xs -> readMaybe (last xs)
+findYear input =
+  let document = join input
+      parseMatchedYear matched = case splitWs matched of [] -> Nothing; xs -> readMaybe (xs !! (length xs - 2))
+      actYear = firstMatch "(This|this) [0-9]{4} Act" document >>= parseMatchedYear
+      headingYear = do
+        matched ← firstMatch "(OREGON LAWS|Oregon Laws) [0-9]{4}" document
+        case splitWs matched of [] -> Nothing; xs -> readMaybe (last xs)
+  in case actYear of
+      Just yearValue -> Just yearValue
+      Nothing -> headingYear
 
 findChapter ∷ [String] → Maybe Integer
 findChapter phrases = do
@@ -88,9 +95,11 @@ findEffectiveDate input =
         Nothing -> initiative
 
 findSummary ∷ [String] → Maybe String
-findSummary phrases = case filter isSummary phrases of [aSummary] → Just (cleanUp aSummary); _ → Nothing
+findSummary phrases =
+  let normalized = map (unwords . splitWs . cleanUp) phrases
+  in case filter isSummary normalized of [aSummary] → Just aSummary; _ → Nothing
 isSummary ∷ String → Bool
-isSummary sentence = "Relating to" `isPrefixOf` sentence
+isSummary sentence = "Relating to" `isPrefixOf` unwords (splitWs sentence)
 
 findSectionNumbers ∷ [String] → [SectionNumber]
 findSectionNumbers phrases = phrases & map sectionNumbers & concat & nub & sort
@@ -122,9 +131,6 @@ primaryEvidence block = case operativeMarker block of
     in if directTargetPrefix True prefix then map (\section -> SectionEvidence section action OperativeBodyEvidence clause excerpt) (sectionNumbers prefix) else []
   Nothing -> []
 
--- Some SECTION blocks contain multiple numbered operative subclauses, e.g.
--- (1) ORS x is repealed. (2) ORS y is repealed. Parse each explicit
--- subsection target independently instead of stopping at the first marker.
 subsectionEvidence ∷ String → [SectionEvidence]
 subsectionEvidence block = concatMap evidenceFromSubsection (drop 1 (split ") ORS " block))
   where
@@ -138,14 +144,6 @@ subsectionEvidence block = concatMap evidenceFromSubsection (drop 1 (split ") OR
             in if directTargetPrefix False prefix then map (\section -> SectionEvidence section action OperativeBodyEvidence clause excerpt) (sectionNumbers prefix) else []
           Nothing -> []
 
--- Operative evidence is anchored to the SECTION/subsection syntax. Besides a
--- direct ORS list, Legislative Counsel commonly uses three bounded forms:
--- a conditional "If ... becomes law," prefix; an ", as amended by ..."
--- qualifier; and a mixed clause that pairs ORS targets with uncodified
--- sections of a named Oregon Laws chapter. Those forms remain direct evidence
--- for the ORS citations. A bounded "Repeals." heading is also allowed because
--- Legislative Counsel sometimes inserts it between the SECTION number and the
--- direct ORS target. Arbitrary narrative remains rejected.
 directTargetPrefix ∷ Bool → String → Bool
 directTargetPrefix includeSectionClause prefix =
   let sectionStart = if includeSectionClause then "^[0-9]+[A-Za-z]?\\.[[:space:]]*(Repeals\\.[[:space:]]*)?(\\([0-9]+\\)[[:space:]]*)?" else "^"
@@ -158,9 +156,6 @@ directTargetPrefix includeSectionClause prefix =
       patternText = sectionStart ++ conditionalPrefix ++ directTargets ++ uncodifiedTail ++ amendedByQualifier ++ "[[:space:]]*,?[[:space:]]*$"
   in prefix =~ patternText
 
--- A SECTION can contain multiple operative clauses. Choose the marker that
--- occurs first in the text; marker-type priority can otherwise skip an earlier
--- plural clause when a later singular clause is present in the same block.
 operativeMarker ∷ String → Maybe (ChangeAction, String)
 operativeMarker block =
   let candidates = filter (\(_, marker) -> marker `isInfixOf` block)
