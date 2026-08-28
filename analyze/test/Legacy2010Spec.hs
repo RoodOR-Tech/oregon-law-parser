@@ -16,3 +16,10 @@ spec = do
         [ "Chapter 79 Oregon Laws 2009"
         , "SECTION 3. This 2010 Act being necessary for the immediate preservation of the public peace, health and safety, an emergency is declared to exist."
         ] `shouldBe` Just 2010
+
+    it "does not let prior-act references override the current session year" $ do
+      findYear
+        [ "Chapter 30 Oregon Laws 2010 Special Session"
+        , "SECTION 1. Section 4 of this 2007 Act is amended."
+        , "SECTION 8. This 2010 Act takes effect on passage."
+        ] `shouldBe` Just 2010
