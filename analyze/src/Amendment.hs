@@ -84,6 +84,19 @@ findChapter phrases = do
   matched ← phrases & join & firstMatch "(Chap\\.|Chapter) [0-9]{1,4}"
   case splitWs matched of [] -> Nothing; xs -> readMaybe (last xs)
 
+findSourceChapter ∷ Provenance → Maybe Integer
+findSourceChapter sourceProvenance =
+  let location = case sourceUrl sourceProvenance of Just url -> url; Nothing -> sourcePath sourceProvenance
+  in do
+    matched ← firstMatch "([Oo][Rr][Ll]aw|[Ss][0-9]+[Oo][Rr][Ll]aw|adv)[0-9]{4}" location
+    chapterText ← firstMatch "[0-9]{4}" matched
+    readMaybe chapterText
+
+findChapterWithProvenance ∷ Provenance → [String] → Maybe Integer
+findChapterWithProvenance sourceProvenance phrases = case findChapter phrases of
+  Just chapterValue -> Just chapterValue
+  Nothing -> findSourceChapter sourceProvenance
+
 parseNamedDate ∷ String → Maybe Day
 parseNamedDate matched = parseTimeM True defaultTimeLocale "%B %-d, %Y" (unwords (splitWs matched))
 
@@ -205,7 +218,7 @@ selectBestChangeSet titleChanges bodyChanges | bodyChanges == emptyChangeSet = t
 
 parseAmendment ∷ Provenance → [String] → Either [ParseError] Amendment
 parseAmendment sourceProvenance phrases =
-  let citation = findCitation phrases; parsedBill = citation >>= makeBill; parsedYear = findYearWithProvenance sourceProvenance phrases; parsedChapter = findChapter phrases; parsedEffectiveDate = findEffectiveDate phrases
+  let citation = findCitation phrases; parsedBill = citation >>= makeBill; parsedYear = findYearWithProvenance sourceProvenance phrases; parsedChapter = findChapterWithProvenance sourceProvenance phrases; parsedEffectiveDate = findEffectiveDate phrases
       summaryText = findSummary phrases; titleEvidence = maybe [] findTitleEvidence summaryText; bodyEvidence = findBodyEvidence phrases
       titleChanges = changeSetFromEvidence titleEvidence; bodyChanges = changeSetFromEvidence bodyEvidence; allEvidence = titleEvidence ++ bodyEvidence
       errors = concat [ missingError MissingCitation "bill" "Could not find an HB/SB or ballot-measure citation" (isNothing citation), invalidCitationError citation parsedBill, missingError MissingYear "year" "Could not find the Oregon Laws year" (isNothing parsedYear), missingError MissingChapter "chapter" "Could not find the Oregon Laws chapter" (isNothing parsedChapter), missingError MissingEffectiveDate "effectiveDate" "Could not parse the effective date" (isNothing parsedEffectiveDate) ]
