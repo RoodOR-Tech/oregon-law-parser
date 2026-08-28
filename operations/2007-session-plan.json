@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Operational scale test across the 2007 regular-session Oregon Laws chapter range. This is not a gold or unseen-validation corpus and must not be used to rewrite either benchmark.",
+  "sessionYear": 2007,
+  "firstChapter": 1,
+  "lastChapter": 912,
+  "expectedDocuments": 912,
+  "sourcePattern": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007orLaw{chapter:04d}.html",
+  "rangeReference": "https://www.oregonlegislature.gov/bills_laws/Pages/Laws_Mobile.aspx",
+  "reviewPolicy": "Operational failures and Conflict/ParsedUnverified/Incomplete outputs are review queues. They do not change frozen certification or unseen-validation expectations without separate authoritative review."
+}

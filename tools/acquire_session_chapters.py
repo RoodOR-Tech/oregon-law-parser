@@ -14,6 +14,7 @@ MODERN_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{ye
 LEGACY_REGULAR_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{year}R1orLaw{chapter:04d}ss.pdf"
 LEGACY_ADVANCE_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{year}adv{chapter:04d}ss.pdf"
 LEGACY_HTML_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/{year}orLaw{chapter:04d}.html"
+LEGACY_2007_SESSION_HTML_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2007R1{chapter:04d}.html"
 USER_AGENT = "oregon-law-parser-session-scale/1"
 
 
@@ -29,6 +30,11 @@ def source_url_candidates(year, chapter):
     # Preserve the exact successful URL and source bytes rather than synthesizing a PDF.
     if year <= 2011:
         urls.append(LEGACY_HTML_BASE_URL.format(year=year, chapter=chapter))
+    # A subset of the 2007 regular-session archive uses the older session-prefixed
+    # HTML naming convention (for example 2007R10070.html and 2007R10071.html).
+    # Keep this as the final fallback so previously successful source provenance is stable.
+    if year == 2007:
+        urls.append(LEGACY_2007_SESSION_HTML_BASE_URL.format(chapter=chapter))
     return urls
 
 
