@@ -328,6 +328,20 @@ class StatusTest(unittest.TestCase):
             parser.classify_stub("[Renumbered 161.045]"), ("renumbered", "161.045")
         )
 
+    def test_a_stub_led_by_a_plain_citation_is_still_classified(self):
+        # Real form observed in chapter 1's own structure-probe sample: a
+        # stub-only entry (no catchline, no body) whose bracket opens with a
+        # plain enactment citation and states the repeal as a later segment,
+        # rather than leading with a disposition keyword.
+        markup = "<p><b>1.055 [1959 c.638 §1; repealed by 2015 c.629 §1]</b></p>"
+        result = parser.parse_chapter(markup, "1")
+        section = result["sections"][0]
+        self.assertEqual(section["sectionNumber"], "1.055")
+        self.assertEqual(section["status"], "repealed")
+        self.assertIsNone(section["catchline"])
+        self.assertIsNone(section["bodyText"])
+        self.assertEqual(section["sourceCreditRaw"], "[1959 c.638 §1; repealed by 2015 c.629 §1]")
+
 
 class UnboldedStubDiagnosticTest(unittest.TestCase):
     """Measures stub-shaped lines bold anchoring misses, without acting on them.
@@ -372,6 +386,31 @@ class UnboldedStubDiagnosticTest(unittest.TestCase):
         )
         result = parser.parse_chapter(markup, "646")
         self.assertEqual(result["unboldedStubLines"], [])
+
+    def test_a_plain_citation_led_stub_is_found_when_unbolded(self):
+        # SECTION_STUB_PATTERN was broadened to any bracket-only line, not
+        # only one led by a disposition keyword, so this real form (see
+        # StatusTest.test_a_stub_led_by_a_plain_citation_is_still_classified)
+        # must be found here too when it is not bold.
+        markup = "<p>1.055 [1959 c.638 §1; repealed by 2015 c.629 §1]</p>"
+        result = parser.parse_chapter(markup, "1")
+        self.assertEqual(
+            result["unboldedStubLines"],
+            [{"number": "1.055", "line": "1.055 [1959 c.638 §1; repealed by 2015 c.629 §1]"}],
+        )
+
+    def test_an_unbolded_repeat_of_an_already_anchored_stub_is_not_a_new_finding(self):
+        # The broadened pattern raises the same risk bold anchoring exists to
+        # avoid: a contents list repeating a stub's own bracket unbolded.
+        # A number already claimed by a bold anchor must not be reported
+        # again just because the same bracket-shaped text appears elsewhere.
+        markup = (
+            "<p>1.055 [1959 c.638 §1; repealed by 2015 c.629 §1]</p>"
+            "<p><b>1.055 [1959 c.638 §1; repealed by 2015 c.629 §1]</b></p>"
+        )
+        result = parser.parse_chapter(markup, "1")
+        self.assertEqual(result["unboldedStubLines"], [])
+        self.assertEqual(len(result["sections"]), 1)
 
 
 class SectionSortKeyTest(unittest.TestCase):

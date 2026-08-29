@@ -594,9 +594,49 @@ The real question is how many lines are shaped like `parse_ors_chapter.py`'s
 own `SECTION_STUB_PATTERN` -- a section number immediately followed by the
 bracket, with nothing else on the line -- and fall outside every bold span
 already found. `find_unbolded_stub_lines` measures exactly that, reported as
-`unboldedStubLineCount` and a per-line sample, diagnostic only for now. What
-it finds against the real sample chapters, once CI runs it, decides what the
-anchoring rule looks like; nothing here guesses ahead of that measurement.
+`unboldedStubLineCount` and a per-line sample, diagnostic only for now.
+
+Run against the real sample chapters, the answer was zero: no stub-shaped
+line, under the keyword-led pattern that existed at the time, sat outside a
+bold span. Every disposition stub in the sample is bold after all -- the
+same anchoring convention as an ordinary catchline heading.
+
+## The pattern itself was too narrow, not the anchoring
+
+Zero unbolded stubs did not mean zero missing sections. `statusCounts` on
+that same run still showed every one of the 892 sections as `operative`,
+and a line already visible in an earlier CI run's structure-probe sample for
+chapter 1 explains why:
+
+```
+1.055 [1959 c.638 §1; repealed by 2015
+```
+
+(cut off mid-bracket in that view because the probe treats a source newline
+as a line break; the parser's rejoined logical-line view sees the whole
+bracket as one line.) This is a stub-only section -- no catchline, no body,
+printed like any other disposition stub -- but its bracket opens with a
+plain enactment citation, `1959 c.638 §1`, and states the repeal as a later
+segment rather than leading with a keyword. `SECTION_STUB_PATTERN` required
+the keyword to lead the bracket, so this form matched neither the catchline
+pattern (no capital letter after the number) nor the stub pattern (no
+keyword after the number): it anchored nothing at all and produced no row.
+
+`classify_stub` already finds the disposition keyword wherever it falls in
+the bracket text, not only at its start, so it needed no change. The fix was
+to the anchor-shape pattern itself: a section is stub-only whenever the
+entire remainder of its line after the number is exactly one bracket,
+regardless of what opens it. The same broadening was applied to the
+unbolded-line diagnostic, with one added guard: a number already claimed by
+a bold anchor is never reported there again, since the broader pattern could
+otherwise mistake a contents-list echo of an already-found stub for a new
+one, the exact risk bold anchoring exists to avoid for catchline headings.
+
+The lesson generalizes past this one pattern: a rule proven against the
+first few real forms it was written for is not proven against forms it
+hasn't seen yet, and "which sections come back non-operative" is exactly the
+kind of downstream signal -- like `unparsedCreditSegmentCount` before it --
+that catches a pattern too narrow for real data.
 
 ## The other Legislative Counsel documents
 

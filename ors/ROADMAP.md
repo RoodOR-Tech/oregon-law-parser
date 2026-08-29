@@ -98,20 +98,23 @@ caught before CI did:
   citations or the two non-citation forms above; a genuine editorial note
   distinct from a credit has not yet been observed in the sample and needs
   its own evidence before a rule is written.
-- Repealed and renumbered sections printed unbolded. In progress: the "138
-  stubs in 646A" figure FINDINGS.md first recorded came from the probe's
-  looser `repealStubMatches` count, which matches any bracket anywhere in
-  the document starting with a disposition keyword -- including an ordinary
-  operative section's own credit ("[Formerly ...; repealed by ...]" on a
-  section that already has a bold catchline and parses correctly). It is not
-  a count of missing sections. `tools/parse_ors_chapter.py` now measures the
-  real gap directly: `find_unbolded_stub_lines` looks for the exact
-  `SECTION_STUB_PATTERN` shape outside every bold span already found, and
-  the count is printed as `unboldedStubLineCount` / a per-line sample,
-  diagnostic only and not yet gated. The anchoring and status-classification
-  rule for these lines is written once a CI run against the real sample
-  chapters shows what the real form and scale of the gap is, the same
-  measure-then-fix order every other rule in this parser followed.
+- Repealed and renumbered sections. Done: the "138 stubs in 646A" figure
+  FINDINGS.md first recorded came from the probe's looser `repealStubMatches`
+  count, which matches any bracket anywhere in the document starting with a
+  disposition keyword -- including an ordinary operative section's own
+  credit ("[Formerly ...; repealed by ...]" on a section that already has a
+  bold catchline and parses correctly). It is not a count of missing
+  sections. Measured directly, every disposition stub in the sample chapters
+  is bold, the same convention as a catchline heading -- but the real gap
+  was that `SECTION_STUB_PATTERN` only recognized a bracket led by a
+  disposition keyword, missing a real form observed in chapter 1 where a
+  stub-only section's bracket opens with a plain enactment citation and
+  states the repeal in a later segment ("1.055 [1959 c.638 §1; repealed by
+  2015 c.629 §1]"). The pattern now matches any bracket-only line regardless
+  of what opens it, since `classify_stub` already reads the disposition
+  keyword wherever it falls; `find_unbolded_stub_lines` keeps measuring the
+  unbolded case (still diagnostic, not gated) with a guard against
+  double-reporting a number already claimed by a bold anchor.
 - This is the table that joins to the amendment parser's `(year, chapter)`
   output. The join is data-only; neither program imports the other.
 

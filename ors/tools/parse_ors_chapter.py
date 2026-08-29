@@ -42,11 +42,20 @@ BOLD_CLOSE_PATTERN = re.compile(r"^<\s*/\s*b\b", re.IGNORECASE)
 SECTION_CATCHLINE_PATTERN = re.compile(
     r"^(?P<number>\d{1,3}[A-Z]?\.\d{3})\s+(?=[A-Z])(?P<catchline>.*)$"
 )
-# A section printed only as a bracketed stub. The keyword is required: a
-# bracket opening a year is a wrapped source credit, not a stub.
+# A section printed only as a bracketed history: nothing else appears on the
+# line after the number. A keyword leading the bracket ("[Repealed by ...]")
+# is one real form; a plain enactment citation whose own later segment
+# states the disposition is another -- "1.055 [1959 c.638 §1; repealed by
+# 2015 c.629 §1]" was observed directly in chapter 1's own structure-probe
+# sample, printed with no catchline and no body at all. classify_stub already
+# finds the disposition keyword wherever it falls in the bracket, not only at
+# its start, so one pattern serves both forms. Requiring the entire
+# post-number remainder to be exactly one bracket -- nothing before it,
+# nothing after -- is what tells a stub apart from a catchline (which starts
+# with a capital letter, never "[") and from an ordinary section whose body
+# ends in a trailing credit (which has statutory text before the bracket).
 SECTION_STUB_PATTERN = re.compile(
-    r"^(?P<number>\d{1,3}[A-Z]?\.\d{3})\s+(?P<stub>\[(?:Repealed|Renumbered|Amended|Formerly|Reserved)\b.*)$",
-    re.IGNORECASE,
+    r"^(?P<number>\d{1,3}[A-Z]?\.\d{3})\s+(?P<stub>\[[^\[\]]*\])\s*$"
 )
 # A trailing bracketed group is the section's source credit. Parsing its
 # contents into rows is increment 3; here it is only separated from the
@@ -297,7 +306,7 @@ def edition_diagnostics(lines):
     }
 
 
-def find_unbolded_stub_lines(lines, bold_spans):
+def find_unbolded_stub_lines(lines, bold_spans, anchored_numbers):
     """Stub-shaped lines that bold-run anchoring does not reach.
 
     FINDINGS.md's first clean run recorded every section as `operative` and
@@ -307,15 +316,21 @@ def find_unbolded_stub_lines(lines, bold_spans):
     starting with one of these keywords, including an ordinary operative
     section's own credit ("[Formerly 646.185; repealed by ...]" on a section
     that has a bold catchline and body text already parsed correctly). It is
-    not a count of missing sections.
+    not a count of missing sections. Measured directly against the real
+    sample chapters, the true count was zero.
 
-    This instead looks for exactly the shape `parse_chapter`'s own
-    `SECTION_STUB_PATTERN` already requires -- a line that opens with a
-    section number immediately followed by the bracket -- and keeps only the
-    matches that fall outside every bold span already found, so a stub that
-    is simply part of an already-anchored section's own line is never
-    double-counted. This is a measurement, not a fix: nothing here changes
-    which sections are emitted, so the true scale of the gap is seen before a
+    `SECTION_STUB_PATTERN` was since broadened to match any bracket-only
+    line, not only one led by a disposition keyword (see its own comment),
+    which raises the same risk bold anchoring was built to avoid: the
+    contents list at the head of a chapter repeats section entries unbolded,
+    so a plain-citation-led stub could in principle be found twice -- once as
+    the real body entry (bold, already anchored), once as its own unbolded
+    contents-list echo. A number already claimed by a bold anchor is
+    therefore never reported here, only a bracket-only line whose number
+    was not anchored by anything.
+
+    This is a measurement, not a fix: nothing here changes which sections
+    are emitted, so the true scale of any remaining gap is seen before a
     rule is written for it, the same discipline that shaped every earlier
     diagnostic in this parser.
     """
@@ -323,6 +338,8 @@ def find_unbolded_stub_lines(lines, bold_spans):
     for line, start, _ in lines:
         match = SECTION_STUB_PATTERN.match(line)
         if match is None:
+            continue
+        if match.group("number") in anchored_numbers:
             continue
         if any(bold_start <= start < bold_end for bold_start, bold_end in bold_spans):
             continue
@@ -459,7 +476,9 @@ def parse_chapter(markup, chapter_number):
         "sections": sections,
         "subdivisions": subdivisions,
         "foreignAnchors": foreign_anchors,
-        "unboldedStubLines": find_unbolded_stub_lines(lines, bold_spans),
+        "unboldedStubLines": find_unbolded_stub_lines(
+            lines, bold_spans, {anchor["number"] for anchor in anchors}
+        ),
         "problems": problems,
     }
 
