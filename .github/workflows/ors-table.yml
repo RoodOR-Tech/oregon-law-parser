@@ -19,16 +19,8 @@ on:
       - '.github/workflows/ors-table.yml'
   workflow_dispatch:
     inputs:
-      scope:
-        description: 'Which chapters to acquire and probe'
-        required: true
-        type: choice
-        default: sample
-        options:
-          - sample
-          - whole-edition
       chapters:
-        description: 'Override with specific chapters, e.g. 1,161,279A (ignored unless scope is sample)'
+        description: 'Override the fixed development sample, e.g. 1,161,279A'
         required: false
         default: ''
 
@@ -61,9 +53,11 @@ jobs:
         run: java -version
 
       # The ORS landing page does not link chapters -- its bills_laws/ors
-      # links are the annual reference PDFs and the General Index -- so the
-      # roster comes from the published ORS_TitlesChapters.pdf.
-      - name: Discover the published title and chapter roster
+      # links are the annual reference PDFs and the General Index -- and
+      # ORS_TitlesChapters.pdf is a table of titles giving chapter ranges, not
+      # a chapter list. It yields volumes and titles, and its ranges are what
+      # acquired chapters are checked against.
+      - name: Read the published table of titles
         id: roster
         continue-on-error: true
         run: |
@@ -73,47 +67,38 @@ jobs:
             --tika-jar tika-app-2.8.0.jar \
             --report ors-roster.json
 
-      - name: Acquire chapter sources named by the roster
+      - name: Acquire chapter sources
         if: steps.roster.outcome == 'success'
         continue-on-error: true
         env:
-          SCOPE: ${{ github.event.inputs.scope || 'sample' }}
           CHAPTER_OVERRIDE: ${{ github.event.inputs.chapters }}
         run: |
           set -euo pipefail
-          if [ "$SCOPE" = "whole-edition" ]; then
-            echo "Acquiring every chapter on the roster."
-            python3 ors/tools/acquire_ors_chapters.py \
-              --roster-file ors-roster.json \
-              --output-dir ors-sources \
-              --report ors-acquisition.json
-          elif [ -n "$CHAPTER_OVERRIDE" ]; then
+          if [ -n "$CHAPTER_OVERRIDE" ]; then
             echo "Acquiring overridden chapters: $CHAPTER_OVERRIDE"
             python3 ors/tools/acquire_ors_chapters.py \
-              --roster-file ors-roster.json \
+              --title-roster-file ors-roster.json \
               --chapters "$CHAPTER_OVERRIDE" \
               --output-dir ors-sources \
               --report ors-acquisition.json
           else
             echo "Acquiring the fixed development sample."
             python3 ors/tools/acquire_ors_chapters.py \
-              --roster-file ors-roster.json \
+              --title-roster-file ors-roster.json \
               --chapters-file ors/sample/chapters.json \
               --output-dir ors-sources \
               --report ors-acquisition.json
           fi
 
-      # When roster discovery fails there is no roster to acquire from, so
-      # fall back to the explicitly named sample. That run is marked
-      # rosterVerified false and exists only to keep chapter structure
-      # observable while discovery is being fixed.
-      - name: Acquire sample chapters without the roster
+      # When the table of titles cannot be read there are no ranges to check
+      # against. The sample is still acquired so chapter structure stays
+      # observable, and the report records that no check was made.
+      - name: Acquire sample chapters without the title ranges
         if: steps.roster.outcome != 'success'
         continue-on-error: true
         run: |
           set -euo pipefail
           python3 ors/tools/acquire_ors_chapters.py \
-            --without-roster \
             --chapters-file ors/sample/chapters.json \
             --output-dir ors-sources \
             --report ors-acquisition.json
@@ -163,7 +148,7 @@ jobs:
 
       # Printed immediately before the gate so it stays in the readable tail
       # of the log on a failing run.
-      - name: Print the discovered roster
+      - name: Print the table of titles
         if: always()
         run: |
           set -uo pipefail
@@ -174,14 +159,13 @@ jobs:
           echo "Valid: $(jq -r '.valid' ors-roster.json)"
           echo "Edition year: $(jq -r '.editionYear // "unknown"' ors-roster.json)"
           echo "Roster SHA-256: $(jq -r '.rosterSha256 // "none"' ors-roster.json)"
+          echo "Volumes: $(jq -r '.volumeCount // 0' ors-roster.json)"
           echo "Titles: $(jq -r '.titleCount // 0' ors-roster.json)"
-          echo "Chapters: $(jq -r '.chapterCount // 0' ors-roster.json)"
           echo "Unparsed roster lines: $(jq -r '.unparsedLineCount // 0' ors-roster.json)"
           if [ "$(jq -r '.valid' ors-roster.json)" = "true" ]; then
-            echo "Titles found:"
-            jq -r '.titles[] | "  \(.titleNumber)  \(.titleName // "")"' ors-roster.json | head -40
-            echo "Chapter roster:"
-            jq -r '[.chapters[].chapterNumber] | join(" ")' ors-roster.json | fold -s -w 160
+            echo "Titles and the chapter ranges they cover:"
+            jq -r '.titles[] | "  vol \(.volumeNumber // "?")  title \(.titleNumber)  chs \(.firstChapter)-\(.lastChapter)  \(.titleName // "")"' \
+              ors-roster.json
           else
             echo "Problems: $(jq -c '.problems // [.error]' ors-roster.json)"
             echo "Unparsed lines:"
@@ -192,12 +176,13 @@ jobs:
 
       # The real gate. It runs last so the diagnostic steps above have already
       # printed their evidence into the log even on a failing run.
-      - name: Gate on roster discovery, acquisition and probe
+      - name: Gate on the table of titles, acquisition and probe
         if: always()
         run: |
           set -euo pipefail
-          jq -e '.valid == true and .schemaVersion == 1 and .chapterCount > 0 and .editionId != null' ors-roster.json >/dev/null
-          jq -e '.valid == true and .rosterVerified == true and ([.chapters[] | select(.ok) | .sha256] | all(test("^[0-9a-f]{64}$")))' ors-acquisition.json >/dev/null
+          jq -e '.valid == true and .schemaVersion == 1 and .titleCount > 0 and .volumeCount > 0 and .unparsedLineCount == 0' ors-roster.json >/dev/null
+          jq -e '.valid == true and .titleRangesChecked == true and ([.chapters[] | select(.ok) | .sha256] | all(test("^[0-9a-f]{64}$")))' ors-acquisition.json >/dev/null
+          jq -e '[.chapters[] | select(.ok) | .titleNumber] | all(. != null)' ors-acquisition.json >/dev/null
           jq -e '.valid == true and .probedChapterCount > 0' ors-structure-probe.json >/dev/null
 
       - name: Upload ORS pipeline reports

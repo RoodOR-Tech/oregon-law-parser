@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
-"""Acquire ORS chapter documents named by a published roster.
+"""Acquire ORS chapter documents.
 
-Chapter identity comes from the roster produced by acquire_ors_roster.py,
-which reads the authoritative ORS_TitlesChapters.pdf. This tool does not
-discover chapters itself and never synthesizes a roster from a numeric range:
-a chapter the edition does not publish must surface as a failure, not as a
-gap nobody notices.
+No published document enumerates ORS chapters. The landing page links only
+reference PDFs, and ORS_TitlesChapters.pdf is a table of titles giving each
+title's chapter RANGE rather than a chapter list. Chapters to acquire are
+therefore named explicitly -- by the fixed development sample, or on the
+command line -- and never synthesized from a guessed numeric span.
+
+When the table of titles is supplied, every named chapter is checked against
+the published ranges before anything is fetched, and the owning title and
+volume travel with the acquired document. A chapter that falls under no
+published title is a failure, not a silent acquisition: it means either the
+name is wrong or the edition's structure has changed.
 
 Every fetch pins its exact URL, SHA-256 digest and byte count so any later
 parsing decision is traceable to reviewed bytes.
@@ -39,25 +45,26 @@ def utc_now():
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def read_roster(path):
-    """Read the chapter roster produced by acquire_ors_roster.py."""
+def read_title_roster(path):
+    """Read the table of titles produced by acquire_ors_roster.py."""
     document = json.loads(Path(path).read_text())
-    chapters = document.get("chapters")
-    if not isinstance(chapters, list) or not chapters:
-        raise ValueError(f"roster file names no chapters: {path}")
-    roster = []
-    for entry in chapters:
-        number = parse_chapter_number(str(entry.get("chapterNumber", "")))
-        if number is None:
-            raise ValueError(f"roster has a malformed chapter number: {entry!r}")
-        roster.append({
-            "chapterNumber": number,
-            "chapterSortKey": chapter_sort_key(number),
-            "chapterName": entry.get("chapterName"),
-            "titleNumber": entry.get("titleNumber"),
-            "sourceUrl": entry.get("sourceUrl") or chapter_url(number),
-        })
-    return document, sorted(roster, key=lambda item: item["chapterSortKey"])
+    titles = document.get("titles")
+    if not isinstance(titles, list) or not titles:
+        raise ValueError(f"title roster names no titles: {path}")
+    for title in titles:
+        for field in ("firstChapterSortKey", "lastChapterSortKey", "titleNumber"):
+            if field not in title:
+                raise ValueError(f"title roster entry is missing {field}: {title!r}")
+    return document, titles
+
+
+def covering_title(chapter_number, titles):
+    """Return the published title covering a chapter number, or None."""
+    key = chapter_sort_key(chapter_number)
+    for title in titles:
+        if title["firstChapterSortKey"] <= key <= title["lastChapterSortKey"]:
+            return title
+    return None
 
 
 def read_chapter_selection_file(path):
@@ -75,49 +82,38 @@ def read_chapter_selection_file(path):
     return numbers
 
 
-def selected_chapters(roster, requested, limit):
-    """Restrict the roster to the requested chapters, in statute-book order."""
-    if requested:
-        wanted = []
-        for raw in requested:
-            number = parse_chapter_number(raw)
-            if number is None:
-                raise ValueError(f"invalid chapter number: {raw}")
-            wanted.append(number)
-        by_number = {item["chapterNumber"]: item for item in roster}
-        missing = [number for number in wanted if number not in by_number]
-        if missing:
-            raise ValueError(
-                f"chapters not present in the published roster: {', '.join(missing)}"
-            )
-        chosen = [by_number[number] for number in wanted]
-    else:
-        chosen = list(roster)
-    if limit is not None:
-        chosen = chosen[:limit]
-    return sorted(chosen, key=lambda item: item["chapterSortKey"])
+def chapter_entries(requested, titles, template, limit):
+    """Build chapter entries for the explicitly requested chapters.
 
-
-def constructed_chapters(requested, template=None):
-    """Build chapter entries for explicitly named chapters, with no roster.
-
-    Naming a chapter is not the same as synthesizing a roster. A run built
-    this way is recorded as rosterVerified false so it can never be mistaken
-    for a complete edition.
+    When a table of titles is supplied, a chapter outside every published
+    range is rejected rather than fetched.
     """
     entries = []
+    outside = []
     for raw in requested:
         number = parse_chapter_number(raw)
         if number is None:
             raise ValueError(f"invalid chapter number: {raw}")
+        title = covering_title(number, titles) if titles else None
+        if titles and title is None:
+            outside.append(number)
+            continue
         entries.append({
             "chapterNumber": number,
             "chapterSortKey": chapter_sort_key(number),
-            "chapterName": None,
-            "titleNumber": None,
+            "titleNumber": title["titleNumber"] if title else None,
+            "titleName": title.get("titleName") if title else None,
+            "volumeNumber": title.get("volumeNumber") if title else None,
             "sourceUrl": chapter_url(number, template),
         })
-    return sorted(entries, key=lambda item: item["chapterSortKey"])
+    if outside:
+        raise ValueError(
+            "chapters fall outside every published title range: " + ", ".join(outside)
+        )
+    entries.sort(key=lambda item: item["chapterSortKey"])
+    if limit is not None:
+        entries = entries[:limit]
+    return entries
 
 
 def fetch_bytes(url, retries, timeout, context):
@@ -160,8 +156,9 @@ def fetch_chapter(chapter, output_dir, retries, timeout):
     record = {
         "chapterNumber": chapter["chapterNumber"],
         "chapterSortKey": chapter["chapterSortKey"],
-        "chapterName": chapter.get("chapterName"),
         "titleNumber": chapter.get("titleNumber"),
+        "titleName": chapter.get("titleName"),
+        "volumeNumber": chapter.get("volumeNumber"),
         "sourceUrl": url,
         "attempts": attempts,
         "httpStatus": status,
@@ -206,10 +203,7 @@ def acquire_chapters(args, report, chosen):
     results.sort(key=lambda item: item["chapterSortKey"])
     failures = [item for item in results if not item["ok"]]
     report.update({
-        "chapterSelectionSource": (
-            args.chapters_file or ("--chapters" if args.chapters else "whole-roster")
-        ),
-        "chapterUrlSource": "roster" if report.get("rosterVerified") else "constructed",
+        "chapterSelectionSource": args.chapters_file or "--chapters",
         "requestedChapterCount": len(chosen),
         "acquiredChapterCount": sum(1 for item in results if item["ok"]),
         "valid": not failures and len(results) == len(chosen),
@@ -219,9 +213,8 @@ def acquire_chapters(args, report, chosen):
     Path(args.report).write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps({
         "valid": report["valid"],
-        "rosterVerified": report.get("rosterVerified", False),
-        "editionYear": report.get("editionYear"),
-        "rosterChapterCount": report.get("rosterChapterCount"),
+        "titleRangesChecked": report.get("titleRangesChecked", False),
+        "titleRosterCount": report.get("titleRosterCount"),
         "requestedChapterCount": len(chosen),
         "acquiredChapterCount": report["acquiredChapterCount"],
         "failureCount": len(failures),
@@ -231,14 +224,11 @@ def acquire_chapters(args, report, chosen):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--roster-file", help="roster JSON from acquire_ors_roster.py")
     parser.add_argument(
-        "--without-roster",
-        action="store_true",
+        "--title-roster-file",
         help=(
-            "build URLs from the chapters named on the command line, with no roster. "
-            "Such a run is marked rosterVerified false and must not be treated as "
-            "a complete edition."
+            "table of titles from acquire_ors_roster.py. When given, every "
+            "requested chapter must fall inside a published title range."
         ),
     )
     parser.add_argument("--chapters", help="comma-separated chapter numbers, e.g. 1,161,279A")
@@ -257,12 +247,8 @@ def main(argv=None):
 
     if args.chapters and args.chapters_file:
         parser.error("--chapters and --chapters-file are mutually exclusive")
-    if args.roster_file and args.without_roster:
-        parser.error("--roster-file and --without-roster are mutually exclusive")
-    if not args.roster_file and not args.without_roster:
-        parser.error("one of --roster-file or --without-roster is required")
-    if args.without_roster and not (args.chapters or args.chapters_file):
-        parser.error("--without-roster requires --chapters or --chapters-file")
+    if not (args.chapters or args.chapters_file):
+        parser.error("one of --chapters or --chapters-file is required")
     if not 1 <= args.workers <= 16:
         parser.error("workers must be between 1 and 16")
     if args.limit is not None and args.limit < 1:
@@ -277,34 +263,29 @@ def main(argv=None):
     try:
         if args.chapters_file:
             requested = read_chapter_selection_file(args.chapters_file)
-        elif args.chapters:
+        else:
             requested = [part for part in args.chapters.split(",") if part.strip()]
-        else:
-            requested = []
 
-        if args.without_roster:
+        titles = []
+        if args.title_roster_file:
+            roster_document, titles = read_title_roster(args.title_roster_file)
             report.update({
-                "rosterSource": "skipped",
-                "rosterVerified": False,
-                "editionYear": None,
-                "editionId": None,
-                "rosterChapterCount": None,
+                "titleRosterSource": args.title_roster_file,
+                "titleRosterUrl": roster_document.get("rosterUrl"),
+                "titleRosterSha256": roster_document.get("rosterSha256"),
+                "titleRosterCount": len(titles),
+                "titleRangesChecked": True,
             })
-            chosen = constructed_chapters(requested, args.url_template)
-            if args.limit is not None:
-                chosen = chosen[: args.limit]
         else:
-            roster_document, roster = read_roster(args.roster_file)
+            # Acquiring without the published ranges is allowed for isolating a
+            # failure, but the report must never imply the chapters were checked.
             report.update({
-                "rosterSource": args.roster_file,
-                "rosterVerified": True,
-                "rosterUrl": roster_document.get("rosterUrl"),
-                "rosterSha256": roster_document.get("rosterSha256"),
-                "editionYear": roster_document.get("editionYear"),
-                "editionId": roster_document.get("editionId"),
-                "rosterChapterCount": len(roster),
+                "titleRosterSource": None,
+                "titleRosterCount": None,
+                "titleRangesChecked": False,
             })
-            chosen = selected_chapters(roster, requested, args.limit)
+
+        chosen = chapter_entries(requested, titles, args.url_template, args.limit)
     except (ValueError, OSError, json.JSONDecodeError) as exc:
         report.update({"valid": False, "error": str(exc), "chapters": []})
         Path(args.report).write_text(json.dumps(report, indent=2) + "\n")

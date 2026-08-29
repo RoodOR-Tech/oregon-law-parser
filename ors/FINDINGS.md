@@ -160,23 +160,76 @@ tall to survive the log tail. The lesson is recorded because it is the same
 one the probe teaches: when a bounded sample cannot settle a question, list
 the whole thing.
 
-## The roster comes from ORS_TitlesChapters.pdf
+## ORS_TitlesChapters.pdf is a table of titles, not a chapter roster
 
-The landing page links three Legislative Counsel documents, and one of them is
-the roster: `/bills_laws/BillsLawsEDL/ORS_TitlesChapters.pdf`.
+The landing page links `/bills_laws/BillsLawsEDL/ORS_TitlesChapters.pdf`, and
+its name suggested a per-chapter roster. It is not. Tika extracts:
 
-Reading it is better than scraping links would have been. It carries title
-grouping and chapter names, so it populates `ors_title` and
-`ors_chapter.chapter_name` directly instead of leaving them to be recovered
-from each chapter document. Text is extracted with the Tika jar already
-vendored for the amendment parser.
+```
+TABLE OF TITLES
+xxxv
+COURTS
+ORCP
+Volume 1
+Title 1 Courts of Record; Court Officers; Juries – Chs. 1-10
+2 Procedure in Civil Proceedings – Chs. 12-25
+5 Small Claims Department of Circuit Court – Ch. 46
+BUSINESS
+ORGANIZATIONS
+Volume 2
+Title 7 Corporations and Partnerships – Chs. 56-70
+```
 
-The other two are noted for later increments: `ORS_Renum.pdf`, a renumbering
-table bearing on `ors_section.renumbered_to`, and `ORS_Preface.pdf`.
+It lists volumes and titles with the chapter **range** each title covers. It
+never enumerates chapters.
 
-## Still unresolved
+Three properties of the layout matter:
 
-Whether this parser's title and chapter patterns match the real roster
-document's layout. The extraction path is proven end to end offline against a
-synthetic roster PDF, and a run that parses no chapters fails with the
-extracted text sample attached rather than returning an empty roster.
+- Only the first title in each volume carries the word `Title`. The rest are
+  bare leading numbers, so a pattern that treats a bare leading number as a
+  chapter reads every continuation line as one. The first parser did exactly
+  that and produced 41 fabricated chapters — which were title numbers. The
+  edition-identity check is the only thing that caught it, which is precisely
+  the failure the review finding on `editionId` predicted.
+- Sidebar labels (`COURTS`, `ORCP`, `LANDLORD-`, `PROBATE`) and roman page
+  numbers are interleaved with the entries. Requiring the dash-and-range
+  suffix separates a title line from them.
+- Ranges are printed with an en-dash and use `Ch.` for a single chapter.
+
+## What the document does give
+
+`ors_volume` and `ors_title` rows, populated from the authoritative source:
+volume number, title number, title name, and the chapter span each covers.
+
+The ranges are also load-bearing as a check. Their gaps are real: title 1
+covers chapters 1-10 and title 2 covers 12-25, so chapter 11 does not exist;
+title 8 ends at 84 and title 9 begins at 86, so neither does 85. A chapter
+named from anywhere else can be tested against the published ranges, and one
+falling under no title is rejected before it is fetched. Sort-key containment
+means a lettered chapter such as 90A correctly falls inside a printed 90-105.
+
+The document carries no edition banner, so `editionId` cannot come from it.
+The chapter documents print `2025` / `EDITION`, so edition identity is
+established there instead — before any row is emitted, not before a source is
+acquired.
+
+## Still unresolved: the chapter roster
+
+No published document found so far enumerates ORS chapters. Chapters are
+currently named explicitly, by the fixed development sample, and validated
+against the published title ranges.
+
+The natural next step is discovery by verified enumeration: walk each
+published title range, fetch each candidate chapter document, and record a
+200 with its digest as a chapter and a 404 as an absence. That is not
+guessing — every chapter in the resulting roster would be backed by a
+retrieved document, and every gap by a recorded response. It needs a design
+decision about lettered chapters, which no range endpoint seen so far
+expresses, and it is a whole-edition operation, so it belongs in its own
+increment rather than in this one.
+
+## The other Legislative Counsel documents
+
+`ORS_Renum.pdf` is a renumbering table bearing on `ors_section.renumbered_to`,
+and `ORS_Preface.pdf` accompanies the edition. Both are noted for later
+increments.

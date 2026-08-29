@@ -9,8 +9,9 @@ the previous one, not from assumptions.
 
 - Effort charter and non-interference rule with the amendment parser.
 - Relational schema version 1.
-- Roster discovery from the published `ORS_TitlesChapters.pdf`, and chapter
-  acquisition with pinned provenance.
+- Volume and title discovery from the published `ORS_TitlesChapters.pdf`, and
+  chapter acquisition with pinned provenance, validated against the published
+  chapter ranges.
 - Markup structure probe.
 - Offline unit tests plus a loopback end-to-end acquisition test.
 - A CI workflow scoped to `ors/**`.
@@ -19,6 +20,21 @@ the previous one, not from assumptions.
 roster and a structural fingerprint of the sample chapters. The measurements
 taken so far are recorded in [FINDINGS.md](FINDINGS.md); chapter structure is
 settled, index discovery is not.
+
+## Increment 1b — chapter roster by verified enumeration
+
+No published document enumerates ORS chapters, so chapters are currently named
+explicitly by the fixed development sample and checked against the published
+title ranges. A whole-edition build needs a real roster.
+
+- Walk each published title range, fetch each candidate chapter document, and
+  record a 200 with its digest as a chapter and a 404 as an absence. Every
+  chapter is then backed by a retrieved document and every gap by a recorded
+  response, which is verification rather than guessing.
+- Decide how lettered chapters are enumerated. No range endpoint seen so far
+  expresses one, yet 279A, 279B and 646A all exist.
+- This is a whole-edition operation of several hundred requests, so it runs on
+  manual dispatch, not on every CI run.
 
 ## Increment 2 — chapter parsing into `ors_section`
 

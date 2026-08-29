@@ -48,9 +48,7 @@ class _Handler(BaseHTTPRequestHandler):
 
 
 class AcquisitionEndToEndTest(unittest.TestCase):
-    rostered = ["1", "161", "279A"]
-    # Chapter 279A is on the roster but not served, standing in for a roster
-    # entry whose document is missing from the published site.
+    # Chapter 279 is inside a published title range but not served.
     served = ["1", "161"]
 
     @classmethod
@@ -68,96 +66,42 @@ class AcquisitionEndToEndTest(unittest.TestCase):
         cls.server.server_close()
         cls.thread.join(timeout=5)
 
-    def _roster_file(self, root):
+    def _title_roster_file(self, root):
         path = root / "roster.json"
         path.write_text(json.dumps({
             "schemaVersion": 1,
             "rosterUrl": "https://example.test/ORS_TitlesChapters.pdf",
             "rosterSha256": "c" * 64,
-            "editionYear": 2025,
-            "editionId": "2025",
-            "chapters": [
+            "chapterRosterAvailable": False,
+            "titles": [
                 {
-                    "chapterNumber": number,
-                    "chapterName": f"Chapter {number}",
-                    "titleNumber": "1",
-                    "sourceUrl": self.template.format(chapter_file=chapter_file_stem(number)),
-                }
-                for number in self.rostered
+                    "titleNumber": "1", "titleName": "Courts of Record",
+                    "volumeNumber": 1,
+                    "firstChapter": "1", "lastChapter": "10",
+                    "firstChapterSortKey": "000001 ", "lastChapterSortKey": "000010 ",
+                },
+                {
+                    "titleNumber": "16", "titleName": "Crimes and Punishments",
+                    "volumeNumber": 4,
+                    "firstChapter": "161", "lastChapter": "169",
+                    "firstChapterSortKey": "000161 ", "lastChapterSortKey": "000169 ",
+                },
+                {
+                    "titleNumber": "27", "titleName": "Public Contracting",
+                    "volumeNumber": 7,
+                    "firstChapter": "271", "lastChapter": "285",
+                    "firstChapterSortKey": "000271 ", "lastChapterSortKey": "000285 ",
+                },
             ],
         }))
         return path
 
-    def test_roster_backed_acquisition_pins_digests_and_carries_roster_identity(self):
+    def test_acquisition_pins_digests_and_carries_title_identity(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             report_path = root / "acquisition.json"
             exit_code = acquire.main([
-                "--roster-file", str(self._roster_file(root)),
-                "--chapters", "1,161",
-                "--output-dir", str(root / "sources"),
-                "--report", str(report_path),
-                "--retries", "1",
-            ])
-            self.assertEqual(exit_code, 0)
-            report = json.loads(report_path.read_text())
-            self.assertTrue(report["valid"])
-            self.assertTrue(report["rosterVerified"])
-            self.assertEqual(report["chapterUrlSource"], "roster")
-            self.assertEqual(report["editionId"], "2025")
-            self.assertEqual(report["rosterChapterCount"], 3)
-            self.assertEqual(report["acquiredChapterCount"], 2)
-            for chapter in report["chapters"]:
-                self.assertEqual(len(chapter["sha256"]), 64)
-                self.assertEqual(chapter["sourceFormat"], "html")
-                # Roster metadata travels with the acquired document.
-                self.assertEqual(chapter["titleNumber"], "1")
-                self.assertTrue(chapter["chapterName"])
-                fixture = Path(chapter["fixture"])
-                self.assertEqual(fixture.stat().st_size, chapter["bytes"])
-
-    def test_a_rostered_but_unpublished_chapter_is_a_structured_failure(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            report_path = root / "acquisition.json"
-            exit_code = acquire.main([
-                "--roster-file", str(self._roster_file(root)),
-                "--chapters", "1,279A",
-                "--output-dir", str(root / "sources"),
-                "--report", str(report_path),
-                "--retries", "1",
-            ])
-            self.assertEqual(exit_code, 1)
-            report = json.loads(report_path.read_text())
-            self.assertFalse(report["valid"])
-            failure = report["failures"][0]
-            self.assertEqual(failure["chapterNumber"], "279A")
-            self.assertEqual(failure["httpStatus"], 404)
-            # A 404 is an answer, so it must not consume the retry budget.
-            self.assertEqual(failure["attempts"], 1)
-
-    def test_requesting_a_chapter_absent_from_the_roster_is_rejected(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            report_path = root / "acquisition.json"
-            exit_code = acquire.main([
-                "--roster-file", str(self._roster_file(root)),
-                "--chapters", "999",
-                "--output-dir", str(root / "sources"),
-                "--report", str(report_path),
-            ])
-            self.assertEqual(exit_code, 1)
-            report = json.loads(report_path.read_text())
-            self.assertIn("not present in the published roster", report["error"])
-
-    def test_without_roster_constructs_urls_and_declares_itself_unverified(self):
-        # Naming a chapter is not the same as synthesizing a roster, so the
-        # run is usable but must declare that its roster was never verified.
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            report_path = root / "acquisition.json"
-            exit_code = acquire.main([
-                "--without-roster",
+                "--title-roster-file", str(self._title_roster_file(root)),
                 "--chapters", "1,161",
                 "--url-template", self.template,
                 "--output-dir", str(root / "sources"),
@@ -167,27 +111,82 @@ class AcquisitionEndToEndTest(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             report = json.loads(report_path.read_text())
             self.assertTrue(report["valid"])
-            self.assertFalse(report["rosterVerified"])
-            self.assertEqual(report["chapterUrlSource"], "constructed")
-            self.assertIsNone(report["rosterChapterCount"])
+            self.assertTrue(report["titleRangesChecked"])
+            self.assertEqual(report["titleRosterCount"], 3)
             self.assertEqual(report["acquiredChapterCount"], 2)
+            by_number = {item["chapterNumber"]: item for item in report["chapters"]}
+            self.assertEqual(len(by_number["161"]["sha256"]), 64)
+            self.assertEqual(by_number["161"]["sourceFormat"], "html")
+            # The owning title and volume travel with the acquired document.
+            self.assertEqual(by_number["161"]["titleNumber"], "16")
+            self.assertEqual(by_number["161"]["volumeNumber"], 4)
+            self.assertEqual(by_number["1"]["titleNumber"], "1")
+            fixture = Path(by_number["161"]["fixture"])
+            self.assertEqual(fixture.stat().st_size, by_number["161"]["bytes"])
 
-    def test_a_roster_source_is_required(self):
+    def test_a_chapter_outside_every_published_title_range_is_rejected(self):
+        # Chapter 11 sits in the gap between titles 1 and 16, so the published
+        # ranges say it does not exist. That must fail before anything is fetched.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = root / "acquisition.json"
+            exit_code = acquire.main([
+                "--title-roster-file", str(self._title_roster_file(root)),
+                "--chapters", "1,11",
+                "--url-template", self.template,
+                "--output-dir", str(root / "sources"),
+                "--report", str(report_path),
+            ])
+            self.assertEqual(exit_code, 1)
+            report = json.loads(report_path.read_text())
+            self.assertIn("outside every published title range", report["error"])
+            self.assertIn("11", report["error"])
+            self.assertFalse((root / "sources").exists())
+
+    def test_a_published_but_unfetchable_chapter_is_a_structured_failure(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = root / "acquisition.json"
+            exit_code = acquire.main([
+                "--title-roster-file", str(self._title_roster_file(root)),
+                "--chapters", "1,279",
+                "--url-template", self.template,
+                "--output-dir", str(root / "sources"),
+                "--report", str(report_path),
+                "--retries", "1",
+            ])
+            self.assertEqual(exit_code, 1)
+            report = json.loads(report_path.read_text())
+            self.assertFalse(report["valid"])
+            failure = report["failures"][0]
+            self.assertEqual(failure["chapterNumber"], "279")
+            self.assertEqual(failure["httpStatus"], 404)
+            # A 404 is an answer, so it must not consume the retry budget.
+            self.assertEqual(failure["attempts"], 1)
+
+    def test_acquiring_without_the_title_roster_never_claims_the_ranges_were_checked(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = root / "acquisition.json"
+            exit_code = acquire.main([
+                "--chapters", "1,161",
+                "--url-template", self.template,
+                "--output-dir", str(root / "sources"),
+                "--report", str(report_path),
+                "--retries", "1",
+            ])
+            self.assertEqual(exit_code, 0)
+            report = json.loads(report_path.read_text())
+            self.assertTrue(report["valid"])
+            self.assertFalse(report["titleRangesChecked"])
+            self.assertIsNone(report["titleRosterCount"])
+            self.assertIsNone(report["chapters"][0]["titleNumber"])
+
+    def test_a_chapter_selection_is_required(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             with self.assertRaises(SystemExit):
                 acquire.main([
-                    "--chapters", "1",
-                    "--output-dir", str(root / "sources"),
-                    "--report", str(root / "acquisition.json"),
-                ])
-
-    def test_without_roster_requires_an_explicit_chapter_list(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            with self.assertRaises(SystemExit):
-                acquire.main([
-                    "--without-roster",
                     "--output-dir", str(root / "sources"),
                     "--report", str(root / "acquisition.json"),
                 ])
@@ -197,8 +196,9 @@ class AcquisitionEndToEndTest(unittest.TestCase):
             root = Path(tmp)
             acquisition_path = root / "acquisition.json"
             acquire.main([
-                "--roster-file", str(self._roster_file(root)),
+                "--title-roster-file", str(self._title_roster_file(root)),
                 "--chapters", "161",
+                "--url-template", self.template,
                 "--output-dir", str(root / "sources"),
                 "--report", str(acquisition_path),
                 "--retries", "1",

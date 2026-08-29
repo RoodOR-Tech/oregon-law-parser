@@ -1,21 +1,26 @@
 #!/usr/bin/env python3
-"""Discover the ORS title and chapter roster from the published roster document.
+"""Read the published ORS table of titles.
 
 The ORS landing page does not link chapters. Its 115 links under
 bills_laws/ors are the annual amendment-and-repeal reference PDFs (1941
 through 2025, special sessions included), OCLA.pdf, and the alphabetical
-General Index. The authoritative roster is published separately as
-ORS_TitlesChapters.pdf.
+General Index.
 
-Reading it is better than scraping links would have been: it carries title
-grouping and chapter names, so it populates ors_title and
-ors_chapter.chapter_name directly instead of leaving them to be recovered
-from each chapter document.
+ORS_TitlesChapters.pdf, linked from the same page, is a TABLE OF TITLES. It
+lists volumes, titles and the chapter RANGE each title covers:
 
-Text is extracted with the Tika jar already vendored for the amendment
-parser. Parsing never guesses: lines that look like roster entries but do not
-parse are reported, and a run that finds no chapters fails with a text
-fingerprint attached rather than returning an empty roster.
+    Volume 1
+    Title 1 Courts of Record; Court Officers; Juries - Chs. 1-10
+    2 Procedure in Civil Proceedings - Chs. 12-25
+    5 Small Claims Department of Circuit Court - Ch. 46
+
+It does not enumerate chapters. This tool therefore reads what the document
+actually publishes -- ors_volume and ors_title rows, with each title's chapter
+range -- and does not pretend to produce a chapter roster.
+
+Those ranges are still load-bearing: a chapter acquired from anywhere else can
+be checked against them, so a chapter filed under no published title is
+visible rather than silently accepted.
 """
 import argparse
 import hashlib
@@ -39,18 +44,27 @@ DEFAULT_ROSTER_URL = (
 )
 USER_AGENT = "oregon-law-parser-ors-table/1"
 
-# "TITLE 1" or "Title 1." introduces a title, whose name may follow on the
-# same line or on the next one.
-TITLE_PATTERN = re.compile(r"^TITLE\s+(?P<number>[0-9]{1,3}[A-Z]?)\b\.?\s*(?P<name>.*)$", re.IGNORECASE)
-# A chapter entry is a chapter number followed by its name. The roster prints
-# these either bare ("1 Courts and Judicial Districts") or with a "Chapter"
-# label, so both are accepted.
-CHAPTER_PATTERN = re.compile(
-    r"^(?:Chapter\s+)?(?P<number>[0-9]{1,3}[A-Z]?)[.,]?\s+(?P<name>\S.*)$",
-    re.IGNORECASE,
+# A volume header introduces the titles bound in that volume.
+VOLUME_PATTERN = re.compile(r"^Volume\s+(?P<number>\d{1,2})$", re.IGNORECASE)
+
+# A title line is a number, a name, then an en- or em-dash and the chapter
+# range the title covers. Only the first title in each volume carries the
+# literal word "Title"; the rest are bare numbers, which is exactly why a
+# pattern that accepts a bare leading number as a chapter misreads them.
+# Requiring the dash-and-range suffix is what separates a title line from a
+# stray sidebar label such as "LANDLORD-TENANT".
+TITLE_PATTERN = re.compile(
+    r"^(?:Title\s+)?(?P<number>\d{1,3}[A-Z]?)\s+"
+    r"(?P<name>.+?)\s*[\u2013\u2014]\s*Chs?\.\s*(?P<range>[0-9A-Za-z]+(?:\s*[-\u2013\u2014]\s*[0-9A-Za-z]+)?)\s*$"
 )
-# A line that is only a number is a page number, not a chapter.
-PAGE_NUMBER_PATTERN = re.compile(r"^[0-9ivxlcIVXLC]{1,6}$")
+
+# A range endpoint is a chapter number, possibly lettered.
+RANGE_PATTERN = re.compile(
+    r"^(?P<first>\d{1,3}[A-Za-z]?)(?:\s*[-\u2013\u2014]\s*(?P<last>\d{1,3}[A-Za-z]?))?$"
+)
+
+# The table of titles carries no edition banner, but this stays so an edition
+# statement is captured if the document ever gains one.
 EDITION_PATTERN = re.compile(r"((?:19|20)\d{2})\s*EDITION", re.IGNORECASE)
 
 MAX_SAMPLE_LINES = 40
@@ -102,58 +116,91 @@ def detect_edition_year(text):
     return max(years) if years else None
 
 
-def parse_roster(text):
-    """Parse titles and chapters out of the extracted roster text.
+def parse_chapter_range(raw):
+    """Parse a printed chapter range into normalized first and last numbers."""
+    match = RANGE_PATTERN.match(raw.strip())
+    if match is None:
+        return None
+    first = parse_chapter_number(match.group("first"))
+    if first is None:
+        return None
+    last = parse_chapter_number(match.group("last")) if match.group("last") else first
+    if last is None:
+        return None
+    return {
+        "firstChapter": first,
+        "lastChapter": last,
+        "firstChapterSortKey": chapter_sort_key(first),
+        "lastChapterSortKey": chapter_sort_key(last),
+    }
 
-    Returns (titles, chapters, unparsed_lines). A line naming a chapter number
-    that cannot be normalized is reported rather than dropped, so a layout
-    this parser does not understand is visible instead of silently shrinking
-    the roster.
+
+def parse_table_of_titles(text):
+    """Parse volumes and titles out of the published table of titles.
+
+    Returns (volumes, titles, unparsed_lines). A line that looks like a title
+    entry but whose range will not parse is reported rather than dropped, so a
+    layout this parser does not understand stays visible.
     """
+    volumes = []
     titles = []
-    chapters = []
     unparsed = []
-    seen_chapters = set()
     seen_titles = set()
-    current_title = None
+    current_volume = None
 
     for raw in text.splitlines():
         line = " ".join(raw.split())
-        if not line or PAGE_NUMBER_PATTERN.match(line):
+        if not line:
+            continue
+
+        volume_match = VOLUME_PATTERN.match(line)
+        if volume_match is not None:
+            current_volume = int(volume_match.group("number"))
+            if all(item["volumeNumber"] != current_volume for item in volumes):
+                volumes.append({"volumeNumber": current_volume})
             continue
 
         title_match = TITLE_PATTERN.match(line)
-        if title_match is not None:
-            number = title_match.group("number").upper()
-            current_title = number
-            if number not in seen_titles:
-                seen_titles.add(number)
-                titles.append({
-                    "titleNumber": number,
-                    "titleName": title_match.group("name").strip() or None,
-                })
+        if title_match is None:
             continue
-
-        chapter_match = CHAPTER_PATTERN.match(line)
-        if chapter_match is None:
+        number = title_match.group("number").upper()
+        if number in seen_titles:
             continue
-        number = parse_chapter_number(chapter_match.group("number"))
-        if number is None:
+        chapter_range = parse_chapter_range(title_match.group("range"))
+        if chapter_range is None:
             unparsed.append(line)
             continue
-        if number in seen_chapters:
-            continue
-        seen_chapters.add(number)
-        chapters.append({
-            "chapterNumber": number,
-            "chapterSortKey": chapter_sort_key(number),
-            "chapterName": chapter_match.group("name").strip(),
-            "titleNumber": current_title,
-            "sourceUrl": chapter_url(number),
-        })
+        seen_titles.add(number)
+        entry = {
+            "titleNumber": number,
+            "titleName": title_match.group("name").strip(),
+            "volumeNumber": current_volume,
+        }
+        entry.update(chapter_range)
+        titles.append(entry)
 
-    chapters.sort(key=lambda item: item["chapterSortKey"])
-    return titles, chapters, unparsed
+    # Record each volume's chapter span from the titles it contains.
+    for volume in volumes:
+        owned = [item for item in titles if item["volumeNumber"] == volume["volumeNumber"]]
+        if owned:
+            volume["firstChapter"] = min(owned, key=lambda i: i["firstChapterSortKey"])["firstChapter"]
+            volume["lastChapter"] = max(owned, key=lambda i: i["lastChapterSortKey"])["lastChapter"]
+            volume["titleCount"] = len(owned)
+
+    return volumes, titles, unparsed
+
+
+def chapter_is_published(chapter_number, titles):
+    """Return the title covering a chapter number, or None.
+
+    Containment compares sort keys, so a lettered chapter such as 90A falls
+    correctly inside a printed range of 90-105.
+    """
+    key = chapter_sort_key(chapter_number)
+    for title in titles:
+        if title["firstChapterSortKey"] <= key <= title["lastChapterSortKey"]:
+            return title
+    return None
 
 
 def text_diagnostics(text):
@@ -197,7 +244,7 @@ def main(argv=None):
             "rosterAttempts": attempts,
         })
         if data is None:
-            report.update({"valid": False, "error": error, "chapters": [], "titles": []})
+            report.update({"valid": False, "error": error, "titles": [], "volumes": []})
             Path(args.report).write_text(json.dumps(report, indent=2) + "\n")
             print(json.dumps({"valid": False, "error": error}, indent=2))
             return 1
@@ -217,8 +264,8 @@ def main(argv=None):
         report.update({
             "valid": False,
             "error": "roster document is not a PDF",
-            "chapters": [],
             "titles": [],
+            "volumes": [],
         })
         Path(args.report).write_text(json.dumps(report, indent=2) + "\n")
         print(json.dumps({"valid": False, "error": report["error"]}, indent=2))
@@ -227,29 +274,35 @@ def main(argv=None):
     try:
         text = extract_text(pdf_path, args.tika_jar, args.java)
     except (RuntimeError, OSError, subprocess.SubprocessError) as exc:
-        report.update({"valid": False, "error": str(exc), "chapters": [], "titles": []})
+        report.update({"valid": False, "error": str(exc), "titles": [], "volumes": []})
         Path(args.report).write_text(json.dumps(report, indent=2) + "\n")
         print(json.dumps({"valid": False, "error": str(exc)}, indent=2))
         return 1
 
-    titles, chapters, unparsed = parse_roster(text)
+    volumes, titles, unparsed = parse_table_of_titles(text)
     edition_year = detect_edition_year(text)
 
     problems = []
-    if not chapters:
-        problems.append("no chapters parsed from the published roster document")
-    if edition_year is None:
-        problems.append("the roster document states no ORS edition year")
+    if not titles:
+        problems.append("no titles parsed from the published table of titles")
+    if not volumes:
+        problems.append("no volumes parsed from the published table of titles")
 
     report.update({
+        # The table of titles carries no edition banner. Edition identity is
+        # established from the chapter documents, which print it, before any
+        # row is emitted. See SCHEMA.md.
         "editionYear": edition_year,
         "editionId": str(edition_year) if edition_year else None,
+        "volumeCount": len(volumes),
         "titleCount": len(titles),
-        "chapterCount": len(chapters),
         "unparsedLineCount": len(unparsed),
+        "volumes": volumes,
         "titles": titles,
-        "chapters": chapters,
         "unparsedLines": unparsed[:MAX_SAMPLE_LINES],
+        # This document does not enumerate chapters, so no chapter roster is
+        # claimed. Chapters are validated against the title ranges instead.
+        "chapterRosterAvailable": False,
         "valid": not problems,
     })
     if problems:
@@ -263,8 +316,8 @@ def main(argv=None):
     summary = {
         "valid": report["valid"],
         "editionYear": edition_year,
+        "volumeCount": len(volumes),
         "titleCount": len(titles),
-        "chapterCount": len(chapters),
         "unparsedLineCount": len(unparsed),
     }
     if problems:

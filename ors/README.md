@@ -56,7 +56,8 @@ separately gated.
 
 | Stage | Tool | Status |
 |---|---|---|
-| 1. Discover the title and chapter roster for an edition | `tools/acquire_ors_roster.py` | implemented |
+| 1. Read the published volumes, titles and chapter ranges | `tools/acquire_ors_roster.py` | implemented |
+| 1b. Build a chapter roster by verified enumeration | — | not started |
 | 2. Acquire chapter sources with pinned provenance | `tools/acquire_ors_chapters.py` | implemented |
 | 3. Fingerprint chapter markup to establish ground truth | `tools/probe_ors_structure.py` | implemented |
 | 4. Parse chapters into `ors_section` rows | `tools/parse_ors_chapter.py` | not started |
@@ -71,8 +72,7 @@ is written against it.
 
 ## Running the implemented stages
 
-Discover the roster — reads the published `ORS_TitlesChapters.pdf` and emits
-titles, chapters and chapter names:
+Read the table of titles — volumes, titles and the chapter range each covers:
 
 ```bash
 python3 ors/tools/acquire_ors_roster.py \
@@ -81,42 +81,21 @@ python3 ors/tools/acquire_ors_roster.py \
   --report ors-roster.json
 ```
 
-Acquire the fixed development sample — what routine CI runs do:
+Acquire the fixed development sample, checked against the published ranges —
+what routine CI runs do:
 
 ```bash
 python3 ors/tools/acquire_ors_chapters.py \
-  --roster-file ors-roster.json \
+  --title-roster-file ors-roster.json \
   --chapters-file ors/sample/chapters.json \
   --output-dir ors-sources \
   --report ors-acquisition.json
 ```
 
-Acquire every chapter on the roster — several hundred requests, so this is
-opt-in via manual workflow dispatch rather than something CI does on its own:
-
-```bash
-python3 ors/tools/acquire_ors_chapters.py \
-  --roster-file ors-roster.json \
-  --output-dir ors-sources \
-  --report ors-acquisition.json
-```
-
-Isolate a failure by skipping the roster and constructing URLs from explicitly
-named chapters:
-
-```bash
-python3 ors/tools/acquire_ors_chapters.py \
-  --without-roster \
-  --chapters-file ors/sample/chapters.json \
-  --output-dir ors-sources \
-  --report ors-acquisition.json
-```
-
-Naming a chapter is not the same as synthesizing a roster — the roster is what
-must never be guessed. Such a run is marked `rosterVerified: false` and
-`chapterUrlSource: "constructed"`, and exists to keep chapter structure
-observable while discovery is being fixed. It must not be treated as a
-complete edition.
+A chapter falling under no published title is rejected before anything is
+fetched. Omitting `--title-roster-file` skips that check; the report then
+records `titleRangesChecked: false` so it can never be mistaken for a checked
+run.
 
 Fingerprint what was acquired:
 
