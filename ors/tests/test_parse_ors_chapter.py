@@ -17,13 +17,21 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import parse_ors_chapter as parser  # noqa: E402
 from ors_text import decode_markup, declared_charset  # noqa: E402
 
-FIXTURE = Path(__file__).resolve().parent / "fixtures" / "word_export_chapter.html"
+FIXTURES = Path(__file__).resolve().parent / "fixtures"
+FIXTURE = FIXTURES / "word_export_chapter.html"
+# Chapter 1 opens its title, so its document carries the title's front matter
+# ahead of its own heading and edition banner.
+FRONT_MATTER_FIXTURE = FIXTURES / "title_front_matter_chapter.html"
+
+
+def parsed(path, chapter_number):
+    data = path.read_bytes()
+    markup, _ = decode_markup(data, declared_charset(data))
+    return parser.parse_chapter(markup, chapter_number)
 
 
 def parsed_fixture():
-    data = FIXTURE.read_bytes()
-    markup, _ = decode_markup(data, declared_charset(data))
-    return parser.parse_chapter(markup, "161")
+    return parsed(FIXTURE, "161")
 
 
 class ChapterIdentityTest(unittest.TestCase):
@@ -41,6 +49,59 @@ class ChapterIdentityTest(unittest.TestCase):
 
     def test_a_document_without_an_edition_banner_reports_none(self):
         self.assertIsNone(parser.parse_chapter("<p>161.005 Short title.</p>", "161")["editionYear"])
+
+    def test_a_bare_year_without_the_word_edition_is_not_an_edition(self):
+        markup = "<p>2025</p><p>c.88</p><p><b>161.005 Short title.</b> Text.</p>"
+        self.assertIsNone(parser.parse_chapter(markup, "161")["editionYear"])
+
+
+class TitleFrontMatterTest(unittest.TestCase):
+    """A chapter that opens a title carries that title's front matter first.
+
+    Chapter 1's document begins "TITLE / 1 / COURTS / OF RECORD; COURT
+    OFFICERS; JURIES" and lists the title's chapters before reaching its own
+    heading and edition banner. A fixed head window missed both.
+    """
+
+    def setUp(self):
+        self.result = parsed(FRONT_MATTER_FIXTURE, "1")
+
+    def test_the_heading_is_found_past_the_front_matter(self):
+        self.assertEqual(self.result["printedChapterNumber"], "1")
+        self.assertEqual(
+            self.result["chapterName"], "Courts and Judicial Officers Generally"
+        )
+
+    def test_the_edition_banner_is_found_past_the_front_matter(self):
+        self.assertEqual(self.result["editionYear"], 2025)
+
+    def test_the_front_matter_chapter_list_does_not_become_sections(self):
+        # "Chapter 1. Courts and", "2. Supreme", "3. Circuit" and the rest are
+        # a list of the title's chapters, not sections of this one.
+        self.assertEqual(
+            [item["sectionNumber"] for item in self.result["sections"]],
+            ["1.001", "1.002"],
+        )
+
+    def test_a_heading_for_another_chapter_is_never_accepted(self):
+        # Searching the whole document must not pick up a different chapter's
+        # heading just because it appears first.
+        text = "<p>90 – Residential Landlord and Tenant</p><p>161 – General Provisions</p>"
+        lines = list(parser.line_spans(parser.normalize_chapter_text(text)[0]))
+        self.assertEqual(parser.parse_chapter_heading(lines, "161")[0], "161")
+
+
+class ForeignAnchorTest(unittest.TestCase):
+    def test_a_bolded_citation_to_another_chapter_is_not_a_section(self):
+        markup = (
+            "<p><b>161.005 Short title.</b> See <b>90.100 Definitions.</b> too.</p>"
+            "<p>2025</p><p>EDITION</p>"
+        )
+        result = parser.parse_chapter(markup, "161")
+        self.assertEqual([item["sectionNumber"] for item in result["sections"]], ["161.005"])
+        self.assertEqual(result["foreignAnchors"], ["90.100"])
+        # It is recorded, not treated as this chapter's defect.
+        self.assertEqual(result["problems"], [])
 
 
 class SegmentationTest(unittest.TestCase):

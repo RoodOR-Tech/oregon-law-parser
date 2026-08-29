@@ -301,6 +301,63 @@ directly, so a range such as 284-285C states its own letter span. It remains
 a whole-edition operation of several hundred requests, so it belongs in its
 own increment rather than in this one.
 
+## Chapter documents vary in their front matter
+
+The chapters sampled first — 192, 279A, 646A — open directly with their own
+heading and edition banner:
+
+```
+Oregon Revised Statutes
+Chapter
+192 – Records; Public Reports and Meetings
+2025
+EDITION
+```
+
+Chapter 1 does not. It opens its title, so the document carries the title's
+front matter first:
+
+```
+TITLE
+1
+COURTS
+OF RECORD; COURT OFFICERS; JURIES
+Chapter 1. Courts and
+Judicial Officers Generally
+2. Supreme
+Court; Court of Appeals
+```
+
+That list is the title's chapters, not this chapter's sections, and it pushes
+both the chapter heading and the edition banner past any small head window.
+Searching a fixed number of leading lines therefore found neither, and since
+edition identity gates row emission, the whole chapter produced nothing.
+
+The edition banner is now searched for across the whole document, and the
+chapter heading is searched for by the expected chapter number, so front
+matter cannot hide it and another chapter's heading is never accepted in its
+place.
+
+## Bold anchoring holds on real documents
+
+Measured on the sample, with a chapter's own catchlines coming through
+cleanly:
+
+```
+646A  1,341,520 bytes  12,152 lines  560 section numbers
+      320 line anchors   265 bold anchors   205 credits   138 stubs
+
+chapter 1 bold anchors:
+  1.001 State policy for courts.
+  1.002 Supreme Court; Chief Justice as administrative head of judicial department; ...
+  1.005 Credit card transactions for fees, security deposits, fines and ...
+```
+
+A bold run naming another chapter's section is a bolded citation, not a
+heading. Those are counted as `foreignAnchorCount` and skipped rather than
+failing the run: they are not this chapter's rows, and a chapter is not
+defective for citing another.
+
 ## The other Legislative Counsel documents
 
 `ORS_Renum.pdf` is a renumbering table bearing on `ors_section.renumbered_to`,

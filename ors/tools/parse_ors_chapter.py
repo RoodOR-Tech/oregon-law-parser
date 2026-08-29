@@ -66,7 +66,13 @@ UPPER_HEADING_PATTERN = re.compile(r"^[A-Z][A-Z0-9 ,.;:'&/–—-]{2,}$")
 PAREN_HEADING_PATTERN = re.compile(r"^\([A-Z][^()]{2,}\)$")
 SECTION_NUMBER_ANYWHERE = re.compile(r"\d{1,3}[A-Z]?\.\d{3}")
 
-# How far into the document the chapter heading and edition banner are sought.
+# How far into a document to look for a chapter heading when the expected
+# chapter number is unknown. A chapter that opens a title carries that title's
+# front matter first -- chapter 1's document begins "TITLE / 1 / COURTS / OF
+# RECORD; COURT OFFICERS; JURIES" and then lists the title's chapters -- so a
+# small window misses both the heading and the edition banner. When the
+# expected number is known the whole document is searched for that number, and
+# the edition banner is always searched for in full.
 HEAD_LINE_LIMIT = 40
 
 
@@ -184,27 +190,45 @@ def split_source_credit(body):
     return body[: match.start()].strip(), match.group("credit")
 
 
-def parse_chapter_heading(lines):
-    """Read the chapter number and name the document prints for itself."""
-    for line, _, _ in lines[:HEAD_LINE_LIMIT]:
+def parse_chapter_heading(lines, expected_number=None):
+    """Read the chapter number and name the document prints for itself.
+
+    When the expected chapter number is known the whole document is searched
+    for a heading carrying that number, so front matter ahead of the heading
+    does not hide it and a heading for some other chapter is never accepted.
+    """
+    fallback = None
+    for index, (line, _, _) in enumerate(lines):
         match = CHAPTER_HEADING_PATTERN.match(line)
         if match is None:
             continue
         number = parse_chapter_number(match.group("number"))
         if number is None:
             continue
-        return number, match.group("name").strip()
-    return None, None
+        name = match.group("name").strip()
+        if expected_number is None:
+            if index < HEAD_LINE_LIMIT:
+                return number, name
+            continue
+        if number == expected_number:
+            return number, name
+        if fallback is None and index < HEAD_LINE_LIMIT:
+            fallback = (number, name)
+    return fallback if fallback is not None else (None, None)
 
 
 def parse_edition_year(lines):
-    """Read the edition the document prints, as a year line then EDITION."""
-    window = lines[:HEAD_LINE_LIMIT]
-    for index, (line, _, _) in enumerate(window):
+    """Read the edition the document prints, as a year line then EDITION.
+
+    The whole document is searched. A chapter opening a title carries that
+    title's front matter ahead of the banner, which put it out of reach of a
+    fixed head window.
+    """
+    for index, (line, _, _) in enumerate(lines):
         match = EDITION_YEAR_PATTERN.match(line)
         if match is None:
             continue
-        following = window[index + 1][0] if index + 1 < len(window) else ""
+        following = lines[index + 1][0] if index + 1 < len(lines) else ""
         if following.upper().startswith("EDITION"):
             return int(match.group(1))
     return None
@@ -224,7 +248,7 @@ def parse_chapter(markup, chapter_number):
     text, bold_spans = normalize_chapter_text(markup)
     lines = list(line_spans(text))
 
-    printed_number, chapter_name = parse_chapter_heading(lines)
+    printed_number, chapter_name = parse_chapter_heading(lines, chapter_number)
     edition_year = parse_edition_year(lines)
 
     # A bold run is a section anchor when its text opens with a section number
@@ -272,6 +296,7 @@ def parse_chapter(markup, chapter_number):
 
     sections = []
     problems = []
+    foreign_anchors = []
     seen = set()
     for index, anchor in enumerate(anchors):
         next_anchor = anchors[index + 1]["start"] if index + 1 < len(anchors) else len(text)
@@ -289,9 +314,10 @@ def parse_chapter(markup, chapter_number):
             continue
         seen.add(number)
         if chapter_number is not None and not number.startswith(f"{chapter_number}."):
-            problems.append(
-                f"section {number} does not belong to chapter {chapter_number}"
-            )
+            # A bolded citation to another chapter's section, not a heading
+            # here. Recorded so the count stays visible, but it is not this
+            # chapter's defect.
+            foreign_anchors.append(number)
             continue
 
         if anchor["stub"] is not None:
@@ -332,6 +358,7 @@ def parse_chapter(markup, chapter_number):
         "boldRunCount": len(bold_spans),
         "sections": sections,
         "subdivisions": subdivisions,
+        "foreignAnchors": foreign_anchors,
         "problems": problems,
     }
 
@@ -522,6 +549,11 @@ def main(argv=None):
 
     rows = build_rows(records)
     violations = check_referential_integrity(rows)
+    foreign = [
+        {"chapterNumber": record["chapterNumber"], "anchors": record["parsed"]["foreignAnchors"]}
+        for record in records
+        if record["parsed"]["foreignAnchors"]
+    ]
 
     report = {
         "schemaVersion": 1,
@@ -533,6 +565,11 @@ def main(argv=None):
         "subdivisionRowCount": len(rows["subdivisions"]),
         "sectionRowCount": len(rows["sections"]),
         "statusCounts": status_counts(rows["sections"]),
+        # Bold runs naming another chapter's section: bolded citations, not
+        # headings here. Counted so the rule stays observable, but not a
+        # failure, since they are not this chapter's rows.
+        "foreignAnchorCount": sum(len(item["anchors"]) for item in foreign),
+        "foreignAnchors": foreign,
         "problems": rows["problems"],
         "integrityViolations": violations,
         "unreadable": unreadable,
@@ -558,6 +595,7 @@ def main(argv=None):
         "sectionRowCount": report["sectionRowCount"],
         "subdivisionRowCount": report["subdivisionRowCount"],
         "statusCounts": report["statusCounts"],
+        "foreignAnchorCount": report["foreignAnchorCount"],
         "problemCount": len(report["problems"]),
         "integrityViolationCount": len(violations),
     }, indent=2))

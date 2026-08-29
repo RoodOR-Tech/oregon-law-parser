@@ -130,23 +130,6 @@ jobs:
             --report ors-parse.json \
             --rows ors-rows.json
 
-      - name: Print the emitted rows
-        if: always()
-        run: |
-          set -uo pipefail
-          if [ ! -f ors-parse.json ]; then
-            echo "No parse report was written."
-            exit 0
-          fi
-          echo "Editions: $(jq -r '.editionCount' ors-parse.json)   Chapters: $(jq -r '.chapterRowCount' ors-parse.json)   Subdivisions: $(jq -r '.subdivisionRowCount' ors-parse.json)   Sections: $(jq -r '.sectionRowCount' ors-parse.json)"
-          echo "Section status counts: $(jq -c '.statusCounts' ors-parse.json)"
-          echo "Per chapter:"
-          jq -r '.perChapter[] | "  ch \(.chapterNumber)  title \(.titleNumber // "?")  \(.sectionCount) sections  \(.chapterName // "")"' ors-parse.json
-          echo "Problems: $(jq -r '.problems | length' ors-parse.json)"
-          jq -r '.problems[] | "  problem: \(.)"' ors-parse.json | head -20
-          echo "Integrity violations: $(jq -r '.integrityViolations | length' ors-parse.json)"
-          jq -r '.integrityViolations[] | "  violation: \(.)"' ors-parse.json | head -20
-
       - name: Print the structural fingerprint
         if: always()
         run: |
@@ -214,6 +197,25 @@ jobs:
             echo "Extracted text sample:"
             jq -r '.textDiagnostics.sampleLines // [] | .[]' ors-roster.json | head -40
           fi
+
+      - name: Print the emitted rows
+        if: always()
+        run: |
+          set -uo pipefail
+          if [ ! -f ors-parse.json ]; then
+            echo "No parse report was written."
+            exit 0
+          fi
+          echo "Editions: $(jq -r '.editionCount' ors-parse.json)   Chapters: $(jq -r '.chapterRowCount' ors-parse.json)   Subdivisions: $(jq -r '.subdivisionRowCount' ors-parse.json)   Sections: $(jq -r '.sectionRowCount' ors-parse.json)"
+          echo "Section status counts: $(jq -c '.statusCounts' ors-parse.json)"
+          echo "Per chapter:"
+          jq -r '.perChapter[] | "  ch \(.chapterNumber)  title \(.titleNumber // "?")  \(.sectionCount) sections  \(.chapterName // "")"' ors-parse.json
+          echo "Problems: $(jq -r '.problems | length' ors-parse.json)"
+          jq -r '.problems[] | "  problem: \(.)"' ors-parse.json | head -20
+          echo "Integrity violations: $(jq -r '.integrityViolations | length' ors-parse.json)"
+          jq -r '.integrityViolations[] | "  violation: \(.)"' ors-parse.json | head -20
+          echo "Foreign anchors (bolded citations to other chapters): $(jq -r '.foreignAnchorCount' ors-parse.json)"
+          jq -r '.foreignAnchors[] | "  ch \(.chapterNumber): \(.anchors | join(", "))"' ors-parse.json | head -10
 
       # The real gate. It runs last so the diagnostic steps above have already
       # printed their evidence into the log even on a failing run.
