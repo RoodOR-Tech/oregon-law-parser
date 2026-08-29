@@ -98,23 +98,30 @@ caught before CI did:
   citations or the two non-citation forms above; a genuine editorial note
   distinct from a credit has not yet been observed in the sample and needs
   its own evidence before a rule is written.
-- Repealed and renumbered sections. Done: the "138 stubs in 646A" figure
-  FINDINGS.md first recorded came from the probe's looser `repealStubMatches`
-  count, which matches any bracket anywhere in the document starting with a
-  disposition keyword -- including an ordinary operative section's own
-  credit ("[Formerly ...; repealed by ...]" on a section that already has a
-  bold catchline and parses correctly). It is not a count of missing
-  sections. Measured directly, every disposition stub in the sample chapters
-  is bold, the same convention as a catchline heading -- but the real gap
-  was that `SECTION_STUB_PATTERN` only recognized a bracket led by a
-  disposition keyword, missing a real form observed in chapter 1 where a
-  stub-only section's bracket opens with a plain enactment citation and
-  states the repeal in a later segment ("1.055 [1959 c.638 §1; repealed by
-  2015 c.629 §1]"). The pattern now matches any bracket-only line regardless
-  of what opens it, since `classify_stub` already reads the disposition
-  keyword wherever it falls; `find_unbolded_stub_lines` keeps measuring the
-  unbolded case (still diagnostic, not gated) with a guard against
-  double-reporting a number already claimed by a bold anchor.
+- Repealed and renumbered sections. Still open, despite two rounds of
+  measurement. The "138 stubs in 646A" figure FINDINGS.md first recorded
+  came from the probe's looser `repealStubMatches` count, which matches any
+  bracket anywhere in the document starting with a disposition keyword --
+  including an ordinary operative section's own credit ("[Formerly ...;
+  repealed by ...]" on a section that already has a bold catchline and
+  parses correctly). It is not a count of missing sections. Measured
+  directly (`find_unbolded_stub_lines`), every disposition stub in the
+  sample chapters is bold, the same convention as a catchline heading, and
+  `unboldedStubLineCount` is zero. `SECTION_STUB_PATTERN` was also broadened
+  to match any bracket-only line regardless of what opens it (not only one
+  led by a disposition keyword), motivated by a form seen in an earlier
+  structure-probe sample for chapter 1 ("1.055 [1959 c.638 §1; repealed by
+  2015..."). Re-run against the real sample chapters, that broadening
+  changed nothing: `statusCounts` is still 100% `operative` across all 892
+  sections. The likely explanation, recorded in FINDINGS.md, is that the
+  `1.055` fragment was a citation inside another section's running prose
+  that the probe's line-splitting isolated, not a standalone stub -- the
+  same source-newline-versus-logical-line gap seen twice before. The
+  broadened pattern is kept (harmless, tested, and correct if a genuine
+  plain-citation-led stub is ever printed), but this item stays open until
+  whole-edition acquisition (increment 1b) either exercises it for real or
+  confirms the fixed sample simply contains no disposition-stub-only
+  sections at all.
 - This is the table that joins to the amendment parser's `(year, chapter)`
   output. The join is data-only; neither program imports the other.
 

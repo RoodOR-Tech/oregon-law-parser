@@ -638,6 +638,37 @@ hasn't seen yet, and "which sections come back non-operative" is exactly the
 kind of downstream signal -- like `unparsedCreditSegmentCount` before it --
 that catches a pattern too narrow for real data.
 
+## The broadened pattern changed nothing when actually re-run
+
+Re-running the broadened pattern against the real sample chapters, expecting
+`1.055` and whatever else shared its shape to finally surface, produced no
+change at all: `statusCounts` still reported `{"operative": 892}`, the same
+892 sections as before, `unboldedStubLineCount` still zero. The broadening
+itself is not wrong -- `classify_stub` already reads a disposition wherever
+it falls in a bracket, and a section number followed by nothing but one
+bracket to line's end is stub-shaped regardless of what opens the bracket --
+but it did not fix anything real in this sample, which means the `1.055`
+fragment was very likely never a standalone stub header to begin with.
+
+The most likely explanation: that fragment was a citation to `1.055` inside
+some other section's running prose (as in "...as provided in ORS 1.055
+[1959 c.638 §1; repealed by 2015 c.629 §1] and..."), and the probe's
+sample line only looked like a standalone stub because the probe splits on
+literal source newlines, isolating one printed line of a wrapped sentence.
+The parser's own logical-line view rejoins exactly that kind of wrapped
+text, so the fragment folds back into its sentence and never starts a line
+of its own -- the same source-newline-versus-logical-line gap recorded
+earlier for the edition banner and chapter heading, showing up a third time.
+
+This is not treated as a closed question. The broadening is real, tested,
+and kept: it costs nothing, and a genuine plain-citation-led stub would need
+exactly this pattern if one is ever printed. But nothing in the fixed
+seven-chapter sample currently exercises it, so "repealed and renumbered
+sections printed unbolded" stays an open item for whole-edition acquisition
+(increment 1b) rather than a fix confirmed against real data -- the
+diagnostic (`unboldedStubLineCount`) stays in place specifically to catch it
+there, gated at zero the same way, if and when a real one appears.
+
 ## The other Legislative Counsel documents
 
 `ORS_Renum.pdf` is a renumbering table bearing on `ors_section.renumbered_to`,
