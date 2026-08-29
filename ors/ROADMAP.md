@@ -76,6 +76,10 @@ caught before CI did:
   Increment 2 already separates the trailing credit from the statutory text
   and keeps it as `sourceCreditRaw`, so this increment parses that string into
   rows rather than having to find it.
+- Repealed and renumbered sections. The stubs are printed unbolded, so bold
+  anchoring does not reach them: chapter 646A alone shows 138 stubs that
+  produced no rows, and every section on the first clean run came back
+  `operative` as a result. These need their own anchoring rule.
 - This is the table that joins to the amendment parser's `(year, chapter)`
   output. The join is data-only; neither program imports the other.
 

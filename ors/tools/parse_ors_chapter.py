@@ -55,8 +55,12 @@ RENUMBERED_TO_PATTERN = re.compile(r"\bRenumbered\s+(?P<number>\d{1,3}[A-Z]?\.\d
 
 # The chapter document names itself as "192 - Records; Public Reports and
 # Meetings" and prints its edition as "2025" followed by "EDITION".
+# The heading is printed as the word "Chapter" above the number and name. A
+# source newline between them, like the one in the edition banner, means the
+# parser sees them rejoined as one logical line, so the prefix is optional.
 CHAPTER_HEADING_PATTERN = re.compile(
-    r"^(?P<number>\d{1,3}[A-Z]?)\s*[–—-]\s*(?P<name>\S.*)$"
+    r"^(?:Chapter\s+)?(?P<number>\d{1,3}[A-Z]?)\s*[–—-]\s*(?P<name>\S.*)$",
+    re.IGNORECASE,
 )
 EDITION_YEAR_PATTERN = re.compile(r"^((?:19|20)\d{2})$")
 # The banner is printed as a year line above an EDITION line, but a layout
@@ -242,6 +246,27 @@ def parse_edition_year(lines):
     return None
 
 
+def heading_diagnostics(lines, chapter_number):
+    """Explain a failure to find the chapter's own heading.
+
+    Reports the lines that mention the chapter number at all, plus a bounded
+    sample of the opening lines, so a heading layout this parser does not
+    understand is visible instead of leaving chapter_name silently null.
+    """
+    needle = f"{chapter_number} " if chapter_number else None
+    mentions = []
+    if needle:
+        for line, _, _ in lines:
+            if line.startswith(needle) or f"Chapter {chapter_number}" in line:
+                mentions.append(line[:140])
+            if len(mentions) >= 10:
+                break
+    return {
+        "numberMentions": mentions,
+        "sampleLines": [line[:120] for line, _, _ in lines[:30]],
+    }
+
+
 def edition_diagnostics(lines):
     """Explain a failure to find the edition banner.
 
@@ -392,6 +417,9 @@ def parse_chapter(markup, chapter_number):
         "chapterName": chapter_name,
         "editionYear": edition_year,
         "editionDiagnostics": None if edition_year else edition_diagnostics(lines),
+        "headingDiagnostics": (
+            None if chapter_name else heading_diagnostics(lines, chapter_number)
+        ),
         "normalizedCharCount": len(text),
         "boldRunCount": len(bold_spans),
         "sections": sections,
@@ -608,6 +636,17 @@ def main(argv=None):
         # failure, since they are not this chapter's rows.
         "foreignAnchorCount": sum(len(item["anchors"]) for item in foreign),
         "foreignAnchors": foreign,
+        "chaptersWithoutName": [
+            chapter["chapterNumber"] for chapter in rows["chapters"] if not chapter["chapterName"]
+        ],
+        "headingDiagnostics": [
+            {
+                "chapterNumber": record["chapterNumber"],
+                **record["parsed"]["headingDiagnostics"],
+            }
+            for record in records
+            if record["parsed"]["headingDiagnostics"] is not None
+        ][:3],
         "editionDiagnostics": [
             {
                 "chapterNumber": record["chapterNumber"],
@@ -619,7 +658,13 @@ def main(argv=None):
         "problems": rows["problems"],
         "integrityViolations": violations,
         "unreadable": unreadable,
-        "valid": bool(rows["sections"]) and not rows["problems"] and not violations and not unreadable,
+        "valid": (
+            bool(rows["sections"])
+            and not rows["problems"]
+            and not violations
+            and not unreadable
+            and all(chapter["chapterName"] for chapter in rows["chapters"])
+        ),
         "perChapter": [
             {
                 "chapterNumber": chapter["chapterNumber"],
@@ -643,6 +688,7 @@ def main(argv=None):
         "statusCounts": report["statusCounts"],
         "foreignAnchorCount": report["foreignAnchorCount"],
         "problemCount": len(report["problems"]),
+        "chaptersWithoutName": report["chaptersWithoutName"],
         "integrityViolationCount": len(violations),
     }, indent=2))
     return 0 if report["valid"] else 1

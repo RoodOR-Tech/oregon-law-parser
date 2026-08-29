@@ -383,6 +383,39 @@ now read in either shape. The wider lesson is that "line" is not a shared
 concept between the two tools, so a rule proven on the probe's output does not
 transfer to the parser unexamined.
 
+## The parser's first clean run on real chapters
+
+Once the banner was read in its logical-line shape, the seven sample chapters
+produced rows with nothing outstanding:
+
+```
+Editions: 1   Chapters: 7   Subdivisions: 146   Sections: 892
+  ch 1     title 1   102 sections
+  ch 90    title 10  169 sections
+  ch 161   title 16  109 sections
+  ch 174   title 17   28 sections
+  ch 192   title 19  166 sections
+  ch 279A  title 26   53 sections
+  ch 646A  title 50  265 sections
+Problems: 0   Integrity violations: 0   Foreign anchors: 0
+```
+
+Chapter names were still empty, for the same reason the banner had been. The
+heading prints the word `Chapter` above the number and name, and the source
+newline between them means the parser sees `Chapter 192 – Records; Public
+Reports and Meetings` as one logical line. The prefix is now optional in the
+heading pattern.
+
+`chapter_name` is a schema column, so a chapter without one is a gap rather
+than a nullable convenience. It is now gated, and a chapter that cannot find
+its heading reports the lines that mention its number.
+
+Every status came back `operative` on this run. That is expected for the
+sample rather than reassuring: the repeal and renumbering stubs the probe
+counted (138 in chapter 646A alone) are printed unbolded in these documents,
+so bold anchoring does not reach them. Capturing them belongs with the notes
+and credits work in increment 3.
+
 ## The other Legislative Counsel documents
 
 `ORS_Renum.pdf` is a renumbering table bearing on `ors_section.renumbered_to`,

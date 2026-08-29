@@ -104,6 +104,46 @@ class ForeignAnchorTest(unittest.TestCase):
         self.assertEqual(result["problems"], [])
 
 
+class ChapterHeadingLayoutTest(unittest.TestCase):
+    def test_the_chapter_prefix_may_share_the_heading_line(self):
+        # The heading prints "Chapter" above the number and name, separated by
+        # a source newline. The parser rejoins those into one logical line, so
+        # the heading arrives as "Chapter 192 - Records; ...".
+        markup = (
+            "<p><span>Chapter\n192 &#8211; Records; Public Reports and Meetings</span></p>"
+            "<p>2025\nEDITION</p><p><b>192.001 Policy.</b> Text.</p>"
+        )
+        result = parser.parse_chapter(markup, "192")
+        self.assertEqual(result["printedChapterNumber"], "192")
+        self.assertEqual(result["chapterName"], "Records; Public Reports and Meetings")
+        self.assertIsNone(result["headingDiagnostics"])
+
+    def test_a_missing_heading_explains_itself(self):
+        # chapter_name is a schema column, so a chapter without one is a gap
+        # that has to be visible rather than a nullable convenience.
+        markup = "<p>2025 EDITION</p><p><b>192.001 Policy.</b> Text.</p>"
+        result = parser.parse_chapter(markup, "192")
+        self.assertIsNone(result["chapterName"])
+        diagnostics = result["headingDiagnostics"]
+        self.assertIsNotNone(diagnostics)
+        self.assertIn("2025 EDITION", diagnostics["sampleLines"])
+
+    def test_a_chapter_without_a_name_fails_the_run(self):
+        record = {
+            "chapterNumber": "192",
+            "chapterSortKey": "000192 ",
+            "sha256": "a" * 64,
+            "parsed": parser.parse_chapter(
+                "<p>2025 EDITION</p><p><b>192.001 Policy.</b> Text.</p>", "192"
+            ),
+        }
+        rows = parser.build_rows([record])
+        self.assertEqual(rows["chapters"][0]["chapterName"], None)
+        self.assertEqual(
+            [c["chapterNumber"] for c in rows["chapters"] if not c["chapterName"]], ["192"]
+        )
+
+
 class EditionBannerTest(unittest.TestCase):
     def test_a_source_newline_inside_the_banner_yields_one_logical_line(self):
         # The published banner puts a literal newline between the year and the
