@@ -233,6 +233,11 @@ jobs:
           echo "Source credit rows: $(jq -r '.sourceCreditRowCount' ors-parse.json)   Formerly references: $(jq -r '.formerlyReferenceCount' ors-parse.json)   Renumber references: $(jq -r '.renumberReferenceCount' ors-parse.json)"
           echo "Unparsed credit segments: $(jq -r '.unparsedCreditSegmentCount' ors-parse.json)"
           jq -r '.unparsedCreditSegments[] | "  section \(.sectionId): \(.segments | join(" | "))"' ors-parse.json | head -150
+          # Diagnostic only, not yet gated: see find_unbolded_stub_lines's
+          # docstring in parse_ors_chapter.py for why this measures the real
+          # gap rather than reusing the probe's looser repealStubMatches count.
+          echo "Unbolded stub-shaped lines: $(jq -r '.unboldedStubLineCount' ors-parse.json)   Distinct numbers: $(jq -r '.unboldedStubDistinctNumberCount' ors-parse.json)"
+          jq -r '.unboldedStubLines[] | "  chapter \(.chapterNumber) \(.number): \(.line)"' ors-parse.json | head -150
 
       # The real gate. It runs last so the diagnostic steps above have already
       # printed their evidence into the log even on a failing run.

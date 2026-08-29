@@ -576,6 +576,28 @@ real chapter shows, which is why every fix in this project is re-verified
 against every previously-established form before it is pushed, not just the
 form that motivated it.
 
+## Re-examining the "138 stubs" figure
+
+The first clean run's note that every section came back `operative` pointed
+at the probe's `repealStubMatches` count (138 for chapter 646A) as the size
+of the gap. That count is not what it was taken for: `REPEAL_STUB_PATTERN`
+matches `\[(?:Repealed|Renumbered|Amended|Formerly)\b` anywhere in the whole
+document, with no requirement that the bracket be the entirety of a section's
+entry. An ordinary operative section whose own credit happens to read
+`[Formerly 646.185; repealed by 2009 c.170 §4]` matches it too, and that
+section already has a bold catchline, a body, and a correctly parsed
+`ors_source_credit` row -- it is not missing anything. 138 is an upper bound
+on printed brackets starting with those words, not a count of unanchored
+sections.
+
+The real question is how many lines are shaped like `parse_ors_chapter.py`'s
+own `SECTION_STUB_PATTERN` -- a section number immediately followed by the
+bracket, with nothing else on the line -- and fall outside every bold span
+already found. `find_unbolded_stub_lines` measures exactly that, reported as
+`unboldedStubLineCount` and a per-line sample, diagnostic only for now. What
+it finds against the real sample chapters, once CI runs it, decides what the
+anchoring rule looks like; nothing here guesses ahead of that measurement.
+
 ## The other Legislative Counsel documents
 
 `ORS_Renum.pdf` is a renumbering table bearing on `ors_section.renumbered_to`,

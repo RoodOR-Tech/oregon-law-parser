@@ -329,6 +329,51 @@ class StatusTest(unittest.TestCase):
         )
 
 
+class UnboldedStubDiagnosticTest(unittest.TestCase):
+    """Measures stub-shaped lines bold anchoring misses, without acting on them.
+
+    This is deliberately a measurement, not a fix: see
+    find_unbolded_stub_lines's docstring for why FINDINGS.md's first "138
+    stubs" figure overstates the real gap.
+    """
+
+    def test_the_bold_fixture_reports_no_unbolded_stubs(self):
+        # Every stub in word_export_chapter.html is bold, so the fixture that
+        # exercises ordinary segmentation must report none here.
+        self.assertEqual(parsed_fixture()["unboldedStubLines"], [])
+
+    def test_a_genuinely_unbolded_stub_line_is_found(self):
+        markup = (
+            "<p><b>161.005 Short title.</b> Text. [1971 c.743 §1]</p>"
+            "<p>161.025 [Repealed by 1971 c.743 §432]</p>"
+        )
+        result = parser.parse_chapter(markup, "161")
+        self.assertEqual(
+            result["unboldedStubLines"],
+            [{"number": "161.025", "line": "161.025 [Repealed by 1971 c.743 §432]"}],
+        )
+        # It is a measurement only: the anchor logic is unchanged, so this
+        # stub still produces no section row yet.
+        numbers = [item["sectionNumber"] for item in result["sections"]]
+        self.assertNotIn("161.025", numbers)
+
+    def test_a_bolded_stub_is_not_double_counted_as_unbolded(self):
+        markup = "<p><b>161.025 [Repealed by 1971 c.743 §432]</b></p>"
+        result = parser.parse_chapter(markup, "161")
+        self.assertEqual(result["unboldedStubLines"], [])
+
+    def test_an_operative_sections_own_formerly_credit_is_not_a_stub_line(self):
+        # A credit that opens with "Formerly" or "Amended by" does not itself
+        # start a line with a section number, so it must never be mistaken
+        # for a stub-shaped line just because it contains the keyword.
+        markup = (
+            "<p><b>646.190 Definitions.</b> Text here."
+            " [Formerly 646.185; repealed by 2009 c.170 §4]</p>"
+        )
+        result = parser.parse_chapter(markup, "646")
+        self.assertEqual(result["unboldedStubLines"], [])
+
+
 class SectionSortKeyTest(unittest.TestCase):
     def test_sections_order_the_way_the_statute_book_does(self):
         numbers = ["161.100", "161.005", "279A.050", "161.067", "90.100"]

@@ -98,10 +98,20 @@ caught before CI did:
   citations or the two non-citation forms above; a genuine editorial note
   distinct from a credit has not yet been observed in the sample and needs
   its own evidence before a rule is written.
-- Repealed and renumbered sections. The stubs are printed unbolded, so bold
-  anchoring does not reach them: chapter 646A alone shows 138 stubs that
-  produced no rows, and every section on the first clean run came back
-  `operative` as a result. These need their own anchoring rule.
+- Repealed and renumbered sections printed unbolded. In progress: the "138
+  stubs in 646A" figure FINDINGS.md first recorded came from the probe's
+  looser `repealStubMatches` count, which matches any bracket anywhere in
+  the document starting with a disposition keyword -- including an ordinary
+  operative section's own credit ("[Formerly ...; repealed by ...]" on a
+  section that already has a bold catchline and parses correctly). It is not
+  a count of missing sections. `tools/parse_ors_chapter.py` now measures the
+  real gap directly: `find_unbolded_stub_lines` looks for the exact
+  `SECTION_STUB_PATTERN` shape outside every bold span already found, and
+  the count is printed as `unboldedStubLineCount` / a per-line sample,
+  diagnostic only and not yet gated. The anchoring and status-classification
+  rule for these lines is written once a CI run against the real sample
+  chapters shows what the real form and scale of the gap is, the same
+  measure-then-fix order every other rule in this parser followed.
 - This is the table that joins to the amendment parser's `(year, chapter)`
   output. The join is data-only; neither program imports the other.
 

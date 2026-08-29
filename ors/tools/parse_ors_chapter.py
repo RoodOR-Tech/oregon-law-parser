@@ -297,6 +297,39 @@ def edition_diagnostics(lines):
     }
 
 
+def find_unbolded_stub_lines(lines, bold_spans):
+    """Stub-shaped lines that bold-run anchoring does not reach.
+
+    FINDINGS.md's first clean run recorded every section as `operative` and
+    attributed that to disposition stubs printed unbolded, citing the probe's
+    `repealStubMatches` count (138 for chapter 646A). That count is a looser
+    measure than it looks: it matches any bracket anywhere in the document
+    starting with one of these keywords, including an ordinary operative
+    section's own credit ("[Formerly 646.185; repealed by ...]" on a section
+    that has a bold catchline and body text already parsed correctly). It is
+    not a count of missing sections.
+
+    This instead looks for exactly the shape `parse_chapter`'s own
+    `SECTION_STUB_PATTERN` already requires -- a line that opens with a
+    section number immediately followed by the bracket -- and keeps only the
+    matches that fall outside every bold span already found, so a stub that
+    is simply part of an already-anchored section's own line is never
+    double-counted. This is a measurement, not a fix: nothing here changes
+    which sections are emitted, so the true scale of the gap is seen before a
+    rule is written for it, the same discipline that shaped every earlier
+    diagnostic in this parser.
+    """
+    found = []
+    for line, start, _ in lines:
+        match = SECTION_STUB_PATTERN.match(line)
+        if match is None:
+            continue
+        if any(bold_start <= start < bold_end for bold_start, bold_end in bold_spans):
+            continue
+        found.append({"number": match.group("number"), "line": line[:200]})
+    return found
+
+
 def is_subdivision_heading(line):
     """A centred heading dividing a chapter, carrying no section number."""
     if SECTION_NUMBER_ANYWHERE.search(line):
@@ -426,6 +459,7 @@ def parse_chapter(markup, chapter_number):
         "sections": sections,
         "subdivisions": subdivisions,
         "foreignAnchors": foreign_anchors,
+        "unboldedStubLines": find_unbolded_stub_lines(lines, bold_spans),
         "problems": problems,
     }
 
@@ -684,6 +718,11 @@ def main(argv=None):
         for record in records
         if record["parsed"]["foreignAnchors"]
     ]
+    unbolded_stubs = [
+        {"chapterNumber": record["chapterNumber"], **item}
+        for record in records
+        for item in record["parsed"]["unboldedStubLines"]
+    ]
 
     report = {
         "schemaVersion": 1,
@@ -715,6 +754,15 @@ def main(argv=None):
         # failure, since they are not this chapter's rows.
         "foreignAnchorCount": sum(len(item["anchors"]) for item in foreign),
         "foreignAnchors": foreign,
+        # A stub-shaped line ("number [Repealed by ...]") that bold-run
+        # anchoring does not reach, so it produced no section row at all.
+        # Diagnostic only for now, not gated: the true scale of this gap is
+        # not yet known (see find_unbolded_stub_lines's docstring for why the
+        # 138-in-646A figure FINDINGS.md first recorded overstates it), so
+        # this is measured before a fix is written rather than guessed at.
+        "unboldedStubLineCount": len(unbolded_stubs),
+        "unboldedStubDistinctNumberCount": len({item["number"] for item in unbolded_stubs}),
+        "unboldedStubLines": unbolded_stubs[:500],
         "chaptersWithoutName": [
             chapter["chapterNumber"] for chapter in rows["chapters"] if not chapter["chapterName"]
         ],
@@ -769,6 +817,8 @@ def main(argv=None):
         "foreignAnchorCount": report["foreignAnchorCount"],
         "sourceCreditRowCount": report["sourceCreditRowCount"],
         "unparsedCreditSegmentCount": report["unparsedCreditSegmentCount"],
+        "unboldedStubLineCount": report["unboldedStubLineCount"],
+        "unboldedStubDistinctNumberCount": report["unboldedStubDistinctNumberCount"],
         "problemCount": len(report["problems"]),
         "chaptersWithoutName": report["chaptersWithoutName"],
         "integrityViolationCount": len(violations),
