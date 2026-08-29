@@ -69,13 +69,24 @@ caught before CI did:
 - A subdivision heading **ends** the section above it rather than trailing it.
   Otherwise the heading swallows that section's source credit.
 
-## Increment 3 — notes and source credits
+## Increment 3 — notes and source credits (credits done)
 
 - `ors_section_note` rows, keeping notes out of `body_text`.
-- `ors_source_credit` rows parsed from bracketed legislative history.
-  Increment 2 already separates the trailing credit from the statutory text
-  and keeps it as `sourceCreditRaw`, so this increment parses that string into
-  rows rather than having to find it.
+- `ors_source_credit` rows parsed from bracketed legislative history. Done:
+  `tools/ors_credits.py` parses every real form recorded in FINDINGS.md --
+  plain citation lists, per-citation `Amended by`/`Repealed by` keywords (the
+  final disposition in a stub wins), the `s.s.` special-session marker, and
+  the non-citation `Formerly X` / bare `Renumbered X` forms, which are
+  captured as `formerlyReferences`/`renumberReferences` rather than forced
+  into a citation shape. A credit segment matching none of these is reported
+  as `unparsedCreditSegmentCount`, gated at zero, rather than silently
+  dropped -- the same discipline that caught the dropped title and the
+  missing chapter names in increment 2.
+- `ors_section_note` rows for editorial and preface notes. Not yet started:
+  everything parsed as a bracketed credit so far has been session-law
+  citations or the two non-citation forms above; a genuine editorial note
+  distinct from a credit has not yet been observed in the sample and needs
+  its own evidence before a rule is written.
 - Repealed and renumbered sections. The stubs are printed unbolded, so bold
   anchoring does not reach them: chapter 646A alone shows 138 stubs that
   produced no rows, and every section on the first clean run came back

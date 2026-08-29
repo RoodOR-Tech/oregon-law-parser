@@ -25,6 +25,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from ors_chapters import chapter_sort_key, parse_chapter_number  # noqa: E402
+from ors_credits import parse_source_credit  # noqa: E402
 from ors_text import decode_markup, declared_charset, normalize_spaces  # noqa: E402
 
 SCRIPT_STYLE_PATTERN = re.compile(r"<(script|style)\b.*?</\1\s*>", re.IGNORECASE | re.DOTALL)
@@ -435,7 +436,20 @@ def build_rows(chapter_records, repo_root=None):
     chapters = []
     subdivisions = []
     sections = []
+    source_credits = []
     problems = []
+    # "Formerly NNN.NNN" and bare "Renumbered NNN.NNN" segments name a section
+    # rather than citing a session law, so they never become ors_source_credit
+    # rows. They are still real data, so they are collected rather than
+    # dropped; SCHEMA.md has no table for them yet, which is a deliberate
+    # scope limit recorded in ROADMAP.md.
+    formerly_references = []
+    renumber_references = []
+    # A credit segment that is neither a session-law citation nor one of the
+    # two forms above. Surfaced explicitly rather than silently absorbed,
+    # because it represents a real printed form this parser does not yet
+    # understand.
+    unparsed_credit_segments = []
 
     for record in chapter_records:
         number = record["chapterNumber"]
@@ -498,8 +512,9 @@ def build_rows(chapter_records, repo_root=None):
             )
 
         for ordinal, section in enumerate(parsed["sections"], start=1):
+            section_id = f"{edition_id}-{section['sectionNumber']}"
             sections.append({
-                "sectionId": f"{edition_id}-{section['sectionNumber']}",
+                "sectionId": section_id,
                 "chapterId": chapter_id,
                 "subdivisionId": heading_to_id.get(section["subdivisionHeading"]),
                 "sectionNumber": section["sectionNumber"],
@@ -514,6 +529,34 @@ def build_rows(chapter_records, repo_root=None):
                 "charOffsetEnd": section["charOffsetEnd"],
             })
 
+            if section["sourceCreditRaw"]:
+                parsed_credit = parse_source_credit(section["sourceCreditRaw"])
+                for credit_ordinal, citation in enumerate(parsed_credit["citations"], start=1):
+                    source_credits.append({
+                        "creditId": f"{section_id}-c{credit_ordinal:03d}",
+                        "sectionId": section_id,
+                        "ordinal": credit_ordinal,
+                        "sessionYear": citation["sessionYear"],
+                        "sessionLawChapter": citation["sessionLawChapter"],
+                        "sessionLawSection": citation["sessionLawSection"],
+                        "specialSession": citation["specialSession"],
+                        "action": citation["action"],
+                        "rawCredit": citation["rawSegment"],
+                    })
+                formerly_references.extend(
+                    {"sectionId": section_id, "sectionNumber": number}
+                    for number in parsed_credit["formerlyReferences"]
+                )
+                renumber_references.extend(
+                    {"sectionId": section_id, "sectionNumber": number}
+                    for number in parsed_credit["renumberReferences"]
+                )
+                if parsed_credit["unparsedSegments"]:
+                    unparsed_credit_segments.append({
+                        "sectionId": section_id,
+                        "segments": parsed_credit["unparsedSegments"],
+                    })
+
         problems.extend(f"chapter {number}: {item}" for item in parsed["problems"])
 
     return {
@@ -521,6 +564,10 @@ def build_rows(chapter_records, repo_root=None):
         "chapters": chapters,
         "subdivisions": subdivisions,
         "sections": sections,
+        "sourceCredits": source_credits,
+        "formerlyReferences": formerly_references,
+        "renumberReferences": renumber_references,
+        "unparsedCreditSegments": unparsed_credit_segments,
         "problems": problems,
     }
 
@@ -573,10 +620,27 @@ def check_referential_integrity(rows):
         if chapter["sectionCount"] == 0:
             violations.append(f"chapter {chapter['chapterId']} produced no sections")
 
+    seen_credits = set()
+    for credit in rows["sourceCredits"]:
+        if credit["sectionId"] not in seen_sections:
+            violations.append(f"credit {credit['creditId']} has no section")
+        if credit["creditId"] in seen_credits:
+            violations.append(f"duplicate credit id {credit['creditId']}")
+        seen_credits.add(credit["creditId"])
+        if credit["action"] not in CREDIT_ACTIONS:
+            violations.append(
+                f"credit {credit['creditId']} has unknown action {credit['action']}"
+            )
+        if not 1850 <= credit["sessionYear"] <= 2100:
+            violations.append(
+                f"credit {credit['creditId']} has an implausible session year {credit['sessionYear']}"
+            )
+
     return violations
 
 
 SECTION_STATUSES = {"operative", "repealed", "renumbered", "reserved", "note_only"}
+CREDIT_ACTIONS = {"enacted", "amended", "renumbered", "repealed", "unspecified"}
 
 
 def main(argv=None):
@@ -631,6 +695,18 @@ def main(argv=None):
         "subdivisionRowCount": len(rows["subdivisions"]),
         "sectionRowCount": len(rows["sections"]),
         "statusCounts": status_counts(rows["sections"]),
+        "sourceCreditRowCount": len(rows["sourceCredits"]),
+        "formerlyReferenceCount": len(rows["formerlyReferences"]),
+        "renumberReferenceCount": len(rows["renumberReferences"]),
+        # A credit segment that is neither a session-law citation nor a
+        # recognized non-citation form (Formerly/Renumbered). Gated at zero:
+        # every real form recorded in FINDINGS.md parses cleanly, so a
+        # non-zero count here is a printed form this parser does not yet
+        # understand, not routine noise.
+        "unparsedCreditSegmentCount": sum(
+            len(item["segments"]) for item in rows["unparsedCreditSegments"]
+        ),
+        "unparsedCreditSegments": rows["unparsedCreditSegments"][:10],
         # Bold runs naming another chapter's section: bolded citations, not
         # headings here. Counted so the rule stays observable, but not a
         # failure, since they are not this chapter's rows.
@@ -664,6 +740,7 @@ def main(argv=None):
             and not violations
             and not unreadable
             and all(chapter["chapterName"] for chapter in rows["chapters"])
+            and not rows["unparsedCreditSegments"]
         ),
         "perChapter": [
             {
@@ -687,6 +764,8 @@ def main(argv=None):
         "subdivisionRowCount": report["subdivisionRowCount"],
         "statusCounts": report["statusCounts"],
         "foreignAnchorCount": report["foreignAnchorCount"],
+        "sourceCreditRowCount": report["sourceCreditRowCount"],
+        "unparsedCreditSegmentCount": report["unparsedCreditSegmentCount"],
         "problemCount": len(report["problems"]),
         "chaptersWithoutName": report["chaptersWithoutName"],
         "integrityViolationCount": len(violations),

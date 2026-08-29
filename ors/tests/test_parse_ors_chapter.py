@@ -343,6 +343,52 @@ class SectionSortKeyTest(unittest.TestCase):
         self.assertLess(parser.section_sort_key("161.067"), parser.section_sort_key("161.100"))
 
 
+class SourceCreditRowTest(unittest.TestCase):
+    """The fixture carries a multi-citation credit and a two-action stub."""
+
+    def setUp(self):
+        record = {
+            "chapterNumber": "161",
+            "chapterSortKey": "000161 ",
+            "sha256": "a" * 64,
+            "parsed": parsed_fixture(),
+        }
+        self.rows = parser.build_rows([record])
+
+    def test_every_section_with_a_credit_yields_credit_rows(self):
+        by_section = {}
+        for credit in self.rows["sourceCredits"]:
+            by_section.setdefault(credit["sectionId"], []).append(credit)
+        self.assertEqual(len(by_section["2025-161.005"]), 1)
+        self.assertEqual(len(by_section["2025-161.015"]), 3)
+        self.assertEqual(len(by_section["2025-161.025"]), 2)
+
+    def test_credit_ids_are_ordered_and_traceable_to_their_section(self):
+        credits_015 = [c for c in self.rows["sourceCredits"] if c["sectionId"] == "2025-161.015"]
+        self.assertEqual(
+            [c["creditId"] for c in credits_015],
+            ["2025-161.015-c001", "2025-161.015-c002", "2025-161.015-c003"],
+        )
+        self.assertEqual([c["ordinal"] for c in credits_015], [1, 2, 3])
+
+    def test_a_stub_credit_carries_its_action_per_citation(self):
+        credits_025 = [c for c in self.rows["sourceCredits"] if c["sectionId"] == "2025-161.025"]
+        self.assertEqual([c["action"] for c in credits_025], ["amended", "repealed"])
+
+    def test_a_bare_renumbering_reference_is_captured_without_becoming_a_credit(self):
+        self.assertEqual(
+            self.rows["renumberReferences"],
+            [{"sectionId": "2025-161.035", "sectionNumber": "161.045"}],
+        )
+        renumber_credits = [
+            c for c in self.rows["sourceCredits"] if c["sectionId"] == "2025-161.035"
+        ]
+        self.assertEqual(renumber_credits, [])
+
+    def test_no_credit_segments_go_unparsed_on_the_fixture(self):
+        self.assertEqual(self.rows["unparsedCreditSegments"], [])
+
+
 class IntegrityTest(unittest.TestCase):
     def _rows(self):
         record = {
@@ -357,6 +403,27 @@ class IntegrityTest(unittest.TestCase):
             "parsed": parsed_fixture(),
         }
         return parser.build_rows([record])
+
+    def test_a_dangling_credit_reference_is_a_violation(self):
+        rows = self._rows()
+        rows["sourceCredits"][0]["sectionId"] = "2025-999.999"
+        self.assertTrue(
+            any("has no section" in item for item in parser.check_referential_integrity(rows))
+        )
+
+    def test_an_unknown_credit_action_is_a_violation(self):
+        rows = self._rows()
+        rows["sourceCredits"][0]["action"] = "probably-fine"
+        self.assertTrue(
+            any("unknown action" in item for item in parser.check_referential_integrity(rows))
+        )
+
+    def test_an_implausible_session_year_is_a_violation(self):
+        rows = self._rows()
+        rows["sourceCredits"][0]["sessionYear"] = 1500
+        self.assertTrue(
+            any("implausible session year" in item for item in parser.check_referential_integrity(rows))
+        )
 
     def test_a_clean_parse_violates_nothing(self):
         self.assertEqual(parser.check_referential_integrity(self._rows()), [])
@@ -450,6 +517,10 @@ class ParseCliTest(unittest.TestCase):
             # Roster identity travels through to the emitted chapter row.
             self.assertEqual(rows["chapters"][0]["titleNumber"], "16")
             self.assertEqual(rows["chapters"][0]["volumeNumber"], 4)
+            # 1 + 3 + 2 citations across the three sections that carry a credit.
+            self.assertEqual(report["sourceCreditRowCount"], 6)
+            self.assertEqual(report["unparsedCreditSegmentCount"], 0)
+            self.assertEqual(len(rows["sourceCredits"]), 6)
 
     def test_a_missing_fixture_is_reported_rather_than_crashing(self):
         with tempfile.TemporaryDirectory() as tmp:

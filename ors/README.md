@@ -61,7 +61,8 @@ separately gated.
 | 2. Acquire chapter sources with pinned provenance | `tools/acquire_ors_chapters.py` | implemented |
 | 3. Fingerprint chapter markup to establish ground truth | `tools/probe_ors_structure.py` | implemented |
 | 4. Parse chapters into `ors_section` rows | `tools/parse_ors_chapter.py` | implemented |
-| 5. Extract `ors_source_credit` and `ors_cross_reference` rows | — | not started |
+| 5. Extract `ors_source_credit` rows | `tools/ors_credits.py` (via `parse_ors_chapter.py`) | implemented |
+| 5b. Extract `ors_cross_reference` rows | — | not started |
 | 6. Emit CSV / SQLite relational build | — | not started |
 | 7. Gold row corpus and quality gate | — | not started |
 
@@ -114,11 +115,13 @@ python3 ors/tools/parse_ors_chapter.py \
   --rows ors-rows.json
 ```
 
-`ors-rows.json` holds `ors_edition`, `ors_chapter`, `ors_subdivision` and
-`ors_section` rows. The run fails if any `SCHEMA.md` invariant is violated, or
-if a chapter states no edition year — `edition_id` is the primary key of
-`ors_edition`, so a row that cannot be filed against an edition is not emitted
-at all.
+`ors-rows.json` holds `ors_edition`, `ors_chapter`, `ors_subdivision`,
+`ors_section` and `ors_source_credit` rows. The run fails if any `SCHEMA.md`
+invariant is violated, if a chapter states no edition year — `edition_id` is
+the primary key of `ors_edition`, so a row that cannot be filed against an
+edition is not emitted at all — or if a bracketed credit contains a segment
+`tools/ors_credits.py` does not recognize as either a session-law citation or
+one of the two non-citation forms (`Formerly X`, bare `Renumbered X`).
 
 ## The fixed development sample
 

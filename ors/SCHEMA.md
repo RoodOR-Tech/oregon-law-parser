@@ -158,7 +158,7 @@ amendment parser: `(session_year, session_law_chapter)` is exactly the
 | `session_year` | INTEGER | `1971` |
 | `session_law_chapter` | INTEGER | `743` |
 | `session_law_section` | TEXT | `1`, `3a`; nullable |
-| `special_session` | INTEGER | nullable |
+| `special_session` | INTEGER | nullable; `1` when the citation carries an `s.s.` marker, `NULL` otherwise. No numbered special session (e.g. a 2002-style "Second Special Session") has been observed in a printed citation; if one is, this column's meaning will need revisiting rather than silently overloading it with an ordinal. |
 | `action` | TEXT | `enacted`, `amended`, `renumbered`, `repealed`, `unspecified` |
 | `raw_credit` | TEXT | the exact substring parsed |
 
