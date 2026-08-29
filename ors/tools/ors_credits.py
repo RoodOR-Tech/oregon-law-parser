@@ -25,6 +25,9 @@ sample chapters:
     [subsection (3) enacted as 1961 c.150 s5]     -- citation scoped to one subsection
     [Formerly subsections (1) to (3) of 192.450]  -- Formerly with a subsection range
     [1977 c.517 s8(2),(3)]                        -- one section, two of its subsections
+    [repealed by 2001 c.596 s25 (90.771 enacted in lieu of 90.770)]
+                                                   -- trailing parenthetical whose own
+                                                   -- first token is a section number
 
 A citation with no leading action word states no action, and SCHEMA.md is
 explicit that action must not be guessed for it: it is recorded as
@@ -75,9 +78,14 @@ CREDIT_PREFIX_PATTERNS = [
 # digit ("(3)") is a continuation of the previous item's section number
 # rather than a section of its own.
 #
-# A trailing "(...)" not attached to a section number is a parenthetical
-# annotation -- "(enacted in lieu of 8.172)" -- kept in the raw segment but
-# not otherwise modeled.
+# A trailing "(...)" is a parenthetical annotation -- "(enacted in lieu of
+# 8.172)", "(90.771 enacted in lieu of 90.770)" -- kept in the raw segment
+# but not otherwise modeled. It is never mistaken for a subsection-list
+# continuation ("(2)", "(3)") because that quantified group above is greedy
+# and already consumes every such continuation as part of `sections`; a
+# parenthetical reaching this point necessarily failed that narrower shape
+# (it holds a dotted section number, words, or both), whatever digit it
+# starts with.
 CREDIT_CITATION_PATTERN = re.compile(
     r"^(?P<year>(?:18|19|20)\d{2})\s*"
     r"(?P<special>s\.\s*s\.\s*\d*)?\s*"
@@ -85,7 +93,7 @@ CREDIT_CITATION_PATTERN = re.compile(
     r"(?:\s*(?:§§|§|s\.)\s*"
     r"(?P<sections>(?:[0-9]+[a-z]?)?(?:\s*\([0-9]+[a-z]?\))*"
     r"(?:\s*,\s*(?:[0-9]+[a-z]?)?(?:\s*\([0-9]+[a-z]?\))*)*))?"
-    r"(?:\s*\([^0-9][^)]*\))?\s*$",
+    r"(?:\s*\([^)]*\))?\s*$",
     re.IGNORECASE,
 )
 SPECIAL_SESSION_NUMBER_PATTERN = re.compile(r"(\d+)")

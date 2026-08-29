@@ -171,6 +171,25 @@ class TrailingAnnotationTest(unittest.TestCase):
         self.assertEqual(result["unparsedSegments"], [])
 
 
+class DigitLeadingAnnotationTest(unittest.TestCase):
+    def test_a_parenthetical_annotation_that_starts_with_a_section_number(self):
+        # Real form against chapters 90 and 161: unlike "(enacted in lieu of
+        # 8.172)", this annotation's first token is itself a dotted section
+        # number, so a leading-digit exclusion on the trailing parenthetical
+        # would wrongly reject it. The subsection-list group is unaffected:
+        # it already fully consumes a true "(2),(3)" continuation on its
+        # own, so this annotation is never mistaken for one.
+        result = credits.parse_source_credit(
+            "[repealed by 2001 c.596 §25 (90.771 enacted in lieu of 90.770)]"
+        )
+        citation = result["citations"][0]
+        self.assertEqual(citation["action"], "repealed")
+        self.assertEqual(citation["sessionYear"], 2001)
+        self.assertEqual(citation["sessionLawChapter"], 596)
+        self.assertEqual(citation["sessionLawSection"], "25")
+        self.assertEqual(result["unparsedSegments"], [])
+
+
 class ReenactedActionTest(unittest.TestCase):
     def test_reenacted_by_maps_to_the_schema_enacted_action(self):
         # SCHEMA.md's action set has no "reenacted" value; the keyword states

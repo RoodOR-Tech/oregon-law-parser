@@ -547,6 +547,35 @@ against the sample chapters. Subsection-level detail — which subsection an
 current schema; see `ROADMAP.md` for that as explicit future work rather than
 a silently dropped distinction.
 
+## A third round, caused by fixing the second
+
+The round-2 fix tightened the trailing-parenthetical pattern to exclude a
+leading digit, specifically so it would not be mistaken for a subsection-list
+continuation such as `(3)` in `§8(2),(3)`. That exclusion was never actually
+needed -- the subsection-list group is greedy and already consumes a true
+`(2),(3)` continuation on its own -- and it broke a real annotation form the
+next CI run surfaced, 5 times across chapters 90 and 161:
+
+```
+repealed by 2001 c.596 §25 (90.771 enacted in lieu of 90.770)
+repealed by 1977 c.380 §10 (161.336 enacted in lieu of 161.335)
+repealed by 1977 c.380 §12 (161.341 enacted in lieu of 161.340)
+repealed by 1977 c.380 §14 (161.346 enacted in lieu of 161.345)
+repealed by 1977 c.380 §16 (161.351 enacted in lieu of 161.350)
+```
+
+Here the annotation's own first token is a dotted section number, so a
+leading-digit exclusion rejects it along with the genuine subsection
+continuation it was meant to guard against. The fix was to drop the
+exclusion: `CREDIT_CITATION_PATTERN`'s trailing parenthetical now accepts any
+content, relying on the subsection-list group already having first claim on
+anything shaped like `(2)` or `(3)` earlier in the pattern. A tightening
+added to handle one form is not free just because it passes the sample it
+was written against -- it can silently break a sibling form the very next
+real chapter shows, which is why every fix in this project is re-verified
+against every previously-established form before it is pushed, not just the
+form that motivated it.
+
 ## The other Legislative Counsel documents
 
 `ORS_Renum.pdf` is a renumbering table bearing on `ors_section.renumbered_to`,
