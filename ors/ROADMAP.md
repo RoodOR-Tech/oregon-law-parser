@@ -74,14 +74,25 @@ caught before CI did:
 - `ors_section_note` rows, keeping notes out of `body_text`.
 - `ors_source_credit` rows parsed from bracketed legislative history. Done:
   `tools/ors_credits.py` parses every real form recorded in FINDINGS.md --
-  plain citation lists, per-citation `Amended by`/`Repealed by` keywords (the
-  final disposition in a stub wins), the `s.s.` special-session marker, and
-  the non-citation `Formerly X` / bare `Renumbered X` forms, which are
-  captured as `formerlyReferences`/`renumberReferences` rather than forced
-  into a citation shape. A credit segment matching none of these is reported
-  as `unparsedCreditSegmentCount`, gated at zero, rather than silently
-  dropped -- the same discipline that caught the dropped title and the
-  missing chapter names in increment 2.
+  plain citation lists, per-citation `Amended by`/`Repealed by`/`Derived
+  from` keywords (the final disposition in a stub wins), numbered and bare
+  `s.s.` special-session markers, plural-section (`§§2,3`) and
+  single-section-with-subsections (`§8(2),(3)`) citations, citations joined
+  by "and" instead of a semicolon, subsection-scoped citation prefixes
+  (`subsection (3) enacted as ...`), and the non-citation `Formerly X` / bare
+  `Renumbered X` forms (including a `Formerly` naming a subsection range),
+  which are captured as `formerlyReferences`/`renumberReferences` rather than
+  forced into a citation shape. A credit segment matching none of these is
+  reported as `unparsedCreditSegmentCount`, gated at zero, rather than
+  silently dropped -- the same discipline that caught the dropped title and
+  the missing chapter names in increment 2.
+- Subsection-level detail is intentionally not modeled: "subsection (3)
+  enacted as ..." and the "(2),(3)" suffix in `§8(2),(3)` are read past to
+  reach the citation underneath, but which subsection is not itself a column
+  anywhere. `SCHEMA.md`'s "Deferred to a later schema version" section lists
+  subsection-level decomposition as its own future table; a subsection-scoped
+  `ors_source_credit` would join to that table once it exists, rather than
+  this increment inventing a column for it now.
 - `ors_section_note` rows for editorial and preface notes. Not yet started:
   everything parsed as a bracketed credit so far has been session-law
   citations or the two non-citation forms above; a genuine editorial note

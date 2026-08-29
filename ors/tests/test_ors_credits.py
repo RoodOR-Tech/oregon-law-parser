@@ -206,6 +206,73 @@ class UnparsedSegmentTest(unittest.TestCase):
         self.assertEqual(result["unparsedSegments"], ["see also chapter 90"])
 
 
+class AndJoinedCitationTest(unittest.TestCase):
+    def test_two_citations_joined_by_and_both_parse(self):
+        # Real form against a sample chapter: no semicolon, joined by "and".
+        result = credits.parse_source_credit("[2009 c.431 §6 and 2009 c.816 §15]")
+        self.assertEqual(
+            [(c["sessionYear"], c["sessionLawChapter"], c["sessionLawSection"])
+             for c in result["citations"]],
+            [(2009, 431, "6"), (2009, 816, "15")],
+        )
+        self.assertEqual(result["unparsedSegments"], [])
+
+    def test_and_joined_citations_with_a_lettered_section(self):
+        result = credits.parse_source_credit("[1999 c.603 §2b and 1999 c.676 §4]")
+        self.assertEqual(
+            [c["sessionLawSection"] for c in result["citations"]], ["2b", "4"]
+        )
+
+    def test_the_word_and_inside_an_unparseable_segment_does_not_split_it(self):
+        # A segment that merely contains "and" but is not two citations joined
+        # by it must still be reported, not silently split into nonsense.
+        result = credits.parse_source_credit("[see also chapter 90 and chapter 91]")
+        self.assertEqual(result["citations"], [])
+        self.assertEqual(
+            result["unparsedSegments"], ["see also chapter 90 and chapter 91"]
+        )
+
+
+class DerivedFromActionTest(unittest.TestCase):
+    def test_derived_from_maps_to_the_schema_enacted_action(self):
+        result = credits.parse_source_credit("[Derived from 1983 c.740 §1]")
+        citation = result["citations"][0]
+        self.assertEqual(citation["action"], "enacted")
+        self.assertEqual(citation["sessionYear"], 1983)
+        self.assertEqual(citation["sessionLawChapter"], 740)
+
+
+class SubsectionScopedCitationTest(unittest.TestCase):
+    def test_a_subsection_enacted_as_prefix_still_yields_the_citation(self):
+        # The subsection scoping is read past, not modeled (see SCHEMA.md's
+        # deferred list and the module docstring in ors_credits.py).
+        result = credits.parse_source_credit(
+            "[subsection (3) enacted as 1961 c.150 §5]"
+        )
+        citation = result["citations"][0]
+        self.assertEqual(citation["action"], "enacted")
+        self.assertEqual(citation["sessionYear"], 1961)
+        self.assertEqual(citation["sessionLawChapter"], 150)
+        self.assertEqual(citation["sessionLawSection"], "5")
+
+    def test_formerly_with_a_subsection_range_qualifier(self):
+        result = credits.parse_source_credit(
+            "[Formerly subsections (1) to (3) of 192.450]"
+        )
+        self.assertEqual(result["formerlyReferences"], ["192.450"])
+        self.assertEqual(result["citations"], [])
+
+    def test_a_single_section_with_a_subsection_list_is_one_citation(self):
+        # Distinct from the plural-SECTION "§§2,3" case: here "(2),(3)" are
+        # subsections of the one cited section, §8, not additional sections.
+        result = credits.parse_source_credit("[1977 c.517 §8(2),(3)]")
+        self.assertEqual(len(result["citations"]), 1)
+        citation = result["citations"][0]
+        self.assertEqual(citation["sessionYear"], 1977)
+        self.assertEqual(citation["sessionLawChapter"], 517)
+        self.assertEqual(citation["sessionLawSection"], "8")
+
+
 class BracketStrippingTest(unittest.TestCase):
     def test_brackets_are_optional_on_input(self):
         with_brackets = credits.parse_source_credit("[1971 c.743 §1]")

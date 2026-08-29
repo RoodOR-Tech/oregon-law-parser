@@ -476,6 +476,77 @@ None of these were guessable from the first sample; each is exactly what
 `unparsedCreditSegmentCount` exists to surface rather than let disappear as
 silently-dropped rows.
 
+## A second round of unparsed forms
+
+Fixing the ten forms above did not reach zero: the next CI run against the
+same seven sample chapters reported 6 remaining unparsed segments, all
+visible in a single log read now that the diagnostic cap is 500 rather than
+10. Six more real forms, none guessable from the first two samples:
+
+**Two citations joined by "and" instead of a semicolon.**
+
+```
+2009 c.431 §6 and 2009 c.816 §15
+1999 c.603 §2b and 1999 c.676 §4
+```
+
+Tried only after a segment fails to parse outright as one citation, and only
+accepted when the split yields exactly two parts that both independently
+parse as citations — so a segment that merely contains the word "and" for
+some other reason (an unresolved cross-reference note, say) still falls
+through to `unparsedSegments` rather than being torn in half.
+
+**A fifth action keyword, phrased with "from" rather than "by".**
+
+```
+Derived from 1983 c.740 §1
+```
+
+Maps to `enacted`, same as `reenacted by`: it states the session law that
+established the section, without using "by".
+
+**A citation scoped to one subsection.**
+
+```
+subsection (3) enacted as 1961 c.150 §5
+```
+
+The prefix is read past to reach the citation underneath; which subsection is
+not modeled, since `ors_source_credit` is scoped to whole sections (see
+SCHEMA.md's deferred list). The citation itself still becomes a normal
+`enacted` row.
+
+**`Formerly` naming a subsection range instead of the whole destination
+section.**
+
+```
+Formerly subsections (1) to (3) of 192.450
+```
+
+`formerly_references` still records `192.450` — the qualifier narrows which
+part of the destination, not which section it is, so it is read past the
+same way the subsection-scoped citation prefix is.
+
+**One section cited with more than one of its subsections**, as distinct from
+the plural-*section* `§§2,3` form already handled:
+
+```
+1977 c.517 §8(2),(3)
+```
+
+Here `(2)` and `(3)` are subsections of the single cited section §8, not two
+more sections — a list item with no leading digit continues the previous
+item's section number rather than naming one of its own. This became a
+one-row citation for section `8`, matching the earlier plural-section list
+parser's structure without conflating the two forms: `§§2,3` genuinely means
+two sections, `§8(2),(3)` genuinely means one.
+
+With all six of these handled, `unparsedCreditSegmentCount` reached zero
+against the sample chapters. Subsection-level detail — which subsection an
+"enacted as" or `(2),(3)` scoping names — is intentionally not modeled in the
+current schema; see `ROADMAP.md` for that as explicit future work rather than
+a silently dropped distinction.
+
 ## The other Legislative Counsel documents
 
 `ORS_Renum.pdf` is a renumbering table bearing on `ors_section.renumbered_to`,
