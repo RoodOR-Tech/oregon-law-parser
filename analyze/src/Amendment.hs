@@ -8,7 +8,7 @@ import           Data.List         (isInfixOf, isPrefixOf, minimumBy, nub, sort)
 import           Data.Maybe        (isNothing)
 import           Data.Ord          (comparing)
 import           Data.String.Utils (split, splitWs)
-import           Data.Time         (Day, addDays, defaultTimeLocale, parseTimeM)
+import           Data.Time         (Day, addDays, defaultTimeLocale, fromGregorian, parseTimeM)
 import           GHC.Generics
 import           Provenance
 import           StringOps
@@ -47,10 +47,11 @@ makeBill ∷ String → Maybe Bill
 makeBill citation = case splitWs citation of
   [chamber, number] -> do parsedType ← readMaybe chamber; parsedNumber ← readMaybe number; pure Bill { billType = parsedType, billNumber = parsedNumber }
   ["Ballot", "Measure", "No.", number] -> do parsedNumber ← readMaybe number; pure Bill { billType = BallotMeasure, billNumber = parsedNumber }
+  ["Ballot", "Measure", number] -> do parsedNumber ← readMaybe number; pure Bill { billType = BallotMeasure, billNumber = parsedNumber }
   _ -> Nothing
 
 findCitation ∷ [String] → Maybe String
-findCitation phrases = phrases & join & firstMatch "(HB|SB) [0-9]+|Ballot Measure No\\. [0-9]+"
+findCitation phrases = phrases & join & firstMatch "(HB|SB) [0-9]+|Ballot Measure (No\\. )?[0-9]+"
 
 yearCandidates ∷ [String] → [Integer]
 yearCandidates input =
@@ -75,9 +76,11 @@ findSourceYear sourceProvenance =
 findYearWithProvenance ∷ Provenance → [String] → Maybe Integer
 findYearWithProvenance sourceProvenance input =
   let candidates = yearCandidates input
-  in case findSourceYear sourceProvenance of
-      Just sourceYear | sourceYear `elem` candidates -> Just sourceYear
-      _ -> case candidates of [] -> Nothing; years -> Just (maximum years)
+  in case (findSourceYear sourceProvenance, candidates) of
+      (Just sourceYear, []) -> Just sourceYear
+      (Just sourceYear, years) | sourceYear `elem` years -> Just sourceYear
+      (_, []) -> Nothing
+      (_, years) -> Just (maximum years)
 
 findChapter ∷ [String] → Maybe Integer
 findChapter phrases = do
@@ -116,7 +119,7 @@ findEffectiveDate input =
       referredElection = if "referred to the people" `isInfixOf` document || "submitted to the people" `isInfixOf` document
         then addDays 30 <$> findDateAfter "election" document
         else Nothing
-      initiative = if "Ballot Measure No." `isInfixOf` document && "full force and effect" `isInfixOf` document
+      initiative = if ("Ballot Measure No." `isInfixOf` document || "Ballot Measure " `isInfixOf` document) && "full force and effect" `isInfixOf` document
         then findDateAfter "Governor dated" document
         else Nothing
   in case ordinary of
@@ -126,6 +129,17 @@ findEffectiveDate input =
         Nothing -> case referredElection of
           Just dateValue -> Just dateValue
           Nothing -> initiative
+
+findEffectiveDateWithContext ∷ Provenance → Maybe Bill → [String] → Maybe Day
+findEffectiveDateWithContext sourceProvenance parsedBill input =
+  case findEffectiveDate input of
+    Just dateValue -> Just dateValue
+    Nothing -> case (parsedBill, findSourceYear sourceProvenance) of
+      -- ORS 171.022 supplies the default for Acts of the Legislative Assembly
+      -- beginning with the 1999 session: January 1 of the year after passage.
+      (Just Bill { billType = HB }, Just sourceYear) | sourceYear >= 1999 -> Just (fromGregorian (sourceYear + 1) 1 1)
+      (Just Bill { billType = SB }, Just sourceYear) | sourceYear >= 1999 -> Just (fromGregorian (sourceYear + 1) 1 1)
+      _ -> Nothing
 
 findSummary ∷ [String] → Maybe String
 findSummary phrases =
@@ -223,7 +237,7 @@ selectBestChangeSet titleChanges bodyChanges | bodyChanges == emptyChangeSet = t
 
 parseAmendment ∷ Provenance → [String] → Either [ParseError] Amendment
 parseAmendment sourceProvenance phrases =
-  let citation = findCitation phrases; parsedBill = citation >>= makeBill; parsedYear = findYearWithProvenance sourceProvenance phrases; parsedChapter = findChapterWithProvenance sourceProvenance phrases; parsedEffectiveDate = findEffectiveDate phrases
+  let citation = findCitation phrases; parsedBill = citation >>= makeBill; parsedYear = findYearWithProvenance sourceProvenance phrases; parsedChapter = findChapterWithProvenance sourceProvenance phrases; parsedEffectiveDate = findEffectiveDateWithContext sourceProvenance parsedBill phrases
       summaryText = findSummary phrases; titleEvidence = maybe [] findTitleEvidence summaryText; bodyEvidence = findBodyEvidence phrases
       titleChanges = changeSetFromEvidence titleEvidence; bodyChanges = changeSetFromEvidence bodyEvidence; allEvidence = titleEvidence ++ bodyEvidence
       errors = concat [ missingError MissingCitation "bill" "Could not find an HB/SB or ballot-measure citation" (isNothing citation), invalidCitationError citation parsedBill, missingError MissingYear "year" "Could not find the Oregon Laws year" (isNothing parsedYear), missingError MissingChapter "chapter" "Could not find the Oregon Laws chapter" (isNothing parsedChapter), missingError MissingEffectiveDate "effectiveDate" "Could not parse the effective date" (isNothing parsedEffectiveDate) ]
