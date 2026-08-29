@@ -79,16 +79,17 @@ python3 ors/tools/acquire_ors_chapters.py \
   --report ors-chapter-index.json
 ```
 
-Acquire a small subset (what CI does on a pull request):
+Acquire the fixed development sample — what routine CI runs do:
 
 ```bash
 python3 ors/tools/acquire_ors_chapters.py \
-  --chapters 1,161,279A \
+  --chapters-file ors/sample/chapters.json \
   --output-dir ors-sources \
   --report ors-acquisition.json
 ```
 
-Acquire every chapter in the edition:
+Acquire every chapter in the edition — several hundred requests, so this is
+opt-in via manual workflow dispatch rather than something CI does on its own:
 
 ```bash
 python3 ors/tools/acquire_ors_chapters.py \
@@ -103,6 +104,24 @@ python3 ors/tools/probe_ors_structure.py \
   --acquisition-report ors-acquisition.json \
   --report ors-structure-probe.json
 ```
+
+## The fixed development sample
+
+Routine CI acquires only the chapters named in
+[`sample/chapters.json`](sample/chapters.json). The roster is chosen to span the
+structural cases the parser has to survive — the first chapter, a long
+subdivided chapter, one dense with repeal stubs, a small one, one with long
+multi-session credits, and two lettered chapters at opposite ends of the
+numbering — rather than to be representative by volume. Each entry records why
+it is there.
+
+Keeping the sample small is a cost decision as much as a speed one: a cycle is a
+handful of requests instead of several hundred, so iteration on parsing rules
+stays cheap. Whole-edition runs happen on demand through the workflow's
+`whole-edition` dispatch scope.
+
+The sample is a development aid, not a corpus. It establishes no correctness
+expectations. Gold rows come later, in increment 5, under independent review.
 
 ## Tests
 

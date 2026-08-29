@@ -19,10 +19,18 @@ on:
       - '.github/workflows/ors-table.yml'
   workflow_dispatch:
     inputs:
+      scope:
+        description: 'Which chapters to acquire and probe'
+        required: true
+        type: choice
+        default: sample
+        options:
+          - sample
+          - whole-edition
       chapters:
-        description: 'Comma-separated ORS chapters to acquire and probe (blank acquires the whole edition)'
+        description: 'Override with specific chapters, e.g. 1,161,279A (ignored unless scope is sample)'
         required: false
-        default: '1,161,279A'
+        default: ''
 
 concurrency:
   group: ors-table-${{ github.event.pull_request.number || github.ref }}
@@ -66,20 +74,30 @@ jobs:
           echo "Roster:"
           jq -r '[.chapters[].chapterNumber] | join(" ")' ors-chapter-index.json
 
+      # Routine runs acquire only the fixed development sample in
+      # ors/sample/chapters.json, so a cycle stays to a handful of requests.
+      # A whole-edition run is several hundred requests and is opt-in.
       - name: Acquire chapter sources
+        env:
+          SCOPE: ${{ github.event.inputs.scope || 'sample' }}
+          CHAPTER_OVERRIDE: ${{ github.event.inputs.chapters }}
         run: |
           set -euo pipefail
-          CHAPTERS="${{ github.event.inputs.chapters }}"
-          if [ -z "$CHAPTERS" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
-            CHAPTERS='1,161,279A'
-          fi
-          if [ -n "$CHAPTERS" ]; then
+          if [ "$SCOPE" = "whole-edition" ]; then
+            echo "Acquiring the whole edition."
             python3 ors/tools/acquire_ors_chapters.py \
-              --chapters "$CHAPTERS" \
+              --output-dir ors-sources \
+              --report ors-acquisition.json
+          elif [ -n "$CHAPTER_OVERRIDE" ]; then
+            echo "Acquiring overridden chapters: $CHAPTER_OVERRIDE"
+            python3 ors/tools/acquire_ors_chapters.py \
+              --chapters "$CHAPTER_OVERRIDE" \
               --output-dir ors-sources \
               --report ors-acquisition.json
           else
+            echo "Acquiring the fixed development sample."
             python3 ors/tools/acquire_ors_chapters.py \
+              --chapters-file ors/sample/chapters.json \
               --output-dir ors-sources \
               --report ors-acquisition.json
           fi

@@ -144,6 +144,64 @@ class SelectionTest(unittest.TestCase):
         self.assertEqual([item["chapterNumber"] for item in chosen], ["1", "36", "36A"])
 
 
+class ChapterSelectionFileTest(unittest.TestCase):
+    def _write(self, root, document):
+        path = root / "chapters.json"
+        path.write_text(json.dumps(document))
+        return path
+
+    def test_reads_chapter_numbers_from_a_manifest(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = self._write(Path(tmp), {
+                "chapters": [
+                    {"chapterNumber": "1", "rationale": "first chapter"},
+                    {"chapterNumber": "279A", "rationale": "lettered chapter"},
+                ]
+            })
+            self.assertEqual(acquire.read_chapter_selection_file(path), ["1", "279A"])
+
+    def test_an_empty_manifest_is_an_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = self._write(Path(tmp), {"chapters": []})
+            with self.assertRaises(ValueError):
+                acquire.read_chapter_selection_file(path)
+
+    def test_a_malformed_entry_is_an_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = self._write(Path(tmp), {"chapters": [{"rationale": "no number"}]})
+            with self.assertRaises(ValueError):
+                acquire.read_chapter_selection_file(path)
+
+
+class CommittedSampleTest(unittest.TestCase):
+    """The committed development sample must stay usable by the pipeline."""
+
+    SAMPLE = Path(__file__).resolve().parents[1] / "sample" / "chapters.json"
+
+    def test_sample_manifest_parses_and_every_chapter_number_is_well_formed(self):
+        numbers = acquire.read_chapter_selection_file(self.SAMPLE)
+        self.assertGreaterEqual(len(numbers), 5)
+        for number in numbers:
+            self.assertIsNotNone(
+                acquire.CHAPTER_ARGUMENT_PATTERN.match(number),
+                f"sample chapter {number} is not a valid chapter number",
+            )
+            # Every sampled chapter must map to a published URL without raising.
+            acquire.chapter_url(number)
+
+    def test_sample_covers_both_numeric_and_lettered_chapters(self):
+        numbers = acquire.read_chapter_selection_file(self.SAMPLE)
+        self.assertTrue(any(number[-1].isdigit() for number in numbers))
+        self.assertTrue(any(number[-1].isalpha() for number in numbers))
+
+    def test_sample_entries_are_unique_and_each_records_a_rationale(self):
+        document = json.loads(self.SAMPLE.read_text())
+        numbers = [entry["chapterNumber"] for entry in document["chapters"]]
+        self.assertEqual(len(numbers), len(set(numbers)))
+        for entry in document["chapters"]:
+            self.assertTrue(entry["rationale"].strip())
+
+
 class IndexOnlyCliTest(unittest.TestCase):
     def test_index_only_run_reports_the_roster_without_network_access(self):
         with tempfile.TemporaryDirectory() as tmp:

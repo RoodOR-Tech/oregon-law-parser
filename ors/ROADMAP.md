@@ -62,6 +62,14 @@ determines the segmentation rule, and the probe already shows the rule cannot be
   intervening sessions: an ORS section whose text changed should correspond to a
   session law the amendment parser reports as amending it.
 
+## Working method
+
+Increments 2 through 4 are developed against the fixed sample in
+`sample/chapters.json`, not the whole statute book. The full edition is acquired
+only through the workflow's `whole-edition` dispatch scope, and only once the
+parsing rules are stable, so routine iteration costs a handful of requests
+rather than several hundred.
+
 ## Standing rules
 
 1. Do not modify `analyze/`, `tools/`, `gold/`, `operations/`, `validation/` or

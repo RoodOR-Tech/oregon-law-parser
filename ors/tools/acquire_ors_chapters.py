@@ -183,6 +183,26 @@ def fetch_chapter(chapter, output_dir, retries, timeout):
     return record
 
 
+def read_chapter_selection_file(path):
+    """Read a fixed chapter roster, such as the development sample manifest.
+
+    The file names chapters to acquire; it does not describe them. Chapter
+    identity still comes from the published index, so a sample entry that the
+    edition no longer publishes surfaces as an error rather than being skipped.
+    """
+    document = json.loads(Path(path).read_text())
+    entries = document.get("chapters")
+    if not isinstance(entries, list) or not entries:
+        raise ValueError(f"chapter selection file lists no chapters: {path}")
+    numbers = []
+    for entry in entries:
+        number = entry.get("chapterNumber") if isinstance(entry, dict) else entry
+        if not isinstance(number, str) or not number.strip():
+            raise ValueError(f"chapter selection file has a malformed entry: {entry!r}")
+        numbers.append(number.strip())
+    return numbers
+
+
 def selected_chapters(chapters, requested, limit):
     if requested:
         wanted = []
@@ -209,6 +229,10 @@ def main(argv=None):
     parser.add_argument("--index-file", help="read the index page from disk instead of the network")
     parser.add_argument("--index-only", action="store_true", help="discover chapters, download none")
     parser.add_argument("--chapters", help="comma-separated chapter numbers, e.g. 1,161,279A")
+    parser.add_argument(
+        "--chapters-file",
+        help="JSON file naming the chapters to acquire, e.g. ors/sample/chapters.json",
+    )
     parser.add_argument("--limit", type=int, help="acquire at most this many chapters")
     parser.add_argument("--output-dir")
     parser.add_argument("--report", required=True)
@@ -217,6 +241,8 @@ def main(argv=None):
     parser.add_argument("--timeout", type=int, default=60)
     args = parser.parse_args(argv)
 
+    if args.chapters and args.chapters_file:
+        parser.error("--chapters and --chapters-file are mutually exclusive")
     if not args.index_only and not args.output_dir:
         parser.error("--output-dir is required unless --index-only is given")
     if not 1 <= args.workers <= 16:
@@ -283,12 +309,12 @@ def main(argv=None):
         return 0
 
     try:
-        chosen = selected_chapters(
-            chapters,
-            [part for part in (args.chapters or "").split(",") if part.strip()],
-            args.limit,
-        )
-    except ValueError as exc:
+        if args.chapters_file:
+            requested = read_chapter_selection_file(args.chapters_file)
+        else:
+            requested = [part for part in (args.chapters or "").split(",") if part.strip()]
+        chosen = selected_chapters(chapters, requested, args.limit)
+    except (ValueError, OSError, json.JSONDecodeError) as exc:
         report.update({"valid": False, "error": str(exc), "chapters": []})
         Path(args.report).write_text(json.dumps(report, indent=2) + "\n")
         print(json.dumps({"valid": False, "error": str(exc)}, indent=2))
@@ -311,6 +337,7 @@ def main(argv=None):
     results.sort(key=lambda item: item["chapterSortKey"])
     failures = [item for item in results if not item["ok"]]
     report.update({
+        "chapterSelectionSource": args.chapters_file or ("--chapters" if args.chapters else "whole-edition"),
         "requestedChapterCount": len(chosen),
         "acquiredChapterCount": sum(1 for item in results if item["ok"]),
         "valid": not failures and len(results) == len(chosen),
