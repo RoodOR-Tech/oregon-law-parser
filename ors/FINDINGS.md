@@ -390,21 +390,24 @@ produced rows with nothing outstanding:
 
 ```
 Editions: 1   Chapters: 7   Subdivisions: 146   Sections: 892
-  ch 1     title 1   102 sections
-  ch 90    title 10  169 sections
-  ch 161   title 16  109 sections
-  ch 174   title 17   28 sections
-  ch 192   title 19  166 sections
-  ch 279A  title 26   53 sections
-  ch 646A  title 50  265 sections
-Problems: 0   Integrity violations: 0   Foreign anchors: 0
+
+  ch 1     title 1   102 sections  Courts and Judicial Officers Generally
+  ch 90    title 10  169 sections  Residential Landlord and Tenant
+  ch 161   title 16  109 sections  General Provisions
+  ch 174   title 17   28 sections  Construction of Statutes; General Definitions
+  ch 192   title 19  166 sections  Records; Public Reports and Meetings
+  ch 279A  title 26   53 sections  Public Contracting - General Provisions
+  ch 646A  title 50  265 sections  Trade Regulation
+
+Problems: 0   Integrity violations: 0
+Foreign anchors: 0   Chapters with no name: 0
 ```
 
-Chapter names were still empty, for the same reason the banner had been. The
+Chapter names took one further fix, for the same reason the banner had. The
 heading prints the word `Chapter` above the number and name, and the source
 newline between them means the parser sees `Chapter 192 – Records; Public
 Reports and Meetings` as one logical line. The prefix is now optional in the
-heading pattern.
+heading pattern, and every chapter's name and owning title come through.
 
 `chapter_name` is a schema column, so a chapter without one is a gap rather
 than a nullable convenience. It is now gated, and a chapter that cannot find
