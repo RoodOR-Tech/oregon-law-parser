@@ -179,6 +179,25 @@ class IndexDiagnosticsTest(unittest.TestCase):
         self.assertLessEqual(len(entries["aaa/first"]["samples"]), 12)
         self.assertEqual(entries["aaa/first"]["extensions"], [{"extension": "css", "count": 50}])
 
+    def test_every_basename_under_the_largest_prefix_is_listed(self):
+        # A bounded sample cannot answer whether a roster is present. The
+        # complete basename list under the largest prefix can.
+        markup = "".join(
+            f'<a href="/bills_laws/ors/generalIndex{letter}.pdf">{letter}</a>'
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        ) + '<a href="/bills_laws/Pages/ORS.aspx">index</a>'
+        diagnostics = acquire.index_diagnostics(markup)
+        self.assertEqual(diagnostics["topPrefix"], "bills_laws/ors")
+        self.assertEqual(len(diagnostics["topPrefixBasenames"]), 26)
+        self.assertIn("generalIndexA.pdf", diagnostics["topPrefixBasenames"])
+        self.assertIn("generalIndexZ.pdf", diagnostics["topPrefixBasenames"])
+
+    def test_the_basename_listing_is_bounded(self):
+        markup = "".join(
+            f'<a href="/bills_laws/ors/doc{index:04d}.pdf">x</a>' for index in range(400)
+        )
+        self.assertEqual(len(acquire.index_diagnostics(markup)["topPrefixBasenames"]), 250)
+
     def test_the_failing_run_attaches_diagnostics_to_the_report(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

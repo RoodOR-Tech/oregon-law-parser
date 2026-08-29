@@ -142,11 +142,23 @@ The chapter links are there: the largest path-prefix group by far is
 matcher is verified correct for that form, so the published index links to
 chapter documents under some other naming.
 
-The first diagnostic sampled hrefs alphabetically, which showed none of them:
-the sample filled up with `/AssemSite_CSS/...`, `/SiteAssets/...` and
-`/_catalogs/...` before reaching `bills_laws/ors`. Sampling is now per prefix,
-with a file-extension histogram per prefix, so the next run shows what those
-115 links actually are.
+Per-prefix sampling showed what the first twelve of those 115 links are, and
+they are not chapters:
+
+```
+generalIndexPreface.pdf  generalIndexQuickSearch.pdf
+generalIndexA.pdf ... generalIndexJ.pdf
+```
+
+That is the ORS General Index — the alphabetical subject index, published as
+one PDF per letter. The rest of the `bills_laws/ors` group is very likely the
+annual amendment-and-repeal reference PDFs the amendment effort already
+knows about, such as `2023.pdf`, since those live under the same prefix.
+
+Twenty-eight General Index files plus roughly twenty-seven annual references
+accounts for only about half of the 115, so a bounded sample cannot settle
+whether chapter links are also present. The diagnostic now lists every
+distinct basename under the largest prefix, which answers it outright.
 
 The page also links three Legislative Counsel documents worth noting for later
 increments: `ORS_TitlesChapters.pdf`, which is the published title-and-chapter
@@ -155,5 +167,17 @@ table that bears on `ors_section.renumbered_to`; and `ORS_Preface.pdf`.
 
 ## Still unresolved
 
-What the 115 `bills_laws/ors` links are. Acquisition is not blocked by this —
-the `ors{NNN}.html` pattern is confirmed to work — so this is discovery only.
+Whether the landing page publishes a chapter roster at all. The evidence so
+far suggests it publishes reference documents — the General Index, the annual
+amendment-and-repeal tables, `ORS_TitlesChapters.pdf` — rather than a link per
+chapter.
+
+If that holds, discovery should read the roster from
+`ORS_TitlesChapters.pdf`, which is the authoritative published title-and-chapter
+list. That is a better source than scraped links in any case, because it
+carries title grouping and chapter names, populating `ors_title` and
+`ors_chapter.chapter_name` directly instead of leaving them to be recovered
+per chapter. The repository already vendors Tika for PDF text extraction.
+
+Acquisition is not blocked by any of this: the `ors{NNN}.html` pattern is
+confirmed, and chapter structure is already measured.

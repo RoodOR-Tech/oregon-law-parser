@@ -130,8 +130,28 @@ def index_diagnostics(index_html):
         extension = basename.rsplit(".", 1)[-1].lower() if "." in basename else "(none)"
         extensions_by_prefix.setdefault(prefix, Counter())[extension] += 1
 
+    # The largest prefix is where a chapter roster would live if the page
+    # published one. A twelve-item sample cannot settle whether it does, so
+    # every distinct basename under that prefix is listed. They are short, and
+    # this is the question a discovery failure has to answer.
+    top_prefix = prefixes.most_common(1)[0][0] if prefixes else None
+    top_basenames = []
+    if top_prefix is not None:
+        seen = set()
+        for href in hrefs:
+            path = urllib.parse.urlsplit(href).path
+            segments = [segment for segment in path.split("/") if segment]
+            if ("/".join(segments[:2]) or "(root)") != top_prefix:
+                continue
+            basename = segments[-1] if segments else ""
+            if basename and basename not in seen:
+                seen.add(basename)
+                top_basenames.append(basename)
+
     return {
         "pageTitle": " ".join(title.group(1).split()) if title else None,
+        "topPrefix": top_prefix,
+        "topPrefixBasenames": sorted(top_basenames)[:250],
         "anchorCount": len(re.findall(r"<\s*a\b", index_html, re.IGNORECASE)),
         "scriptCount": len(re.findall(r"<\s*script\b", index_html, re.IGNORECASE)),
         "hrefCount": len(hrefs),

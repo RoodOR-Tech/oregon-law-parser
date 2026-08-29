@@ -188,9 +188,9 @@ jobs:
               | "\(.count)\t\(.prefix)\t\([.extensions[] | "\(.extension):\(.count)"] | join(","))"' \
               ors-chapter-index.json | column -t
             echo
-            echo "Samples from the three largest prefixes:"
-            jq -r '.indexDiagnostics.hrefPathPrefixHistogram[0:3][]
-              | "[\(.prefix)]", (.samples[] | "  \(.)")' ors-chapter-index.json
+            echo "Largest prefix: $(jq -r '.indexDiagnostics.topPrefix' ors-chapter-index.json)"
+            echo "Every basename under it:"
+            jq -r '.indexDiagnostics.topPrefixBasenames | join(" ")' ors-chapter-index.json | fold -s -w 160
           fi
 
       # The real gate. It runs last so the diagnostic steps above have already
