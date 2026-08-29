@@ -195,8 +195,9 @@ Four properties of the layout matter:
   numbers are interleaved with the entries. Requiring the dash-and-range
   suffix separates a title line from them.
 - Ranges are printed with an en-dash and use `Ch.` for a single chapter.
-- A title name too long for one line **wraps**, leaving the number and the
-  start of the name on one line and the rest plus the range on the next.
+- A title entry too long for one line **wraps**, in either of two places: the
+  name may break, carrying the dash and range onto the next line; or the break
+  may fall after the dash, leaving `Chs. 190-200` alone on its own line.
 
 ## The wrapped title that vanished
 
@@ -216,6 +217,21 @@ Two things follow. Wrapped entries are now joined across lines. And a
 number-led line that never resolves into a title is reported as
 `unresolvedTitleLineCount`, gated at zero, so the next parser gap announces
 itself instead of silently shrinking the roster.
+
+That diagnostic immediately earned itself. Handling only the first wrap form
+raised the count from 56 titles to 58 but left two entries unresolved, and
+the gate named them exactly:
+
+```
+Unresolved title lines: 2
+  unresolved: 19 Miscellaneous Matters Related to Government and Public Affairs –
+  unresolved: Title 45 Water Resources: Irrigation, Drainage, Flood Control, Reclamation –
+```
+
+Both break after the dash rather than inside the name, leaving the range
+alone on the following line. Without the diagnostic those two titles would
+have gone missing as quietly as the first one did — and title 19 is the one
+covering chapter 192.
 
 ## Lettered titles and lettered ranges both occur
 

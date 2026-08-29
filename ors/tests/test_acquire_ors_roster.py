@@ -57,8 +57,12 @@ Title 14 Procedure in Criminal Matters Generally – Chs. 131-153
 Volume 5
 Title 17 State Legislative Department and Laws – Chs. 171-174
 18 Executive Branch; Organization – Chs. 176-185
-19 Miscellaneous Matters Related to Government and
-Public Affairs – Chs. 190-200
+19 Miscellaneous Matters Related to Government and Public Affairs –
+Chs. 190-200
+Volume 15
+Title 45 Water Resources: Irrigation, Drainage, Flood Control, Reclamation –
+Chs. 536-558
+46 Agriculture – Chs. 561-571
 Volume 7
 Title 26A Economic Development – Chs. 284-285C
 27 Public Borrowing – Chs. 286A-289
@@ -71,7 +75,9 @@ class TableOfTitlesTest(unittest.TestCase):
          self.unresolved) = roster.parse_table_of_titles(REAL_TEXT)
 
     def test_volumes_are_captured_with_the_span_of_their_titles(self):
-        self.assertEqual([item["volumeNumber"] for item in self.volumes], [1, 2, 3, 4, 5, 7])
+        self.assertEqual(
+            [item["volumeNumber"] for item in self.volumes], [1, 2, 3, 4, 5, 15, 7]
+        )
         by_number = {item["volumeNumber"]: item for item in self.volumes}
         self.assertEqual(by_number[1]["firstChapter"], "1")
         self.assertEqual(by_number[1]["lastChapter"], "55")
@@ -83,10 +89,11 @@ class TableOfTitlesTest(unittest.TestCase):
         numbers = [item["titleNumber"] for item in self.titles]
         self.assertEqual(numbers[:6], ["1", "2", "3", "4", "5", "6"])
 
-    def test_a_title_whose_name_wraps_is_recovered_not_dropped(self):
-        # Title 19's name runs onto a second line that carries the range. The
-        # first parser matched neither half and dropped the title in silence;
-        # the loss only surfaced when chapter 192 could not be attributed.
+    def test_a_title_whose_range_falls_on_the_next_line_is_recovered(self):
+        # The real layout breaks after the dash, leaving "Chs. 190-200" alone.
+        # The first parser matched neither half and dropped the title in
+        # silence; the loss only surfaced when chapter 192 could not be
+        # attributed to any title.
         by_number = {item["titleNumber"]: item for item in self.titles}
         self.assertIn("19", by_number)
         self.assertEqual(
@@ -99,6 +106,29 @@ class TableOfTitlesTest(unittest.TestCase):
 
     def test_chapter_192_is_attributed_once_the_wrapped_title_is_recovered(self):
         self.assertEqual(roster.chapter_is_published("192", self.titles)["titleNumber"], "19")
+
+    def test_a_trailing_dash_is_layout_and_not_part_of_the_title_name(self):
+        by_number = {item["titleNumber"]: item for item in self.titles}
+        self.assertEqual(
+            by_number["45"]["titleName"],
+            "Water Resources: Irrigation, Drainage, Flood Control, Reclamation",
+        )
+        self.assertEqual(by_number["45"]["firstChapter"], "536")
+        self.assertEqual(by_number["45"]["lastChapter"], "558")
+
+    def test_a_name_that_continues_onto_the_range_line_is_joined(self):
+        # The other wrap form: the name continues and carries the dash and
+        # range with it.
+        text = (
+            "Volume 1\n"
+            "Title 3 Remedies and Special Actions and\n"
+            "Proceedings \u2013 Chs. 28-37\n"
+        )
+        _, titles, _, unresolved = roster.parse_table_of_titles(text)
+        self.assertEqual(unresolved, [])
+        self.assertEqual(titles[0]["titleName"],
+                         "Remedies and Special Actions and Proceedings")
+        self.assertEqual(titles[0]["lastChapter"], "37")
 
     def test_lettered_titles_and_lettered_range_endpoints_parse(self):
         by_number = {item["titleNumber"]: item for item in self.titles}
@@ -188,8 +218,8 @@ class RosterCliTest(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             report = json.loads(report_path.read_text())
             self.assertTrue(report["valid"])
-            self.assertEqual(report["volumeCount"], 7)
-            self.assertEqual(report["titleCount"], 15)
+            self.assertEqual(report["volumeCount"], 8)
+            self.assertEqual(report["titleCount"], 17)
             self.assertEqual(report["unparsedLineCount"], 0)
             self.assertEqual(report["unresolvedTitleLineCount"], 0)
             # The wrapped title survives the real extraction path.

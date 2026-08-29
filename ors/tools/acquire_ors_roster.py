@@ -68,6 +68,13 @@ TITLE_TAIL_PATTERN = re.compile(
     r"^(?P<name>\S.*?)\s*[\u2013\u2014]\s*Chs?\.\s*"
     r"(?P<range>[0-9A-Za-z]+(?:\s*[-\u2013\u2014]\s*[0-9A-Za-z]+)?)\s*$"
 )
+# The break can also fall after the dash, leaving the range alone on its own
+# line: "19 Miscellaneous Matters ... Public Affairs -" then "Chs. 190-200".
+RANGE_ONLY_PATTERN = re.compile(
+    r"^Chs?\.\s*(?P<range>[0-9A-Za-z]+(?:\s*[-\u2013\u2014]\s*[0-9A-Za-z]+)?)\s*$"
+)
+# A held title name may end with the dash that introduces its range.
+TRAILING_DASH_PATTERN = re.compile(r"\s*[\u2013\u2014]\s*$")
 
 # A range endpoint is a chapter number, possibly lettered.
 RANGE_PATTERN = re.compile(
@@ -215,6 +222,16 @@ def parse_table_of_titles(text):
             continue
 
         if pending is not None:
+            range_only_match = RANGE_ONLY_PATTERN.match(line)
+            if range_only_match is not None:
+                record(
+                    pending["number"],
+                    pending["name"],
+                    range_only_match.group("range"),
+                    f'{pending["line"]} {line}',
+                )
+                pending = None
+                continue
             tail_match = TITLE_TAIL_PATTERN.match(line)
             if tail_match is not None:
                 record(
@@ -232,7 +249,8 @@ def parse_table_of_titles(text):
         if head_match is not None:
             pending = {
                 "number": head_match.group("number"),
-                "name": head_match.group("name"),
+                # The dash introducing the range is layout, not part of the name.
+                "name": TRAILING_DASH_PATTERN.sub("", head_match.group("name")),
                 "line": line,
             }
 
