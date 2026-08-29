@@ -166,10 +166,17 @@ jobs:
           jq -r '.unresolvedTitleLines // [] | .[] | "  unresolved: \(.)"' ors-roster.json
           jq -r '.unparsedLines // [] | .[] | "  unparsed: \(.)"' ors-roster.json
           if [ "$(jq -r '.valid' ors-roster.json)" = "true" ]; then
+            # One folded line rather than one line per title. Sixty title
+            # lines pushed the summary and diagnostics out of the readable log
+            # tail on every failing run; the detail below is only needed when
+            # something is wrong, and the report artifact always carries it.
+            echo "Title ranges:"
+            jq -r '[.titles[] | "\(.titleNumber):\(.firstChapter)-\(.lastChapter)"] | join("  ")' \
+              ors-roster.json | fold -s -w 160
+          else
             echo "Titles and the chapter ranges they cover:"
             jq -r '.titles[] | "  vol \(.volumeNumber // "?")  title \(.titleNumber)  chs \(.firstChapter)-\(.lastChapter)  \(.titleName // "")"' \
               ors-roster.json
-          else
             echo "Problems: $(jq -c '.problems // [.error]' ors-roster.json)"
             echo "Unparsed lines:"
             jq -r '.unparsedLines // [] | .[]' ors-roster.json | head -20

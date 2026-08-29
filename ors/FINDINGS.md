@@ -230,8 +230,11 @@ Unresolved title lines: 2
 
 Both break after the dash rather than inside the name, leaving the range
 alone on the following line. Without the diagnostic those two titles would
-have gone missing as quietly as the first one did — and title 19 is the one
-covering chapter 192.
+have gone missing as quietly as the first one did — and title 19, covering
+chapters 186-200, is the one that carries chapter 192.
+
+Handling both forms brought the count to its final 60 titles with nothing
+unresolved.
 
 ## Lettered titles and lettered ranges both occur
 
@@ -247,6 +250,22 @@ vol 14 title 37   chs 471-475C  Alcoholic Liquors; Controlled Substances; Drugs
 
 Sort-key containment handles these: chapter 285B falls inside 284-285C, and
 279A falls inside the numeric range 276-283.
+
+## The parsed result
+
+The 2025 table of titles yields **21 volumes and 60 titles**, with zero
+unparsed and zero unresolved lines:
+
+```
+vol 1   title 1    chs 1-10      Courts of Record; Court Officers; Juries
+vol 5   title 19   chs 186-200   Miscellaneous Matters Related to Government and Public Affairs
+vol 7   title 26A  chs 284-285C  Economic Development
+vol 15  title 45   chs 536-558   Water Resources: Irrigation, Drainage, Flood Control, Reclamation
+vol 19  title 62   chs 835-838   Aviation
+```
+
+Title numbers are not contiguous — 15, 19A, 39, 40, 55 and 60 are absent —
+and neither are the chapter ranges. Both gaps are real and are preserved.
 
 ## What the document does give
 
