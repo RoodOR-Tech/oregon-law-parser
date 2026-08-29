@@ -507,6 +507,35 @@ class NewlineSeparatedStubEntriesTest(unittest.TestCase):
         )
 
 
+class EmbeddedStubMarkupSampleTest(unittest.TestCase):
+    """Raw-markup ground truth, added after two guessed fixes both measured
+    zero change against real chapters -- see find_embedded_stub_markup_
+    samples's docstring.
+    """
+
+    def test_an_unclaimed_embedded_number_captures_its_raw_markup(self):
+        markup = (
+            "<p><b>1.160 Procedural rules.</b> Courts shall be governed by"
+            " the spirit of the procedural statutes.\n"
+            "1.165 [1981 s.s. c.3 §7; renumbered 1.185 in 1999]</p>"
+        )
+        result = parser.parse_chapter(markup, "1")
+        self.assertEqual(len(result["embeddedStubMarkupSamples"]), 1)
+        sample = result["embeddedStubMarkupSamples"][0]
+        self.assertEqual(sample["number"], "1.165")
+        self.assertIn("1.165 [1981 s.s. c.3 §7", sample["rawMarkup"])
+
+    def test_a_number_already_anchored_is_not_sampled(self):
+        # 1.165 is a real bold stub of its own here, so a later mention of
+        # the same "number [" shape elsewhere must not be flagged again.
+        markup = (
+            "<p><b>1.165 [Renumbered 1.185]</b></p>"
+            "<p><b>1.160 Procedural rules.</b> As restated at 1.165 [Renumbered 1.185].</p>"
+        )
+        result = parser.parse_chapter(markup, "1")
+        self.assertEqual(result["embeddedStubMarkupSamples"], [])
+
+
 class SectionSortKeyTest(unittest.TestCase):
     def test_sections_order_the_way_the_statute_book_does(self):
         numbers = ["161.100", "161.005", "279A.050", "161.067", "90.100"]

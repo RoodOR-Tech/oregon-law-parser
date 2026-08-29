@@ -727,10 +727,28 @@ they still do not become `ors_section` rows -- promoting them requires
 also re-bounding the *preceding* section's body and credit correctly (its
 trailing-credit pattern currently grabs the *last* stub's bracket as if it
 were its own), which is real, scoped work for the next round rather than
-something to rush here. See ROADMAP.md. What this fix actually changes on
-the real sample chapters is confirmed from the next CI run, not assumed
-from the reproduction alone -- the same discipline that caught the first
-fix's shortfall applies to this one too.
+something to rush here. See ROADMAP.md.
+
+## The second fix also measured zero -- stop guessing, dump the raw bytes
+
+Re-run against the real sample chapters, the span-wrapped fix changed
+nothing either: `unboldedStubLineCount` still zero,
+`crossReferenceCandidateCount` still the identical 4254, `sectionRowCount`
+still 892 -- the exact same numbers as every prior attempt. Two guesses at
+the real HTML shape, each individually verified against its own local
+reproduction, both missed whatever the real document actually does.
+
+Continuing to guess a third shape and reproduce it locally is not a
+reliable way to find the real one; each reproduction only proves a fix
+works against the guess, never against the source. `find_embedded_stub_
+markup_samples` instead dumps the actual raw markup bytes surrounding
+every number-immediately-followed-by-bracket that is not already a real
+anchor, printed via `jq -c` (not `-r`) so any embedded control character
+shows as a visible `\n`/`\t` escape rather than an actual line break --
+removing the ambiguity that made the first "context" reading look like
+confirmation of a newline that later turned out to not be the real
+separator at all. The next CI run's `embeddedStubMarkupSamples` output is
+read directly, as ground truth, before any further fix is attempted.
 
 ## First real cross-reference candidates
 

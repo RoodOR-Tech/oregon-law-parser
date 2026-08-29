@@ -98,32 +98,25 @@ caught before CI did:
   citations or the two non-citation forms above; a genuine editorial note
   distinct from a credit has not yet been observed in the sample and needs
   its own evidence before a rule is written.
-- Repealed and renumbered sections. In progress, real gap now confirmed by
-  exact reproduction of the real markup shape. Four rounds got here: the
-  "138 stubs in 646A" figure first recorded came from the probe's looser
-  `repealStubMatches` count (not a count of missing sections); a broadened
-  `SECTION_STUB_PATTERN` measured zero change against real data; cross-
-  reference candidate measurement then surfaced numbers like `1.165`/
-  `1.167` embedded *inside* a different section's own `body_text`, proving
-  real stub-only sections exist; a first fix (`_collapse_internal_newlines`,
-  preserving a newline before a new stub entry within one text run) was
-  pushed and *also* measured zero change on real data -- not because the
-  gap wasn't real, but because it targeted the wrong mechanism. Real
-  chapters wrap each stub entry in its own bare `<span>`, so the newline
-  sits *between* two tags as a separate whitespace-only run, invisible to a
-  single-run lookahead. `upcoming_run_opens_a_stub` fixes this by looking
-  past whitespace-only runs to the next run's real content before deciding
-  whether a newline collapses to a space or stays a line break, verified
-  against an exact reproduction of the span-wrapped real shape. Still open:
-  `find_unbolded_stub_lines` should now measure these entries correctly
-  (to be confirmed against real CI, not assumed from the reproduction
-  alone), but promoting them to real `ors_section` rows still needs the
-  anchor-building step broadened to treat an unclaimed bracket-only line as
-  a section of its own, and the *preceding* section's trailing-credit
-  pattern needs to stop grabbing the last such stub's bracket as if it were
-  its own credit (confirmed happening in a local reproduction). Both are
-  scoped, real next steps once CI confirms the actual count against the
-  sample chapters.
+- Repealed and renumbered sections. In progress; a real gap, confirmed by
+  cross-reference candidate measurement (numbers like `1.165`/`1.167`
+  embedded *inside* a different section's own `body_text`), but two
+  attempts at fixing `normalize_chapter_text`'s newline handling to close
+  it have each measured **zero change** against the real sample chapters --
+  identical `unboldedStubLineCount` (0), `sectionRowCount` (892) and
+  `crossReferenceCandidateCount` (4254) before and after both fixes, despite
+  each being verified against its own local reproduction of a guessed real
+  HTML shape (a newline inside one text run; then a newline between two
+  `<span>` tags). Guessing a third shape risks the same outcome, so
+  `find_embedded_stub_markup_samples` now dumps the actual raw markup bytes
+  around every unclaimed "number [" occurrence instead, read as ground
+  truth from the next real CI run before any further fix is attempted. Once
+  the real anchoring gap is closed, promoting these entries to real
+  `ors_section` rows still needs the anchor-building step broadened to
+  treat an unclaimed bracket-only line as a section of its own, and the
+  *preceding* section's trailing-credit pattern needs to stop grabbing the
+  last such stub's bracket as if it were its own credit (confirmed
+  happening in a local reproduction).
 - This is the table that joins to the amendment parser's `(year, chapter)`
   output. The join is data-only; neither program imports the other.
 

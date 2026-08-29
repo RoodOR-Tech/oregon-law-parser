@@ -238,6 +238,14 @@ jobs:
           # gap rather than reusing the probe's looser repealStubMatches count.
           echo "Unbolded stub-shaped lines: $(jq -r '.unboldedStubLineCount' ors-parse.json)   Distinct numbers: $(jq -r '.unboldedStubDistinctNumberCount' ors-parse.json)"
           jq -r '.unboldedStubLines[] | "  chapter \(.chapterNumber) \(.number): \(.line)"' ors-parse.json | head -150 || true
+          # Raw-markup ground truth: two guessed fixes at the real HTML shape
+          # around an embedded stub both measured zero change on real data.
+          # See find_embedded_stub_markup_samples's docstring. jq -c (not -r)
+          # so embedded control characters print as visible \n/\t escapes
+          # rather than actual line breaks, removing any ambiguity about
+          # whitespace structure.
+          echo "Embedded-stub raw markup samples: $(jq -r '.embeddedStubMarkupSamples | length' ors-parse.json)"
+          jq -c '.embeddedStubMarkupSamples[]' ors-parse.json | head -50 || true
           # Increment 4, measurement stage: not yet gated. See
           # ors_cross_references.py's module docstring for why this pass is
           # deliberately generous rather than a finished extraction rule.

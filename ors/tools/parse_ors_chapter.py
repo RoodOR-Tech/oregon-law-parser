@@ -416,6 +416,39 @@ def find_unbolded_stub_lines(lines, bold_spans, anchored_numbers):
     return found
 
 
+EMBEDDED_STUB_PATTERN = re.compile(r"(?P<number>\d{1,3}[A-Z]?\.\d{3})\s*\[")
+
+
+def find_embedded_stub_markup_samples(markup, text, anchored_numbers, limit=10):
+    """Raw markup bytes around a number immediately followed by a bracket
+    that is not already a real anchor.
+
+    Two rounds of fixing normalize_chapter_text's newline handling both
+    measured zero change against the real sample chapters, each verified
+    only against a locally reproduced guess at the real HTML shape (a
+    newline inside one text run, then a newline between two <span> tags).
+    Guessing a third shape risks the same outcome. This instead dumps the
+    actual raw markup around each such occurrence directly, so the real
+    structure is seen rather than inferred from log fragments.
+    """
+    samples = []
+    seen = set()
+    for match in EMBEDDED_STUB_PATTERN.finditer(text):
+        number = match.group("number")
+        if number in anchored_numbers or number in seen:
+            continue
+        seen.add(number)
+        index = markup.find(number)
+        if index == -1:
+            continue
+        start = max(0, index - 150)
+        end = min(len(markup), index + 150)
+        samples.append({"number": number, "rawMarkup": markup[start:end]})
+        if len(samples) >= limit:
+            break
+    return samples
+
+
 def is_subdivision_heading(line):
     """A centred heading dividing a chapter, carrying no section number."""
     if SECTION_NUMBER_ANYWHERE.search(line):
@@ -547,6 +580,9 @@ def parse_chapter(markup, chapter_number):
         "foreignAnchors": foreign_anchors,
         "unboldedStubLines": find_unbolded_stub_lines(
             lines, bold_spans, {anchor["number"] for anchor in anchors}
+        ),
+        "embeddedStubMarkupSamples": find_embedded_stub_markup_samples(
+            markup, text, {anchor["number"] for anchor in anchors}
         ),
         "problems": problems,
     }
@@ -823,6 +859,11 @@ def main(argv=None):
         for record in records
         for item in record["parsed"]["unboldedStubLines"]
     ]
+    embedded_stub_markup_samples = [
+        {"chapterNumber": record["chapterNumber"], **item}
+        for record in records
+        for item in record["parsed"]["embeddedStubMarkupSamples"]
+    ]
 
     report = {
         "schemaVersion": 1,
@@ -863,6 +904,10 @@ def main(argv=None):
         "unboldedStubLineCount": len(unbolded_stubs),
         "unboldedStubDistinctNumberCount": len({item["number"] for item in unbolded_stubs}),
         "unboldedStubLines": unbolded_stubs[:500],
+        # Raw markup ground truth: two guesses at the real HTML shape around
+        # an embedded stub both measured zero change on real data. See
+        # find_embedded_stub_markup_samples's docstring. Diagnostic only.
+        "embeddedStubMarkupSamples": embedded_stub_markup_samples[:50],
         # Increment 4, measurement stage: candidate section/range/chapter
         # mentions found in body_text, not yet resolved into
         # ors_cross_reference rows. See ors_cross_references.py's docstring
