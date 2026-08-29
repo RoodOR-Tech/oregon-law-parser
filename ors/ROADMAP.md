@@ -128,7 +128,16 @@ caught before CI did:
 ## Increment 4 — cross references and the relational build
 
 - `ors_cross_reference` rows, with unresolved citations preserved rather than
-  dropped.
+  dropped. In progress, measurement stage: `tools/ors_cross_references.py`
+  finds candidate section, range and chapter mentions in `body_text` and
+  reports them (count, a by-kind breakdown, and per-candidate context) as
+  `crossReferenceCandidate*` fields, diagnostic only and not yet gated --
+  the same order every earlier table in this pipeline followed (probe
+  before parse, unparsed-segment count before the credit rule, stub-line
+  count before an anchoring rule). The patterns tried are deliberately
+  generous (any `NNN.NNN`, `NNN.NNN to NNN.NNN`, or `chapter NNN` shape) so
+  real phrasing is seen from CI before `reference_kind` values and
+  `to_section_id` resolution are designed against it.
 - CSV emission per table and a SQLite build from the CSVs.
 - The referential integrity checks listed in `SCHEMA.md` become a CI gate.
 

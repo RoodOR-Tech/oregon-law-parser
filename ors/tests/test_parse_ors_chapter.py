@@ -473,6 +473,43 @@ class SourceCreditRowTest(unittest.TestCase):
         self.assertEqual(self.rows["unparsedCreditSegments"], [])
 
 
+class CrossReferenceCandidateTest(unittest.TestCase):
+    """The fixture's own body text carries a real range mention twice."""
+
+    def setUp(self):
+        record = {
+            "chapterNumber": "161",
+            "chapterSortKey": "000161 ",
+            "sha256": "a" * 64,
+            "parsed": parsed_fixture(),
+        }
+        self.rows = parser.build_rows([record])
+
+    def test_the_fixtures_range_mentions_are_found(self):
+        # Both 161.005's and 161.015's body text cite "161.005 to 161.055".
+        by_section = {}
+        for candidate in self.rows["crossReferenceCandidates"]:
+            by_section.setdefault(candidate["sectionId"], []).append(candidate)
+        self.assertEqual(
+            [c["kind"] for c in by_section["2025-161.005"]], ["range"]
+        )
+        self.assertEqual(
+            by_section["2025-161.005"][0]["text"], "161.005 to 161.055"
+        )
+        # 161.015's body also carries the wrapped "161.055 (2) does not
+        # apply..." continuation line (SegmentationTest establishes that
+        # line belongs to 161.015, not a section of its own), which is a
+        # real bare mention of 161.055 alongside the range.
+        self.assertEqual(
+            [c["kind"] for c in by_section["2025-161.015"]], ["range", "section"]
+        )
+
+    def test_a_section_with_no_body_text_yields_no_candidates(self):
+        # 161.025 is a stub with no bodyText at all.
+        for candidate in self.rows["crossReferenceCandidates"]:
+            self.assertNotEqual(candidate["sectionId"], "2025-161.025")
+
+
 class IntegrityTest(unittest.TestCase):
     def _rows(self):
         record = {

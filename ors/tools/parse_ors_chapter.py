@@ -26,6 +26,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from ors_chapters import chapter_sort_key, parse_chapter_number  # noqa: E402
 from ors_credits import parse_source_credit  # noqa: E402
+from ors_cross_references import find_cross_reference_candidates  # noqa: E402
 from ors_text import decode_markup, declared_charset, normalize_spaces  # noqa: E402
 
 SCRIPT_STYLE_PATTERN = re.compile(r"<(script|style)\b.*?</\1\s*>", re.IGNORECASE | re.DOTALL)
@@ -503,6 +504,11 @@ def build_rows(chapter_records, repo_root=None):
     # because it represents a real printed form this parser does not yet
     # understand.
     unparsed_credit_segments = []
+    # Candidate section/range/chapter mentions found in body_text. Increment
+    # 4's ors_cross_reference table has not been built yet; this only
+    # measures what forms actually appear, per find_cross_reference_
+    # candidates's own docstring.
+    cross_reference_candidates = []
 
     for record in chapter_records:
         number = record["chapterNumber"]
@@ -610,6 +616,12 @@ def build_rows(chapter_records, repo_root=None):
                         "segments": parsed_credit["unparsedSegments"],
                     })
 
+            if section["bodyText"]:
+                cross_reference_candidates.extend(
+                    {"sectionId": section_id, **candidate}
+                    for candidate in find_cross_reference_candidates(section["bodyText"])
+                )
+
         problems.extend(f"chapter {number}: {item}" for item in parsed["problems"])
 
     return {
@@ -621,6 +633,7 @@ def build_rows(chapter_records, repo_root=None):
         "formerlyReferences": formerly_references,
         "renumberReferences": renumber_references,
         "unparsedCreditSegments": unparsed_credit_segments,
+        "crossReferenceCandidates": cross_reference_candidates,
         "problems": problems,
     }
 
@@ -782,6 +795,16 @@ def main(argv=None):
         "unboldedStubLineCount": len(unbolded_stubs),
         "unboldedStubDistinctNumberCount": len({item["number"] for item in unbolded_stubs}),
         "unboldedStubLines": unbolded_stubs[:500],
+        # Increment 4, measurement stage: candidate section/range/chapter
+        # mentions found in body_text, not yet resolved into
+        # ors_cross_reference rows. See ors_cross_references.py's docstring
+        # for why this is deliberately generous and unopinionated rather
+        # than a finished extraction rule. Diagnostic only, not gated.
+        "crossReferenceCandidateCount": len(rows["crossReferenceCandidates"]),
+        "crossReferenceCandidatesByKind": candidate_counts_by_kind(
+            rows["crossReferenceCandidates"]
+        ),
+        "crossReferenceCandidates": rows["crossReferenceCandidates"][:500],
         "chaptersWithoutName": [
             chapter["chapterNumber"] for chapter in rows["chapters"] if not chapter["chapterName"]
         ],
@@ -838,6 +861,8 @@ def main(argv=None):
         "unparsedCreditSegmentCount": report["unparsedCreditSegmentCount"],
         "unboldedStubLineCount": report["unboldedStubLineCount"],
         "unboldedStubDistinctNumberCount": report["unboldedStubDistinctNumberCount"],
+        "crossReferenceCandidateCount": report["crossReferenceCandidateCount"],
+        "crossReferenceCandidatesByKind": report["crossReferenceCandidatesByKind"],
         "problemCount": len(report["problems"]),
         "chaptersWithoutName": report["chaptersWithoutName"],
         "integrityViolationCount": len(violations),
@@ -849,6 +874,13 @@ def status_counts(sections):
     counts = {}
     for section in sections:
         counts[section["status"]] = counts.get(section["status"], 0) + 1
+    return dict(sorted(counts.items()))
+
+
+def candidate_counts_by_kind(candidates):
+    counts = {}
+    for candidate in candidates:
+        counts[candidate["kind"]] = counts.get(candidate["kind"], 0) + 1
     return dict(sorted(counts.items()))
 
 

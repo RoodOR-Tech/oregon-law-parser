@@ -62,7 +62,7 @@ separately gated.
 | 3. Fingerprint chapter markup to establish ground truth | `tools/probe_ors_structure.py` | implemented |
 | 4. Parse chapters into `ors_section` rows | `tools/parse_ors_chapter.py` | implemented |
 | 5. Extract `ors_source_credit` rows | `tools/ors_credits.py` (via `parse_ors_chapter.py`) | implemented |
-| 5b. Extract `ors_cross_reference` rows | — | not started |
+| 5b. Extract `ors_cross_reference` rows | `tools/ors_cross_references.py` (via `parse_ors_chapter.py`) | measuring real forms |
 | 6. Emit CSV / SQLite relational build | — | not started |
 | 7. Gold row corpus and quality gate | — | not started |
 
