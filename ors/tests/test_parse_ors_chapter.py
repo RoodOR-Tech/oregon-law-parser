@@ -105,6 +105,27 @@ class ForeignAnchorTest(unittest.TestCase):
 
 
 class EditionBannerTest(unittest.TestCase):
+    def test_a_source_newline_inside_the_banner_yields_one_logical_line(self):
+        # The published banner puts a literal newline between the year and the
+        # word, with no tag between them:
+        #
+        #     <p ...><b><span ...>2025
+        #     EDITION<o:p></o:p></span></b></p>
+        #
+        # The probe treats a source newline as a line break, which is why it
+        # reported "2025" and "EDITION" as adjacent lines. This parser rejoins
+        # wrapped text into logical lines instead, so the same banner arrives
+        # as one line. Reading only the two-line form missed it in every
+        # chapter of the sample.
+        markup = (
+            "<p class=MsoNormal align=center><b><span style='font-size:14.0pt'>2025\n"
+            "EDITION<o:p></o:p></span></b></p>"
+            "<p><b><span>161.005&nbsp;Short title.</span></b><span> Text.</span></p>"
+        )
+        text, _ = parser.normalize_chapter_text(markup)
+        self.assertIn("2025 EDITION", [line for line, _, _ in parser.line_spans(text)])
+        self.assertEqual(parser.parse_chapter(markup, "161")["editionYear"], 2025)
+
     def test_both_printed_banner_layouts_are_read(self):
         two_line = "<p>2025</p><p>EDITION</p><p><b>161.005 Short title.</b> Text.</p>"
         one_line = "<p>2025 EDITION</p><p><b>161.005 Short title.</b> Text.</p>"

@@ -358,6 +358,31 @@ heading. Those are counted as `foreignAnchorCount` and skipped rather than
 failing the run: they are not this chapter's rows, and a chapter is not
 defective for citing another.
 
+## Source newlines, and why the edition banner went missing
+
+Every chapter of the sample reported "states no ORS edition year", including
+the ones whose banner the probe had plainly shown. The cause is a difference
+between two reasonable ways to decide what a line is.
+
+The published banner puts a literal newline between the year and the word,
+with no tag between them:
+
+```html
+<p class=MsoNormal align=center><b><span style='font-size:14.0pt'>2025
+EDITION<o:p></o:p></span></b></p>
+```
+
+The probe treats a source newline as a line break, so it reported `2025` and
+`EDITION` as adjacent lines. The parser deliberately rejoins wrapped text into
+logical lines, because statutory text wraps constantly in these exports and a
+sentence split across source lines is still one sentence. The same banner
+therefore arrives at the parser as the single line `2025 EDITION`.
+
+Neither behaviour is wrong; reading only the two-line form was. The banner is
+now read in either shape. The wider lesson is that "line" is not a shared
+concept between the two tools, so a rule proven on the probe's output does not
+transfer to the parser unexamined.
+
 ## The other Legislative Counsel documents
 
 `ORS_Renum.pdf` is a renumbering table bearing on `ors_section.renumbered_to`,
