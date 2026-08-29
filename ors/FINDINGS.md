@@ -669,6 +669,43 @@ sections printed unbolded" stays an open item for whole-edition acquisition
 diagnostic (`unboldedStubLineCount`) stays in place specifically to catch it
 there, gated at zero the same way, if and when a real one appears.
 
+## The stub-only sections were real after all -- found via a side channel
+
+The "broadened pattern changed nothing when actually re-run" section above
+concluded that the `1.055` fragment was probably prose, not a stub, since
+`unboldedStubLineCount` stayed at zero on real data. That measurement was
+accurate but the conclusion was wrong, and cross-reference candidate
+measurement (below) is what exposed why.
+
+The cross-reference pass's real output included entries like `2025-1.160
+[section] 1.165` and `2025-1.160 [section] 1.167`, both attributed to
+section **1.160**'s own `body_text` -- meaning the numbers 1.165 and 1.167
+were embedded *inside* another section's body, not standing on their own
+line at all. Their surrounding context showed the unmistakable stub shape:
+`1.165 [1981 s.s. c.3 §7; renumbered 1.185 in 1999]`. Reproducing this
+locally confirmed the mechanism precisely: `normalize_chapter_text`
+collapses **every** literal source newline inside a text run to a single
+space, the same rule that (correctly) rejoins a statutory sentence wrapped
+across source lines. When a chapter prints a run of consecutive
+disposition-only stub entries separated only by a literal newline -- no
+`<p>` or `<br>` between them -- that same collapsing rule silently merges
+every stub after the first into the *previous* section's body text, so none
+of them ever became a line of their own for `SECTION_STUB_PATTERN` to test.
+`unboldedStubLineCount` was reporting the truth about a pattern that never
+had a chance to run.
+
+The fix (`_collapse_internal_newlines`) preserves the newline specifically
+when it is immediately followed by a new stub entry's opening
+(`\d{3}[A-Z]?\.\d{3}\s*\[`), while every other internal newline still
+collapses to a space exactly as before. This is a measurement-stage fix,
+not the anchoring rule itself: `find_unbolded_stub_lines` now correctly
+finds these entries as their own lines, but they still do not become
+`ors_section` rows -- promoting them requires also re-bounding the
+*preceding* section's body and credit correctly (its trailing-credit
+pattern currently grabs the *last* stub's bracket as if it were its own),
+which is real, scoped work for the next round rather than something to rush
+here. See ROADMAP.md.
+
 ## First real cross-reference candidates
 
 The cross-reference measurement pass's first CI run against the real sample

@@ -58,6 +58,12 @@ SECTION_CATCHLINE_PATTERN = re.compile(
 SECTION_STUB_PATTERN = re.compile(
     r"^(?P<number>\d{1,3}[A-Z]?\.\d{3})\s+(?P<stub>\[[^\[\]]*\])\s*$"
 )
+# A literal source newline immediately followed by a new stub entry's
+# opening. See _collapse_internal_newlines's docstring: this is what tells a
+# real break between consecutive stub-only entries apart from an ordinary
+# wrapped-prose newline, which must still collapse to a space.
+STUB_LINE_BREAK_PATTERN = re.compile(r"\n(?=\s*\d{1,3}[A-Z]?\.\d{3}\s*\[)")
+_NEWLINE_PLACEHOLDER = "\x00"
 # A trailing bracketed group is the section's source credit. Parsing its
 # contents into rows is increment 3; here it is only separated from the
 # statutory text so body_text holds the text and not the history.
@@ -122,6 +128,29 @@ def iter_runs(markup):
         yield tail, bold_depth > 0
 
 
+def _collapse_internal_newlines(text):
+    """Collapse a wrapped-prose newline to a space, but keep a real line
+    break immediately before a new stub entry ("NNN.NNN [...]").
+
+    Ordinary statutory text wraps across source lines constantly, and a
+    sentence split that way must rejoin as one line -- the same principle
+    behind reading "2025\\nEDITION" as one logical line elsewhere in this
+    module. But a run of disposition-only stub entries prints with only a
+    literal source newline between consecutive entries and no separating
+    tag: "1.165 [1981 s.s. c.3 §7; renumbered 1.185 in 1999]\\n1.167 [...]".
+    Collapsing that newline the same way as ordinary prose silently merged
+    every stub after the first into the *previous* section's body text,
+    which is why `unboldedStubLineCount` measured zero against the real
+    sample chapters despite real stub-only sections being present in them:
+    none of them ever became their own line for `SECTION_STUB_PATTERN` to
+    test against. A newline directly followed by a stub-shaped opening is
+    therefore kept as a real line break instead.
+    """
+    protected = STUB_LINE_BREAK_PATTERN.sub(_NEWLINE_PLACEHOLDER, text)
+    collapsed = protected.replace("\n", " ")
+    return collapsed.replace(_NEWLINE_PLACEHOLDER, "\n")
+
+
 def normalize_chapter_text(markup):
     """Build the normalized chapter text and the bold spans within it.
 
@@ -156,7 +185,7 @@ def normalize_chapter_text(markup):
                 append("\n")
             continue
         text = normalize_spaces(html.unescape(raw))
-        text = re.sub(r"[ \t\r\f\v]+", " ", text.replace("\n", " "))
+        text = re.sub(r"[ \t\r\f\v]+", " ", _collapse_internal_newlines(text))
         if not text.strip():
             # Whitespace between runs still separates words.
             if pieces and not pieces[-1].endswith((" ", "\n")):

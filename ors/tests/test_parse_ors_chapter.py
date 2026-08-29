@@ -413,6 +413,58 @@ class UnboldedStubDiagnosticTest(unittest.TestCase):
         self.assertEqual(len(result["sections"]), 1)
 
 
+class NewlineSeparatedStubEntriesTest(unittest.TestCase):
+    """Consecutive unbolded stubs separated only by a literal source newline.
+
+    Confirmed against real CI output: cross-reference candidates surfaced
+    numbers like 1.165/1.167/1.169/1.170 embedded inside chapter 1's 1.160
+    body text, yet unboldedStubLineCount reported zero on that same run.
+    normalize_chapter_text collapsed the literal newline between each entry
+    to a single space -- the same mechanism that (correctly) rejoins wrapped
+    prose -- merging every stub after the first into the previous section's
+    body text before it could ever become its own line. See
+    _collapse_internal_newlines's docstring.
+    """
+
+    def test_wrapped_prose_across_a_literal_newline_still_joins(self):
+        # The fix must not regress the very case it is modeled on: ordinary
+        # statutory text wraps across source lines constantly and must still
+        # read as one sentence.
+        markup = (
+            "<p><b>161.015 General definitions.</b> As used in ORS\n"
+            "161.005 to 161.055, unless the context requires otherwise:</p>"
+        )
+        result = parser.parse_chapter(markup, "161")
+        self.assertEqual(
+            result["sections"][0]["bodyText"],
+            "As used in ORS 161.005 to 161.055, unless the context requires otherwise:",
+        )
+
+    def test_consecutive_unbolded_stubs_each_become_their_own_line(self):
+        markup = (
+            "<p><b>1.160 Procedural rules.</b> Courts shall be governed by "
+            "the spirit of the procedural statutes.\n"
+            "1.165 [1981 s.s. c.3 §7; renumbered 1.185 in 1999]\n"
+            "1.167 [1981 s.s. c.3 §18; renumbered 1.187 in 1999]</p>"
+            "<p><b>1.171 Presiding judges.</b> A presiding judge appointed"
+            " under ORS 1.003 is presiding judge.</p>"
+        )
+        result = parser.parse_chapter(markup, "1")
+        self.assertEqual(
+            result["unboldedStubLines"],
+            [
+                {"number": "1.165", "line": "1.165 [1981 s.s. c.3 §7; renumbered 1.185 in 1999]"},
+                {"number": "1.167", "line": "1.167 [1981 s.s. c.3 §18; renumbered 1.187 in 1999]"},
+            ],
+        )
+        # Real evidence, not yet a fix: turning these into their own section
+        # rows (and correctly bounding 1.160's own body/credit against them)
+        # is the next step, tracked in ROADMAP.md rather than done here.
+        numbers = [item["sectionNumber"] for item in result["sections"]]
+        self.assertNotIn("1.165", numbers)
+        self.assertNotIn("1.167", numbers)
+
+
 class SectionSortKeyTest(unittest.TestCase):
     def test_sections_order_the_way_the_statute_book_does(self):
         numbers = ["161.100", "161.005", "279A.050", "161.067", "90.100"]

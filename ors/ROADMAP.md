@@ -98,30 +98,31 @@ caught before CI did:
   citations or the two non-citation forms above; a genuine editorial note
   distinct from a credit has not yet been observed in the sample and needs
   its own evidence before a rule is written.
-- Repealed and renumbered sections. Still open, despite two rounds of
-  measurement. The "138 stubs in 646A" figure FINDINGS.md first recorded
-  came from the probe's looser `repealStubMatches` count, which matches any
-  bracket anywhere in the document starting with a disposition keyword --
-  including an ordinary operative section's own credit ("[Formerly ...;
-  repealed by ...]" on a section that already has a bold catchline and
-  parses correctly). It is not a count of missing sections. Measured
-  directly (`find_unbolded_stub_lines`), every disposition stub in the
-  sample chapters is bold, the same convention as a catchline heading, and
-  `unboldedStubLineCount` is zero. `SECTION_STUB_PATTERN` was also broadened
-  to match any bracket-only line regardless of what opens it (not only one
-  led by a disposition keyword), motivated by a form seen in an earlier
-  structure-probe sample for chapter 1 ("1.055 [1959 c.638 §1; repealed by
-  2015..."). Re-run against the real sample chapters, that broadening
-  changed nothing: `statusCounts` is still 100% `operative` across all 892
-  sections. The likely explanation, recorded in FINDINGS.md, is that the
-  `1.055` fragment was a citation inside another section's running prose
-  that the probe's line-splitting isolated, not a standalone stub -- the
-  same source-newline-versus-logical-line gap seen twice before. The
-  broadened pattern is kept (harmless, tested, and correct if a genuine
-  plain-citation-led stub is ever printed), but this item stays open until
-  whole-edition acquisition (increment 1b) either exercises it for real or
-  confirms the fixed sample simply contains no disposition-stub-only
-  sections at all.
+- Repealed and renumbered sections. In progress, real gap now confirmed and
+  measured (not just fixed sample). Three rounds of measurement got here:
+  the "138 stubs in 646A" figure first recorded came from the probe's
+  looser `repealStubMatches` count (not a count of missing sections, since
+  it matches any bracket anywhere starting with a keyword, credits on
+  already-parsed operative sections included); a subsequent broadened
+  `SECTION_STUB_PATTERN` (matching any bracket-only line, not only one led
+  by a keyword) measured zero change against real data; but that zero was
+  itself an artifact, not an answer. Cross-reference candidate measurement
+  (below) surfaced numbers like `1.165`/`1.167` embedded *inside* a
+  different section's own `body_text`, with the unmistakable stub shape
+  `1.165 [1981 s.s. c.3 §7; renumbered 1.185 in 1999]` -- real stub-only
+  sections do exist in the sample, `normalize_chapter_text` was just
+  merging every one of them after the first into the previous section's
+  body by collapsing the literal newline between them, the same rule that
+  correctly rejoins wrapped prose. Fixed in `_collapse_internal_newlines`,
+  which keeps that newline only when it precedes a new stub entry. Still
+  open: `find_unbolded_stub_lines` now measures these entries correctly,
+  but promoting them to real `ors_section` rows needs the anchor-building
+  step broadened to treat an unclaimed bracket-only line as a section of
+  its own, and the *preceding* section's trailing-credit pattern needs to
+  stop grabbing the last such stub's bracket as if it were its own credit
+  (currently does, confirmed in a local reproduction). Both are scoped,
+  real next steps once CI shows the actual count against the sample
+  chapters, not more measurement.
 - This is the table that joins to the amendment parser's `(year, chapter)`
   output. The join is data-only; neither program imports the other.
 
