@@ -1,0 +1,123 @@
+name: ORS relational table
+
+# Parallel to the session-law amendment pipeline. This workflow only exercises
+# the ORS effort under ors/ and never touches the frozen gold or unseen
+# validation corpora owned by the amendment parser.
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'ors/**'
+      - '.github/workflows/ors-table.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'ors/**'
+      - '.github/workflows/ors-table.yml'
+  workflow_dispatch:
+    inputs:
+      chapters:
+        description: 'Comma-separated ORS chapters to acquire and probe (blank acquires the whole edition)'
+        required: false
+        default: '1,161,279A'
+
+concurrency:
+  group: ors-table-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  offline-tests:
+    name: Offline unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run ORS tool tests
+        run: python3 -m unittest discover -s ors/tests -v
+
+  discover-and-probe:
+    name: Discover the edition and probe chapter structure
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: offline-tests
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Discover the published chapter roster
+        run: |
+          set -euo pipefail
+          python3 ors/tools/acquire_ors_chapters.py \
+            --index-only \
+            --report ors-chapter-index.json
+          jq -e '.valid == true and .schemaVersion == 1 and .discoveredChapterCount > 0' ors-chapter-index.json >/dev/null
+
+      - name: Print the discovered edition and chapter roster
+        run: |
+          set -euo pipefail
+          echo "Edition year: $(jq -r '.editionYear' ors-chapter-index.json)"
+          echo "Index SHA-256: $(jq -r '.indexSha256' ors-chapter-index.json)"
+          echo "Chapters discovered: $(jq -r '.discoveredChapterCount' ors-chapter-index.json)"
+          echo "Roster:"
+          jq -r '[.chapters[].chapterNumber] | join(" ")' ors-chapter-index.json
+
+      - name: Acquire chapter sources
+        run: |
+          set -euo pipefail
+          CHAPTERS="${{ github.event.inputs.chapters }}"
+          if [ -z "$CHAPTERS" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            CHAPTERS='1,161,279A'
+          fi
+          if [ -n "$CHAPTERS" ]; then
+            python3 ors/tools/acquire_ors_chapters.py \
+              --chapters "$CHAPTERS" \
+              --output-dir ors-sources \
+              --report ors-acquisition.json
+          else
+            python3 ors/tools/acquire_ors_chapters.py \
+              --output-dir ors-sources \
+              --report ors-acquisition.json
+          fi
+          jq -e '.valid == true and ([.chapters[] | select(.ok) | .sha256] | all(test("^[0-9a-f]{64}$")))' ors-acquisition.json >/dev/null
+
+      - name: Probe chapter structure
+        run: |
+          set -euo pipefail
+          python3 ors/tools/probe_ors_structure.py \
+            --acquisition-report ors-acquisition.json \
+            --report ors-structure-probe.json
+          jq -e '.valid == true and .probedChapterCount > 0' ors-structure-probe.json >/dev/null
+
+      - name: Print the structural fingerprint
+        run: |
+          set -euo pipefail
+          jq '{
+            probedChapterCount,
+            chapters: [.chapters[] | {
+              chapterNumber, sourceUrl, bytes,
+              visibleLineCount, sectionNumberMatches, distinctSectionNumbers,
+              sectionNumberLineCount, sectionAnchorLineCount, ambiguousSectionLineCount,
+              sourceCreditMatches, sessionCitationMatches, repealStubMatches,
+              tagHistogram: .tagHistogram[0:8],
+              classHistogram: .classHistogram[0:8],
+              sampleSectionAnchorLines, sampleAmbiguousSectionLines, sampleSourceCredits,
+              sampleLines: .sampleLines[0:25]
+            }]
+          }' ors-structure-probe.json
+
+      - name: Upload ORS pipeline reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ors-pipeline-reports
+          path: |
+            ors-chapter-index.json
+            ors-acquisition.json
+            ors-structure-probe.json
+          if-no-files-found: warn
+          retention-days: 30

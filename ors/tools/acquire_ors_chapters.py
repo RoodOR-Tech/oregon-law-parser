@@ -1,0 +1,333 @@
+#!/usr/bin/env python3
+"""Discover and acquire Oregon Revised Statutes chapter sources.
+
+Stage 1 and 2 of the ORS relational-table pipeline. Discovery reads the
+official ORS index page and extracts the chapter roster it publishes.
+Acquisition downloads each chapter and pins its exact URL, SHA-256 digest and
+byte count so every later parsing decision is traceable to reviewed bytes.
+
+The tool never synthesizes a chapter roster from a guessed numeric range. If
+the index cannot be read, that is reported as a structured failure rather than
+papered over with an assumed chapter list.
+"""
+import argparse
+import concurrent.futures
+import hashlib
+import html
+import json
+import re
+import ssl
+import sys
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+from datetime import datetime, timezone
+from pathlib import Path
+
+DEFAULT_INDEX_URL = "https://www.oregonlegislature.gov/bills_laws/pages/ors.aspx"
+CHAPTER_URL_TEMPLATE = "https://www.oregonlegislature.gov/bills_laws/ors/ors{chapter_file}.html"
+USER_AGENT = "oregon-law-parser-ors-table/1"
+
+# Chapter documents are published as ors<NNN>[<letter>].html, for example
+# ors001.html and ors279A.html. The letter suffix is part of the chapter
+# number, not a version marker, so it is preserved.
+CHAPTER_HREF_PATTERN = re.compile(
+    r"""ors/ors(?P<digits>\d{1,3})(?P<letter>[A-Za-z]?)\.html""",
+    re.IGNORECASE,
+)
+HREF_PATTERN = re.compile(r"""href\s*=\s*["']([^"']+)["']""", re.IGNORECASE)
+CHAPTER_ARGUMENT_PATTERN = re.compile(r"^(?P<digits>\d{1,3})(?P<letter>[A-Za-z]?)$")
+
+
+def utc_now():
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def normalize_chapter_number(digits, letter):
+    """Return the chapter number as printed: no leading zeros, upper-case suffix."""
+    return f"{int(digits)}{letter.upper()}"
+
+
+def chapter_sort_key(chapter_number):
+    """Order chapters the way the statute book does: 1 < 36A < 97 < 279A < 279B."""
+    match = CHAPTER_ARGUMENT_PATTERN.match(chapter_number)
+    if match is None:
+        # Unparseable chapter numbers sort last rather than raising, so one
+        # malformed index entry cannot abort a whole-edition acquisition.
+        return "999999~"
+    return f"{int(match.group('digits')):06d}{(match.group('letter') or ' ').upper()}"
+
+
+def chapter_file_stem(chapter_number):
+    """Map a chapter number back to its published file stem, e.g. 279A -> 279A."""
+    match = CHAPTER_ARGUMENT_PATTERN.match(chapter_number)
+    if match is None:
+        raise ValueError(f"invalid chapter number: {chapter_number}")
+    return f"{int(match.group('digits')):03d}{(match.group('letter') or '').upper()}"
+
+
+def chapter_url(chapter_number):
+    return CHAPTER_URL_TEMPLATE.format(chapter_file=chapter_file_stem(chapter_number))
+
+
+def parse_chapter_index(index_html, index_url):
+    """Extract the chapter roster from the official ORS index page.
+
+    Returns chapters sorted in statute-book order. Duplicate links to the same
+    chapter collapse to one entry, keeping the first URL seen so the roster is
+    stable across runs.
+    """
+    seen = {}
+    for raw_href in HREF_PATTERN.findall(index_html):
+        href = html.unescape(raw_href).strip()
+        match = CHAPTER_HREF_PATTERN.search(href)
+        if match is None:
+            continue
+        number = normalize_chapter_number(match.group("digits"), match.group("letter"))
+        if number in seen:
+            continue
+        seen[number] = {
+            "chapterNumber": number,
+            "chapterSortKey": chapter_sort_key(number),
+            "sourceUrl": urllib.parse.urljoin(index_url, href),
+            "discoveredHref": href,
+        }
+    return sorted(seen.values(), key=lambda item: item["chapterSortKey"])
+
+
+def detect_edition_year(index_html):
+    """Read the edition year the index page advertises.
+
+    Returns None when the page does not state one. A missing year is reported
+    rather than guessed from the current date, because an edition published in
+    one year is routinely browsed in the next.
+    """
+    matches = re.findall(r"((?:19|20)\d{2})\s+Edition", index_html)
+    matches += re.findall(
+        r"(?:Oregon Revised Statutes|ORS)[^0-9<]{0,40}((?:19|20)\d{2})", index_html
+    )
+    years = [int(match) for match in matches if 1953 <= int(match) <= 2100]
+    if not years:
+        return None
+    return max(years)
+
+
+def fetch_bytes(url, retries, timeout, context):
+    """Fetch a URL with bounded exponential backoff.
+
+    Returns (data, http_status, attempts, error). On success error is None; on
+    failure data is None. Transient network faults are retried because a
+    whole-edition acquisition makes several hundred requests.
+    """
+    last_error = None
+    status = None
+    for attempt in range(1, retries + 1):
+        try:
+            request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+            with urllib.request.urlopen(request, context=context, timeout=timeout) as response:
+                status = getattr(response, "status", None)
+                return response.read(), status, attempt, None
+        except urllib.error.HTTPError as exc:
+            status = exc.code
+            last_error = f"{url}: HTTP {exc.code}"
+            # A 404 is an answer, not a transient fault. Stop retrying it.
+            if exc.code == 404:
+                return None, status, attempt, last_error
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:
+            last_error = f"{url}: {exc}"
+        if attempt < retries:
+            time.sleep(min(2 ** (attempt - 1), 8))
+    return None, status, retries, last_error or "unknown download error"
+
+
+def source_format(url, data):
+    if data.startswith(b"%PDF"):
+        return "pdf"
+    prefix = data[:4096].lower()
+    if b"<html" in prefix or b"<!doctype html" in prefix:
+        return "html"
+    if url.lower().endswith((".html", ".htm")):
+        return "html"
+    return None
+
+
+def fetch_chapter(chapter, output_dir, retries, timeout):
+    url = chapter["sourceUrl"]
+    context = ssl.create_default_context()
+    data, status, attempts, error = fetch_bytes(url, retries, timeout, context)
+    record = {
+        "chapterNumber": chapter["chapterNumber"],
+        "chapterSortKey": chapter["chapterSortKey"],
+        "sourceUrl": url,
+        "attempts": attempts,
+        "httpStatus": status,
+        "retrievedAt": utc_now(),
+    }
+    if data is None:
+        record.update({"ok": False, "error": error})
+        return record
+    fmt = source_format(url, data)
+    if fmt is None:
+        record.update({"ok": False, "error": f"unsupported source format: {url}"})
+        return record
+    path = output_dir / f"ors{chapter_file_stem(chapter['chapterNumber'])}.{fmt}"
+    path.write_bytes(data)
+    record.update({
+        "ok": True,
+        "sourceFormat": fmt,
+        "fixture": str(path),
+        "sha256": hashlib.sha256(data).hexdigest(),
+        "bytes": len(data),
+    })
+    return record
+
+
+def selected_chapters(chapters, requested, limit):
+    if requested:
+        wanted = []
+        for raw in requested:
+            match = CHAPTER_ARGUMENT_PATTERN.match(raw.strip())
+            if match is None:
+                raise ValueError(f"invalid --chapters entry: {raw}")
+            wanted.append(normalize_chapter_number(match.group("digits"), match.group("letter")))
+        by_number = {item["chapterNumber"]: item for item in chapters}
+        missing = [number for number in wanted if number not in by_number]
+        if missing:
+            raise ValueError(f"chapters not present in the published index: {', '.join(missing)}")
+        chosen = [by_number[number] for number in wanted]
+    else:
+        chosen = list(chapters)
+    if limit is not None:
+        chosen = chosen[:limit]
+    return sorted(chosen, key=lambda item: item["chapterSortKey"])
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--index-url", default=DEFAULT_INDEX_URL)
+    parser.add_argument("--index-file", help="read the index page from disk instead of the network")
+    parser.add_argument("--index-only", action="store_true", help="discover chapters, download none")
+    parser.add_argument("--chapters", help="comma-separated chapter numbers, e.g. 1,161,279A")
+    parser.add_argument("--limit", type=int, help="acquire at most this many chapters")
+    parser.add_argument("--output-dir")
+    parser.add_argument("--report", required=True)
+    parser.add_argument("--workers", type=int, default=6)
+    parser.add_argument("--retries", type=int, default=3)
+    parser.add_argument("--timeout", type=int, default=60)
+    args = parser.parse_args(argv)
+
+    if not args.index_only and not args.output_dir:
+        parser.error("--output-dir is required unless --index-only is given")
+    if not 1 <= args.workers <= 16:
+        parser.error("workers must be between 1 and 16")
+    if args.limit is not None and args.limit < 1:
+        parser.error("limit must be a positive integer")
+
+    report = {
+        "schemaVersion": 1,
+        "stage": "index" if args.index_only else "acquire",
+        "indexUrl": args.index_url,
+        "retrievedAt": utc_now(),
+    }
+
+    if args.index_file:
+        index_bytes = Path(args.index_file).read_bytes()
+        report["indexSource"] = "file"
+    else:
+        context = ssl.create_default_context()
+        index_bytes, status, attempts, error = fetch_bytes(
+            args.index_url, args.retries, args.timeout, context
+        )
+        report["indexSource"] = "network"
+        report["indexHttpStatus"] = status
+        report["indexAttempts"] = attempts
+        if index_bytes is None:
+            report.update({"valid": False, "error": error, "chapters": []})
+            Path(args.report).write_text(json.dumps(report, indent=2) + "\n")
+            print(json.dumps({"valid": False, "error": error}, indent=2))
+            return 1
+
+    index_html = index_bytes.decode("utf-8", errors="replace")
+    chapters = parse_chapter_index(index_html, args.index_url)
+    edition_year = detect_edition_year(index_html)
+
+    report.update({
+        "indexSha256": hashlib.sha256(index_bytes).hexdigest(),
+        "indexBytes": len(index_bytes),
+        "editionYear": edition_year,
+        "editionId": str(edition_year) if edition_year else None,
+        "discoveredChapterCount": len(chapters),
+    })
+
+    if not chapters:
+        report.update({
+            "valid": False,
+            "error": "no chapter links matched the published index page",
+            "chapters": [],
+        })
+        Path(args.report).write_text(json.dumps(report, indent=2) + "\n")
+        print(json.dumps({"valid": False, "error": report["error"]}, indent=2))
+        return 1
+
+    if args.index_only:
+        report.update({"valid": True, "chapters": chapters})
+        Path(args.report).write_text(json.dumps(report, indent=2) + "\n")
+        print(json.dumps({
+            "valid": True,
+            "editionYear": edition_year,
+            "discoveredChapterCount": len(chapters),
+            "firstChapter": chapters[0]["chapterNumber"],
+            "lastChapter": chapters[-1]["chapterNumber"],
+        }, indent=2))
+        return 0
+
+    try:
+        chosen = selected_chapters(
+            chapters,
+            [part for part in (args.chapters or "").split(",") if part.strip()],
+            args.limit,
+        )
+    except ValueError as exc:
+        report.update({"valid": False, "error": str(exc), "chapters": []})
+        Path(args.report).write_text(json.dumps(report, indent=2) + "\n")
+        print(json.dumps({"valid": False, "error": str(exc)}, indent=2))
+        return 1
+
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    results = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as pool:
+        futures = [
+            pool.submit(fetch_chapter, chapter, output_dir, args.retries, args.timeout)
+            for chapter in chosen
+        ]
+        for future in concurrent.futures.as_completed(futures):
+            result = future.result()
+            results.append(result)
+            print(f'ORS chapter {result["chapterNumber"]}: {"ok" if result["ok"] else "FAILED"}', flush=True)
+
+    results.sort(key=lambda item: item["chapterSortKey"])
+    failures = [item for item in results if not item["ok"]]
+    report.update({
+        "requestedChapterCount": len(chosen),
+        "acquiredChapterCount": sum(1 for item in results if item["ok"]),
+        "valid": not failures and len(results) == len(chosen),
+        "chapters": results,
+        "failures": failures,
+    })
+    Path(args.report).write_text(json.dumps(report, indent=2) + "\n")
+    print(json.dumps({
+        "valid": report["valid"],
+        "editionYear": edition_year,
+        "discoveredChapterCount": len(chapters),
+        "requestedChapterCount": len(chosen),
+        "acquiredChapterCount": report["acquiredChapterCount"],
+        "failureCount": len(failures),
+    }, indent=2))
+    return 0 if report["valid"] else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
