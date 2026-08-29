@@ -216,6 +216,12 @@ jobs:
           jq -r '.integrityViolations[] | "  violation: \(.)"' ors-parse.json | head -20
           echo "Foreign anchors (bolded citations to other chapters): $(jq -r '.foreignAnchorCount' ors-parse.json)"
           jq -r '.foreignAnchors[] | "  ch \(.chapterNumber): \(.anchors | join(", "))"' ors-parse.json | head -10
+          if [ "$(jq -r '.editionDiagnostics | length' ors-parse.json)" != "0" ]; then
+            echo "Edition banner not found. What the parser sees:"
+            jq -r '.editionDiagnostics[0] | "  chapter \(.chapterNumber), \(.lineCount) lines",
+              "  year-like lines: \(.yearLikeLines | join(" | "))",
+              (.editionMentions[] | "  EDITION context: prev=\(.previous // "-") | line=\(.line) | next=\(.next // "-")"),
+              "  first lines: \(.sampleLines[0:12] | join(" | "))"' ors-parse.json
 
       # The real gate. It runs last so the diagnostic steps above have already
       # printed their evidence into the log even on a failing run.

@@ -59,6 +59,11 @@ CHAPTER_HEADING_PATTERN = re.compile(
     r"^(?P<number>\d{1,3}[A-Z]?)\s*[–—-]\s*(?P<name>\S.*)$"
 )
 EDITION_YEAR_PATTERN = re.compile(r"^((?:19|20)\d{2})$")
+# The banner is printed as a year line above an EDITION line, but a layout
+# that keeps them on one line must read the same.
+EDITION_BANNER_PATTERN = re.compile(r"^((?:19|20)\d{2})\s+EDITION\b", re.IGNORECASE)
+# Any bare year line, used only to explain a failure to find the banner.
+BARE_YEAR_PATTERN = re.compile(r"\b((?:19|20)\d{2})\b")
 
 # Centred headings dividing a chapter carry no section number. They appear as
 # an all-capitals run or as a parenthesized phrase.
@@ -225,6 +230,9 @@ def parse_edition_year(lines):
     fixed head window.
     """
     for index, (line, _, _) in enumerate(lines):
+        banner = EDITION_BANNER_PATTERN.match(line)
+        if banner is not None:
+            return int(banner.group(1))
         match = EDITION_YEAR_PATTERN.match(line)
         if match is None:
             continue
@@ -232,6 +240,35 @@ def parse_edition_year(lines):
         if following.upper().startswith("EDITION"):
             return int(match.group(1))
     return None
+
+
+def edition_diagnostics(lines):
+    """Explain a failure to find the edition banner.
+
+    Reports every line naming the word EDITION together with its neighbours,
+    and a bounded sample of the document's opening lines. A missing banner
+    stops every row for a chapter, so the reason has to be legible from the
+    report rather than inferred.
+    """
+    mentions = []
+    for index, (line, _, _) in enumerate(lines):
+        if "EDITION" not in line.upper():
+            continue
+        mentions.append({
+            "previous": lines[index - 1][0][:120] if index else None,
+            "line": line[:120],
+            "next": lines[index + 1][0][:120] if index + 1 < len(lines) else None,
+        })
+        if len(mentions) >= 10:
+            break
+    return {
+        "lineCount": len(lines),
+        "editionMentions": mentions,
+        "yearLikeLines": [
+            line[:120] for line, _, _ in lines if BARE_YEAR_PATTERN.fullmatch(line)
+        ][:10],
+        "sampleLines": [line[:120] for line, _, _ in lines[:30]],
+    }
 
 
 def is_subdivision_heading(line):
@@ -354,6 +391,7 @@ def parse_chapter(markup, chapter_number):
         "printedChapterNumber": printed_number,
         "chapterName": chapter_name,
         "editionYear": edition_year,
+        "editionDiagnostics": None if edition_year else edition_diagnostics(lines),
         "normalizedCharCount": len(text),
         "boldRunCount": len(bold_spans),
         "sections": sections,
@@ -570,6 +608,14 @@ def main(argv=None):
         # failure, since they are not this chapter's rows.
         "foreignAnchorCount": sum(len(item["anchors"]) for item in foreign),
         "foreignAnchors": foreign,
+        "editionDiagnostics": [
+            {
+                "chapterNumber": record["chapterNumber"],
+                **record["parsed"]["editionDiagnostics"],
+            }
+            for record in records
+            if record["parsed"]["editionDiagnostics"] is not None
+        ][:3],
         "problems": rows["problems"],
         "integrityViolations": violations,
         "unreadable": unreadable,

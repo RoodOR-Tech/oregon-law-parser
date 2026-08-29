@@ -104,6 +104,57 @@ class ForeignAnchorTest(unittest.TestCase):
         self.assertEqual(result["problems"], [])
 
 
+class EditionBannerTest(unittest.TestCase):
+    def test_both_printed_banner_layouts_are_read(self):
+        two_line = "<p>2025</p><p>EDITION</p><p><b>161.005 Short title.</b> Text.</p>"
+        one_line = "<p>2025 EDITION</p><p><b>161.005 Short title.</b> Text.</p>"
+        self.assertEqual(parser.parse_chapter(two_line, "161")["editionYear"], 2025)
+        self.assertEqual(parser.parse_chapter(one_line, "161")["editionYear"], 2025)
+
+    def test_a_year_in_running_text_is_not_a_banner(self):
+        markup = (
+            "<p>ORS sections in this chapter were amended during its 2026 regular"
+            " session.</p><p><b>161.005 Short title.</b> Text.</p>"
+        )
+        self.assertIsNone(parser.parse_chapter(markup, "161")["editionYear"])
+
+    def test_a_missing_banner_explains_itself(self):
+        # A missing banner stops every row for the chapter, so the reason has
+        # to be legible from the report rather than inferred from an absence.
+        markup = (
+            "<p>Oregon Revised Statutes</p><p>Chapter</p>"
+            "<p>161 &#8212; General Provisions</p>"
+            "<p><b>161.005 Short title.</b> Text.</p>"
+        )
+        result = parser.parse_chapter(markup, "161")
+        diagnostics = result["editionDiagnostics"]
+        self.assertIsNotNone(diagnostics)
+        self.assertGreater(diagnostics["lineCount"], 0)
+        self.assertIn("Oregon Revised Statutes", diagnostics["sampleLines"])
+        self.assertEqual(diagnostics["editionMentions"], [])
+
+    def test_a_found_banner_leaves_no_diagnostics(self):
+        markup = "<p>2025</p><p>EDITION</p><p><b>161.005 Short title.</b> Text.</p>"
+        self.assertIsNone(parser.parse_chapter(markup, "161")["editionDiagnostics"])
+
+    def test_an_edition_mention_is_reported_with_its_neighbours(self):
+        markup = (
+            "<p>Prior line</p><p>2025 EDITION OF SOMETHING ELSE ENTIRELY HERE</p>"
+            "<p>Next line</p><p><b>161.005 Short title.</b> Text.</p>"
+        )
+        result = parser.parse_chapter(markup, "161")
+        # This banner form does match, so no diagnostics; the mention capture
+        # is exercised where the word appears without a usable year.
+        markup = (
+            "<p>Prior line</p><p>SPECIAL EDITION</p><p>Next line</p>"
+            "<p><b>161.005 Short title.</b> Text.</p>"
+        )
+        diagnostics = parser.parse_chapter(markup, "161")["editionDiagnostics"]
+        self.assertEqual(diagnostics["editionMentions"][0]["line"], "SPECIAL EDITION")
+        self.assertEqual(diagnostics["editionMentions"][0]["previous"], "Prior line")
+        self.assertEqual(diagnostics["editionMentions"][0]["next"], "Next line")
+
+
 class SegmentationTest(unittest.TestCase):
     def setUp(self):
         self.result = parsed_fixture()
