@@ -97,6 +97,22 @@ python3 ors/tools/acquire_ors_chapters.py \
   --report ors-acquisition.json
 ```
 
+Isolate a failure by skipping the index and constructing URLs from explicitly
+named chapters:
+
+```bash
+python3 ors/tools/acquire_ors_chapters.py \
+  --without-index \
+  --chapters-file ors/sample/chapters.json \
+  --output-dir ors-sources \
+  --report ors-acquisition.json
+```
+
+Naming a chapter is not the same as synthesizing a roster — the roster is what
+must never be guessed. Such a run is marked `rosterVerified: false` and
+`chapterUrlSource: "constructed"`, and exists to tell a discovery failure apart
+from a chapter-URL failure. It must not be treated as a complete edition.
+
 Fingerprint what was acquired:
 
 ```bash

@@ -57,22 +57,38 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      # Discovery and acquisition are diagnosed independently, and the gate on
+      # discovery runs last. A discovery failure and a chapter-URL failure have
+      # different causes and different fixes, so one run should distinguish
+      # them rather than stopping at whichever fails first.
       - name: Discover the published chapter roster
+        id: discover
+        continue-on-error: true
         run: |
-          set -euo pipefail
+          set -uo pipefail
           python3 ors/tools/acquire_ors_chapters.py \
             --index-only \
             --report ors-chapter-index.json
-          jq -e '.valid == true and .schemaVersion == 1 and .discoveredChapterCount > 0' ors-chapter-index.json >/dev/null
 
       - name: Print the discovered edition and chapter roster
+        if: always()
         run: |
-          set -euo pipefail
-          echo "Edition year: $(jq -r '.editionYear' ors-chapter-index.json)"
-          echo "Index SHA-256: $(jq -r '.indexSha256' ors-chapter-index.json)"
-          echo "Chapters discovered: $(jq -r '.discoveredChapterCount' ors-chapter-index.json)"
-          echo "Roster:"
-          jq -r '[.chapters[].chapterNumber] | join(" ")' ors-chapter-index.json
+          set -uo pipefail
+          if [ ! -f ors-chapter-index.json ]; then
+            echo "No index report was written."
+            exit 0
+          fi
+          echo "Valid: $(jq -r '.valid' ors-chapter-index.json)"
+          echo "Edition year: $(jq -r '.editionYear // "unknown"' ors-chapter-index.json)"
+          echo "Index SHA-256: $(jq -r '.indexSha256 // "none"' ors-chapter-index.json)"
+          echo "Chapters discovered: $(jq -r '.discoveredChapterCount // 0' ors-chapter-index.json)"
+          if [ "$(jq -r '.valid' ors-chapter-index.json)" = "true" ]; then
+            echo "Roster:"
+            jq -r '[.chapters[].chapterNumber] | join(" ")' ors-chapter-index.json
+          else
+            echo "Index diagnostics:"
+            jq '.indexDiagnostics' ors-chapter-index.json
+          fi
 
       # Routine runs acquire only the fixed development sample in
       # ors/sample/chapters.json, so a cycle stays to a handful of requests.
@@ -102,18 +118,45 @@ jobs:
               --report ors-acquisition.json
           fi
           jq -e '.valid == true and ([.chapters[] | select(.ok) | .sha256] | all(test("^[0-9a-f]{64}$")))' ors-acquisition.json >/dev/null
+        # Acquisition normally reads chapter URLs from the roster. When
+        # discovery failed there is no roster, so fall back to constructing
+        # URLs from the explicitly named sample. That run is marked
+        # rosterVerified false and only exists to isolate the failure.
+        if: steps.discover.outcome == 'success'
 
-      - name: Probe chapter structure
+      - name: Acquire sample chapters without the index
+        if: steps.discover.outcome != 'success'
+        continue-on-error: true
         run: |
           set -euo pipefail
+          python3 ors/tools/acquire_ors_chapters.py \
+            --without-index \
+            --chapters-file ors/sample/chapters.json \
+            --output-dir ors-sources \
+            --report ors-acquisition.json
+          jq -e '([.chapters[] | select(.ok) | .sha256] | all(test("^[0-9a-f]{64}$")))' ors-acquisition.json >/dev/null
+
+      - name: Probe chapter structure
+        if: always()
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          if [ ! -f ors-acquisition.json ]; then
+            echo "No acquisition report to probe."
+            exit 1
+          fi
           python3 ors/tools/probe_ors_structure.py \
             --acquisition-report ors-acquisition.json \
             --report ors-structure-probe.json
-          jq -e '.valid == true and .probedChapterCount > 0' ors-structure-probe.json >/dev/null
 
       - name: Print the structural fingerprint
+        if: always()
         run: |
-          set -euo pipefail
+          set -uo pipefail
+          if [ ! -f ors-structure-probe.json ]; then
+            echo "No structure probe report was written."
+            exit 0
+          fi
           jq '{
             probedChapterCount,
             chapters: [.chapters[] | {
@@ -127,6 +170,16 @@ jobs:
               sampleLines: .sampleLines[0:25]
             }]
           }' ors-structure-probe.json
+
+      # The real gate. It runs last so the diagnostic steps above have already
+      # printed their evidence into the log even on a failing run.
+      - name: Gate on chapter discovery, acquisition and probe
+        if: always()
+        run: |
+          set -euo pipefail
+          jq -e '.valid == true and .schemaVersion == 1 and .discoveredChapterCount > 0' ors-chapter-index.json >/dev/null
+          jq -e '.valid == true and ([.chapters[] | select(.ok) | .sha256] | all(test("^[0-9a-f]{64}$")))' ors-acquisition.json >/dev/null
+          jq -e '.valid == true and .probedChapterCount > 0' ors-structure-probe.json >/dev/null
 
       - name: Upload ORS pipeline reports
         if: always()

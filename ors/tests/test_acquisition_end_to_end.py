@@ -144,6 +144,60 @@ class AcquisitionEndToEndTest(unittest.TestCase):
             # A 404 is an answer, so it must not consume the retry budget.
             self.assertEqual(failure["attempts"], 1)
 
+    def test_without_index_constructs_urls_from_explicitly_named_chapters(self):
+        # Naming a chapter is not the same as synthesizing a roster, so the run
+        # is usable but must declare that its roster was never verified.
+        original = acquire.CHAPTER_URL_TEMPLATE
+        acquire.CHAPTER_URL_TEMPLATE = (
+            self.base_url + "/bills_laws/ors/ors{chapter_file}.html"
+        )
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                report_path = root / "acquisition.json"
+                exit_code = acquire.main([
+                    "--without-index",
+                    "--chapters", "1,161",
+                    "--output-dir", str(root / "sources"),
+                    "--report", str(report_path),
+                    "--retries", "1",
+                ])
+                self.assertEqual(exit_code, 0)
+                report = json.loads(report_path.read_text())
+                self.assertTrue(report["valid"])
+                self.assertFalse(report["rosterVerified"])
+                self.assertEqual(report["indexSource"], "skipped")
+                self.assertEqual(report["chapterUrlSource"], "constructed")
+                self.assertIsNone(report["discoveredChapterCount"])
+                self.assertEqual(report["acquiredChapterCount"], 2)
+        finally:
+            acquire.CHAPTER_URL_TEMPLATE = original
+
+    def test_an_index_backed_run_declares_its_roster_verified(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = root / "acquisition.json"
+            acquire.main([
+                "--index-url", self.index_url,
+                "--chapters", "1",
+                "--output-dir", str(root / "sources"),
+                "--report", str(report_path),
+                "--retries", "1",
+            ])
+            report = json.loads(report_path.read_text())
+            self.assertTrue(report["rosterVerified"])
+            self.assertEqual(report["chapterUrlSource"], "index")
+
+    def test_without_index_requires_an_explicit_chapter_list(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with self.assertRaises(SystemExit):
+                acquire.main([
+                    "--without-index",
+                    "--output-dir", str(root / "sources"),
+                    "--report", str(root / "acquisition.json"),
+                ])
+
     def test_acquisition_output_feeds_the_structure_probe(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

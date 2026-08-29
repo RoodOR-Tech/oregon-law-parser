@@ -22,6 +22,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -31,9 +32,11 @@ USER_AGENT = "oregon-law-parser-ors-table/1"
 
 # Chapter documents are published as ors<NNN>[<letter>].html, for example
 # ors001.html and ors279A.html. The letter suffix is part of the chapter
-# number, not a version marker, so it is preserved.
+# number, not a version marker, so it is preserved. The directory segment is
+# deliberately not required: the roster is identified by the document filename
+# so a reorganized path does not silently yield an empty roster.
 CHAPTER_HREF_PATTERN = re.compile(
-    r"""ors/ors(?P<digits>\d{1,3})(?P<letter>[A-Za-z]?)\.html""",
+    r"""(?:^|/)ors_?(?P<digits>\d{1,3})(?P<letter>[A-Za-z]?)\.html?$""",
     re.IGNORECASE,
 )
 HREF_PATTERN = re.compile(r"""href\s*=\s*["']([^"']+)["']""", re.IGNORECASE)
@@ -81,7 +84,7 @@ def parse_chapter_index(index_html, index_url):
     seen = {}
     for raw_href in HREF_PATTERN.findall(index_html):
         href = html.unescape(raw_href).strip()
-        match = CHAPTER_HREF_PATTERN.search(href)
+        match = CHAPTER_HREF_PATTERN.search(urllib.parse.urlsplit(href).path)
         if match is None:
             continue
         number = normalize_chapter_number(match.group("digits"), match.group("letter"))
@@ -94,6 +97,35 @@ def parse_chapter_index(index_html, index_url):
             "discoveredHref": href,
         }
     return sorted(seen.values(), key=lambda item: item["chapterSortKey"])
+
+
+def index_diagnostics(index_html):
+    """Describe an index page that produced no chapter roster.
+
+    An empty roster is not self-explanatory: the page may have moved, been
+    replaced by a redirect notice, or be rendering its links from script. This
+    records enough of what was actually served to tell those cases apart,
+    without dumping the page.
+    """
+    title = re.search(r"<title[^>]*>(.*?)</title>", index_html, re.IGNORECASE | re.DOTALL)
+    hrefs = [html.unescape(href).strip() for href in HREF_PATTERN.findall(index_html)]
+    prefixes = Counter()
+    for href in hrefs:
+        path = urllib.parse.urlsplit(href).path
+        segments = [segment for segment in path.split("/") if segment]
+        prefixes["/".join(segments[:2]) or "(root)"] += 1
+    html_links = [href for href in hrefs if urllib.parse.urlsplit(href).path.lower().endswith((".html", ".htm"))]
+    return {
+        "pageTitle": " ".join(title.group(1).split()) if title else None,
+        "anchorCount": len(re.findall(r"<\s*a\b", index_html, re.IGNORECASE)),
+        "scriptCount": len(re.findall(r"<\s*script\b", index_html, re.IGNORECASE)),
+        "hrefCount": len(hrefs),
+        "hrefPathPrefixHistogram": [
+            {"prefix": prefix, "count": count} for prefix, count in prefixes.most_common(20)
+        ],
+        "sampleHrefs": sorted(set(hrefs))[:40],
+        "sampleHtmlHrefs": sorted(set(html_links))[:40],
+    }
 
 
 def detect_edition_year(index_html):
@@ -228,6 +260,15 @@ def main(argv=None):
     parser.add_argument("--index-url", default=DEFAULT_INDEX_URL)
     parser.add_argument("--index-file", help="read the index page from disk instead of the network")
     parser.add_argument("--index-only", action="store_true", help="discover chapters, download none")
+    parser.add_argument(
+        "--without-index",
+        action="store_true",
+        help=(
+            "skip the index page and build URLs from the chapters named on the command "
+            "line. Naming a chapter explicitly is not the same as synthesizing a roster: "
+            "the run is marked rosterVerified false and must not be treated as complete."
+        ),
+    )
     parser.add_argument("--chapters", help="comma-separated chapter numbers, e.g. 1,161,279A")
     parser.add_argument(
         "--chapters-file",
@@ -243,6 +284,11 @@ def main(argv=None):
 
     if args.chapters and args.chapters_file:
         parser.error("--chapters and --chapters-file are mutually exclusive")
+    if args.without_index:
+        if args.index_only:
+            parser.error("--without-index and --index-only are mutually exclusive")
+        if not (args.chapters or args.chapters_file):
+            parser.error("--without-index requires --chapters or --chapters-file")
     if not args.index_only and not args.output_dir:
         parser.error("--output-dir is required unless --index-only is given")
     if not 1 <= args.workers <= 16:
@@ -256,6 +302,37 @@ def main(argv=None):
         "indexUrl": args.index_url,
         "retrievedAt": utc_now(),
     }
+
+    if args.without_index:
+        try:
+            if args.chapters_file:
+                requested = read_chapter_selection_file(args.chapters_file)
+            else:
+                requested = [part for part in args.chapters.split(",") if part.strip()]
+            chapters = []
+            for raw in requested:
+                match = CHAPTER_ARGUMENT_PATTERN.match(raw.strip())
+                if match is None:
+                    raise ValueError(f"invalid chapter number: {raw}")
+                number = normalize_chapter_number(match.group("digits"), match.group("letter"))
+                chapters.append({
+                    "chapterNumber": number,
+                    "chapterSortKey": chapter_sort_key(number),
+                    "sourceUrl": chapter_url(number),
+                })
+        except (ValueError, OSError, json.JSONDecodeError) as exc:
+            report.update({"valid": False, "error": str(exc), "chapters": []})
+            Path(args.report).write_text(json.dumps(report, indent=2) + "\n")
+            print(json.dumps({"valid": False, "error": str(exc)}, indent=2))
+            return 1
+        report.update({
+            "indexSource": "skipped",
+            "rosterVerified": False,
+            "editionYear": None,
+            "editionId": None,
+            "discoveredChapterCount": None,
+        })
+        return acquire_chapters(args, report, sorted(chapters, key=lambda c: c["chapterSortKey"]))
 
     if args.index_file:
         index_bytes = Path(args.index_file).read_bytes()
@@ -287,13 +364,21 @@ def main(argv=None):
     })
 
     if not chapters:
+        diagnostics = index_diagnostics(index_html)
         report.update({
             "valid": False,
             "error": "no chapter links matched the published index page",
+            "indexDiagnostics": diagnostics,
             "chapters": [],
         })
         Path(args.report).write_text(json.dumps(report, indent=2) + "\n")
-        print(json.dumps({"valid": False, "error": report["error"]}, indent=2))
+        print(json.dumps({
+            "valid": False,
+            "error": report["error"],
+            "indexHttpStatus": report.get("indexHttpStatus"),
+            "indexBytes": report["indexBytes"],
+            "indexDiagnostics": diagnostics,
+        }, indent=2))
         return 1
 
     if args.index_only:
@@ -320,6 +405,12 @@ def main(argv=None):
         print(json.dumps({"valid": False, "error": str(exc)}, indent=2))
         return 1
 
+    report["rosterVerified"] = True
+    return acquire_chapters(args, report, chosen)
+
+
+def acquire_chapters(args, report, chosen):
+    """Download the chosen chapters and finish the acquisition report."""
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -338,6 +429,7 @@ def main(argv=None):
     failures = [item for item in results if not item["ok"]]
     report.update({
         "chapterSelectionSource": args.chapters_file or ("--chapters" if args.chapters else "whole-edition"),
+        "chapterUrlSource": "index" if report.get("rosterVerified") else "constructed",
         "requestedChapterCount": len(chosen),
         "acquiredChapterCount": sum(1 for item in results if item["ok"]),
         "valid": not failures and len(results) == len(chosen),
@@ -347,8 +439,9 @@ def main(argv=None):
     Path(args.report).write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps({
         "valid": report["valid"],
-        "editionYear": edition_year,
-        "discoveredChapterCount": len(chapters),
+        "rosterVerified": report.get("rosterVerified", False),
+        "editionYear": report.get("editionYear"),
+        "discoveredChapterCount": report.get("discoveredChapterCount"),
         "requestedChapterCount": len(chosen),
         "acquiredChapterCount": report["acquiredChapterCount"],
         "failureCount": len(failures),

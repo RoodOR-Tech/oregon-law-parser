@@ -96,6 +96,85 @@ class ParseChapterIndexTest(unittest.TestCase):
         self.assertEqual(acquire.parse_chapter_index("<html></html>", acquire.DEFAULT_INDEX_URL), [])
 
 
+class ChapterHrefToleranceTest(unittest.TestCase):
+    def test_chapter_documents_are_matched_by_filename_not_by_directory(self):
+        markup = (
+            '<a href="/statutes/ors161.html">161</a>'
+            '<a href="/bills_laws/ors/ors090.html">90</a>'
+        )
+        chapters = acquire.parse_chapter_index(markup, acquire.DEFAULT_INDEX_URL)
+        self.assertEqual([item["chapterNumber"] for item in chapters], ["90", "161"])
+
+    def test_query_strings_and_fragments_do_not_defeat_matching(self):
+        markup = '<a href="/bills_laws/ors/ors161.html?ver=2#top">161</a>'
+        chapters = acquire.parse_chapter_index(markup, acquire.DEFAULT_INDEX_URL)
+        self.assertEqual([item["chapterNumber"] for item in chapters], ["161"])
+
+    def test_an_underscored_variant_is_matched(self):
+        markup = '<a href="/bills_laws/ors/ors_161.html">161</a>'
+        chapters = acquire.parse_chapter_index(markup, acquire.DEFAULT_INDEX_URL)
+        self.assertEqual([item["chapterNumber"] for item in chapters], ["161"])
+
+    def test_a_session_law_document_is_not_mistaken_for_a_chapter(self):
+        markup = (
+            '<a href="/bills_laws/lawsstatutes/2007orLaw0064.html">law</a>'
+            '<a href="/bills_laws/ors/2023.pdf">range reference</a>'
+            '<a href="/bills_laws/pages/ors.aspx">index</a>'
+        )
+        self.assertEqual(acquire.parse_chapter_index(markup, acquire.DEFAULT_INDEX_URL), [])
+
+
+class IndexDiagnosticsTest(unittest.TestCase):
+    """An empty roster must explain what was actually served."""
+
+    def test_reports_the_page_title_and_link_shape(self):
+        markup = (
+            "<html><head><title>  Bills and Laws  </title></head><body>"
+            '<script>var x=1;</script>'
+            '<a href="/bills_laws/pages/ors.aspx">ORS</a>'
+            '<a href="/lc/ORSupdate/Volume01.pdf">Volume 1</a>'
+            "</body></html>"
+        )
+        diagnostics = acquire.index_diagnostics(markup)
+        self.assertEqual(diagnostics["pageTitle"], "Bills and Laws")
+        self.assertEqual(diagnostics["anchorCount"], 2)
+        self.assertEqual(diagnostics["scriptCount"], 1)
+        self.assertEqual(diagnostics["hrefCount"], 2)
+        self.assertIn("/bills_laws/pages/ors.aspx", diagnostics["sampleHrefs"])
+
+    def test_groups_hrefs_by_path_prefix_so_the_real_layout_is_visible(self):
+        markup = (
+            '<a href="/bills_laws/ors/ors001.html">1</a>'
+            '<a href="/bills_laws/ors/ors090.html">90</a>'
+            '<a href="/lc/ORSupdate/Volume01.pdf">v1</a>'
+        )
+        prefixes = {
+            entry["prefix"]: entry["count"]
+            for entry in acquire.index_diagnostics(markup)["hrefPathPrefixHistogram"]
+        }
+        self.assertEqual(prefixes["bills_laws/ors"], 2)
+        self.assertEqual(prefixes["lc/ORSupdate"], 1)
+
+    def test_the_failing_run_attaches_diagnostics_to_the_report(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            index_file = root / "index.html"
+            index_file.write_text(
+                "<html><head><title>Maintenance</title></head><body>"
+                '<a href="/bills_laws/pages/home.aspx">home</a></body></html>'
+            )
+            report_path = root / "report.json"
+            exit_code = acquire.main([
+                "--index-only",
+                "--index-file", str(index_file),
+                "--report", str(report_path),
+            ])
+            self.assertEqual(exit_code, 1)
+            report = json.loads(report_path.read_text())
+            self.assertEqual(report["indexDiagnostics"]["pageTitle"], "Maintenance")
+            self.assertEqual(report["indexDiagnostics"]["hrefCount"], 1)
+
+
 class EditionYearTest(unittest.TestCase):
     def test_reads_the_advertised_edition_year(self):
         self.assertEqual(acquire.detect_edition_year(SYNTHETIC_INDEX), 2025)
