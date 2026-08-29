@@ -1,7 +1,8 @@
 module StringOps(cleanUp, firstMatch, join, fixHyphenation, fixWhitespace) where
 
 import Control.Arrow.Unicode ( (⋙) )
-import Data.List             (foldl', isSuffixOf)
+import Data.Char             (isAlpha, toLower)
+import Data.List             (isSuffixOf)
 import Data.String.Utils     (replace, split)
 import Text.Regex.TDFA       ( (=~) )
 
@@ -24,10 +25,13 @@ fixWhitespace = replace "\n" " " ⋙ replace "\r" " " ⋙ replace "\t" " "
 -- an actual line boundary. For parser-critical vocabulary, remove the inserted
 -- hyphen; for every other word, preserve the hyphen while removing the line
 -- break so a legitimate hard hyphen is never silently destroyed.
+--
+-- This is deliberately a single pass. The earlier implementation enumerated
+-- every possible split of every parser-critical word and repeatedly scanned the
+-- complete document for each form. That was correct on small fixtures but made
+-- large session laws exceed the operational parser timeout.
 fixHyphenation ∷ String → String
-fixHyphenation =
-  repairKnownLineBreakWords
-  ⋙ preserveUnknownLineBreakHyphens
+fixHyphenation = repairLineBreakHyphens
 
 
 parserCriticalWords ∷ [String]
@@ -53,36 +57,35 @@ parserCriticalWords =
   ]
 
 
-repairKnownLineBreakWords ∷ String → String
-repairKnownLineBreakWords input =
-  foldl' (flip repairWord) input parserCriticalWords
-
-
-repairWord ∷ String → String → String
-repairWord word input =
-  foldl' repairAt input [1 .. length word - 1]
+repairLineBreakHyphens ∷ String → String
+repairLineBreakHyphens = reverse ⋙ go []
   where
-    repairAt text index =
-      let (left, right) = splitAt index word
-          brokenForms =
-            [ left ++ "-\n" ++ right
-            , left ++ "-\r\n" ++ right
-            , left ++ "-\r" ++ right
-            , left ++ "- \n" ++ right
-            , left ++ "- \r\n" ++ right
-            , left ++ "- \r" ++ right
-            ]
-      in foldl' (\result broken -> replace broken word result) text brokenForms
+    -- Work from left to right while keeping the emitted prefix reversed. When a
+    -- hyphen is immediately followed by an extraction line break, inspect the
+    -- alphabetic fragments on each side without rescanning the full document.
+    go acc [] = acc
+    go acc ('-':rest) =
+      case consumeLineBreak rest of
+        Nothing -> go ('-':acc) rest
+        Just afterBreak ->
+          let (rightWord, remainder) = span isAlpha afterBreak
+              (leftReversed, _) = span isAlpha acc
+              combined = map toLower (reverse leftReversed ++ rightWord)
+              emitted
+                | combined `elem` parserCriticalWords = reverse rightWord ++ acc
+                | otherwise = reverse rightWord ++ ('-':acc)
+          in go emitted remainder
+    go acc (c:rest) = go (c:acc) rest
 
 
-preserveUnknownLineBreakHyphens ∷ String → String
-preserveUnknownLineBreakHyphens =
-  replace "- \r\n" "-"
-  ⋙ replace "- \n" "-"
-  ⋙ replace "- \r" "-"
-  ⋙ replace "-\r\n" "-"
-  ⋙ replace "-\n" "-"
-  ⋙ replace "-\r" "-"
+consumeLineBreak ∷ String → Maybe String
+consumeLineBreak (' ':'\r':'\n':rest) = Just rest
+consumeLineBreak (' ':'\n':rest) = Just rest
+consumeLineBreak (' ':'\r':rest) = Just rest
+consumeLineBreak ('\r':'\n':rest) = Just rest
+consumeLineBreak ('\n':rest) = Just rest
+consumeLineBreak ('\r':rest) = Just rest
+consumeLineBreak _ = Nothing
 
 
 stripExtractionArtifacts ∷ String → String
