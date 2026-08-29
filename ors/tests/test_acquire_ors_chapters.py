@@ -140,7 +140,12 @@ class IndexDiagnosticsTest(unittest.TestCase):
         self.assertEqual(diagnostics["anchorCount"], 2)
         self.assertEqual(diagnostics["scriptCount"], 1)
         self.assertEqual(diagnostics["hrefCount"], 2)
-        self.assertIn("/bills_laws/pages/ors.aspx", diagnostics["sampleHrefs"])
+        samples = [
+            href
+            for entry in diagnostics["hrefPathPrefixHistogram"]
+            for href in entry["samples"]
+        ]
+        self.assertIn("/bills_laws/pages/ors.aspx", samples)
 
     def test_groups_hrefs_by_path_prefix_so_the_real_layout_is_visible(self):
         markup = (
@@ -148,12 +153,31 @@ class IndexDiagnosticsTest(unittest.TestCase):
             '<a href="/bills_laws/ors/ors090.html">90</a>'
             '<a href="/lc/ORSupdate/Volume01.pdf">v1</a>'
         )
-        prefixes = {
-            entry["prefix"]: entry["count"]
+        entries = {
+            entry["prefix"]: entry
             for entry in acquire.index_diagnostics(markup)["hrefPathPrefixHistogram"]
         }
-        self.assertEqual(prefixes["bills_laws/ors"], 2)
-        self.assertEqual(prefixes["lc/ORSupdate"], 1)
+        self.assertEqual(entries["bills_laws/ors"]["count"], 2)
+        self.assertEqual(entries["lc/ORSupdate"]["count"], 1)
+
+    def test_every_prefix_carries_its_own_samples_and_extensions(self):
+        # A single alphabetically sorted sample is dominated by whichever
+        # prefix sorts first. Per-prefix samples are what make a page with
+        # hundreds of links under one prefix legible.
+        markup = "".join(
+            f'<a href="/aaa/first/file{index:03d}.css">x</a>' for index in range(50)
+        ) + '<a href="/bills_laws/ors/ors161.html">161</a>'
+        entries = {
+            entry["prefix"]: entry
+            for entry in acquire.index_diagnostics(markup)["hrefPathPrefixHistogram"]
+        }
+        self.assertEqual(entries["bills_laws/ors"]["samples"], ["/bills_laws/ors/ors161.html"])
+        self.assertEqual(
+            entries["bills_laws/ors"]["extensions"], [{"extension": "html", "count": 1}]
+        )
+        # Samples per prefix are bounded so a large page stays readable.
+        self.assertLessEqual(len(entries["aaa/first"]["samples"]), 12)
+        self.assertEqual(entries["aaa/first"]["extensions"], [{"extension": "css", "count": 50}])
 
     def test_the_failing_run_attaches_diagnostics_to_the_report(self):
         with tempfile.TemporaryDirectory() as tmp:

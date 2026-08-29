@@ -180,8 +180,11 @@ jobs:
             jq -r '[.chapters[].chapterNumber] | join(" ")' ors-chapter-index.json
           else
             echo "Problems: $(jq -c '.problems' ors-chapter-index.json)"
-            echo "Index diagnostics:"
-            jq '.indexDiagnostics' ors-chapter-index.json
+            jq -r '.indexDiagnostics
+              | "title: \(.pageTitle)  anchors: \(.anchorCount)  scripts: \(.scriptCount)  hrefs: \(.hrefCount)"' \
+              ors-chapter-index.json
+            echo "Href path prefixes, with extensions and samples:"
+            jq '.indexDiagnostics.hrefPathPrefixHistogram' ors-chapter-index.json
           fi
 
       # The real gate. It runs last so the diagnostic steps above have already

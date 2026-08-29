@@ -114,17 +114,40 @@ def index_diagnostics(index_html):
         path = urllib.parse.urlsplit(href).path
         segments = [segment for segment in path.split("/") if segment]
         prefixes["/".join(segments[:2]) or "(root)"] += 1
-    html_links = [href for href in hrefs if urllib.parse.urlsplit(href).path.lower().endswith((".html", ".htm"))]
+    # Sample per prefix rather than alphabetically. A single sorted sample is
+    # dominated by whichever prefix sorts first, which is how a page carrying
+    # 115 links under one prefix produced a sample showing none of them.
+    by_prefix = {}
+    extensions_by_prefix = {}
+    for href in hrefs:
+        path = urllib.parse.urlsplit(href).path
+        segments = [segment for segment in path.split("/") if segment]
+        prefix = "/".join(segments[:2]) or "(root)"
+        bucket = by_prefix.setdefault(prefix, [])
+        if href not in bucket and len(bucket) < 12:
+            bucket.append(href)
+        basename = segments[-1] if segments else ""
+        extension = basename.rsplit(".", 1)[-1].lower() if "." in basename else "(none)"
+        extensions_by_prefix.setdefault(prefix, Counter())[extension] += 1
+
     return {
         "pageTitle": " ".join(title.group(1).split()) if title else None,
         "anchorCount": len(re.findall(r"<\s*a\b", index_html, re.IGNORECASE)),
         "scriptCount": len(re.findall(r"<\s*script\b", index_html, re.IGNORECASE)),
         "hrefCount": len(hrefs),
         "hrefPathPrefixHistogram": [
-            {"prefix": prefix, "count": count} for prefix, count in prefixes.most_common(20)
+            {
+                "prefix": prefix,
+                "count": count,
+                "extensions": [
+                    {"extension": extension, "count": extension_count}
+                    for extension, extension_count
+                    in extensions_by_prefix[prefix].most_common(6)
+                ],
+                "samples": by_prefix[prefix],
+            }
+            for prefix, count in prefixes.most_common(12)
         ],
-        "sampleHrefs": sorted(set(hrefs))[:40],
-        "sampleHtmlHrefs": sorted(set(html_links))[:40],
     }
 
 

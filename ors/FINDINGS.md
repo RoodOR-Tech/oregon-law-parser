@@ -129,10 +129,31 @@ output, and it tells us the published 2025 edition is already behind the 2026
 session. A future `ors_chapter_pending_change` table should capture it. It is
 recorded here rather than acted on now, so increment 2 stays scoped.
 
+## The index page
+
+The page at `/bills_laws/pages/ors.aspx` is served by SharePoint and is the
+right page — it returns `Bills and Laws Oregon Revised Statutes` with 415
+hrefs across 397 anchors. Its links are present in the served HTML, so this is
+not a page that builds its roster from script.
+
+The chapter links are there: the largest path-prefix group by far is
+`bills_laws/ors` with 115 hrefs, against 18 for `bills_laws/Pages` and 15 for
+`bills_laws/lawsstatutes`. None of the 115 matched `ors{NNN}.html`, and the
+matcher is verified correct for that form, so the published index links to
+chapter documents under some other naming.
+
+The first diagnostic sampled hrefs alphabetically, which showed none of them:
+the sample filled up with `/AssemSite_CSS/...`, `/SiteAssets/...` and
+`/_catalogs/...` before reaching `bills_laws/ors`. Sampling is now per prefix,
+with a file-extension histogram per prefix, so the next run shows what those
+115 links actually are.
+
+The page also links three Legislative Counsel documents worth noting for later
+increments: `ORS_TitlesChapters.pdf`, which is the published title-and-chapter
+roster and a natural cross-check on discovery; `ORS_Renum.pdf`, a renumbering
+table that bears on `ors_section.renumbered_to`; and `ORS_Preface.pdf`.
+
 ## Still unresolved
 
-The index page at `/bills_laws/pages/ors.aspx` yields no chapter roster. The
-chapter URL pattern is confirmed independently, so this is a discovery problem
-and not an acquisition problem. Diagnostics — page title, anchor and script
-counts, href path-prefix histogram and sample hrefs — are now printed
-immediately before the gate so the next run answers it.
+What the 115 `bills_laws/ors` links are. Acquisition is not blocked by this —
+the `ors{NNN}.html` pattern is confirmed to work — so this is discovery only.
