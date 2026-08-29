@@ -4,6 +4,7 @@ import hashlib
 import json
 import ssl
 import sys
+import time
 import urllib.request
 from pathlib import Path
 from urllib.parse import urlparse
@@ -37,12 +38,36 @@ def expected_format(fixture):
     return None
 
 
+def download_source(source_url, context, retries, timeout):
+    last_error = None
+    for attempt in range(1, retries + 1):
+        try:
+            request = urllib.request.Request(
+                source_url,
+                headers={"User-Agent": "oregon-law-parser-gold-corpus/1"},
+            )
+            with urllib.request.urlopen(request, context=context, timeout=timeout) as response:
+                return response.read(), attempt
+        except Exception as exc:
+            last_error = exc
+            if attempt < retries:
+                time.sleep(min(2 ** (attempt - 1), 8))
+    raise RuntimeError(f"failed after {retries} attempts: {last_error}")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--manifest", required=True)
     parser.add_argument("--repo-root", default=".")
     parser.add_argument("--report", required=True)
+    parser.add_argument("--retries", type=int, default=3)
+    parser.add_argument("--timeout", type=int, default=60)
     args = parser.parse_args()
+
+    if args.retries < 1:
+        parser.error("--retries must be at least 1")
+    if args.timeout < 1:
+        parser.error("--timeout must be at least 1")
 
     repo_root = Path(args.repo_root)
     manifest = json.loads(Path(args.manifest).read_text())
@@ -56,6 +81,7 @@ def main():
         expected_hash = item.get("sourceSha256")
         host = urlparse(source_url).hostname
         fixture_format = expected_format(fixture)
+        download_attempts = 0
 
         if host not in ALLOWED_HOSTS:
             errors.append(f'{item["id"]}: source host not allowlisted: {host!r}')
@@ -71,9 +97,12 @@ def main():
         else:
             fixture.parent.mkdir(parents=True, exist_ok=True)
             try:
-                request = urllib.request.Request(source_url, headers={"User-Agent": "oregon-law-parser-gold-corpus/1"})
-                with urllib.request.urlopen(request, context=context, timeout=60) as response:
-                    data = response.read()
+                data, download_attempts = download_source(
+                    source_url,
+                    context,
+                    args.retries,
+                    args.timeout,
+                )
             except Exception as exc:
                 errors.append(f'{item["id"]}: download failed: {exc}')
                 continue
@@ -105,6 +134,7 @@ def main():
             "status": status,
             "sha256": digest,
             "hashPinned": bool(expected_hash),
+            "downloadAttempts": download_attempts,
         })
 
     report = {
