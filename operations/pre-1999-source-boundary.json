@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Document the authoritative-source boundary for operational-scale validation before 1999 without converting an acquisition limitation into a parser pass.",
+  "validatedOperationalFloor": 1999,
+  "excludedSession": {
+    "year": 1997,
+    "status": "not-validated-source-unavailable-online",
+    "authoritativeRange": "Oregon Laws 1997 chapters 1-874",
+    "attemptedHead": "c0a6a60d3d478d992dbf409ea263c6efbc90ff2d",
+    "attemptedDocuments": 874,
+    "acquiredDocuments": 0,
+    "parsedDocuments": 0,
+    "sourceNotAcquired": 874,
+    "conflict": 0,
+    "parsedUnverified": 0,
+    "incomplete": 0,
+    "zeroChange": 0,
+    "malformedResult": 0,
+    "metadataMismatch": 0,
+    "provenanceMismatch": 0,
+    "acquisitionArtifact": {
+      "id": 9709914502,
+      "sha256": "98c43bbbb6051ea6ad6686ce00ad02f886fa06f9cd1a4a7450103b9d19093721"
+    },
+    "parserResultsArtifact": {
+      "id": 9709914714,
+      "sha256": "97877f8819251d7e40f115779dbe22031dfe404d160bfd5aedc8e7910443d3c6"
+    },
+    "operationalReportArtifact": {
+      "id": 9709914915,
+      "sha256": "a2a2a3f74c503c1539684bf8e4d172eca1a50126ac328d479210d039a5d31912"
+    },
+    "qualification": "The official online chapter-level Oregon Laws collection does not provide authoritative 1997 chapter documents or a machine-retrievable chapter-to-enrolled-bill mapping. Official enrolled measures alone do not establish final Oregon Laws chapter identity. This result is an acquisition/source-availability exclusion, not a parser failure and not a pass.",
+    "chapter790Note": "Chapter 790 remains explicitly represented in the historical boundary because the official 1997 compilation records it as contingent on voter approval and not compiled; it is not silently removed from the attempted range."
+  },
+  "policy": {
+    "frozen50CertificationCorpus": "unchanged",
+    "frozen25ValidationExpectations": "unchanged",
+    "priorOperationalGates": "unchanged",
+    "pre1999Disposition": "Do not claim operational certification for a pre-1999 session unless authoritative chapter identity and source bytes can be acquired with reproducible provenance. Record unavailable-source sessions as qualified exclusions rather than weakening hard gates.",
+    "reopenCondition": "A pre-1999 session may be operationally validated if an official Oregon chapter-to-bill index, chapter scan set, or equivalent authoritative archival source becomes reproducibly obtainable."
+  }
+}
