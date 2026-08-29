@@ -363,20 +363,34 @@ def main(argv=None):
         "discoveredChapterCount": len(chapters),
     })
 
+    # Both problems are collected before returning so one run reports
+    # everything wrong with the index rather than only the first fault.
+    problems = []
     if not chapters:
+        problems.append("no chapter links matched the published index page")
+    if edition_year is None:
+        # editionId is the primary key of ors_edition and the discriminator
+        # between editions in every other table. Discovering chapters without
+        # it would produce rows that cannot be filed against an edition, so a
+        # missing edition year is a failure, not a nullable field.
+        problems.append("the index page states no ORS edition year")
+
+    if problems:
         diagnostics = index_diagnostics(index_html)
         report.update({
             "valid": False,
-            "error": "no chapter links matched the published index page",
+            "error": "; ".join(problems),
+            "problems": problems,
             "indexDiagnostics": diagnostics,
-            "chapters": [],
+            "chapters": chapters,
         })
         Path(args.report).write_text(json.dumps(report, indent=2) + "\n")
         print(json.dumps({
             "valid": False,
-            "error": report["error"],
+            "problems": problems,
             "indexHttpStatus": report.get("indexHttpStatus"),
             "indexBytes": report["indexBytes"],
+            "discoveredChapterCount": len(chapters),
             "indexDiagnostics": diagnostics,
         }, indent=2))
         return 1

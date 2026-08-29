@@ -305,6 +305,47 @@ class IndexOnlyCliTest(unittest.TestCase):
             self.assertEqual(len(report["indexSha256"]), 64)
             self.assertEqual(report["indexBytes"], len(SYNTHETIC_INDEX.encode()))
 
+    def test_an_index_without_an_edition_year_is_a_structured_failure(self):
+        # editionId is the primary key of ors_edition, so discovering chapters
+        # without it would produce rows that cannot be filed against an edition.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            index_file = root / "index.html"
+            index_file.write_text(
+                '<html><head><title>Statutes</title></head><body>'
+                '<a href="/bills_laws/ors/ors161.html">161</a></body></html>'
+            )
+            report_path = root / "report.json"
+            exit_code = acquire.main([
+                "--index-only",
+                "--index-file", str(index_file),
+                "--report", str(report_path),
+            ])
+            self.assertEqual(exit_code, 1)
+            report = json.loads(report_path.read_text())
+            self.assertFalse(report["valid"])
+            self.assertIsNone(report["editionId"])
+            self.assertIn("states no ORS edition year", report["error"])
+            # The chapters that were found are still reported, so the failure
+            # is diagnosable rather than merely negative.
+            self.assertEqual(len(report["chapters"]), 1)
+
+    def test_both_index_problems_are_reported_from_a_single_run(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            index_file = root / "index.html"
+            index_file.write_text("<html><head><title>Down</title></head><body></body></html>")
+            report_path = root / "report.json"
+            exit_code = acquire.main([
+                "--index-only",
+                "--index-file", str(index_file),
+                "--report", str(report_path),
+            ])
+            self.assertEqual(exit_code, 1)
+            report = json.loads(report_path.read_text())
+            self.assertEqual(len(report["problems"]), 2)
+            self.assertIn("indexDiagnostics", report)
+
     def test_an_index_with_no_chapters_fails_loudly(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

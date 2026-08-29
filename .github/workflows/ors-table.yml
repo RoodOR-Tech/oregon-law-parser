@@ -70,26 +70,6 @@ jobs:
             --index-only \
             --report ors-chapter-index.json
 
-      - name: Print the discovered edition and chapter roster
-        if: always()
-        run: |
-          set -uo pipefail
-          if [ ! -f ors-chapter-index.json ]; then
-            echo "No index report was written."
-            exit 0
-          fi
-          echo "Valid: $(jq -r '.valid' ors-chapter-index.json)"
-          echo "Edition year: $(jq -r '.editionYear // "unknown"' ors-chapter-index.json)"
-          echo "Index SHA-256: $(jq -r '.indexSha256 // "none"' ors-chapter-index.json)"
-          echo "Chapters discovered: $(jq -r '.discoveredChapterCount // 0' ors-chapter-index.json)"
-          if [ "$(jq -r '.valid' ors-chapter-index.json)" = "true" ]; then
-            echo "Roster:"
-            jq -r '[.chapters[].chapterNumber] | join(" ")' ors-chapter-index.json
-          else
-            echo "Index diagnostics:"
-            jq '.indexDiagnostics' ors-chapter-index.json
-          fi
-
       # Routine runs acquire only the fixed development sample in
       # ors/sample/chapters.json, so a cycle stays to a handful of requests.
       # A whole-edition run is several hundred requests and is opt-in.
@@ -149,6 +129,8 @@ jobs:
             --acquisition-report ors-acquisition.json \
             --report ors-structure-probe.json
 
+      # Counters for every chapter, deep samples for one. The whole-chapter
+      # dump is what pushed the index diagnostics out of the readable tail.
       - name: Print the structural fingerprint
         if: always()
         run: |
@@ -157,19 +139,50 @@ jobs:
             echo "No structure probe report was written."
             exit 0
           fi
-          jq '{
-            probedChapterCount,
-            chapters: [.chapters[] | {
-              chapterNumber, sourceUrl, bytes,
-              visibleLineCount, sectionNumberMatches, distinctSectionNumbers,
-              sectionNumberLineCount, sectionAnchorLineCount, ambiguousSectionLineCount,
-              sourceCreditMatches, sessionCitationMatches, repealStubMatches,
-              tagHistogram: .tagHistogram[0:8],
-              classHistogram: .classHistogram[0:8],
-              sampleSectionAnchorLines, sampleAmbiguousSectionLines, sampleSourceCredits,
-              sampleLines: .sampleLines[0:25]
-            }]
+          echo "Per-chapter counters:"
+          jq -r '["chapter","enc","bytes","lines","sectNums","lineAnchors","boldAnchors","ambiguous","credits","stubs"],
+                 (.chapters[] | [
+                   .chapterNumber, .sourceEncoding, .bytes, .visibleLineCount,
+                   .distinctSectionNumbers, .sectionAnchorLineCount,
+                   .boldSectionAnchorCount, .ambiguousSectionLineCount,
+                   .sourceCreditMatches, .repealStubMatches
+                 ]) | @tsv' ors-structure-probe.json | column -t
+          echo
+          echo "Unreadable chapters:"
+          jq -c '.unreadable' ors-structure-probe.json
+          echo
+          echo "Deep sample (first chapter):"
+          jq '.chapters[0] | {
+            chapterNumber, sourceUrl, sourceEncoding, declaredCharset,
+            tagHistogram: .tagHistogram[0:6],
+            classHistogram: .classHistogram[0:6],
+            sampleBoldSectionAnchors, sampleAmbiguousSectionLines,
+            sampleSourceCredits: .sampleSourceCredits[0:5],
+            sampleLines: .sampleLines[0:20]
           }' ors-structure-probe.json
+
+      # Printed immediately before the gate so it stays in the readable tail
+      # of the log on a failing run.
+      - name: Print the discovered edition and chapter roster
+        if: always()
+        run: |
+          set -uo pipefail
+          if [ ! -f ors-chapter-index.json ]; then
+            echo "No index report was written."
+            exit 0
+          fi
+          echo "Valid: $(jq -r '.valid' ors-chapter-index.json)"
+          echo "Edition year: $(jq -r '.editionYear // "unknown"' ors-chapter-index.json)"
+          echo "Index SHA-256: $(jq -r '.indexSha256 // "none"' ors-chapter-index.json)"
+          echo "Chapters discovered: $(jq -r '.discoveredChapterCount // 0' ors-chapter-index.json)"
+          if [ "$(jq -r '.valid' ors-chapter-index.json)" = "true" ]; then
+            echo "Roster:"
+            jq -r '[.chapters[].chapterNumber] | join(" ")' ors-chapter-index.json
+          else
+            echo "Problems: $(jq -c '.problems' ors-chapter-index.json)"
+            echo "Index diagnostics:"
+            jq '.indexDiagnostics' ors-chapter-index.json
+          fi
 
       # The real gate. It runs last so the diagnostic steps above have already
       # printed their evidence into the log even on a failing run.

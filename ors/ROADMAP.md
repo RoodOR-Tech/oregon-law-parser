@@ -14,21 +14,27 @@ the previous one, not from assumptions.
 - Offline unit tests plus a loopback end-to-end acquisition test.
 - A CI workflow scoped to `ors/**`.
 
-**Exit evidence:** the CI run prints the real edition year, the full published
-chapter roster and a structural fingerprint of sample chapters. That output is
-the ground truth the parser is written against.
+**Exit evidence:** a CI run prints the edition year, the published chapter
+roster and a structural fingerprint of the sample chapters. The measurements
+taken so far are recorded in [FINDINGS.md](FINDINGS.md); chapter structure is
+settled, index discovery is not.
 
 ## Increment 2 — chapter parsing into `ors_section`
 
-Blocked on increment 1's probe output, deliberately. The published markup
-determines the segmentation rule, and the probe already shows the rule cannot be
-"a line starting with a section number" — wrapped citation lines such as
-`161.055, unless the context requires otherwise:` open that way too.
+The segmentation rule is now settled by measurement rather than assumption.
+Per [FINDINGS.md](FINDINGS.md): the sources are Windows-1252 Word HTML exports
+with no semantic markup; each chapter opens with a table of contents that
+repeats every section number; and the body headings are distinguished from
+that contents list by being bold. Segmentation anchors on bold runs, not on
+line position.
 
 - `tools/parse_ors_chapter.py` emitting `ors_chapter`, `ors_subdivision` and
   `ors_section` rows with character offsets.
 - Section status classification: `operative`, `repealed`, `renumbered`,
-  `reserved`, `note_only`.
+  `reserved`, `note_only`, driven by the four credit forms already observed:
+  plain enactment, `Repealed by`, `Amended by` and `Formerly`.
+- `chapter_name` and `edition_year` read from the chapter document itself,
+  which prints both, rather than only from the index.
 - Ambiguity is reported as a review queue, never silently resolved.
 
 ## Increment 3 — notes and source credits
@@ -54,13 +60,17 @@ determines the segmentation rule, and the probe already shows the rule cannot be
 - Thresholds set only after a first measurement, so they describe the parser
   rather than flatter it.
 
-## Increment 6 — edition-over-edition rebuild
+## Increment 6 — edition-over-edition rebuild and pending changes
 
 - Rebuild against a new edition without destroying the previous one.
 - Section-level diffing between adjacent editions.
 - Reconciliation of that diff against the amendment parser's output for the
   intervening sessions: an ORS section whose text changed should correspond to a
   session law the amendment parser reports as amending it.
+- An `ors_chapter_pending_change` table. Chapter documents print a notice
+  naming the session that has already changed them and the Oregon Laws
+  chapters involved — the published 2025 edition already advertises 2026
+  changes — which is a printed join to the amendment parser's output.
 
 ## Working method
 

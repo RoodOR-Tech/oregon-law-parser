@@ -18,6 +18,10 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from ors_text import decode_markup, declared_charset, normalize_spaces  # noqa: E402
+
 # Candidate ORS section number as printed: chapter number, optional letter,
 # a period, then exactly three digits. 279A.050 and 161.005 both match.
 SECTION_NUMBER_PATTERN = re.compile(r"\b(\d{1,3}[A-Z]?)\.(\d{3})\b")
@@ -28,7 +32,21 @@ SECTION_NUMBER_PATTERN = re.compile(r"\b(\d{1,3}[A-Z]?)\.(\d{3})\b")
 # stub. The probe measures both so the gap between them can be reviewed before a
 # segmentation rule is chosen.
 SECTION_LINE_PATTERN = re.compile(r"^\d{1,3}[A-Z]?\.\d{3}\b")
-SECTION_ANCHOR_PATTERN = re.compile(r"^\d{1,3}[A-Z]?\.\d{3}[ \t]+(?=[A-Z\[(])")
+# A section heading is a number followed by its catchline. An opening
+# parenthesis instead marks a wrapped citation to a subsection — "279A.050 (6)
+# may delegate authority" — so it is excluded rather than accepted.
+SECTION_CATCHLINE_PATTERN = re.compile(r"^\d{1,3}[A-Z]?\.\d{3}\s+(?=[A-Z])")
+# A section printed only as a stub opens with a bracketed disposition keyword.
+# A bracket followed by a year is a wrapped source credit, not a stub, so the
+# keyword is required.
+SECTION_STUB_PATTERN = re.compile(
+    r"^\d{1,3}[A-Z]?\.\d{3}\s+\[(?:Repealed|Renumbered|Amended|Formerly|Reserved)\b",
+    re.IGNORECASE,
+)
+# Word marks a body section's number and catchline in bold. The table of
+# contents at the head of each chapter repeats the same numbers unbolded, so
+# this is the strongest available separator between the two.
+BOLD_PATTERN = re.compile(r"<b\b[^>]*>(.*?)</b\s*>", re.IGNORECASE | re.DOTALL)
 # A printed source credit: [1971 c.743 s.1; 1973 c.836 s.339]
 SOURCE_CREDIT_PATTERN = re.compile(r"\[[^\[\]]{0,400}?\bc\.\s*\d+[^\[\]]{0,400}?\]")
 SESSION_CITE_PATTERN = re.compile(r"\b((?:18|19|20)\d{2})\s*c\.\s*(\d+)")
@@ -38,9 +56,21 @@ CLASS_PATTERN = re.compile(r"""class\s*=\s*["']([^"']+)["']""", re.IGNORECASE)
 SCRIPT_STYLE_PATTERN = re.compile(r"<(script|style)\b.*?</\1\s*>", re.IGNORECASE | re.DOTALL)
 TAG_STRIP_PATTERN = re.compile(r"<[^>]+>")
 
+# A real chapter document always prints section numbers belonging to its own
+# chapter. A 200-response maintenance, login or error page does not. Requiring
+# that signal keeps an outage page from being probed successfully and becoming
+# the supposed structural ground truth.
+MIN_IN_CHAPTER_SECTION_NUMBERS = 1
+
 MAX_SAMPLE_LINES = 60
 MAX_SAMPLE_LINE_CHARS = 160
 MAX_HISTOGRAM_ENTRIES = 25
+
+
+def page_title(markup):
+    """The document's title, recorded so an outage page is identifiable."""
+    match = re.search(r"<title[^>]*>(.*?)</title>", markup, re.IGNORECASE | re.DOTALL)
+    return " ".join(html.unescape(match.group(1)).split()) if match else None
 
 
 def visible_lines(markup):
@@ -48,8 +78,7 @@ def visible_lines(markup):
     text = SCRIPT_STYLE_PATTERN.sub(" ", markup)
     text = re.sub(r"<\s*(br|/p|/div|/tr|/li|/h[1-6])\s*/?>", "\n", text, flags=re.IGNORECASE)
     text = TAG_STRIP_PATTERN.sub("", text)
-    text = html.unescape(text)
-    text = text.replace(" ", " ")
+    text = normalize_spaces(html.unescape(text))
     lines = []
     for raw in text.split("\n"):
         line = " ".join(raw.split())
@@ -63,6 +92,21 @@ def histogram(counter, limit=MAX_HISTOGRAM_ENTRIES):
         {"value": value, "count": count}
         for value, count in counter.most_common(limit)
     ]
+
+
+def bold_texts(markup):
+    """The text of each bold run, flattened to a single line."""
+    texts = []
+    for raw in BOLD_PATTERN.findall(markup):
+        text = normalize_spaces(html.unescape(TAG_STRIP_PATTERN.sub("", raw)))
+        collapsed = " ".join(text.split())
+        if collapsed:
+            texts.append(collapsed)
+    return texts
+
+
+def is_section_anchor(line):
+    return bool(SECTION_CATCHLINE_PATTERN.match(line) or SECTION_STUB_PATTERN.match(line))
 
 
 def probe_markup(markup, chapter_number=None):
@@ -82,9 +126,12 @@ def probe_markup(markup, chapter_number=None):
     session_cites = SESSION_CITE_PATTERN.findall(joined)
 
     section_number_lines = [line for line in lines if SECTION_LINE_PATTERN.match(line)]
-    section_anchor_lines = [line for line in lines if SECTION_ANCHOR_PATTERN.match(line)]
+    section_anchor_lines = [line for line in section_number_lines if is_section_anchor(line)]
     anchors = set(section_anchor_lines)
     ambiguous_lines = [line for line in section_number_lines if line not in anchors]
+
+    bold = bold_texts(markup)
+    bold_anchor_lines = [text for text in bold if is_section_anchor(text)]
 
     return {
         "visibleLineCount": len(lines),
@@ -103,6 +150,11 @@ def probe_markup(markup, chapter_number=None):
         "sectionNumberLineCount": len(section_number_lines),
         "sectionAnchorLineCount": len(section_anchor_lines),
         "ambiguousSectionLineCount": len(ambiguous_lines),
+        "boldRunCount": len(bold),
+        "boldSectionAnchorCount": len(bold_anchor_lines),
+        "distinctBoldSectionAnchors": len({
+            text.split()[0] for text in bold_anchor_lines if text.split()
+        }),
         "sourceCreditMatches": len(credits),
         "sessionCitationMatches": len(session_cites),
         "repealStubMatches": len(REPEAL_STUB_PATTERN.findall(joined)),
@@ -112,9 +164,33 @@ def probe_markup(markup, chapter_number=None):
         "sampleAmbiguousSectionLines": [
             line[:MAX_SAMPLE_LINE_CHARS] for line in ambiguous_lines[:10]
         ],
+        "sampleBoldSectionAnchors": [
+            text[:MAX_SAMPLE_LINE_CHARS] for text in bold_anchor_lines[:10]
+        ],
         "sampleSourceCredits": [credit[:MAX_SAMPLE_LINE_CHARS] for credit in credits[:10]],
         "sampleLines": [line[:MAX_SAMPLE_LINE_CHARS] for line in lines[:MAX_SAMPLE_LINES]],
     }
+
+
+def structural_defect(probe, chapter_number):
+    """Return why a probed document is not usable as chapter structure, or None.
+
+    A document that parses as HTML is not thereby a chapter. This is the check
+    that separates "acquired something" from "acquired the chapter".
+    """
+    if probe["visibleLineCount"] == 0:
+        return "document has no visible text"
+    if chapter_number is None:
+        if probe["sectionNumberMatches"] == 0:
+            return "document contains no ORS section numbers"
+        return None
+    in_chapter = probe["sectionNumbersInThisChapter"] or 0
+    if in_chapter < MIN_IN_CHAPTER_SECTION_NUMBERS:
+        return (
+            f"document contains no section numbers in chapter {chapter_number} "
+            f"({probe['sectionNumberMatches']} section numbers found overall)"
+        )
+    return None
 
 
 def load_chapter_records(acquisition_report):
@@ -156,8 +232,22 @@ def main(argv=None):
                 "error": f"unsupported probe format: {chapter.get('sourceFormat')}",
             })
             continue
-        markup = path.read_bytes().decode("utf-8", errors="replace")
+        data = path.read_bytes()
+        markup, encoding = decode_markup(data, declared_charset(data))
         probe = probe_markup(markup, chapter["chapterNumber"])
+        probe["sourceEncoding"] = encoding
+        probe["declaredCharset"] = declared_charset(data)
+        defect = structural_defect(probe, chapter["chapterNumber"])
+        if defect is not None:
+            unreadable.append({
+                "chapterNumber": chapter["chapterNumber"],
+                "fixture": str(path),
+                "sourceUrl": chapter.get("sourceUrl"),
+                "bytes": chapter.get("bytes"),
+                "pageTitle": page_title(markup),
+                "error": defect,
+            })
+            continue
         probe.update({
             "chapterNumber": chapter["chapterNumber"],
             "sourceUrl": chapter.get("sourceUrl"),
