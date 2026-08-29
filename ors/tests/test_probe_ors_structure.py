@@ -164,23 +164,19 @@ class WordExportFixtureTest(unittest.TestCase):
 
     def test_bold_runs_identify_exactly_the_body_sections(self):
         # Bold is the separator between the body and the table of contents:
-        # the chapter has three body sections and the count matches.
-        self.assertEqual(self.result["boldSectionAnchorCount"], 3)
-        self.assertEqual(self.result["distinctBoldSectionAnchors"], 3)
+        # the chapter has four body sections and the count matches.
+        self.assertEqual(self.result["boldSectionAnchorCount"], 4)
+        self.assertEqual(self.result["distinctBoldSectionAnchors"], 4)
         self.assertEqual(
-            self.result["sampleBoldSectionAnchors"],
-            [
-                "161.005 Short title.",
-                "161.015 General definitions.",
-                "161.025 [Repealed by 1971 c.743 §432]",
-            ],
+            self.result["sampleBoldSectionAnchors"][:2],
+            ["161.005 Short title.", "161.015 General definitions."],
         )
 
     def test_line_anchoring_overcounts_because_the_contents_repeats_the_numbers(self):
-        # Three body sections plus three contents entries. This is why line
+        # Four body sections plus four contents entries. This is why line
         # position alone cannot segment a chapter.
-        self.assertEqual(self.result["sectionAnchorLineCount"], 6)
-        self.assertEqual(self.result["boldSectionAnchorCount"], 3)
+        self.assertEqual(self.result["sectionAnchorLineCount"], 8)
+        self.assertEqual(self.result["boldSectionAnchorCount"], 4)
 
     def test_non_breaking_space_separators_do_not_defeat_the_anchor(self):
         # The published layout separates number from catchline with

@@ -37,7 +37,7 @@ title ranges. A whole-edition build needs a real roster.
 - This is a whole-edition operation of several hundred requests, so it runs on
   manual dispatch, not on every CI run.
 
-## Increment 2 — chapter parsing into `ors_section`
+## Increment 2 — chapter parsing into `ors_section` (done)
 
 The segmentation rule is now settled by measurement rather than assumption.
 Per [FINDINGS.md](FINDINGS.md): the sources are Windows-1252 Word HTML exports
@@ -46,8 +46,11 @@ repeats every section number; and the body headings are distinguished from
 that contents list by being bold. Segmentation anchors on bold runs, not on
 line position.
 
-- `tools/parse_ors_chapter.py` emitting `ors_chapter`, `ors_subdivision` and
-  `ors_section` rows with character offsets.
+- `tools/parse_ors_chapter.py` emitting `ors_edition`, `ors_chapter`,
+  `ors_subdivision` and `ors_section` rows with character offsets.
+- Edition identity is established from the chapter documents, which print
+  `2025` / `EDITION`, and a chapter that states none emits no rows.
+- The `SCHEMA.md` referential integrity checks run as a CI gate.
 - Section status classification: `operative`, `repealed`, `renumbered`,
   `reserved`, `note_only`, driven by the four credit forms already observed:
   plain enactment, `Repealed by`, `Amended by` and `Formerly`.
@@ -55,10 +58,24 @@ line position.
   which prints both, rather than only from the index.
 - Ambiguity is reported as a review queue, never silently resolved.
 
+Three segmentation rules came out of building it, each one a bug the fixture
+caught before CI did:
+
+- Two bold headings separated only by a block boundary must not merge into one
+  span. When they did, the second section vanished into the first's credit.
+- A heading that divides no sections is not a subdivision. The contents list
+  repeats the body's headings above unbolded entries, and the edition banner
+  looks like one too.
+- A subdivision heading **ends** the section above it rather than trailing it.
+  Otherwise the heading swallows that section's source credit.
+
 ## Increment 3 — notes and source credits
 
 - `ors_section_note` rows, keeping notes out of `body_text`.
 - `ors_source_credit` rows parsed from bracketed legislative history.
+  Increment 2 already separates the trailing credit from the statutory text
+  and keeps it as `sourceCreditRaw`, so this increment parses that string into
+  rows rather than having to find it.
 - This is the table that joins to the amendment parser's `(year, chapter)`
   output. The join is data-only; neither program imports the other.
 

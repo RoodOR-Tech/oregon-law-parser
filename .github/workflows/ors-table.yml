@@ -116,6 +116,37 @@ jobs:
             --acquisition-report ors-acquisition.json \
             --report ors-structure-probe.json
 
+      - name: Parse chapters into relational rows
+        if: always()
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          if [ ! -f ors-acquisition.json ]; then
+            echo "No acquisition report to parse."
+            exit 1
+          fi
+          python3 ors/tools/parse_ors_chapter.py \
+            --acquisition-report ors-acquisition.json \
+            --report ors-parse.json \
+            --rows ors-rows.json
+
+      - name: Print the emitted rows
+        if: always()
+        run: |
+          set -uo pipefail
+          if [ ! -f ors-parse.json ]; then
+            echo "No parse report was written."
+            exit 0
+          fi
+          echo "Editions: $(jq -r '.editionCount' ors-parse.json)   Chapters: $(jq -r '.chapterRowCount' ors-parse.json)   Subdivisions: $(jq -r '.subdivisionRowCount' ors-parse.json)   Sections: $(jq -r '.sectionRowCount' ors-parse.json)"
+          echo "Section status counts: $(jq -c '.statusCounts' ors-parse.json)"
+          echo "Per chapter:"
+          jq -r '.perChapter[] | "  ch \(.chapterNumber)  title \(.titleNumber // "?")  \(.sectionCount) sections  \(.chapterName // "")"' ors-parse.json
+          echo "Problems: $(jq -r '.problems | length' ors-parse.json)"
+          jq -r '.problems[] | "  problem: \(.)"' ors-parse.json | head -20
+          echo "Integrity violations: $(jq -r '.integrityViolations | length' ors-parse.json)"
+          jq -r '.integrityViolations[] | "  violation: \(.)"' ors-parse.json | head -20
+
       - name: Print the structural fingerprint
         if: always()
         run: |
@@ -186,7 +217,7 @@ jobs:
 
       # The real gate. It runs last so the diagnostic steps above have already
       # printed their evidence into the log even on a failing run.
-      - name: Gate on the table of titles, acquisition and probe
+      - name: Gate on the table of titles, acquisition, probe and parse
         if: always()
         run: |
           set -euo pipefail
@@ -197,6 +228,10 @@ jobs:
           jq -e '.valid == true and .titleRangesChecked == true and ([.chapters[] | select(.ok) | .sha256] | all(test("^[0-9a-f]{64}$")))' ors-acquisition.json >/dev/null
           jq -e '[.chapters[] | select(.ok) | .titleNumber] | all(. != null)' ors-acquisition.json >/dev/null
           jq -e '.valid == true and .probedChapterCount > 0' ors-structure-probe.json >/dev/null
+          # Rows must be emitted, every SCHEMA.md invariant must hold, and every
+          # chapter must resolve to an edition: editionId is the primary key of
+          # ors_edition and the discriminator between editions everywhere else.
+          jq -e '.valid == true and .sectionRowCount > 0 and .editionCount > 0 and (.problems | length) == 0 and (.integrityViolations | length) == 0' ors-parse.json >/dev/null
 
       - name: Upload ORS pipeline reports
         if: always()
@@ -207,5 +242,7 @@ jobs:
             ors-roster.json
             ors-acquisition.json
             ors-structure-probe.json
+            ors-parse.json
+            ors-rows.json
           if-no-files-found: warn
           retention-days: 30

@@ -1,0 +1,308 @@
+#!/usr/bin/env python3
+"""Tests for parsing ORS chapter documents into relational rows.
+
+The fixture reproduces the layout measured from the published exports: a
+Windows-1252 Word HTML export whose table of contents repeats every section
+number unbolded, body headings in bold, non-breaking-space separators,
+centred subdivision headings, and bracketed disposition stubs.
+"""
+import json
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+
+import parse_ors_chapter as parser  # noqa: E402
+from ors_text import decode_markup, declared_charset  # noqa: E402
+
+FIXTURE = Path(__file__).resolve().parent / "fixtures" / "word_export_chapter.html"
+
+
+def parsed_fixture():
+    data = FIXTURE.read_bytes()
+    markup, _ = decode_markup(data, declared_charset(data))
+    return parser.parse_chapter(markup, "161")
+
+
+class ChapterIdentityTest(unittest.TestCase):
+    def setUp(self):
+        self.result = parsed_fixture()
+
+    def test_the_chapter_names_itself_in_its_own_heading(self):
+        self.assertEqual(self.result["printedChapterNumber"], "161")
+        self.assertEqual(self.result["chapterName"], "General Provisions")
+
+    def test_the_edition_comes_from_the_chapter_document(self):
+        # The table of titles carries no edition banner; the chapter documents
+        # print one, so edition identity is established here.
+        self.assertEqual(self.result["editionYear"], 2025)
+
+    def test_a_document_without_an_edition_banner_reports_none(self):
+        self.assertIsNone(parser.parse_chapter("<p>161.005 Short title.</p>", "161")["editionYear"])
+
+
+class SegmentationTest(unittest.TestCase):
+    def setUp(self):
+        self.result = parsed_fixture()
+
+    def test_sections_are_anchored_on_bold_runs_not_line_position(self):
+        # The contents list repeats all four numbers unbolded. Anchoring on
+        # line position would find eight sections; bold finds the four real ones.
+        self.assertEqual(len(self.result["sections"]), 4)
+        self.assertEqual(
+            [item["sectionNumber"] for item in self.result["sections"]],
+            ["161.005", "161.015", "161.025", "161.035"],
+        )
+
+    def test_adjacent_bold_headings_are_separate_spans(self):
+        # Two bold headings separated only by a block boundary must not merge:
+        # when they did, the second section vanished into the first's credit.
+        self.assertEqual(self.result["boldRunCount"], 4)
+
+    def test_a_wrapped_subsection_citation_is_not_a_section(self):
+        numbers = [item["sectionNumber"] for item in self.result["sections"]]
+        self.assertNotIn("161.055", numbers)
+
+    def test_every_section_reports_a_non_empty_span(self):
+        for section in self.result["sections"]:
+            self.assertLess(section["charOffsetStart"], section["charOffsetEnd"])
+
+    def test_section_spans_do_not_overlap(self):
+        spans = [(s["charOffsetStart"], s["charOffsetEnd"]) for s in self.result["sections"]]
+        for earlier, later in zip(spans, spans[1:]):
+            self.assertLessEqual(earlier[1], later[0])
+
+
+class SubdivisionTest(unittest.TestCase):
+    def setUp(self):
+        self.result = parsed_fixture()
+
+    def test_only_headings_that_divide_sections_are_recorded(self):
+        # The contents region repeats the same heading and the edition banner
+        # looks like one; neither has a section beneath it.
+        self.assertEqual(
+            [item["headingText"] for item in self.result["subdivisions"]],
+            ["GENERAL PROVISIONS", "(Definitions)"],
+        )
+
+    def test_sections_are_attributed_to_the_heading_above_them(self):
+        by_number = {item["sectionNumber"]: item for item in self.result["sections"]}
+        self.assertEqual(by_number["161.005"]["subdivisionHeading"], "GENERAL PROVISIONS")
+        self.assertEqual(by_number["161.015"]["subdivisionHeading"], "(Definitions)")
+
+    def test_the_edition_banner_is_not_a_subdivision(self):
+        headings = [item["headingText"] for item in self.result["subdivisions"]]
+        self.assertNotIn("EDITION", headings)
+
+
+class SectionContentTest(unittest.TestCase):
+    def setUp(self):
+        self.by_number = {
+            item["sectionNumber"]: item for item in parsed_fixture()["sections"]
+        }
+
+    def test_catchline_is_separated_from_the_body(self):
+        section = self.by_number["161.005"]
+        self.assertEqual(section["catchline"], "Short title.")
+        self.assertTrue(section["bodyText"].startswith("ORS 161.005 to 161.055 shall be"))
+
+    def test_a_trailing_source_credit_is_kept_out_of_the_body(self):
+        section = self.by_number["161.005"]
+        self.assertEqual(section["sourceCreditRaw"], "[1971 c.743 §1]")
+        self.assertNotIn("[1971", section["bodyText"])
+
+    def test_a_multi_session_credit_is_captured_whole(self):
+        self.assertEqual(
+            self.by_number["161.015"]["sourceCreditRaw"],
+            "[1971 c.743 §3; 1973 c.836 §339; 2025 c.161 §4]",
+        )
+
+    def test_a_subdivision_heading_does_not_swallow_the_section_credit(self):
+        # 161.005 is followed by the "(Definitions)" heading before the next
+        # section. The heading ends the body rather than trailing it.
+        self.assertNotIn("Definitions", self.by_number["161.005"]["bodyText"])
+        self.assertIsNotNone(self.by_number["161.005"]["sourceCreditRaw"])
+
+
+class StatusTest(unittest.TestCase):
+    def setUp(self):
+        self.by_number = {
+            item["sectionNumber"]: item for item in parsed_fixture()["sections"]
+        }
+
+    def test_an_operative_section_is_operative(self):
+        self.assertEqual(self.by_number["161.005"]["status"], "operative")
+
+    def test_the_final_disposition_wins_over_an_earlier_amendment(self):
+        # "[Amended by 1961 c.160 §4; repealed by 1971 c.743 §432]" is a
+        # repeal, not an amendment.
+        section = self.by_number["161.025"]
+        self.assertEqual(section["status"], "repealed")
+        self.assertIsNone(section["bodyText"])
+
+    def test_a_renumbering_records_its_destination(self):
+        section = self.by_number["161.035"]
+        self.assertEqual(section["status"], "renumbered")
+        self.assertEqual(section["renumberedTo"], "161.045")
+
+    def test_classify_stub_covers_every_disposition(self):
+        self.assertEqual(parser.classify_stub("[Repealed by 1971 c.743 §432]"), ("repealed", None))
+        self.assertEqual(parser.classify_stub("[Reserved for expansion]"), ("reserved", None))
+        self.assertEqual(parser.classify_stub("[Formerly 646.185]"), ("note_only", None))
+        self.assertEqual(
+            parser.classify_stub("[Renumbered 161.045]"), ("renumbered", "161.045")
+        )
+
+
+class SectionSortKeyTest(unittest.TestCase):
+    def test_sections_order_the_way_the_statute_book_does(self):
+        numbers = ["161.100", "161.005", "279A.050", "161.067", "90.100"]
+        self.assertEqual(
+            sorted(numbers, key=parser.section_sort_key),
+            ["90.100", "161.005", "161.067", "161.100", "279A.050"],
+        )
+
+    def test_the_fractional_part_is_not_treated_as_a_number(self):
+        # 161.100 must not sort before 161.067 as 100 > 67 would suggest when
+        # the fraction is read as an integer.
+        self.assertLess(parser.section_sort_key("161.067"), parser.section_sort_key("161.100"))
+
+
+class IntegrityTest(unittest.TestCase):
+    def _rows(self):
+        record = {
+            "chapterNumber": "161",
+            "chapterSortKey": "000161 ",
+            "titleNumber": "16",
+            "volumeNumber": 4,
+            "sourceUrl": "https://example.test/ors161.html",
+            "sha256": "a" * 64,
+            "bytes": 1234,
+            "sourceEncoding": "windows-1252",
+            "parsed": parsed_fixture(),
+        }
+        return parser.build_rows([record])
+
+    def test_a_clean_parse_violates_nothing(self):
+        self.assertEqual(parser.check_referential_integrity(self._rows()), [])
+
+    def test_a_chapter_without_a_pinned_digest_is_a_violation(self):
+        rows = self._rows()
+        rows["chapters"][0]["sourceSha256"] = None
+        self.assertTrue(
+            any("pinned digest" in item for item in parser.check_referential_integrity(rows))
+        )
+
+    def test_a_section_filed_under_the_wrong_chapter_is_a_violation(self):
+        rows = self._rows()
+        rows["sections"][0]["sectionNumber"] = "90.100"
+        self.assertTrue(
+            any("filed under chapter" in item for item in parser.check_referential_integrity(rows))
+        )
+
+    def test_an_unknown_status_is_a_violation(self):
+        rows = self._rows()
+        rows["sections"][0]["status"] = "probably-fine"
+        self.assertTrue(
+            any("unknown status" in item for item in parser.check_referential_integrity(rows))
+        )
+
+    def test_a_dangling_subdivision_reference_is_a_violation(self):
+        rows = self._rows()
+        rows["sections"][0]["subdivisionId"] = "2025-161-sd9999"
+        self.assertTrue(
+            any("dangling subdivision" in item for item in parser.check_referential_integrity(rows))
+        )
+
+    def test_a_chapter_with_no_edition_emits_no_rows(self):
+        record = {
+            "chapterNumber": "161",
+            "chapterSortKey": "000161 ",
+            "sha256": "a" * 64,
+            "parsed": parser.parse_chapter("<p><b>161.005 Short title.</b> Text.</p>", "161"),
+        }
+        rows = parser.build_rows([record])
+        self.assertEqual(rows["chapters"], [])
+        self.assertEqual(rows["sections"], [])
+        self.assertTrue(any("no ORS edition year" in item for item in rows["problems"]))
+
+
+class ParseCliTest(unittest.TestCase):
+    def _acquisition(self, root, **overrides):
+        chapter = {
+            "chapterNumber": "161",
+            "chapterSortKey": "000161 ",
+            "ok": True,
+            "sourceFormat": "html",
+            "fixture": str(FIXTURE),
+            "sourceUrl": "https://example.test/ors161.html",
+            "sha256": "a" * 64,
+            "bytes": 1234,
+            "titleNumber": "16",
+            "volumeNumber": 4,
+        }
+        chapter.update(overrides)
+        path = root / "acquisition.json"
+        path.write_text(json.dumps({"schemaVersion": 1, "chapters": [chapter]}))
+        return path
+
+    def test_a_chapter_becomes_edition_chapter_subdivision_and_section_rows(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = root / "parse.json"
+            rows_path = root / "rows.json"
+            exit_code = parser.main([
+                "--acquisition-report", str(self._acquisition(root)),
+                "--report", str(report_path),
+                "--rows", str(rows_path),
+            ])
+            self.assertEqual(exit_code, 0)
+            report = json.loads(report_path.read_text())
+            self.assertTrue(report["valid"])
+            self.assertEqual(report["editionCount"], 1)
+            self.assertEqual(report["sectionRowCount"], 4)
+            self.assertEqual(report["subdivisionRowCount"], 2)
+            self.assertEqual(report["integrityViolations"], [])
+            self.assertEqual(
+                report["statusCounts"], {"operative": 2, "renumbered": 1, "repealed": 1}
+            )
+
+            rows = json.loads(rows_path.read_text())
+            self.assertEqual(rows["editions"][0]["editionId"], "2025")
+            self.assertEqual(rows["chapters"][0]["chapterId"], "2025-161")
+            self.assertEqual(rows["chapters"][0]["sourceSha256"], "a" * 64)
+            self.assertEqual(rows["sections"][0]["sectionId"], "2025-161.005")
+            # Roster identity travels through to the emitted chapter row.
+            self.assertEqual(rows["chapters"][0]["titleNumber"], "16")
+            self.assertEqual(rows["chapters"][0]["volumeNumber"], 4)
+
+    def test_a_missing_fixture_is_reported_rather_than_crashing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = root / "parse.json"
+            exit_code = parser.main([
+                "--acquisition-report",
+                str(self._acquisition(root, fixture=str(root / "absent.html"))),
+                "--report", str(report_path),
+            ])
+            self.assertEqual(exit_code, 1)
+            report = json.loads(report_path.read_text())
+            self.assertFalse(report["valid"])
+            self.assertEqual(report["unreadable"][0]["error"], "fixture missing")
+
+    def test_a_failed_acquisition_is_not_parsed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = root / "parse.json"
+            exit_code = parser.main([
+                "--acquisition-report", str(self._acquisition(root, ok=False)),
+                "--report", str(report_path),
+            ])
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(json.loads(report_path.read_text())["parsedChapterCount"], 0)
+
+
+if __name__ == "__main__":
+    unittest.main()
