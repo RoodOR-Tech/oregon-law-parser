@@ -97,8 +97,9 @@ class NonCitationFormTest(unittest.TestCase):
 
 
 class SpecialSessionTest(unittest.TestCase):
-    def test_a_special_session_marker_is_recorded(self):
-        # Recorded in FINDINGS.md against chapter 1.
+    def test_a_bare_special_session_marker_records_ordinal_one(self):
+        # Recorded in FINDINGS.md against chapter 1. The pre-2000s convention
+        # names no ordinal, so it is recorded as special session 1.
         result = credits.parse_source_credit(
             "[1981 s.s. c.1 §3; 1995 c.658 §7; 1995 c.781 §3; 2013 c.155 §2]"
         )
@@ -107,6 +108,88 @@ class SpecialSessionTest(unittest.TestCase):
         self.assertEqual(first["sessionYear"], 1981)
         self.assertEqual(first["sessionLawChapter"], 1)
         self.assertTrue(all(c["specialSession"] is None for c in rest))
+
+    def test_a_numbered_special_session_records_its_ordinal(self):
+        # Real forms surfaced by the unparsed-segment diagnostic against
+        # chapters 1 and 90: unlike the 1981 form, these name which special
+        # session, with no space before the digit.
+        first = credits.parse_source_credit("[2002 s.s.1 c.10 §7]")["citations"][0]
+        self.assertEqual(first["specialSession"], 1)
+        self.assertEqual(first["sessionYear"], 2002)
+        self.assertEqual(first["sessionLawChapter"], 10)
+
+        third = credits.parse_source_credit("[2020 s.s.3 c.3 §11]")["citations"][0]
+        self.assertEqual(third["specialSession"], 3)
+        self.assertEqual(third["sessionYear"], 2020)
+        self.assertEqual(third["sessionLawChapter"], 3)
+        self.assertEqual(third["sessionLawSection"], "11")
+
+
+class PluralSectionCitationTest(unittest.TestCase):
+    """A doubled section mark cites more than one section: "§§2,3"."""
+
+    def test_a_comma_list_becomes_one_row_per_section(self):
+        result = credits.parse_source_credit("[2013 c.154 §§2,3]")
+        self.assertEqual(len(result["citations"]), 2)
+        self.assertEqual(
+            [c["sessionLawSection"] for c in result["citations"]], ["2", "3"]
+        )
+        # Both rows share the year, chapter and the full original segment, so
+        # each still traces back to the one printed citation that named it.
+        self.assertTrue(all(c["sessionYear"] == 2013 for c in result["citations"]))
+        self.assertTrue(all(c["sessionLawChapter"] == 154 for c in result["citations"]))
+        self.assertTrue(
+            all(c["rawSegment"] == "2013 c.154 §§2,3" for c in result["citations"])
+        )
+
+    def test_a_lettered_section_survives_inside_a_comma_list(self):
+        # Real form: "1999 c.676 §§7,7a".
+        result = credits.parse_source_credit("[1999 c.676 §§7,7a]")
+        self.assertEqual(
+            [c["sessionLawSection"] for c in result["citations"]], ["7", "7a"]
+        )
+
+    def test_three_sections_in_one_doubled_citation(self):
+        result = credits.parse_source_credit("[2013 c.154 §§2,3,4]")
+        self.assertEqual(
+            [c["sessionLawSection"] for c in result["citations"]], ["2", "3", "4"]
+        )
+
+
+class TrailingAnnotationTest(unittest.TestCase):
+    def test_a_parenthetical_annotation_does_not_block_the_citation(self):
+        # Real form against chapter 1: the citation is still fully usable;
+        # the annotation is kept in the raw segment but not otherwise modeled.
+        result = credits.parse_source_credit(
+            "[2001 c.823 §25 (enacted in lieu of 8.172)]"
+        )
+        citation = result["citations"][0]
+        self.assertEqual(citation["sessionYear"], 2001)
+        self.assertEqual(citation["sessionLawChapter"], 823)
+        self.assertEqual(citation["sessionLawSection"], "25")
+        self.assertIn("enacted in lieu of 8.172", citation["rawSegment"])
+        self.assertEqual(result["unparsedSegments"], [])
+
+
+class ReenactedActionTest(unittest.TestCase):
+    def test_reenacted_by_maps_to_the_schema_enacted_action(self):
+        # SCHEMA.md's action set has no "reenacted" value; the keyword states
+        # this session law (re-)established the section, which "enacted"
+        # already means there.
+        result = credits.parse_source_credit("[reenacted by 1997 c.196 §3]")
+        citation = result["citations"][0]
+        self.assertEqual(citation["action"], "enacted")
+        self.assertEqual(citation["sessionYear"], 1997)
+
+
+class RenumberNoteWithYearTest(unittest.TestCase):
+    def test_a_renumber_note_naming_a_year_is_still_a_bare_reference(self):
+        # Real form: "renumbered 1.179 in 2025". The trailing year describes
+        # when the renumbering happened, not a session law that did it, so it
+        # is discarded rather than parsed as a session-year citation.
+        result = credits.parse_source_credit("[renumbered 1.179 in 2025]")
+        self.assertEqual(result["renumberReferences"], ["1.179"])
+        self.assertEqual(result["citations"], [])
 
 
 class UnparsedSegmentTest(unittest.TestCase):

@@ -5,7 +5,10 @@ Increment 2 already separates a section's trailing bracketed history from its
 statutory text and keeps it as `sourceCreditRaw`. This module parses that
 string into the `ors_source_credit` rows SCHEMA.md defines.
 
-Every form here is drawn from real credit strings recorded in FINDINGS.md:
+Every form here is drawn from real credit strings, first from FINDINGS.md and
+then from the unparsed-segment diagnostic's first real run against the sample
+chapters, which is what revealed everything from "numbered special session"
+onward:
 
     [1971 c.743 s1]
     [1971 c.743 s3; 1973 c.836 s339; 2025 c.161 s4]
@@ -13,6 +16,11 @@ Every form here is drawn from real credit strings recorded in FINDINGS.md:
     [Amended by 1961 c.160 s4; repealed by 1973 c.794 s34]
     [Formerly 646.185; repealed by 2009 c.170 s4]
     [1981 s.s. c.1 s3; 1995 c.658 s7; 1995 c.781 s3; 2013 c.155 s2]
+    [2002 s.s.1 c.10 s7]                        -- numbered special session
+    [2013 c.154 ss2,3]                          -- plural section, comma list
+    [2001 c.823 s25 (enacted in lieu of 8.172)] -- trailing parenthetical
+    [reenacted by 1997 c.196 s3]                -- a fourth action keyword
+    [renumbered 1.179 in 2025]                  -- renumber note carrying a year
 
 A citation with no leading action word states no action, and SCHEMA.md is
 explicit that action must not be guessed for it: it is recorded as
@@ -24,29 +32,59 @@ otherwise.
 """
 import re
 
-# "Amended by", "Repealed by" or "Renumbered by" ahead of a citation. Only a
-# citation carries the "by": bare "Formerly X" and "Renumbered X" are handled
-# separately because they name a section, not a session law.
+# "Amended by", "Repealed by", "Renumbered by" or "Reenacted by" ahead of a
+# citation. Only a citation carries the "by": bare "Formerly X" and
+# "Renumbered X" are handled separately because they name a section, not a
+# session law. "Reenacted" has no matching value in SCHEMA.md's closed action
+# set, so it is mapped onto "enacted" -- the keyword states this session law
+# (re-)established the section, which is what "enacted" already means there.
 CREDIT_ACTION_PATTERN = re.compile(
-    r"^(?P<action>Amended|Repealed|Renumbered)\s+by\s+", re.IGNORECASE
+    r"^(?P<action>Amended|Repealed|Renumbered|Reenacted)\s+by\s+", re.IGNORECASE
 )
+ACTION_KEYWORD_TO_SCHEMA_ACTION = {
+    "amended": "amended",
+    "repealed": "repealed",
+    "renumbered": "renumbered",
+    "reenacted": "enacted",
+}
 # A session-law citation: year, optional special-session marker, chapter,
-# optional section. The section mark is printed as section-sign; a bare "s."
-# form is also accepted since not every source is confirmed to use the sign.
+# section(s), optional trailing parenthetical annotation.
+#
+# The special-session marker is either bare ("s.s.", pre-2000s convention) or
+# numbered with no space before the digit ("s.s.1", "s.s.3"); both are
+# followed by a space before "c.".
+#
+# The section mark is printed as the section sign, singular (S) or doubled
+# for a plural citation (SS); a bare "s." form is also accepted since not
+# every source is confirmed to use the sign. A doubled mark introduces a
+# comma-separated list ("SS2,3", "SS7,7a") rather than a single number.
+#
+# A trailing "(...)" is a parenthetical annotation -- "(enacted in lieu of
+# 8.172)" -- kept in the raw segment but not otherwise modeled.
 CREDIT_CITATION_PATTERN = re.compile(
-    r"^(?P<year>(?:18|19|20)\d{2})\s*(?P<special>s\.\s*s\.)?\s*c\.\s*(?P<chapter>\d+)"
-    r"(?:\s*(?:§|s\.)\s*(?P<section>[0-9]+[a-z]?))?$",
+    r"^(?P<year>(?:18|19|20)\d{2})\s*"
+    r"(?P<special>s\.\s*s\.\s*\d*)?\s*"
+    r"c\.\s*(?P<chapter>\d+)"
+    r"(?:\s*(?:§§|§|s\.)\s*"
+    r"(?P<sections>[0-9]+[a-z]?(?:\s*,\s*[0-9]+[a-z]?)*))?"
+    r"(?:\s*\([^)]*\))?\s*$",
     re.IGNORECASE,
 )
+SPECIAL_SESSION_NUMBER_PATTERN = re.compile(r"(\d+)")
 # "Formerly 646.185" -- this section used to be numbered 646.185. Not a
 # session-law citation, so it never becomes an ors_source_credit row.
 FORMERLY_REFERENCE_PATTERN = re.compile(
     r"^Formerly\s+(?P<number>\d{1,3}[A-Z]?\.\d{3})$", re.IGNORECASE
 )
 # "Renumbered 161.045" with no "by" and no session citation: a bare
-# destination reference, not a session-law citation either.
+# destination reference, not a session-law citation either. An optional
+# trailing "in YYYY" is a note on when the renumbering happened, not part of
+# the destination, and is discarded rather than parsed into a session year:
+# it is not stated to be the session that did the renumbering.
 BARE_RENUMBER_PATTERN = re.compile(
-    r"^Renumbered\s+(?P<number>\d{1,3}[A-Z]?\.\d{3})$", re.IGNORECASE
+    r"^Renumbered\s+(?P<number>\d{1,3}[A-Z]?\.\d{3})"
+    r"(?:\s+in\s+(?:18|19|20)\d{2})?$",
+    re.IGNORECASE,
 )
 
 
@@ -66,6 +104,19 @@ def split_credit_segments(body):
     return [segment.strip() for segment in body.split(";") if segment.strip()]
 
 
+def _special_session_number(special_text):
+    """Return the special-session ordinal from a matched marker, or 1.
+
+    "s.s." with no digit is the pre-2000s bare form and is recorded as 1,
+    since the marker states a special session without naming one. "s.s.3"
+    states the third special session explicitly.
+    """
+    if not special_text:
+        return None
+    digits = SPECIAL_SESSION_NUMBER_PATTERN.search(special_text)
+    return int(digits.group(1)) if digits else 1
+
+
 def parse_source_credit(raw_credit):
     """Parse one bracketed credit string into its component references.
 
@@ -75,6 +126,11 @@ def parse_source_credit(raw_credit):
       formerlyReferences: [section_number, ...]
       renumberReferences: [section_number, ...]
       unparsedSegments: [segment, ...]
+
+    A citation naming several sections under one doubled section mark
+    ("§§2,3") becomes one row per section number, all sharing the same
+    year/chapter/action and the segment's full original text, so each row
+    still joins to exactly one amendment-parser section.
     """
     segments = split_credit_segments(strip_brackets(raw_credit))
     citations = []
@@ -97,7 +153,7 @@ def parse_source_credit(raw_credit):
         remainder = segment
         action_match = CREDIT_ACTION_PATTERN.match(segment)
         if action_match is not None:
-            action = action_match.group("action").lower()
+            action = ACTION_KEYWORD_TO_SCHEMA_ACTION[action_match.group("action").lower()]
             remainder = segment[action_match.end():]
 
         citation_match = CREDIT_CITATION_PATTERN.match(remainder.strip())
@@ -105,14 +161,19 @@ def parse_source_credit(raw_credit):
             unparsed.append(segment)
             continue
 
-        citations.append({
-            "action": action or "unspecified",
-            "sessionYear": int(citation_match.group("year")),
-            "specialSession": 1 if citation_match.group("special") else None,
-            "sessionLawChapter": int(citation_match.group("chapter")),
-            "sessionLawSection": citation_match.group("section"),
-            "rawSegment": segment,
-        })
+        sections_text = citation_match.group("sections")
+        section_numbers = (
+            [part.strip() for part in sections_text.split(",")] if sections_text else [None]
+        )
+        for section_number in section_numbers:
+            citations.append({
+                "action": action or "unspecified",
+                "sessionYear": int(citation_match.group("year")),
+                "specialSession": _special_session_number(citation_match.group("special")),
+                "sessionLawChapter": int(citation_match.group("chapter")),
+                "sessionLawSection": section_number,
+                "rawSegment": segment,
+            })
 
     return {
         "citations": citations,

@@ -706,7 +706,10 @@ def main(argv=None):
         "unparsedCreditSegmentCount": sum(
             len(item["segments"]) for item in rows["unparsedCreditSegments"]
         ),
-        "unparsedCreditSegments": rows["unparsedCreditSegments"][:10],
+        # Uncapped except for a generous ceiling: a narrow cap here cost a
+        # full CI round trip once already, revealing only 10 of 103 real
+        # unparsed segments and leaving the rest to a second discovery round.
+        "unparsedCreditSegments": rows["unparsedCreditSegments"][:500],
         # Bold runs naming another chapter's section: bolded citations, not
         # headings here. Counted so the rule stays observable, but not a
         # failure, since they are not this chapter's rows.

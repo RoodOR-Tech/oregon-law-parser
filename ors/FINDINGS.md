@@ -419,6 +419,63 @@ counted (138 in chapter 646A alone) are printed unbolded in these documents,
 so bold anchoring does not reach them. Capturing them belongs with the notes
 and credits work in increment 3.
 
+## Source credit forms beyond FINDINGS.md's first sample
+
+Increment 3's `unparsedCreditSegmentCount` diagnostic — gated at zero the same
+way `unresolvedTitleLineCount` and `chaptersWithoutName` are — did its job on
+its first real run: 103 segments across the seven sample chapters matched
+none of the forms recorded above. All ten distinct real forms behind that
+count are now handled:
+
+**Numbered special sessions.** The bare `s.s.` marker recorded earlier is the
+pre-2000s convention. Since 2002 the marker names which special session, with
+no space before the digit:
+
+```
+2002 s.s.1 c.10 §7
+2020 s.s.3 c.3 §11
+```
+
+`special_session` now records the ordinal (`1`, `3`) rather than a bare
+1-or-null flag, and the pre-2000s bare form still records `1` since it names
+a special session without an ordinal.
+
+**Plural-section citations.** A doubled section mark cites more than one
+section under one `(year, chapter)`:
+
+```
+2013 c.154 §§2,3
+1999 c.676 §§7,7a
+```
+
+Each becomes its own `ors_source_credit` row — same year, chapter and raw
+segment, one row per section number — so every row still joins to exactly one
+amendment-parser section rather than one row trying to hold two.
+
+**A trailing parenthetical annotation.**
+
+```
+2001 c.823 §25 (enacted in lieu of 8.172)
+```
+
+The citation itself still parses; the annotation is kept in `raw_credit` but
+not otherwise modeled. What "in lieu of" relationships mean for the relational
+model, if anything beyond this, is left to a later increment.
+
+**A fourth action keyword.** `reenacted by 1997 c.196 §3` — `SCHEMA.md`'s
+closed action set has no `reenacted` value, so this keyword maps to `enacted`:
+it states the session law (re-)established the section, which is what
+`enacted` already means in that set.
+
+**A renumbering note carrying a year.** `renumbered 1.179 in 2025` extends the
+bare `Renumbered NNN.NNN` form with when the renumbering happened. The year is
+discarded rather than parsed as a session-law year: the segment does not state
+that session as the one that did the renumbering, only the year it occurred.
+
+None of these were guessable from the first sample; each is exactly what
+`unparsedCreditSegmentCount` exists to surface rather than let disappear as
+silently-dropped rows.
+
 ## The other Legislative Counsel documents
 
 `ORS_Renum.pdf` is a renumbering table bearing on `ors_section.renumbered_to`,
