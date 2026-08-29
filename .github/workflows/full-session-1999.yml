@@ -10,6 +10,7 @@ on:
       - 'tools/acquire_session_chapters.py'
       - 'tools/summarize_session_run.py'
       - 'operations/1999-session-plan.json'
+      - 'operations/pre-1999-source-boundary.json'
   workflow_dispatch:
 
 concurrency:
