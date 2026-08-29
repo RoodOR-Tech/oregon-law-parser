@@ -64,6 +64,10 @@ SECTION_STUB_PATTERN = re.compile(
 # wrapped-prose newline, which must still collapse to a space.
 STUB_LINE_BREAK_PATTERN = re.compile(r"\n(?=\s*\d{1,3}[A-Z]?\.\d{3}\s*\[)")
 _NEWLINE_PLACEHOLDER = "\x00"
+# Whether a run of text opens a new stub entry, used to look past a purely
+# whitespace inter-tag run into the next real content -- see
+# normalize_chapter_text's upcoming_run_opens_a_stub.
+STUB_ENTRY_OPEN_PATTERN = re.compile(r"^\d{1,3}[A-Z]?\.\d{3}\s*\[")
 # A trailing bracketed group is the section's source credit. Parsing its
 # contents into rows is increment 3; here it is only separated from the
 # statutory text so body_text holds the text and not the history.
@@ -158,6 +162,7 @@ def normalize_chapter_text(markup):
     text. Whitespace inside a run is collapsed and block boundaries become
     single newlines, so offsets are stable for a given source document.
     """
+    runs = list(iter_runs(markup))
     pieces = []
     bold_spans = []
     length = 0
@@ -170,7 +175,32 @@ def normalize_chapter_text(markup):
         pieces.append(fragment)
         length += len(fragment)
 
-    for raw, is_bold in iter_runs(markup):
+    def upcoming_run_opens_a_stub(index):
+        """Whether the next real content past this point starts a new stub.
+
+        A whitespace-only run between two tags (e.g. each stub entry wrapped
+        in its own bare <span>, with the literal newline living *between*
+        the tags rather than inside either one's text) cannot answer this
+        from its own content alone: the number and bracket are in a later
+        run entirely. Looking ahead past any further whitespace-only runs to
+        the next real content is what a single-run lookahead like
+        `_collapse_internal_newlines` cannot do, and is the difference
+        between "1.160 ... statutes.\\n1.165 [...]" being read as one
+        section's body versus two: see FINDINGS.md for how the first
+        attempt at this fix, correct for a newline inside one run, still
+        measured zero on real chapters because their stub entries are
+        span-wrapped this way.
+        """
+        for later_raw, _ in runs[index + 1:]:
+            if later_raw == "\n":
+                continue
+            candidate = normalize_spaces(html.unescape(later_raw)).lstrip()
+            if not candidate:
+                continue
+            return bool(STUB_ENTRY_OPEN_PATTERN.match(candidate))
+        return False
+
+    for index, (raw, is_bold) in enumerate(runs):
         # The bold transition is handled before anything else. Handling it
         # only for text runs let two adjacent bold headings separated by a
         # block boundary merge into a single span, which silently swallowed
@@ -185,12 +215,21 @@ def normalize_chapter_text(markup):
                 append("\n")
             continue
         text = normalize_spaces(html.unescape(raw))
-        text = re.sub(r"[ \t\r\f\v]+", " ", _collapse_internal_newlines(text))
         if not text.strip():
-            # Whitespace between runs still separates words.
-            if pieces and not pieces[-1].endswith((" ", "\n")):
+            # Whitespace between runs still separates words -- unless it
+            # carries a literal newline immediately ahead of a new stub
+            # entry, which must stay a real line break so that entry
+            # becomes its own line for SECTION_STUB_PATTERN to test.
+            if "\n" in text and upcoming_run_opens_a_stub(index):
+                if pieces and not pieces[-1].endswith("\n"):
+                    append("\n")
+            elif pieces and not pieces[-1].endswith((" ", "\n")):
                 append(" ")
             continue
+        # text.strip() is already known non-empty here (the branch above
+        # handles the empty case), and collapsing whitespace never removes
+        # visible characters, so no further emptiness check is needed.
+        text = re.sub(r"[ \t\r\f\v]+", " ", _collapse_internal_newlines(text))
         append(text)
     if open_bold is not None:
         bold_spans.append((open_bold, length))

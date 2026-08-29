@@ -464,6 +464,48 @@ class NewlineSeparatedStubEntriesTest(unittest.TestCase):
         self.assertNotIn("1.165", numbers)
         self.assertNotIn("1.167", numbers)
 
+    def test_span_wrapped_stubs_are_found_even_when_the_newline_is_between_tags(self):
+        # The first version of this fix only preserved a newline found
+        # *inside* one text run, and measured zero change against the real
+        # sample chapters despite the gap being real: real chapters wrap
+        # each stub entry in its own bare <span>, so the literal newline
+        # (plus indentation) sits *between* two tags as its own whitespace-
+        # only run, where a single-run lookahead can never see the stub
+        # opening in the *next* run. upcoming_run_opens_a_stub looks past
+        # that whitespace-only run to find it.
+        markup = (
+            "<p><b><span>1.160 Procedural rules.</span></b>"
+            "<span> Courts shall be governed by the spirit of the procedural"
+            " statutes.</span>\n  "
+            "<span>1.165 [1981 s.s. c.3 §7; renumbered 1.185 in 1999]</span>\n  "
+            "<span>1.167 [1981 s.s. c.3 §18; renumbered 1.187 in 1999]</span></p>"
+            "<p><b>1.171 Presiding judges.</b> A presiding judge appointed"
+            " under ORS 1.003 is presiding judge.</p>"
+        )
+        result = parser.parse_chapter(markup, "1")
+        self.assertEqual(
+            result["unboldedStubLines"],
+            [
+                {"number": "1.165", "line": "1.165 [1981 s.s. c.3 §7; renumbered 1.185 in 1999]"},
+                {"number": "1.167", "line": "1.167 [1981 s.s. c.3 §18; renumbered 1.187 in 1999]"},
+            ],
+        )
+
+    def test_span_wrapped_wrapped_prose_still_joins_across_the_tag_boundary(self):
+        # The regression this fix must not cause: ordinary statutory text
+        # split across two <span> tags, with only whitespace (including a
+        # literal newline) between them, must still read as one sentence.
+        markup = (
+            "<p><b><span>161.015 General definitions.</span></b>"
+            "<span> As used in ORS</span>\n  "
+            "<span>161.005 to 161.055, unless the context requires otherwise:</span></p>"
+        )
+        result = parser.parse_chapter(markup, "161")
+        self.assertEqual(
+            result["sections"][0]["bodyText"],
+            "As used in ORS 161.005 to 161.055, unless the context requires otherwise:",
+        )
+
 
 class SectionSortKeyTest(unittest.TestCase):
     def test_sections_order_the_way_the_statute_book_does(self):

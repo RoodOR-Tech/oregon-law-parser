@@ -694,17 +694,43 @@ of them ever became a line of their own for `SECTION_STUB_PATTERN` to test.
 `unboldedStubLineCount` was reporting the truth about a pattern that never
 had a chance to run.
 
-The fix (`_collapse_internal_newlines`) preserves the newline specifically
-when it is immediately followed by a new stub entry's opening
-(`\d{3}[A-Z]?\.\d{3}\s*\[`), while every other internal newline still
-collapses to a space exactly as before. This is a measurement-stage fix,
-not the anchoring rule itself: `find_unbolded_stub_lines` now correctly
-finds these entries as their own lines, but they still do not become
-`ors_section` rows -- promoting them requires also re-bounding the
-*preceding* section's body and credit correctly (its trailing-credit
-pattern currently grabs the *last* stub's bracket as if it were its own),
-which is real, scoped work for the next round rather than something to rush
-here. See ROADMAP.md.
+The first fix (`_collapse_internal_newlines`) preserved a newline specifically
+when it was immediately followed by a new stub entry's opening, within the
+*same* text run. Pushed and re-run against the real sample chapters, it
+changed nothing at all: `unboldedStubLineCount` was still zero,
+`crossReferenceCandidateCount` was the identical 4254 as before the fix,
+`sectionRowCount` was still 892. That was not a case of the gap turning out
+not to be real after all -- it was the fix landing on the wrong mechanism.
+
+Reproducing the exact real shape (each stub entry wrapped in its own bare
+`<span>`, with the literal newline -- plus the indentation a formatted Word
+export adds -- living *between* the closing and opening tags, not inside
+either one's text) reproduced the zero-change result precisely. The
+newline and the upcoming stub number are in two different runs as
+`iter_runs` sees them, and `_collapse_internal_newlines`'s lookahead only
+ever sees the content of the one run it is given -- an inter-tag run that
+is pure whitespace has no number to look ahead to within itself. Confirmed
+by exact reproduction, not inferred: this is what real chapter 1 does.
+
+The real fix adds `upcoming_run_opens_a_stub` to `normalize_chapter_text`:
+when a purely-whitespace run carries a literal newline, it looks past any
+further whitespace-only runs to the next run with real content, and checks
+*that* content for a stub-shaped opening before deciding whether the
+newline stays a line break or collapses to a space as before. Verified
+against the exact span-wrapped reproduction, and against the same wrapped-
+prose regression case the first fix was checked against (a sentence split
+across two `<span>` tags by a literal newline still joins as one line).
+
+This is still a measurement-stage fix, not the anchoring rule itself:
+`find_unbolded_stub_lines` now finds these entries as their own lines, but
+they still do not become `ors_section` rows -- promoting them requires
+also re-bounding the *preceding* section's body and credit correctly (its
+trailing-credit pattern currently grabs the *last* stub's bracket as if it
+were its own), which is real, scoped work for the next round rather than
+something to rush here. See ROADMAP.md. What this fix actually changes on
+the real sample chapters is confirmed from the next CI run, not assumed
+from the reproduction alone -- the same discipline that caught the first
+fix's shortfall applies to this one too.
 
 ## First real cross-reference candidates
 
