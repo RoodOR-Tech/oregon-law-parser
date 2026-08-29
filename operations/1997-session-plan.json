@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Operational scale test across the 1997 regular-session Oregon Laws chapter range. This is not a gold or unseen-validation corpus and must not be used to rewrite either benchmark.",
+  "sessionYear": 1997,
+  "firstChapter": 1,
+  "lastChapter": 874,
+  "expectedDocuments": 874,
+  "sourcePattern": "Authoritative source discovery uses tools/acquire_session_chapters.py; the official 1997 Oregon Laws comparative table establishes the chapter range.",
+  "rangeReference": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/1997.pdf",
+  "knownCompilationNote": "The official 1997 table states that chapter 790 was contingent on voter approval of HJR 72, failed at the November 3, 1998 general election, and has not been compiled. The initial hard-gate run intentionally retains the full assigned 1-874 range so this condition is preserved as an operational finding rather than silently excluded.",
+  "reviewPolicy": "Operational failures and Conflict/ParsedUnverified/Incomplete outputs are review queues. They do not change frozen certification or unseen-validation expectations without separate authoritative review."
+}
