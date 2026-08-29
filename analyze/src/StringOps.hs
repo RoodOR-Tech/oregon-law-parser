@@ -58,7 +58,7 @@ parserCriticalWords =
 
 
 repairLineBreakHyphens ∷ String → String
-repairLineBreakHyphens = reverse ⋙ go []
+repairLineBreakHyphens input = reverse (go [] input)
   where
     -- Work from left to right while keeping the emitted prefix reversed. When a
     -- hyphen is immediately followed by an extraction line break, inspect the
