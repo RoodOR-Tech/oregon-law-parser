@@ -20,6 +20,7 @@ LEGACY_2006_SPECIAL_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/law
 LEGACY_2005_SESSION_HTML_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2005orLaw{chapter:04d}ses.html"
 LEGACY_2003_SESSION_HTML_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2003orLaw{chapter:04d}ses.html"
 LEGACY_2003_SESSION_HTM_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2003orLaw{chapter:04d}ses.htm"
+LEGACY_2001_SESSION_HTML_BASE_URL = "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2001orLaw{chapter:04d}ses.html"
 USER_AGENT = "oregon-law-parser-session-scale/1"
 
 
@@ -63,6 +64,11 @@ def source_url_candidates(year, chapter, special_session=None):
     if year == 2003:
         urls.append(LEGACY_2003_SESSION_HTML_BASE_URL.format(chapter=chapter))
         urls.append(LEGACY_2003_SESSION_HTM_BASE_URL.format(chapter=chapter))
+    # The 2001 regular-session archive uses a ses suffix on enacted-law HTML pages
+    # (for example chapters 1 and 990). Keep this final so the two chapters already
+    # acquired through the no-ses HTML convention retain their exact URLs and hashes.
+    if year == 2001:
+        urls.append(LEGACY_2001_SESSION_HTML_BASE_URL.format(chapter=chapter))
     return urls
 
 
