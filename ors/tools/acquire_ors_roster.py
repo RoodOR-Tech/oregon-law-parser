@@ -58,6 +58,17 @@ TITLE_PATTERN = re.compile(
     r"(?P<name>.+?)\s*[\u2013\u2014]\s*Chs?\.\s*(?P<range>[0-9A-Za-z]+(?:\s*[-\u2013\u2014]\s*[0-9A-Za-z]+)?)\s*$"
 )
 
+# A title entry whose name is too long for one line wraps, leaving the number
+# and the start of the name on one line and the rest plus the range on the
+# next. Both halves must be recognized or the title is dropped silently.
+TITLE_HEAD_PATTERN = re.compile(
+    r"^(?:Title\s+)?(?P<number>\d{1,3}[A-Z]?)\s+(?P<name>\S.*?)\s*$"
+)
+TITLE_TAIL_PATTERN = re.compile(
+    r"^(?P<name>\S.*?)\s*[\u2013\u2014]\s*Chs?\.\s*"
+    r"(?P<range>[0-9A-Za-z]+(?:\s*[-\u2013\u2014]\s*[0-9A-Za-z]+)?)\s*$"
+)
+
 # A range endpoint is a chapter number, possibly lettered.
 RANGE_PATTERN = re.compile(
     r"^(?P<first>\d{1,3}[A-Za-z]?)(?:\s*[-\u2013\u2014]\s*(?P<last>\d{1,3}[A-Za-z]?))?$"
@@ -138,15 +149,42 @@ def parse_chapter_range(raw):
 def parse_table_of_titles(text):
     """Parse volumes and titles out of the published table of titles.
 
-    Returns (volumes, titles, unparsed_lines). A line that looks like a title
-    entry but whose range will not parse is reported rather than dropped, so a
-    layout this parser does not understand stays visible.
+    Returns (volumes, titles, unparsed_lines, unresolved_lines). A title whose
+    name is too long for one line wraps, so a number-led line carrying no
+    range is held and joined to the following line when that line completes
+    the entry.
+
+    A number-led line that never resolves into a title is reported as
+    unresolved. Without that, a title the parser fails to recognize simply
+    vanishes: the real document's title 19 was dropped exactly this way, and
+    nothing in the output said so until a chapter it covers could not be
+    attributed.
     """
     volumes = []
     titles = []
     unparsed = []
+    unresolved = []
     seen_titles = set()
     current_volume = None
+    pending = None
+
+    def record(number, name, raw_range, source_line):
+        number = number.upper()
+        if number in seen_titles:
+            return True
+        chapter_range = parse_chapter_range(raw_range)
+        if chapter_range is None:
+            unparsed.append(source_line)
+            return False
+        seen_titles.add(number)
+        entry = {
+            "titleNumber": number,
+            "titleName": " ".join(name.split()),
+            "volumeNumber": current_volume,
+        }
+        entry.update(chapter_range)
+        titles.append(entry)
+        return True
 
     for raw in text.splitlines():
         line = " ".join(raw.split())
@@ -155,29 +193,51 @@ def parse_table_of_titles(text):
 
         volume_match = VOLUME_PATTERN.match(line)
         if volume_match is not None:
+            if pending is not None:
+                unresolved.append(pending["line"])
+                pending = None
             current_volume = int(volume_match.group("number"))
             if all(item["volumeNumber"] != current_volume for item in volumes):
                 volumes.append({"volumeNumber": current_volume})
             continue
 
         title_match = TITLE_PATTERN.match(line)
-        if title_match is None:
+        if title_match is not None:
+            if pending is not None:
+                unresolved.append(pending["line"])
+                pending = None
+            record(
+                title_match.group("number"),
+                title_match.group("name"),
+                title_match.group("range"),
+                line,
+            )
             continue
-        number = title_match.group("number").upper()
-        if number in seen_titles:
-            continue
-        chapter_range = parse_chapter_range(title_match.group("range"))
-        if chapter_range is None:
-            unparsed.append(line)
-            continue
-        seen_titles.add(number)
-        entry = {
-            "titleNumber": number,
-            "titleName": title_match.group("name").strip(),
-            "volumeNumber": current_volume,
-        }
-        entry.update(chapter_range)
-        titles.append(entry)
+
+        if pending is not None:
+            tail_match = TITLE_TAIL_PATTERN.match(line)
+            if tail_match is not None:
+                record(
+                    pending["number"],
+                    f'{pending["name"]} {tail_match.group("name")}',
+                    tail_match.group("range"),
+                    f'{pending["line"]} {line}',
+                )
+                pending = None
+                continue
+            unresolved.append(pending["line"])
+            pending = None
+
+        head_match = TITLE_HEAD_PATTERN.match(line)
+        if head_match is not None:
+            pending = {
+                "number": head_match.group("number"),
+                "name": head_match.group("name"),
+                "line": line,
+            }
+
+    if pending is not None:
+        unresolved.append(pending["line"])
 
     # Record each volume's chapter span from the titles it contains.
     for volume in volumes:
@@ -187,7 +247,7 @@ def parse_table_of_titles(text):
             volume["lastChapter"] = max(owned, key=lambda i: i["lastChapterSortKey"])["lastChapter"]
             volume["titleCount"] = len(owned)
 
-    return volumes, titles, unparsed
+    return volumes, titles, unparsed, unresolved
 
 
 def chapter_is_published(chapter_number, titles):
@@ -279,7 +339,7 @@ def main(argv=None):
         print(json.dumps({"valid": False, "error": str(exc)}, indent=2))
         return 1
 
-    volumes, titles, unparsed = parse_table_of_titles(text)
+    volumes, titles, unparsed, unresolved = parse_table_of_titles(text)
     edition_year = detect_edition_year(text)
 
     problems = []
@@ -297,9 +357,13 @@ def main(argv=None):
         "volumeCount": len(volumes),
         "titleCount": len(titles),
         "unparsedLineCount": len(unparsed),
+        # A number-led line that never became a title. This is the diagnostic
+        # that makes a silently dropped title visible.
+        "unresolvedTitleLineCount": len(unresolved),
         "volumes": volumes,
         "titles": titles,
         "unparsedLines": unparsed[:MAX_SAMPLE_LINES],
+        "unresolvedTitleLines": unresolved[:MAX_SAMPLE_LINES],
         # This document does not enumerate chapters, so no chapter roster is
         # claimed. Chapters are validated against the title ranges instead.
         "chapterRosterAvailable": False,
@@ -319,6 +383,7 @@ def main(argv=None):
         "volumeCount": len(volumes),
         "titleCount": len(titles),
         "unparsedLineCount": len(unparsed),
+        "unresolvedTitleLineCount": len(unresolved),
     }
     if problems:
         summary["problems"] = problems

@@ -183,7 +183,7 @@ Title 7 Corporations and Partnerships – Chs. 56-70
 It lists volumes and titles with the chapter **range** each title covers. It
 never enumerates chapters.
 
-Three properties of the layout matter:
+Four properties of the layout matter:
 
 - Only the first title in each volume carries the word `Title`. The rest are
   bare leading numbers, so a pattern that treats a bare leading number as a
@@ -195,6 +195,42 @@ Three properties of the layout matter:
   numbers are interleaved with the entries. Requiring the dash-and-range
   suffix separates a title line from them.
 - Ranges are printed with an en-dash and use `Ch.` for a single chapter.
+- A title name too long for one line **wraps**, leaving the number and the
+  start of the name on one line and the rest plus the range on the next.
+
+## The wrapped title that vanished
+
+The first run against the real document reported 21 volumes, 56 titles and
+zero unparsed lines, which looked clean. It was not. Between title 18
+(chs 176-185) and title 20 (chs 201-215) there was a gap: title 19,
+`Miscellaneous Matters Related to Government and Public Affairs`, covering
+chapters 190-200. Its name wraps, so neither half matched, and the title was
+dropped in silence.
+
+Nothing in the output said so. The loss surfaced only because chapter 192 is
+in the development sample and could not be attributed to any published title,
+which failed acquisition. The range check caught a parser defect it was not
+written to catch.
+
+Two things follow. Wrapped entries are now joined across lines. And a
+number-led line that never resolves into a title is reported as
+`unresolvedTitleLineCount`, gated at zero, so the next parser gap announces
+itself instead of silently shrinking the roster.
+
+## Lettered titles and lettered ranges both occur
+
+The real document settles a question left open earlier. Range endpoints do
+carry letters, and so do title numbers:
+
+```
+vol 7  title 26A  chs 284-285C  Economic Development
+vol 7  title 27   chs 286A-289  Public Borrowing
+vol 13 title 36A  chs 455-470   Housing; Lottery and Games; Environment
+vol 14 title 37   chs 471-475C  Alcoholic Liquors; Controlled Substances; Drugs
+```
+
+Sort-key containment handles these: chapter 285B falls inside 284-285C, and
+279A falls inside the numeric range 276-283.
 
 ## What the document does give
 
@@ -223,10 +259,12 @@ The natural next step is discovery by verified enumeration: walk each
 published title range, fetch each candidate chapter document, and record a
 200 with its digest as a chapter and a 404 as an absence. That is not
 guessing — every chapter in the resulting roster would be backed by a
-retrieved document, and every gap by a recorded response. It needs a design
-decision about lettered chapters, which no range endpoint seen so far
-expresses, and it is a whole-edition operation, so it belongs in its own
-increment rather than in this one.
+retrieved document, and every gap by a recorded response.
+
+Lettered chapters are no longer an obstacle: the ranges express them
+directly, so a range such as 284-285C states its own letter span. It remains
+a whole-edition operation of several hundred requests, so it belongs in its
+own increment rather than in this one.
 
 ## The other Legislative Counsel documents
 

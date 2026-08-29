@@ -31,8 +31,9 @@ title ranges. A whole-edition build needs a real roster.
   record a 200 with its digest as a chapter and a 404 as an absence. Every
   chapter is then backed by a retrieved document and every gap by a recorded
   response, which is verification rather than guessing.
-- Decide how lettered chapters are enumerated. No range endpoint seen so far
-  expresses one, yet 279A, 279B and 646A all exist.
+- Lettered chapters are expressed by the ranges themselves (`chs 284-285C`,
+  `chs 286A-289`), so enumeration can follow the printed span rather than
+  guessing suffixes.
 - This is a whole-edition operation of several hundred requests, so it runs on
   manual dispatch, not on every CI run.
 

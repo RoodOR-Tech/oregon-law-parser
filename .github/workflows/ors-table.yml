@@ -162,6 +162,9 @@ jobs:
           echo "Volumes: $(jq -r '.volumeCount // 0' ors-roster.json)"
           echo "Titles: $(jq -r '.titleCount // 0' ors-roster.json)"
           echo "Unparsed roster lines: $(jq -r '.unparsedLineCount // 0' ors-roster.json)"
+          echo "Unresolved title lines: $(jq -r '.unresolvedTitleLineCount // 0' ors-roster.json)"
+          jq -r '.unresolvedTitleLines // [] | .[] | "  unresolved: \(.)"' ors-roster.json
+          jq -r '.unparsedLines // [] | .[] | "  unparsed: \(.)"' ors-roster.json
           if [ "$(jq -r '.valid' ors-roster.json)" = "true" ]; then
             echo "Titles and the chapter ranges they cover:"
             jq -r '.titles[] | "  vol \(.volumeNumber // "?")  title \(.titleNumber)  chs \(.firstChapter)-\(.lastChapter)  \(.titleName // "")"' \
@@ -180,7 +183,10 @@ jobs:
         if: always()
         run: |
           set -euo pipefail
-          jq -e '.valid == true and .schemaVersion == 1 and .titleCount > 0 and .volumeCount > 0 and .unparsedLineCount == 0' ors-roster.json >/dev/null
+          # unresolvedTitleLineCount must be zero: a number-led line the parser
+          # does not understand means a title may have been dropped, which is
+          # how title 19 and its chapter 192 went missing without a signal.
+          jq -e '.valid == true and .schemaVersion == 1 and .titleCount > 0 and .volumeCount > 0 and .unparsedLineCount == 0 and .unresolvedTitleLineCount == 0' ors-roster.json >/dev/null
           jq -e '.valid == true and .titleRangesChecked == true and ([.chapters[] | select(.ok) | .sha256] | all(test("^[0-9a-f]{64}$")))' ors-acquisition.json >/dev/null
           jq -e '[.chapters[] | select(.ok) | .titleNumber] | all(. != null)' ors-acquisition.json >/dev/null
           jq -e '.valid == true and .probedChapterCount > 0' ors-structure-probe.json >/dev/null

@@ -54,15 +54,24 @@ CRIMES
 Volume 4
 Title 14 Procedure in Criminal Matters Generally – Chs. 131-153
 16 Crimes and Punishments – Chs. 161-169
+Volume 5
+Title 17 State Legislative Department and Laws – Chs. 171-174
+18 Executive Branch; Organization – Chs. 176-185
+19 Miscellaneous Matters Related to Government and
+Public Affairs – Chs. 190-200
+Volume 7
+Title 26A Economic Development – Chs. 284-285C
+27 Public Borrowing – Chs. 286A-289
 """
 
 
 class TableOfTitlesTest(unittest.TestCase):
     def setUp(self):
-        self.volumes, self.titles, self.unparsed = roster.parse_table_of_titles(REAL_TEXT)
+        (self.volumes, self.titles, self.unparsed,
+         self.unresolved) = roster.parse_table_of_titles(REAL_TEXT)
 
     def test_volumes_are_captured_with_the_span_of_their_titles(self):
-        self.assertEqual([item["volumeNumber"] for item in self.volumes], [1, 2, 3, 4])
+        self.assertEqual([item["volumeNumber"] for item in self.volumes], [1, 2, 3, 4, 5, 7])
         by_number = {item["volumeNumber"]: item for item in self.volumes}
         self.assertEqual(by_number[1]["firstChapter"], "1")
         self.assertEqual(by_number[1]["lastChapter"], "55")
@@ -73,7 +82,33 @@ class TableOfTitlesTest(unittest.TestCase):
         # leading number as a chapter misreads every one of these.
         numbers = [item["titleNumber"] for item in self.titles]
         self.assertEqual(numbers[:6], ["1", "2", "3", "4", "5", "6"])
-        self.assertEqual(len(self.titles), 15)
+
+    def test_a_title_whose_name_wraps_is_recovered_not_dropped(self):
+        # Title 19's name runs onto a second line that carries the range. The
+        # first parser matched neither half and dropped the title in silence;
+        # the loss only surfaced when chapter 192 could not be attributed.
+        by_number = {item["titleNumber"]: item for item in self.titles}
+        self.assertIn("19", by_number)
+        self.assertEqual(
+            by_number["19"]["titleName"],
+            "Miscellaneous Matters Related to Government and Public Affairs",
+        )
+        self.assertEqual(by_number["19"]["firstChapter"], "190")
+        self.assertEqual(by_number["19"]["lastChapter"], "200")
+        self.assertEqual(by_number["19"]["volumeNumber"], 5)
+
+    def test_chapter_192_is_attributed_once_the_wrapped_title_is_recovered(self):
+        self.assertEqual(roster.chapter_is_published("192", self.titles)["titleNumber"], "19")
+
+    def test_lettered_titles_and_lettered_range_endpoints_parse(self):
+        by_number = {item["titleNumber"]: item for item in self.titles}
+        self.assertEqual(by_number["26A"]["lastChapter"], "285C")
+        self.assertEqual(by_number["27"]["firstChapter"], "286A")
+        # 285B falls inside 284-285C by sort key.
+        self.assertEqual(roster.chapter_is_published("285B", self.titles)["titleNumber"], "26A")
+
+    def test_nothing_is_left_unresolved_in_the_real_layout(self):
+        self.assertEqual(self.unresolved, [])
 
     def test_each_title_carries_its_name_and_owning_volume(self):
         by_number = {item["titleNumber"]: item for item in self.titles}
@@ -119,7 +154,7 @@ class ChapterRangeTest(unittest.TestCase):
 
 class ChapterContainmentTest(unittest.TestCase):
     def setUp(self):
-        _, self.titles, _ = roster.parse_table_of_titles(REAL_TEXT)
+        _, self.titles, _, _ = roster.parse_table_of_titles(REAL_TEXT)
 
     def test_a_chapter_is_matched_to_its_title(self):
         self.assertEqual(roster.chapter_is_published("1", self.titles)["titleNumber"], "1")
@@ -153,9 +188,16 @@ class RosterCliTest(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             report = json.loads(report_path.read_text())
             self.assertTrue(report["valid"])
-            self.assertEqual(report["volumeCount"], 5)
-            self.assertEqual(report["titleCount"], 13)
+            self.assertEqual(report["volumeCount"], 7)
+            self.assertEqual(report["titleCount"], 15)
             self.assertEqual(report["unparsedLineCount"], 0)
+            self.assertEqual(report["unresolvedTitleLineCount"], 0)
+            # The wrapped title survives the real extraction path.
+            by_number = {item["titleNumber"]: item for item in report["titles"]}
+            self.assertEqual(
+                by_number["19"]["titleName"],
+                "Miscellaneous Matters Related to Government and Public Affairs",
+            )
             # The document does not enumerate chapters and must not claim to.
             self.assertFalse(report["chapterRosterAvailable"])
             self.assertNotIn("chapters", report)
@@ -189,14 +231,27 @@ class RosterCliTest(unittest.TestCase):
 
 class EmptyDocumentTest(unittest.TestCase):
     def test_a_document_with_no_titles_yields_nothing(self):
-        volumes, titles, unparsed = roster.parse_table_of_titles("TABLE OF TITLES\nxxxv\n")
-        self.assertEqual((volumes, titles, unparsed), ([], [], []))
+        result = roster.parse_table_of_titles("TABLE OF TITLES\nxxxv\n")
+        self.assertEqual(result, ([], [], [], []))
 
     def test_a_title_line_with_an_unreadable_range_is_reported_not_dropped(self):
         text = "Volume 1\nTitle 1 Courts of Record – Chs. various\n"
-        _, titles, unparsed = roster.parse_table_of_titles(text)
+        _, titles, unparsed, _ = roster.parse_table_of_titles(text)
         self.assertEqual(titles, [])
         self.assertEqual(len(unparsed), 1)
+
+    def test_a_number_led_line_that_never_becomes_a_title_is_reported(self):
+        # The failure mode that hid the dropped title: a line the parser does
+        # not understand must be visible, not absent.
+        text = "Volume 1\n42 Something With No Range At All\nRANDOM LABEL\n"
+        _, titles, _, unresolved = roster.parse_table_of_titles(text)
+        self.assertEqual(titles, [])
+        self.assertEqual(unresolved, ["42 Something With No Range At All"])
+
+    def test_a_pending_line_is_reported_when_a_volume_header_interrupts_it(self):
+        text = "Volume 1\n42 An Interrupted Title Name\nVolume 2\n"
+        _, _, _, unresolved = roster.parse_table_of_titles(text)
+        self.assertEqual(unresolved, ["42 An Interrupted Title Name"])
 
     def test_text_diagnostics_are_bounded(self):
         text = "\n".join(f"line {index} " + "x" * 400 for index in range(200))
