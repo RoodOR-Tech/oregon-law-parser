@@ -669,6 +669,54 @@ sections printed unbolded" stays an open item for whole-edition acquisition
 diagnostic (`unboldedStubLineCount`) stays in place specifically to catch it
 there, gated at zero the same way, if and when a real one appears.
 
+## First real cross-reference candidates
+
+The cross-reference measurement pass's first CI run against the real sample
+chapters (before a workflow bug capped how much of the log survived --
+see the "guard every jq-into-head diagnostic pipe" commit) still printed
+several hundred real candidates before it broke, and they already show two
+things the generous first-pass patterns do not yet get right.
+
+**A bare "chapter NNN" mention is not always an ORS chapter reference.**
+Real printed forms include both:
+
+```
+issued under ORS 271.390 or ORS chapter 287A to finance capital costs
+Note: Sections 3 and 4, chapter 88, Oregon Laws 2025, provide:
+the amount specified in section 1 (6), chapter 705, Oregon Laws 2013
+pursuant to this section or section 10, chapter 685, Oregon Laws 2015
+```
+
+Only the first is a genuine cross-reference to an ORS chapter -- it is
+prefixed by "ORS". The other three cite a **session-law** chapter ("chapter
+88, Oregon Laws 2025"), the same numbering the amendment effort and this
+effort's own `ors_source_credit` table already use for `session_law_
+chapter`. These are not ORS chapter cross-references at all; conflating
+them would produce a `to_section_number`/`to_section_id` resolution attempt
+against the wrong table entirely. The `chapter` candidate kind needs to
+require the "ORS" prefix (or otherwise rule out a trailing "Oregon Laws
+YYYY") before it is treated as SCHEMA.md's `reference_kind = "chapter"`.
+
+**A bare section mention is sometimes scoped to a subsection.** Real forms:
+
+```
+Notwithstanding ORS 125.150 (3), during a period of statewide emerg[ency]
+interview of a person described in ORS 125.150 (3) by a visitor appointed
+```
+
+`(3)` here is a subsection suffix on the citation, the same kind of detail
+already deliberately left unmodeled for `ors_source_credit` (see the
+subsection-scoping note earlier in this document and SCHEMA.md's deferred
+list). `to_section_number` should record `125.150`, not `125.150 (3)`,
+consistent with that same scope decision -- but the current pass's bare
+`SECTION_NUMBER_PATTERN` already stops at the section number and does not
+swallow the subsection suffix, so this needs no code change; it is recorded
+here so the eventual extraction rule does not re-litigate it.
+
+Neither observation is acted on yet -- the diagnostic stays generous and
+unopinionated per its own docstring -- but both are real, so they are
+recorded now rather than left to be rediscovered next round.
+
 ## The other Legislative Counsel documents
 
 `ORS_Renum.pdf` is a renumbering table bearing on `ors_section.renumbered_to`,
