@@ -57,64 +57,66 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      # Discovery and acquisition are diagnosed independently, and the gate on
-      # discovery runs last. A discovery failure and a chapter-URL failure have
-      # different causes and different fixes, so one run should distinguish
-      # them rather than stopping at whichever fails first.
-      - name: Discover the published chapter roster
-        id: discover
+      - name: Report the Java runtime used for text extraction
+        run: java -version
+
+      # The ORS landing page does not link chapters -- its bills_laws/ors
+      # links are the annual reference PDFs and the General Index -- so the
+      # roster comes from the published ORS_TitlesChapters.pdf.
+      - name: Discover the published title and chapter roster
+        id: roster
         continue-on-error: true
         run: |
           set -uo pipefail
-          python3 ors/tools/acquire_ors_chapters.py \
-            --index-only \
-            --report ors-chapter-index.json
+          python3 ors/tools/acquire_ors_roster.py \
+            --output ors-sources/ORS_TitlesChapters.pdf \
+            --tika-jar tika-app-2.8.0.jar \
+            --report ors-roster.json
 
-      # Routine runs acquire only the fixed development sample in
-      # ors/sample/chapters.json, so a cycle stays to a handful of requests.
-      # A whole-edition run is several hundred requests and is opt-in.
-      - name: Acquire chapter sources
+      - name: Acquire chapter sources named by the roster
+        if: steps.roster.outcome == 'success'
+        continue-on-error: true
         env:
           SCOPE: ${{ github.event.inputs.scope || 'sample' }}
           CHAPTER_OVERRIDE: ${{ github.event.inputs.chapters }}
         run: |
           set -euo pipefail
           if [ "$SCOPE" = "whole-edition" ]; then
-            echo "Acquiring the whole edition."
+            echo "Acquiring every chapter on the roster."
             python3 ors/tools/acquire_ors_chapters.py \
+              --roster-file ors-roster.json \
               --output-dir ors-sources \
               --report ors-acquisition.json
           elif [ -n "$CHAPTER_OVERRIDE" ]; then
             echo "Acquiring overridden chapters: $CHAPTER_OVERRIDE"
             python3 ors/tools/acquire_ors_chapters.py \
+              --roster-file ors-roster.json \
               --chapters "$CHAPTER_OVERRIDE" \
               --output-dir ors-sources \
               --report ors-acquisition.json
           else
             echo "Acquiring the fixed development sample."
             python3 ors/tools/acquire_ors_chapters.py \
+              --roster-file ors-roster.json \
               --chapters-file ors/sample/chapters.json \
               --output-dir ors-sources \
               --report ors-acquisition.json
           fi
-          jq -e '.valid == true and ([.chapters[] | select(.ok) | .sha256] | all(test("^[0-9a-f]{64}$")))' ors-acquisition.json >/dev/null
-        # Acquisition normally reads chapter URLs from the roster. When
-        # discovery failed there is no roster, so fall back to constructing
-        # URLs from the explicitly named sample. That run is marked
-        # rosterVerified false and only exists to isolate the failure.
-        if: steps.discover.outcome == 'success'
 
-      - name: Acquire sample chapters without the index
-        if: steps.discover.outcome != 'success'
+      # When roster discovery fails there is no roster to acquire from, so
+      # fall back to the explicitly named sample. That run is marked
+      # rosterVerified false and exists only to keep chapter structure
+      # observable while discovery is being fixed.
+      - name: Acquire sample chapters without the roster
+        if: steps.roster.outcome != 'success'
         continue-on-error: true
         run: |
           set -euo pipefail
           python3 ors/tools/acquire_ors_chapters.py \
-            --without-index \
+            --without-roster \
             --chapters-file ors/sample/chapters.json \
             --output-dir ors-sources \
             --report ors-acquisition.json
-          jq -e '([.chapters[] | select(.ok) | .sha256] | all(test("^[0-9a-f]{64}$")))' ors-acquisition.json >/dev/null
 
       - name: Probe chapter structure
         if: always()
@@ -129,8 +131,6 @@ jobs:
             --acquisition-report ors-acquisition.json \
             --report ors-structure-probe.json
 
-      # Counters for every chapter, deep samples for one. The whole-chapter
-      # dump is what pushed the index diagnostics out of the readable tail.
       - name: Print the structural fingerprint
         if: always()
         run: |
@@ -163,44 +163,41 @@ jobs:
 
       # Printed immediately before the gate so it stays in the readable tail
       # of the log on a failing run.
-      - name: Print the discovered edition and chapter roster
+      - name: Print the discovered roster
         if: always()
         run: |
           set -uo pipefail
-          if [ ! -f ors-chapter-index.json ]; then
-            echo "No index report was written."
+          if [ ! -f ors-roster.json ]; then
+            echo "No roster report was written."
             exit 0
           fi
-          echo "Valid: $(jq -r '.valid' ors-chapter-index.json)"
-          echo "Edition year: $(jq -r '.editionYear // "unknown"' ors-chapter-index.json)"
-          echo "Index SHA-256: $(jq -r '.indexSha256 // "none"' ors-chapter-index.json)"
-          echo "Chapters discovered: $(jq -r '.discoveredChapterCount // 0' ors-chapter-index.json)"
-          if [ "$(jq -r '.valid' ors-chapter-index.json)" = "true" ]; then
-            echo "Roster:"
-            jq -r '[.chapters[].chapterNumber] | join(" ")' ors-chapter-index.json
+          echo "Valid: $(jq -r '.valid' ors-roster.json)"
+          echo "Edition year: $(jq -r '.editionYear // "unknown"' ors-roster.json)"
+          echo "Roster SHA-256: $(jq -r '.rosterSha256 // "none"' ors-roster.json)"
+          echo "Titles: $(jq -r '.titleCount // 0' ors-roster.json)"
+          echo "Chapters: $(jq -r '.chapterCount // 0' ors-roster.json)"
+          echo "Unparsed roster lines: $(jq -r '.unparsedLineCount // 0' ors-roster.json)"
+          if [ "$(jq -r '.valid' ors-roster.json)" = "true" ]; then
+            echo "Titles found:"
+            jq -r '.titles[] | "  \(.titleNumber)  \(.titleName // "")"' ors-roster.json | head -40
+            echo "Chapter roster:"
+            jq -r '[.chapters[].chapterNumber] | join(" ")' ors-roster.json | fold -s -w 160
           else
-            echo "Problems: $(jq -c '.problems' ors-chapter-index.json)"
-            jq -r '.indexDiagnostics
-              | "title: \(.pageTitle)  anchors: \(.anchorCount)  scripts: \(.scriptCount)  hrefs: \(.hrefCount)"' \
-              ors-chapter-index.json
-            echo "Href path prefixes (count, prefix, extensions):"
-            jq -r '.indexDiagnostics.hrefPathPrefixHistogram[]
-              | "\(.count)\t\(.prefix)\t\([.extensions[] | "\(.extension):\(.count)"] | join(","))"' \
-              ors-chapter-index.json | column -t
-            echo
-            echo "Largest prefix: $(jq -r '.indexDiagnostics.topPrefix' ors-chapter-index.json)"
-            echo "Every basename under it:"
-            jq -r '.indexDiagnostics.topPrefixBasenames | join(" ")' ors-chapter-index.json | fold -s -w 160
+            echo "Problems: $(jq -c '.problems // [.error]' ors-roster.json)"
+            echo "Unparsed lines:"
+            jq -r '.unparsedLines // [] | .[]' ors-roster.json | head -20
+            echo "Extracted text sample:"
+            jq -r '.textDiagnostics.sampleLines // [] | .[]' ors-roster.json | head -40
           fi
 
       # The real gate. It runs last so the diagnostic steps above have already
       # printed their evidence into the log even on a failing run.
-      - name: Gate on chapter discovery, acquisition and probe
+      - name: Gate on roster discovery, acquisition and probe
         if: always()
         run: |
           set -euo pipefail
-          jq -e '.valid == true and .schemaVersion == 1 and .discoveredChapterCount > 0' ors-chapter-index.json >/dev/null
-          jq -e '.valid == true and ([.chapters[] | select(.ok) | .sha256] | all(test("^[0-9a-f]{64}$")))' ors-acquisition.json >/dev/null
+          jq -e '.valid == true and .schemaVersion == 1 and .chapterCount > 0 and .editionId != null' ors-roster.json >/dev/null
+          jq -e '.valid == true and .rosterVerified == true and ([.chapters[] | select(.ok) | .sha256] | all(test("^[0-9a-f]{64}$")))' ors-acquisition.json >/dev/null
           jq -e '.valid == true and .probedChapterCount > 0' ors-structure-probe.json >/dev/null
 
       - name: Upload ORS pipeline reports
@@ -209,7 +206,7 @@ jobs:
         with:
           name: ors-pipeline-reports
           path: |
-            ors-chapter-index.json
+            ors-roster.json
             ors-acquisition.json
             ors-structure-probe.json
           if-no-files-found: warn

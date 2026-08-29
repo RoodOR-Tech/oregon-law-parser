@@ -129,55 +129,54 @@ output, and it tells us the published 2025 edition is already behind the 2026
 session. A future `ors_chapter_pending_change` table should capture it. It is
 recorded here rather than acted on now, so increment 2 stays scoped.
 
-## The index page
+## The landing page does not publish a chapter roster
 
 The page at `/bills_laws/pages/ors.aspx` is served by SharePoint and is the
-right page — it returns `Bills and Laws Oregon Revised Statutes` with 415
-hrefs across 397 anchors. Its links are present in the served HTML, so this is
-not a page that builds its roster from script.
+right page — `Bills and Laws Oregon Revised Statutes`, 415 hrefs across 397
+anchors, with its links present in the served HTML rather than built from
+script.
 
-The chapter links are there: the largest path-prefix group by far is
-`bills_laws/ors` with 115 hrefs, against 18 for `bills_laws/Pages` and 15 for
-`bills_laws/lawsstatutes`. None of the 115 matched `ors{NNN}.html`, and the
-matcher is verified correct for that form, so the published index links to
-chapter documents under some other naming.
+Its largest path-prefix group is `bills_laws/ors` with 115 links, which looked
+like the chapter roster. It is not. Listing every basename under that prefix
+settled it:
 
-Per-prefix sampling showed what the first twelve of those 115 links are, and
-they are not chapters:
+- **87 session reference PDFs**, `1941.pdf` through `2025.pdf`, including
+  special sessions (`1957ss.pdf`, `2002ss1.pdf` … `2002ss5.pdf`,
+  `2020ss1.pdf` … `2020ss3.pdf`). These are the amendment-and-repeal tables
+  the amendment effort already cites.
+- **`OCLA.pdf`**, Oregon Compiled Laws Annotated.
+- **28 General Index files**, `generalIndexA.pdf` through `generalIndexZ.pdf`
+  plus `generalIndexPreface.pdf` and `generalIndexQuickSearch.pdf` — the
+  alphabetical subject index.
 
-```
-generalIndexPreface.pdf  generalIndexQuickSearch.pdf
-generalIndexA.pdf ... generalIndexJ.pdf
-```
+There is not one chapter document among them. No amount of adjusting the href
+matcher would have found a roster on this page, because the page does not
+carry one.
 
-That is the ORS General Index — the alphabetical subject index, published as
-one PDF per letter. The rest of the `bills_laws/ors` group is very likely the
-annual amendment-and-repeal reference PDFs the amendment effort already
-knows about, such as `2023.pdf`, since those live under the same prefix.
+Three diagnostic rounds were spent narrowing this, each answering slightly
+less than the question needed: an alphabetical sample that never reached the
+prefix, a per-prefix sample too small to be conclusive, and a JSON dump too
+tall to survive the log tail. The lesson is recorded because it is the same
+one the probe teaches: when a bounded sample cannot settle a question, list
+the whole thing.
 
-Twenty-eight General Index files plus roughly twenty-seven annual references
-accounts for only about half of the 115, so a bounded sample cannot settle
-whether chapter links are also present. The diagnostic now lists every
-distinct basename under the largest prefix, which answers it outright.
+## The roster comes from ORS_TitlesChapters.pdf
 
-The page also links three Legislative Counsel documents worth noting for later
-increments: `ORS_TitlesChapters.pdf`, which is the published title-and-chapter
-roster and a natural cross-check on discovery; `ORS_Renum.pdf`, a renumbering
-table that bears on `ors_section.renumbered_to`; and `ORS_Preface.pdf`.
+The landing page links three Legislative Counsel documents, and one of them is
+the roster: `/bills_laws/BillsLawsEDL/ORS_TitlesChapters.pdf`.
+
+Reading it is better than scraping links would have been. It carries title
+grouping and chapter names, so it populates `ors_title` and
+`ors_chapter.chapter_name` directly instead of leaving them to be recovered
+from each chapter document. Text is extracted with the Tika jar already
+vendored for the amendment parser.
+
+The other two are noted for later increments: `ORS_Renum.pdf`, a renumbering
+table bearing on `ors_section.renumbered_to`, and `ORS_Preface.pdf`.
 
 ## Still unresolved
 
-Whether the landing page publishes a chapter roster at all. The evidence so
-far suggests it publishes reference documents — the General Index, the annual
-amendment-and-repeal tables, `ORS_TitlesChapters.pdf` — rather than a link per
-chapter.
-
-If that holds, discovery should read the roster from
-`ORS_TitlesChapters.pdf`, which is the authoritative published title-and-chapter
-list. That is a better source than scraped links in any case, because it
-carries title grouping and chapter names, populating `ors_title` and
-`ors_chapter.chapter_name` directly instead of leaving them to be recovered
-per chapter. The repository already vendors Tika for PDF text extraction.
-
-Acquisition is not blocked by any of this: the `ors{NNN}.html` pattern is
-confirmed, and chapter structure is already measured.
+Whether this parser's title and chapter patterns match the real roster
+document's layout. The extraction path is proven end to end offline against a
+synthetic roster PDF, and a run that parses no chapters fails with the
+extracted text sample attached rather than returning an empty roster.

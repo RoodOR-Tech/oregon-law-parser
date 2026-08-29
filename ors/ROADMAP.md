@@ -9,7 +9,8 @@ the previous one, not from assumptions.
 
 - Effort charter and non-interference rule with the amendment parser.
 - Relational schema version 1.
-- Chapter discovery and acquisition with pinned provenance.
+- Roster discovery from the published `ORS_TitlesChapters.pdf`, and chapter
+  acquisition with pinned provenance.
 - Markup structure probe.
 - Offline unit tests plus a loopback end-to-end acquisition test.
 - A CI workflow scoped to `ors/**`.

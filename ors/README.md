@@ -56,7 +56,7 @@ separately gated.
 
 | Stage | Tool | Status |
 |---|---|---|
-| 1. Discover the chapter index for an edition | `tools/acquire_ors_chapters.py --index-only` | implemented |
+| 1. Discover the title and chapter roster for an edition | `tools/acquire_ors_roster.py` | implemented |
 | 2. Acquire chapter sources with pinned provenance | `tools/acquire_ors_chapters.py` | implemented |
 | 3. Fingerprint chapter markup to establish ground truth | `tools/probe_ors_structure.py` | implemented |
 | 4. Parse chapters into `ors_section` rows | `tools/parse_ors_chapter.py` | not started |
@@ -71,38 +71,42 @@ is written against it.
 
 ## Running the implemented stages
 
-Discovery only — lists the chapters an edition publishes, downloads nothing:
+Discover the roster — reads the published `ORS_TitlesChapters.pdf` and emits
+titles, chapters and chapter names:
 
 ```bash
-python3 ors/tools/acquire_ors_chapters.py \
-  --index-only \
-  --report ors-chapter-index.json
+python3 ors/tools/acquire_ors_roster.py \
+  --output ors-sources/ORS_TitlesChapters.pdf \
+  --tika-jar tika-app-2.8.0.jar \
+  --report ors-roster.json
 ```
 
 Acquire the fixed development sample — what routine CI runs do:
 
 ```bash
 python3 ors/tools/acquire_ors_chapters.py \
+  --roster-file ors-roster.json \
   --chapters-file ors/sample/chapters.json \
   --output-dir ors-sources \
   --report ors-acquisition.json
 ```
 
-Acquire every chapter in the edition — several hundred requests, so this is
+Acquire every chapter on the roster — several hundred requests, so this is
 opt-in via manual workflow dispatch rather than something CI does on its own:
 
 ```bash
 python3 ors/tools/acquire_ors_chapters.py \
+  --roster-file ors-roster.json \
   --output-dir ors-sources \
   --report ors-acquisition.json
 ```
 
-Isolate a failure by skipping the index and constructing URLs from explicitly
+Isolate a failure by skipping the roster and constructing URLs from explicitly
 named chapters:
 
 ```bash
 python3 ors/tools/acquire_ors_chapters.py \
-  --without-index \
+  --without-roster \
   --chapters-file ors/sample/chapters.json \
   --output-dir ors-sources \
   --report ors-acquisition.json
@@ -110,8 +114,9 @@ python3 ors/tools/acquire_ors_chapters.py \
 
 Naming a chapter is not the same as synthesizing a roster — the roster is what
 must never be guessed. Such a run is marked `rosterVerified: false` and
-`chapterUrlSource: "constructed"`, and exists to tell a discovery failure apart
-from a chapter-URL failure. It must not be treated as a complete edition.
+`chapterUrlSource: "constructed"`, and exists to keep chapter structure
+observable while discovery is being fixed. It must not be treated as a
+complete edition.
 
 Fingerprint what was acquired:
 
@@ -141,8 +146,10 @@ expectations. Gold rows come later, in increment 5, under independent review.
 
 ## Tests
 
-Every test is offline and uses synthetic fixtures, so the suite runs on a
-machine with no network egress:
+Every test is offline, using synthetic fixtures and a loopback HTTP server, so
+the suite runs on a machine with no network egress. The roster tests drive the
+real Tika extraction path against a synthetic roster PDF, and skip themselves
+if Java or the Tika jar is unavailable:
 
 ```bash
 python3 -m unittest discover -s ors/tests -v
