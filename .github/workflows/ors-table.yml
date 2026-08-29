@@ -183,8 +183,14 @@ jobs:
             jq -r '.indexDiagnostics
               | "title: \(.pageTitle)  anchors: \(.anchorCount)  scripts: \(.scriptCount)  hrefs: \(.hrefCount)"' \
               ors-chapter-index.json
-            echo "Href path prefixes, with extensions and samples:"
-            jq '.indexDiagnostics.hrefPathPrefixHistogram' ors-chapter-index.json
+            echo "Href path prefixes (count, prefix, extensions):"
+            jq -r '.indexDiagnostics.hrefPathPrefixHistogram[]
+              | "\(.count)\t\(.prefix)\t\([.extensions[] | "\(.extension):\(.count)"] | join(","))"' \
+              ors-chapter-index.json | column -t
+            echo
+            echo "Samples from the three largest prefixes:"
+            jq -r '.indexDiagnostics.hrefPathPrefixHistogram[0:3][]
+              | "[\(.prefix)]", (.samples[] | "  \(.)")' ors-chapter-index.json
           fi
 
       # The real gate. It runs last so the diagnostic steps above have already
