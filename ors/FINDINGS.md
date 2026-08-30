@@ -1026,6 +1026,26 @@ above already is one), so if that ever appeared in bracket form ahead of
 a section's real trailing credit, the original leftmost-match search would
 have seized on it instead.
 
+Confirmed against real CI data (run
+[33325250682](https://github.com/RoodOR-Tech/oregon-law-parser/actions/runs/33325250682)),
+before and after, with everything else held fixed:
+
+| field | before | after |
+|---|---|---|
+| `sourceCreditRowCount` | 2600 | 2880 |
+| `formerlyReferenceCount` | 247 | 276 |
+| `editorialNoteCandidateCount` | 152 | 152 |
+| `unparsedCreditSegmentCount` | 0 | 0 |
+| `integrityViolations` | 0 | 0 |
+| `sectionRowCount` / `statusCounts` | unchanged | unchanged |
+
+280 real credit rows recovered, `editorialNoteCandidateCount` exactly
+unchanged (the note text moved from inside an unrecognized blob into a
+correctly split `body_text`, not lost or duplicated), and the gate never
+moved -- the second genuinely confirmed fix in this file's history that
+was measured before being called done rather than assumed from the local
+tests alone.
+
 ## The other Legislative Counsel documents
 
 `ORS_Renum.pdf` is a renumbering table bearing on `ors_section.renumbered_to`,
