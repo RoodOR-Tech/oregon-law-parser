@@ -94,18 +94,24 @@ caught before CI did:
   `ors_source_credit` would join to that table once it exists, rather than
   this increment inventing a column for it now.
 - `ors_section_note` rows for editorial and preface notes. In progress,
-  measurement stage: real CI data surfaced the first genuine example, found
-  in passing as a cross-reference candidate for 2025-1.002 -- `... 2025
-  c.256 §6] Note: Sections 3 and 4, chapter 88, Oregon Laws 2025, provide:
-  Sec. 3. No...`, a "Note:" block printed inline in `body_text` right after
-  the section's own bracketed credit, distinct from it and not yet stripped
-  out. `tools/ors_section_notes.py` finds candidate `Note:`/`Notes:`
-  introductions the same generous, unopinionated way `ors_cross_
-  references.py` measures citation shapes before `ors_cross_reference` rows
-  are built: reported as `editorialNoteCandidateCount` with per-candidate
-  context, diagnostic only and not yet gated. What real block shapes and
-  endings CI reports decides the extraction rule and `note_kind` values,
-  rather than guessing them now.
+  measurement stage: `tools/ors_section_notes.py` finds candidate
+  `Note:`/`Notes:` introductions in `body_text` the same generous,
+  unopinionated way `ors_cross_references.py` measures citation shapes
+  before `ors_cross_reference` rows are built, reported as
+  `editorialNoteCandidateCount` with per-candidate context, diagnostic only
+  and not yet gated. The first real CI run found 152 candidates across the
+  sample at zero cost to the gate, and they resolve into three distinct
+  shapes rather than free text (see FINDINGS.md for the verbatim forms): a
+  "series membership" note naming an ORS chapter or range the section was
+  or was not folded into; a "See note under NNN.NNN" cross-reference
+  pointing at another section's already-printed note instead of repeating
+  it; and a quoted uncodified session-law provision naming
+  `(session_year, session_law_chapter)` -- the same deferred table
+  SCHEMA.md's "temporary and uncodified provisions" item already
+  anticipated, now backed by real data instead of a hypothetical. A rarer
+  fourth shape, a bare cross-reference with no session citation
+  (`Note: See 105.844.`), was also seen once and is not yet placed. The
+  extraction rule itself is not yet written.
 - Repealed and renumbered sections. Done, after three wrong guesses and one
   ground-truth dump. Cross-reference candidate measurement first proved the
   gap was real (numbers like `1.165`/`1.167` embedded *inside* a different

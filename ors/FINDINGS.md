@@ -926,6 +926,74 @@ real note blocks exist across the sample, whether `Note:` and `Notes:` need
 different handling, and where a block actually ends) decides the
 extraction rule and `note_kind` values, rather than guessing them now.
 
+## Real editorial note forms, from CI run 33318595105
+
+The measurement pass's first run against the real sample chapters found 152
+candidates, none of which cost the gate anything (`unparsedCreditSegment
+Count`, `integrityViolations` and `problems` all still zero). Three distinct
+real shapes stand out, none guessed -- each read verbatim off the log:
+
+**A "series membership" note**, printed for a section enacted outside the
+statute's own numbering series, always ending the same way:
+
+```
+Note: 90.112 was enacted into law by the Legislative Assembly but was not
+added to or made a part of ORS chapter 90 or any series therein by
+legislative action. See Preface to Oregon Revised Statutes for further
+explanation.
+
+Note: 192.360 was added to and made a part of 192.311 to 192.478 by
+legislative action but was not added to any smaller series therein. See
+Preface to Oregon Revised Statutes for further explanation.
+```
+
+Both name either an ORS chapter (`ORS chapter 90`) or a range (`192.311 to
+192.478`) as the series the section was or was not folded into -- the same
+two shapes `ors_cross_references.py` already classifies as `chapter` and
+`range` candidates, so an extraction rule for this note form has a
+resolvable target to record, not free text.
+
+**A "see note under" cross-reference between sections**, the compiler's way
+of avoiding printing the same series-membership note under every section it
+covers:
+
+```
+Note: See note under 161.015.
+Note: See note under 192.230.
+```
+
+Ten of chapter 161's own candidates and dozens of chapter 192's are this
+form pointing back at one shared note -- `note_kind` for these should
+resolve to the section named, not duplicate the referenced note's text.
+
+**A quoted uncodified session-law provision**, naming the session chapter
+and quoting the enacting act's own uncodified section text verbatim:
+
+```
+Note: Sections 3 and 4, chapter 88, Oregon Laws 2025, provide:
+ Sec. 3. No later than September 15, 2027, the State Court Administrator
+shall submit a report in the manner provided in ORS 192.245 to the int...
+
+Note: Section 32, chapter 634, Oregon Laws 2019, provides:
+ Sec. 32. ...
+```
+
+This is exactly SCHEMA.md's "Deferred to a later schema version" item --
+"temporary and uncodified provisions printed as chapter notes without a
+section number" -- observed for the first time as real data rather than as
+a deferred hypothetical. `(session_year, session_law_chapter)` here is the
+same tuple `ors_source_credit` already carries, so this note form also has
+a resolvable target rather than needing free text.
+
+A fourth, much rarer shape -- a bare cross-reference with no session
+citation at all, `Note: See 105.844.` -- was also seen once (2025-90.316)
+and is not yet placed in any of the three shapes above.
+
+None of this is extracted yet. It is recorded here, per this project's own
+rule, so the extraction rule that eventually strips these into
+`ors_section_note` rows is designed against what CI actually printed rather
+than against a guess.
+
 ## The other Legislative Counsel documents
 
 `ORS_Renum.pdf` is a renumbering table bearing on `ors_section.renumbered_to`,
