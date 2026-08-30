@@ -99,25 +99,37 @@ caught before CI did:
   subsection-level decomposition as its own future table; a subsection-scoped
   `ors_source_credit` would join to that table once it exists, rather than
   this increment inventing a column for it now.
-- `ors_section_note` rows for editorial and preface notes. In progress,
-  measurement stage: `tools/ors_section_notes.py` finds candidate
-  `Note:`/`Notes:` introductions in `body_text` the same generous,
-  unopinionated way `ors_cross_references.py` measures citation shapes
-  before `ors_cross_reference` rows are built, reported as
-  `editorialNoteCandidateCount` with per-candidate context, diagnostic only
-  and not yet gated. The first real CI run found 152 candidates across the
-  sample at zero cost to the gate, and they resolve into three distinct
-  shapes rather than free text (see FINDINGS.md for the verbatim forms): a
-  "series membership" note naming an ORS chapter or range the section was
-  or was not folded into; a "See note under NNN.NNN" cross-reference
-  pointing at another section's already-printed note instead of repeating
-  it; and a quoted uncodified session-law provision naming
+- `ors_section_note` rows for editorial and preface notes. Done for
+  extraction; sub-classifying the three real shapes is not. Measurement
+  first (`tools/ors_section_notes.py`'s `find_editorial_note_candidates`,
+  the same generous, unopinionated way `ors_cross_references.py` measures
+  citation shapes before `ors_cross_reference` rows are built): the first
+  real CI run found 152 `Note:`/`Notes:` candidates across the sample at
+  zero cost to the gate, resolving into three distinct shapes rather than
+  free text (see FINDINGS.md for the verbatim forms) -- a "series
+  membership" note naming an ORS chapter or range the section was or was
+  not folded into; a "See note under NNN.NNN" cross-reference pointing at
+  another section's already-printed note instead of repeating it; and a
+  quoted uncodified session-law provision naming
   `(session_year, session_law_chapter)` -- the same deferred table
   SCHEMA.md's "temporary and uncodified provisions" item already
   anticipated, now backed by real data instead of a hypothetical. A rarer
   fourth shape, a bare cross-reference with no session citation
-  (`Note: See 105.844.`), was also seen once and is not yet placed. The
-  extraction rule itself is not yet written.
+  (`Note: See 105.844.`), was also seen once and is not yet placed.
+  That measurement also settled the one question extraction needed: every
+  real note runs from its own introducer to the next one, or to the end of
+  the section's text if it is the last. `split_editorial_notes` uses that
+  rule, run before the existing credit/body split (a section's own credit
+  always comes before its first note, stub or operative alike), so
+  `ors_section_note` rows are now emitted with proper offsets and
+  `body_text` no longer carries note text. `note_kind` stays
+  `editorial_note` for all three shapes -- SCHEMA.md's enum has no other
+  value for this case yet, and splitting the shapes apart is deferred
+  until something needs to join against them differently.
+  `editorialNoteCandidateCount` is kept on as a diagnostic rather than
+  removed: it now measures survivors after extraction instead of the gap
+  before it, and stays ungated until a real CI run confirms it reads zero
+  before being promoted to a gate.
 - Repealed and renumbered sections. Done, after three wrong guesses and one
   ground-truth dump. Cross-reference candidate measurement first proved the
   gap was real (numbers like `1.165`/`1.167` embedded *inside* a different

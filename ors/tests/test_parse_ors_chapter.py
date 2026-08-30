@@ -308,7 +308,9 @@ class CreditFollowedByANoteTest(unittest.TestCase):
     bracket to reach the true end of the string (the original rule) missed
     it entirely -- the section got no sourceCreditRaw and no
     ors_source_credit row at all, with the credit silently merged into
-    bodyText along with its note.
+    bodyText along with its note. split_editorial_notes now extracts the
+    note into its own row (see NoteExtractionTest below), so these check
+    only that the credit is still found once the note is out of the way.
     """
 
     def test_the_real_1_002_fragment_still_yields_its_own_credit(self):
@@ -322,10 +324,7 @@ class CreditFollowedByANoteTest(unittest.TestCase):
         result = parser.parse_chapter(markup, "1")
         section = result["sections"][0]
         self.assertEqual(section["sourceCreditRaw"], "[2025 c.256 §6]")
-        self.assertNotIn("2025 c.256", section["bodyText"])
-        # The note itself is not dropped -- note extraction is not built
-        # yet, so it stays in bodyText rather than disappearing.
-        self.assertIn("Sections 3 and 4, chapter 88", section["bodyText"])
+        self.assertEqual(section["bodyText"], "Some statutory text.")
 
     def test_two_consecutive_notes_after_one_credit_are_both_kept(self):
         # Real form: 2025-90.321 prints one credit followed by two separate
@@ -340,8 +339,10 @@ class CreditFollowedByANoteTest(unittest.TestCase):
         result = parser.parse_chapter(markup, "90")
         section = result["sections"][0]
         self.assertEqual(section["sourceCreditRaw"], "[2025 c.574 §1]")
-        self.assertIn("becomes operative January", section["bodyText"])
-        self.assertIn("Section 3, chapter 574", section["bodyText"])
+        self.assertEqual(section["bodyText"], "Some statutory text.")
+        self.assertEqual(len(section["notes"]), 2)
+        self.assertIn("becomes operative January", section["notes"][0]["text"])
+        self.assertIn("Section 3, chapter 574", section["notes"][1]["text"])
 
     def test_an_ordinary_trailing_credit_with_no_note_is_unaffected(self):
         markup = "<p><b>1.010 Some catchline.</b> Some statutory text. [1971 c.743 §1]</p>"
@@ -349,19 +350,58 @@ class CreditFollowedByANoteTest(unittest.TestCase):
         section = result["sections"][0]
         self.assertEqual(section["sourceCreditRaw"], "[1971 c.743 §1]")
         self.assertEqual(section["bodyText"], "Some statutory text.")
+        self.assertEqual(section["notes"], [])
 
-    def test_an_earlier_bracket_before_a_note_does_not_steal_the_real_credit(self):
-        # A bracket immediately followed by "Note:" earlier in the text must
-        # not be mistaken for the section's own trailing credit when a
-        # later bracket is the section's actual, truly-trailing credit.
+
+class NoteExtractionTest(unittest.TestCase):
+    """ors_section_note rows: the credit-followed-by-note fragments, but
+    checking the extracted note itself rather than just the credit."""
+
+    def test_the_real_1_002_fragment_yields_one_note_row(self):
         markup = (
-            "<p><b>1.020 Some catchline.</b> Some text mentions [1965 c.1]"
-            " Note: an unrelated aside. More statutory text. [1990 c.5 §2]</p>"
+            "<p><b>1.002 Some catchline.</b> Some statutory text."
+            " [2025 c.256 §6] Note: Sections 3 and 4, chapter 88,"
+            " Oregon Laws 2025, provide: Sec. 3. No later than September"
+            " 15, 2027, the State Court Administrator shall submit a"
+            " report.</p>"
         )
         result = parser.parse_chapter(markup, "1")
         section = result["sections"][0]
-        self.assertEqual(section["sourceCreditRaw"], "[1990 c.5 §2]")
-        self.assertIn("[1965 c.1]", section["bodyText"])
+        self.assertEqual(len(section["notes"]), 1)
+        note = section["notes"][0]
+        self.assertTrue(note["text"].startswith("Note: Sections 3 and 4, chapter 88"))
+        # Offsets are absolute, into the same normalized chapter text the
+        # section's own charOffsetStart/End already use.
+        self.assertEqual(
+            markup_text_between(markup, note["charOffsetStart"], note["charOffsetEnd"]),
+            note["text"],
+        )
+
+    def test_a_section_with_no_note_gets_an_empty_notes_list(self):
+        markup = "<p><b>1.010 Some catchline.</b> Some statutory text. [1971 c.743 §1]</p>"
+        result = parser.parse_chapter(markup, "1")
+        self.assertEqual(result["sections"][0]["notes"], [])
+
+    def test_a_stub_sections_trailing_note_is_still_extracted(self):
+        # Real form: 2025-161.025 is a stub whose own text is just a "See
+        # note under 161.015." note after its bracket -- there is no
+        # ordinary body text at all for a stub, only the stub bracket
+        # itself (already the credit) and, sometimes, a trailing note.
+        markup = (
+            "<p class=MsoNormal><b><span>      1.055</span></b>"
+            "<span> [1959 c.638 §1] Note: See note under 1.050.</span></p>"
+        )
+        result = parser.parse_chapter(markup, "1")
+        section = result["sections"][0]
+        self.assertEqual(section["sourceCreditRaw"], "[1959 c.638 §1]")
+        self.assertIsNone(section["bodyText"])
+        self.assertEqual(len(section["notes"]), 1)
+        self.assertEqual(section["notes"][0]["text"], "Note: See note under 1.050.")
+
+
+def markup_text_between(markup, start, end):
+    text, _ = parser.normalize_chapter_text(markup)
+    return text[start:end]
 
 
 class StatusTest(unittest.TestCase):
@@ -810,6 +850,48 @@ class EditorialNoteCandidateTest(unittest.TestCase):
         self.assertEqual(candidates[0]["introducer"], "Note:")
 
 
+class SectionNoteRowTest(unittest.TestCase):
+    """build_rows turns a section's extracted notes into ors_section_note rows."""
+
+    def setUp(self):
+        markup = (
+            "<p>2025 EDITION</p>"
+            "<p><b>1.002 Some catchline.</b> Some statutory text."
+            " [2025 c.256 §6] Note: Sections 3 and 4, chapter 88,"
+            " Oregon Laws 2025, provide: Sec. 3. No later than September"
+            " 15, 2027.</p>"
+            "<p><b>1.010 Another catchline.</b> More statutory text."
+            " [1971 c.743 §1]</p>"
+        )
+        record = {
+            "chapterNumber": "1",
+            "chapterSortKey": "000001 ",
+            "sha256": "a" * 64,
+            "parsed": parser.parse_chapter(markup, "1"),
+        }
+        self.rows = parser.build_rows([record])
+
+    def test_a_section_with_a_note_yields_one_row(self):
+        notes_1002 = [n for n in self.rows["sectionNotes"] if n["sectionId"] == "2025-1.002"]
+        self.assertEqual(len(notes_1002), 1)
+        note = notes_1002[0]
+        self.assertEqual(note["noteId"], "2025-1.002-n001")
+        self.assertEqual(note["noteKind"], "editorial_note")
+        self.assertEqual(note["ordinal"], 1)
+        self.assertTrue(note["noteText"].startswith("Note: Sections 3 and 4"))
+        self.assertLess(note["charOffsetStart"], note["charOffsetEnd"])
+
+    def test_a_section_with_no_note_yields_no_rows(self):
+        notes_1010 = [n for n in self.rows["sectionNotes"] if n["sectionId"] == "2025-1.010"]
+        self.assertEqual(notes_1010, [])
+
+    def test_no_editorial_note_candidates_survive_extraction(self):
+        # Confirms extraction rather than motivating it: the note above is
+        # now a row in sectionNotes, not leftover text in bodyText for the
+        # measurement pass to still find.
+        self.assertEqual(self.rows["editorialNoteCandidates"], [])
+
+
 class IntegrityTest(unittest.TestCase):
     def _rows(self):
         record = {
@@ -848,6 +930,53 @@ class IntegrityTest(unittest.TestCase):
 
     def test_a_clean_parse_violates_nothing(self):
         self.assertEqual(parser.check_referential_integrity(self._rows()), [])
+
+    def test_a_dangling_note_reference_is_a_violation(self):
+        rows = self._rows()
+        rows["sectionNotes"].append({
+            "noteId": "2025-999.999-n001",
+            "sectionId": "2025-999.999",
+            "noteKind": "editorial_note",
+            "noteText": "Note: something.",
+            "ordinal": 1,
+            "charOffsetStart": 0,
+            "charOffsetEnd": 10,
+        })
+        self.assertTrue(
+            any("has no section" in item for item in parser.check_referential_integrity(rows)
+                if "note" in item)
+        )
+
+    def test_an_unknown_note_kind_is_a_violation(self):
+        rows = self._rows()
+        rows["sectionNotes"].append({
+            "noteId": f"{rows['sections'][0]['sectionId']}-n001",
+            "sectionId": rows["sections"][0]["sectionId"],
+            "noteKind": "probably-fine",
+            "noteText": "Note: something.",
+            "ordinal": 1,
+            "charOffsetStart": 0,
+            "charOffsetEnd": 10,
+        })
+        self.assertTrue(
+            any("unknown kind" in item for item in parser.check_referential_integrity(rows))
+        )
+
+    def test_an_empty_note_span_is_a_violation(self):
+        rows = self._rows()
+        rows["sectionNotes"].append({
+            "noteId": f"{rows['sections'][0]['sectionId']}-n001",
+            "sectionId": rows["sections"][0]["sectionId"],
+            "noteKind": "editorial_note",
+            "noteText": "Note: something.",
+            "ordinal": 1,
+            "charOffsetStart": 10,
+            "charOffsetEnd": 10,
+        })
+        self.assertTrue(
+            any("empty span" in item and "note" in item
+                for item in parser.check_referential_integrity(rows))
+        )
 
     def test_a_chapter_without_a_pinned_digest_is_a_violation(self):
         rows = self._rows()

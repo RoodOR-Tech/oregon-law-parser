@@ -1046,6 +1046,27 @@ moved -- the second genuinely confirmed fix in this file's history that
 was measured before being called done rather than assumed from the local
 tests alone.
 
+## Editorial-note extraction, built from the settled real forms
+
+With the real note forms and their boundary rule established above (three
+resolvable shapes, every one running from its own introducer to the next
+or to the end of the section's text), `ors_section_notes.py` gained
+`split_editorial_notes` and `parse_ors_chapter.py` now calls it on a
+section's raw printed text before either the stub or operative body/credit
+handling ever sees it -- the same raw span `split_source_credit` already
+receives, so the credit-drop fix above stays intact and unaffected. Each
+extracted block becomes an `ors_section_note` row (`note_kind` =
+`editorial_note` for all three shapes; SCHEMA.md's enum has no finer value
+for this case yet) with offsets into the chapter's own normalized text,
+the same as every other row. `find_editorial_note_candidates`'s
+measurement pass is kept on as a post-extraction check rather than
+retired: run over `body_text` after extraction, it should now find nothing
+-- a survivor would mean a real `Note:`/`Notes:` form this rule does not
+yet recognize. Not yet confirmed against real CI data; the next run's
+`sectionNoteRowCount` and `editorialNoteCandidateCount` (expected: 152 and
+0) settle whether the extraction actually reaches every real form the
+measurement pass found, the same discipline every fix in this file follows.
+
 ## The other Legislative Counsel documents
 
 `ORS_Renum.pdf` is a renumbering table bearing on `ors_section.renumbered_to`,

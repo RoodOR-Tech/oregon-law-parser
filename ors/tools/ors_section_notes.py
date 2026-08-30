@@ -1,30 +1,31 @@
 #!/usr/bin/env python3
-"""Measure editorial and preface notes printed within ORS section body text.
+"""Extract editorial notes printed within ORS section text into their own rows.
 
-`ors_section_note` (SCHEMA.md) has so far only been filled for the
-source-credit form (`ors_source_credit`, already extracted). Every
-bracketed credit form observed in the sample chapters has been a
-session-law citation or one of the two non-citation forms (`Formerly X`,
-bare `Renumbered X`); ROADMAP.md records the editorial/preface-note form as
-increment 3's one remaining unstarted item, since a genuine note distinct
-from a credit had not yet been observed. The `chapter 88` cross-reference
-candidate for 2025-1.002 already flagged one in passing:
+`ors_section_note` (SCHEMA.md) had so far only been filled for the
+source-credit form (`ors_source_credit`, already extracted). This module's
+own measurement pass, run first against the real sample chapters per this
+project's usual discipline, found 152 real "Note:"/"Notes:" blocks and
+three distinct resolvable shapes rather than free text (see FINDINGS.md
+for the verbatim forms): a "series membership" note naming an ORS chapter
+or range, a "See note under NNN.NNN" cross-reference to another section's
+already-printed note, and a quoted uncodified session-law provision. The
+2025-1.002 fragment that first surfaced this is typical:
 
     ... 2025 c.256 §6] Note: Sections 3 and 4, chapter 88, Oregon Laws
     2025, provide: Sec. 3. No...
 
-That is a real "Note:" block printed inline in `body_text`, after the
-section's own bracketed credit -- not itself a credit, and not yet stripped
-out of `body_text` the way SCHEMA.md's `ors_section_note` table calls for.
-
-This module only measures where such blocks appear and how they are
-introduced (`Note:`, `Notes:`), the same discipline every earlier table in
-this pipeline followed: the structure probe before the chapter parser, the
-unparsed-segment count before the credit rule, the stub-line count before
-the anchoring rule, the cross-reference candidates before `ors_cross_
-reference` rows. What CI reports here decides the extraction rule --
-where a note block actually ends, and whether `Note:` and `Notes:` need
-different handling -- rather than guessing those now.
+That measurement also settled the one open question extraction needed: how
+far a note block runs. Every real example -- including 2025-90.321's own
+two consecutive blocks -- has one note's own text ending exactly where the
+next "Note:"/"Notes:" introducer begins, or at the end of the section's
+text if it is the last (or only) one. `split_editorial_notes` uses that
+rule to split zero or more note blocks off a section's raw printed text
+(the same raw span `split_source_credit` receives, before it strips a
+credit out), leaving the remainder for the existing credit/body split
+untouched. Sub-classifying the three shapes into distinct `note_kind`
+values is not attempted yet -- SCHEMA.md's enum only has `editorial_note`
+for this case, and further splitting the shapes apart is deferred until
+there is a use for it.
 """
 import re
 
@@ -33,6 +34,47 @@ NOTE_INTRODUCER_PATTERN = re.compile(r"\bNotes?:\s")
 # Enough surrounding text to see the real block shape without printing the
 # whole (sometimes very long) body_text back in the report.
 CONTEXT_RADIUS = 200
+
+
+def split_editorial_notes(raw_text):
+    """Split trailing editorial-note blocks off the end of one section's raw text.
+
+    A note block runs from its own introducer up to the next note
+    introducer, or to the end of `raw_text` if it is the last (or only)
+    one -- the rule real forms settled, per this module's docstring.
+
+    Returns (remainder, notes). `remainder` is everything before the first
+    note introducer, left unstripped exactly like `raw_text` itself so a
+    caller that already strips its own input (`split_source_credit` does)
+    sees no behavior change when there are no notes to split off. `notes`
+    is a list of {"text", "charOffsetStart", "charOffsetEnd"} dicts in
+    reading order, with offsets relative to the start of `raw_text` --
+    the caller adds its own base offset to place them in the chapter's own
+    normalized text, the same as every other row's offsets already do.
+    """
+    matches = list(NOTE_INTRODUCER_PATTERN.finditer(raw_text))
+    if not matches:
+        return raw_text, []
+
+    remainder = raw_text[: matches[0].start()]
+    notes = []
+    for index, match in enumerate(matches):
+        block_start = match.start()
+        block_end = (
+            matches[index + 1].start() if index + 1 < len(matches) else len(raw_text)
+        )
+        block = raw_text[block_start:block_end]
+        stripped = block.strip()
+        if not stripped:
+            continue
+        leading = len(block) - len(block.lstrip())
+        trailing = len(block) - len(block.rstrip())
+        notes.append({
+            "text": stripped,
+            "charOffsetStart": block_start + leading,
+            "charOffsetEnd": block_end - trailing,
+        })
+    return remainder, notes
 
 
 def find_editorial_note_candidates(body_text):

@@ -27,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from ors_chapters import chapter_sort_key, parse_chapter_number  # noqa: E402
 from ors_credits import parse_source_credit  # noqa: E402
 from ors_cross_references import find_cross_reference_candidates  # noqa: E402
-from ors_section_notes import find_editorial_note_candidates  # noqa: E402
+from ors_section_notes import find_editorial_note_candidates, split_editorial_notes  # noqa: E402
 from ors_text import decode_markup, declared_charset, normalize_spaces  # noqa: E402
 
 SCRIPT_STYLE_PATTERN = re.compile(r"<(script|style)\b.*?</\1\s*>", re.IGNORECASE | re.DOTALL)
@@ -600,15 +600,33 @@ def parse_chapter(markup, chapter_number):
             foreign_anchors.append(number)
             continue
 
+        # Editorial notes are split off first, from the section's raw
+        # printed text, before either branch below ever sees it: every real
+        # note comes after a section's own credit (stub or operative
+        # alike), so splitting them off up front leaves the existing
+        # credit/body handling untouched. See split_editorial_notes's
+        # docstring for the block-boundary rule and FINDINGS.md for the
+        # real forms that settled it.
+        raw_span = text[anchor["headingEnd"]:end]
+        pre_notes, raw_notes = split_editorial_notes(raw_span)
+        notes = [
+            {
+                "text": note["text"],
+                "charOffsetStart": anchor["headingEnd"] + note["charOffsetStart"],
+                "charOffsetEnd": anchor["headingEnd"] + note["charOffsetEnd"],
+            }
+            for note in raw_notes
+        ]
+
         if anchor["stub"] is not None:
             status, renumbered_to = classify_stub(anchor["stub"])
             # A stub section has no operative text: the bracket is the whole
             # entry, and it is history rather than statute.
             credit = anchor["stub"]
-            body = text[anchor["headingEnd"]:end].strip() or None
+            body = pre_notes.strip() or None
         else:
             status, renumbered_to = "operative", None
-            body, credit = split_source_credit(text[anchor["headingEnd"]:end].strip())
+            body, credit = split_source_credit(pre_notes.strip())
 
         # The most recent heading above this section owns it.
         owning = None
@@ -623,6 +641,7 @@ def parse_chapter(markup, chapter_number):
             "catchline": anchor["catchline"],
             "bodyText": body or None,
             "sourceCreditRaw": credit,
+            "notes": notes,
             "status": status,
             "renumberedTo": renumbered_to,
             "subdivisionHeading": owning["headingText"] if owning else None,
@@ -660,6 +679,7 @@ def build_rows(chapter_records, repo_root=None):
     subdivisions = []
     sections = []
     source_credits = []
+    section_notes = []
     problems = []
     # "Formerly NNN.NNN" and bare "Renumbered NNN.NNN" segments name a section
     # rather than citing a session law, so they never become ors_source_credit
@@ -790,11 +810,26 @@ def build_rows(chapter_records, repo_root=None):
                         "segments": parsed_credit["unparsedSegments"],
                     })
 
+            for note_ordinal, note in enumerate(section["notes"], start=1):
+                section_notes.append({
+                    "noteId": f"{section_id}-n{note_ordinal:03d}",
+                    "sectionId": section_id,
+                    "noteKind": "editorial_note",
+                    "noteText": note["text"],
+                    "ordinal": note_ordinal,
+                    "charOffsetStart": note["charOffsetStart"],
+                    "charOffsetEnd": note["charOffsetEnd"],
+                })
+
             if section["bodyText"]:
                 cross_reference_candidates.extend(
                     {"sectionId": section_id, **candidate}
                     for candidate in find_cross_reference_candidates(section["bodyText"])
                 )
+                # Confirms extraction rather than motivating it now: every
+                # real note this measured should already be a row in
+                # section_notes above, so a survivor here means a note form
+                # split_editorial_notes does not yet recognize.
                 editorial_note_candidates.extend(
                     {"sectionId": section_id, **candidate}
                     for candidate in find_editorial_note_candidates(section["bodyText"])
@@ -808,6 +843,7 @@ def build_rows(chapter_records, repo_root=None):
         "subdivisions": subdivisions,
         "sections": sections,
         "sourceCredits": source_credits,
+        "sectionNotes": section_notes,
         "formerlyReferences": formerly_references,
         "renumberReferences": renumber_references,
         "unparsedCreditSegments": unparsed_credit_segments,
@@ -881,11 +917,26 @@ def check_referential_integrity(rows):
                 f"credit {credit['creditId']} has an implausible session year {credit['sessionYear']}"
             )
 
+    seen_notes = set()
+    for note in rows["sectionNotes"]:
+        if note["sectionId"] not in seen_sections:
+            violations.append(f"note {note['noteId']} has no section")
+        if note["noteId"] in seen_notes:
+            violations.append(f"duplicate note id {note['noteId']}")
+        seen_notes.add(note["noteId"])
+        if note["noteKind"] not in NOTE_KINDS:
+            violations.append(f"note {note['noteId']} has unknown kind {note['noteKind']}")
+        if not note["noteText"]:
+            violations.append(f"note {note['noteId']} has no text")
+        if note["charOffsetStart"] >= note["charOffsetEnd"]:
+            violations.append(f"note {note['noteId']} has an empty span")
+
     return violations
 
 
 SECTION_STATUSES = {"operative", "repealed", "renumbered", "reserved", "note_only"}
 CREDIT_ACTIONS = {"enacted", "amended", "renumbered", "repealed", "unspecified"}
+NOTE_KINDS = {"source_credit", "editorial_note", "preface_note"}
 
 
 def main(argv=None):
@@ -951,6 +1002,7 @@ def main(argv=None):
         "sectionRowCount": len(rows["sections"]),
         "statusCounts": status_counts(rows["sections"]),
         "sourceCreditRowCount": len(rows["sourceCredits"]),
+        "sectionNoteRowCount": len(rows["sectionNotes"]),
         "formerlyReferenceCount": len(rows["formerlyReferences"]),
         "renumberReferenceCount": len(rows["renumberReferences"]),
         # A credit segment that is neither a session-law citation nor a
@@ -993,12 +1045,14 @@ def main(argv=None):
             rows["crossReferenceCandidates"]
         ),
         "crossReferenceCandidates": rows["crossReferenceCandidates"][:500],
-        # Increment 3's one remaining unstarted item: candidate editorial/
-        # preface note introductions ("Note:", "Notes:") found in body_text,
-        # not yet stripped out into ors_section_note rows. See
-        # ors_section_notes.py's module docstring for the real fragment
-        # (2025-1.002's "chapter 88" note) that motivated this measurement.
-        # Diagnostic only, not gated.
+        "sectionNotes": rows["sectionNotes"][:500],
+        # A survivor here after extraction means a "Note:"/"Notes:" form
+        # split_editorial_notes does not yet recognize -- every real note
+        # this pass found before extraction was built is now a row in
+        # sectionNotes above. Kept as a diagnostic (not yet gated) until a
+        # real CI run confirms this actually reads zero, the same
+        # measure-then-gate order every earlier field in this pipeline
+        # followed.
         "editorialNoteCandidateCount": len(rows["editorialNoteCandidates"]),
         "editorialNoteCandidates": rows["editorialNoteCandidates"][:500],
         "chaptersWithoutName": [
@@ -1054,6 +1108,7 @@ def main(argv=None):
         "statusCounts": report["statusCounts"],
         "foreignAnchorCount": report["foreignAnchorCount"],
         "sourceCreditRowCount": report["sourceCreditRowCount"],
+        "sectionNoteRowCount": report["sectionNoteRowCount"],
         "unparsedCreditSegmentCount": report["unparsedCreditSegmentCount"],
         "unboldedStubLineCount": report["unboldedStubLineCount"],
         "unboldedStubDistinctNumberCount": report["unboldedStubDistinctNumberCount"],

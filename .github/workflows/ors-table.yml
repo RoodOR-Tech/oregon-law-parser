@@ -231,6 +231,7 @@ jobs:
               "  first lines: \(.sampleLines[0:12] | join(" | "))"' ors-parse.json
           fi
           echo "Source credit rows: $(jq -r '.sourceCreditRowCount' ors-parse.json)   Formerly references: $(jq -r '.formerlyReferenceCount' ors-parse.json)   Renumber references: $(jq -r '.renumberReferenceCount' ors-parse.json)"
+          echo "Section note rows: $(jq -r '.sectionNoteRowCount' ors-parse.json)"
           echo "Unparsed credit segments: $(jq -r '.unparsedCreditSegmentCount' ors-parse.json)"
           jq -r '.unparsedCreditSegments[] | "  section \(.sectionId): \(.segments | join(" | "))"' ors-parse.json | head -150 || true
           # Diagnostic only, not yet gated: see find_unbolded_stub_lines's
@@ -251,10 +252,10 @@ jobs:
           # deliberately generous rather than a finished extraction rule.
           echo "Cross-reference candidates: $(jq -r '.crossReferenceCandidateCount' ors-parse.json)   By kind: $(jq -c '.crossReferenceCandidatesByKind' ors-parse.json)"
           jq -r '.crossReferenceCandidates[] | "  \(.sectionId) [\(.kind)] \(.text) -- \(.context)"' ors-parse.json | head -150 || true
-          # Increment 3's one remaining unstarted item, measurement stage.
-          # See ors_section_notes.py's module docstring for the real
-          # "chapter 88" note fragment that motivated this pass.
-          echo "Editorial note candidates: $(jq -r '.editorialNoteCandidateCount' ors-parse.json)"
+          # Confirms extraction rather than motivating it now: a survivor
+          # here means a "Note:"/"Notes:" form split_editorial_notes does
+          # not yet recognize. See ors_section_notes.py's module docstring.
+          echo "Editorial note candidates not extracted: $(jq -r '.editorialNoteCandidateCount' ors-parse.json)"
           jq -r '.editorialNoteCandidates[] | "  \(.sectionId) [\(.introducer)] \(.context)"' ors-parse.json | head -150 || true
 
       # The real gate. It runs last so the diagnostic steps above have already

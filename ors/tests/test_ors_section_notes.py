@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Tests for the increment-3 editorial-note candidate measurement pass.
+"""Tests for the increment-3 editorial-note measurement and extraction.
 
 The real fragment is what CI reported for 2025-1.002 as a cross-reference
 candidate for "chapter 88", printed just after that section's own bracketed
 credit: "... 2025 c.256 §6] Note: Sections 3 and 4, chapter 88, Oregon
 Laws 2025, provide: Sec. 3. No...". See ors_section_notes.py's module
-docstring for why this pass measures rather than extracts.
+docstring for the real forms and the block-boundary rule they settled.
 """
 import sys
 import unittest
@@ -59,6 +59,52 @@ class NoteIntroducerTest(unittest.TestCase):
         # real introducer -- just the substring "Note:" inside a longer word.
         result = notes.find_editorial_note_candidates("SeeNote: anything.")
         self.assertEqual(result, [])
+
+
+class SplitEditorialNotesTest(unittest.TestCase):
+    def test_no_notes_returns_the_text_unchanged(self):
+        remainder, found = notes.split_editorial_notes("Some statutory text. [1971 c.743 §1]")
+        self.assertEqual(remainder, "Some statutory text. [1971 c.743 §1]")
+        self.assertEqual(found, [])
+
+    def test_the_real_1_002_fragment_splits_credit_from_note(self):
+        raw = (
+            "Some statutory text. [2025 c.256 §6] Note: Sections 3 and 4, "
+            "chapter 88, Oregon Laws 2025, provide: Sec. 3. No later than..."
+        )
+        remainder, found = notes.split_editorial_notes(raw)
+        self.assertEqual(remainder, "Some statutory text. [2025 c.256 §6] ")
+        self.assertEqual(len(found), 1)
+        self.assertTrue(found[0]["text"].startswith("Note: Sections 3 and 4"))
+        # Offsets are relative to raw_text and point at the stripped text.
+        start, end = found[0]["charOffsetStart"], found[0]["charOffsetEnd"]
+        self.assertEqual(raw[start:end], found[0]["text"])
+
+    def test_two_consecutive_notes_each_become_their_own_block(self):
+        # Real form: 2025-90.321 prints one credit followed by two separate
+        # Note: blocks back to back.
+        raw = (
+            "Text. [2025 c.574 §1] Note: 90.321 becomes operative January "
+            "1, 2027. See section 4, chapter 574, Oregon Laws 2025. "
+            "Note: Section 3, chapter 574, Oregon Laws 2025, provides: "
+            "Sec. 3. Before June 1, 2027."
+        )
+        remainder, found = notes.split_editorial_notes(raw)
+        self.assertEqual(remainder, "Text. [2025 c.574 §1] ")
+        self.assertEqual(len(found), 2)
+        self.assertTrue(found[0]["text"].startswith("Note: 90.321 becomes operative"))
+        self.assertTrue(found[0]["text"].endswith("Oregon Laws 2025."))
+        self.assertTrue(found[1]["text"].startswith("Note: Section 3, chapter 574"))
+        for note in found:
+            start, end = note["charOffsetStart"], note["charOffsetEnd"]
+            self.assertEqual(raw[start:end], note["text"])
+
+    def test_a_bare_see_note_under_form_is_its_own_note(self):
+        raw = "[1971 c.743 §1] Note: See note under 161.015."
+        remainder, found = notes.split_editorial_notes(raw)
+        self.assertEqual(remainder, "[1971 c.743 §1] ")
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0]["text"], "Note: See note under 161.015.")
 
 
 if __name__ == "__main__":
