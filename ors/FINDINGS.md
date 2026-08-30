@@ -839,6 +839,19 @@ sections had never been split out on their own until this fix; whatever they
 turn out to contain that the rest of the pipeline hasn't seen yet is real
 data, not noise.
 
+Both follow-ons fixed, the gate is green: `unparsedCreditSegmentCount` is 0,
+`problemCount` and `integrityViolationCount` are both 0,
+`sectionRowCount` is 1125 with `statusCounts` `{"operative": 892,
+"renumbered": 85, "repealed": 148}`. One `embeddedStubMarkupSamples` entry
+remains (`192.501`), but its own raw-markup window doesn't show a "number
+["  shape at all -- the debug helper's crude first-occurrence search in
+`find_embedded_stub_markup_samples` most likely landed on an unrelated
+mention of the same digits elsewhere in the chapter (the same false-lead
+shape recorded earlier for `1.182`), not a real remaining gap. Left as a
+known imprecision in a diagnostic-only, ungated tool rather than chased
+further: the anchoring rule itself is confirmed correct by the gate being
+green with zero problems and zero integrity violations.
+
 ## First real cross-reference candidates
 
 The cross-reference measurement pass's first CI run against the real sample
