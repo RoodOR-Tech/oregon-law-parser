@@ -1084,6 +1084,10 @@ def main(argv=None):
             and not unreadable
             and all(chapter["chapterName"] for chapter in rows["chapters"])
             and not rows["unparsedCreditSegments"]
+            # Confirmed against real CI data (see FINDINGS.md): every real
+            # note form the measurement pass ever found is now a row in
+            # sectionNotes, so a survivor here is a real gap, not noise.
+            and not rows["editorialNoteCandidates"]
         ),
         "perChapter": [
             {

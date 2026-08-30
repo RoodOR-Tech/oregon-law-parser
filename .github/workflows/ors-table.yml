@@ -277,7 +277,7 @@ jobs:
           # unparsedCreditSegmentCount must be zero: every real credit form
           # recorded in FINDINGS.md parses cleanly, so a non-zero count here is
           # a printed form the parser does not yet understand.
-          jq -e '.valid == true and .sectionRowCount > 0 and .editionCount > 0 and (.problems | length) == 0 and (.integrityViolations | length) == 0 and (.chaptersWithoutName | length) == 0 and .unparsedCreditSegmentCount == 0' ors-parse.json >/dev/null
+          jq -e '.valid == true and .sectionRowCount > 0 and .editionCount > 0 and (.problems | length) == 0 and (.integrityViolations | length) == 0 and (.chaptersWithoutName | length) == 0 and .unparsedCreditSegmentCount == 0 and .editorialNoteCandidateCount == 0' ors-parse.json >/dev/null
 
       - name: Upload ORS pipeline reports
         if: always()

@@ -126,10 +126,12 @@ caught before CI did:
   `editorial_note` for all three shapes -- SCHEMA.md's enum has no other
   value for this case yet, and splitting the shapes apart is deferred
   until something needs to join against them differently.
-  `editorialNoteCandidateCount` is kept on as a diagnostic rather than
-  removed: it now measures survivors after extraction instead of the gap
-  before it, and stays ungated until a real CI run confirms it reads zero
-  before being promoted to a gate.
+  `editorialNoteCandidateCount` is kept on rather than removed: it now
+  measures survivors after extraction instead of the gap before it.
+  Confirmed against real CI data at exactly zero (`sectionNoteRowCount`
+  152, matching the earlier measurement precisely), it is now gated --
+  the same measure-then-gate order every earlier field in this pipeline
+  followed.
 - Repealed and renumbered sections. Done, after three wrong guesses and one
   ground-truth dump. Cross-reference candidate measurement first proved the
   gap was real (numbers like `1.165`/`1.167` embedded *inside* a different

@@ -107,5 +107,35 @@ class SplitEditorialNotesTest(unittest.TestCase):
         self.assertEqual(found[0]["text"], "Note: See note under 161.015.")
 
 
+class ExtractionLeavesNoSurvivorTest(unittest.TestCase):
+    """The invariant parse_ors_chapter.py's `valid` gate now depends on:
+
+    split_editorial_notes and find_editorial_note_candidates share the same
+    NOTE_INTRODUCER_PATTERN, so whatever split_editorial_notes's remainder
+    is can never itself contain a candidate -- gating
+    editorialNoteCandidateCount at zero is sound only because this holds.
+    """
+
+    REAL_FRAGMENTS = [
+        "Some statutory text. [2025 c.256 §6] Note: Sections 3 and 4, "
+        "chapter 88, Oregon Laws 2025, provide: Sec. 3. No later than...",
+        "Text. [2025 c.574 §1] Note: 90.321 becomes operative January "
+        "1, 2027. See section 4, chapter 574, Oregon Laws 2025. "
+        "Note: Section 3, chapter 574, Oregon Laws 2025, provides: "
+        "Sec. 3. Before June 1, 2027.",
+        "[1971 c.743 §1] Note: See note under 161.015.",
+        "Some statutory text. [1971 c.743 §1]",
+        "",
+    ]
+
+    def test_no_real_fragment_leaves_a_candidate_in_the_remainder(self):
+        for raw in self.REAL_FRAGMENTS:
+            remainder, _ = notes.split_editorial_notes(raw)
+            self.assertEqual(
+                notes.find_editorial_note_candidates(remainder), [],
+                f"remainder still contains a note introducer: {remainder!r}",
+            )
+
+
 if __name__ == "__main__":
     unittest.main()

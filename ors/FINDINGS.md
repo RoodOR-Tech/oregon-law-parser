@@ -1062,10 +1062,24 @@ the same as every other row. `find_editorial_note_candidates`'s
 measurement pass is kept on as a post-extraction check rather than
 retired: run over `body_text` after extraction, it should now find nothing
 -- a survivor would mean a real `Note:`/`Notes:` form this rule does not
-yet recognize. Not yet confirmed against real CI data; the next run's
-`sectionNoteRowCount` and `editorialNoteCandidateCount` (expected: 152 and
-0) settle whether the extraction actually reaches every real form the
-measurement pass found, the same discipline every fix in this file follows.
+yet recognize.
+
+Confirmed against real CI data (run
+[33335631912](https://github.com/RoodOR-Tech/oregon-law-parser/actions/runs/33335631912)):
+`sectionNoteRowCount` reads exactly **152**, matching the earlier
+measurement pass's own count precisely, and `editorialNoteCandidateCount`
+reads **0** -- every real note form the measurement pass found is now a
+row, with nothing left behind in `body_text` for the survivor check to
+catch. `sourceCreditRowCount` rose again, from 2880 to **2911**: cleanly
+separating notes from a section's raw text before credit-splitting ever
+runs resolved a few more sections whose true trailing credit was not
+immediately adjacent to its note (something between the bracket and the
+note text), which the prior combined bracket-then-note lookahead could
+still miss. `problemCount`, `integrityViolationCount` and
+`unparsedCreditSegmentCount` all stayed at 0, and `sectionRowCount` /
+`statusCounts` were unchanged -- the third genuinely confirmed fix in this
+file's history, and the second one this same note-cataloging effort has
+now produced.
 
 ## The other Legislative Counsel documents
 
