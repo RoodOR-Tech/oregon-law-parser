@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Machine-readable inventory of operationally validated Oregon Laws sessions and the qualified pre-1999 source boundary. This file records certification state and repository linkage; permanent per-run artifacts remain in GitHub Actions and merged PR provenance rather than being duplicated incompletely here.",
+  "validatedOperationalFloor": 1999,
+  "frozenBenchmarks": {
+    "goldCertificationDocuments": 50,
+    "unseenValidationDocuments": 25,
+    "policy": "Counts and independently reviewed expectations are invariants. Parser or tooling failures must not be resolved by weakening either frozen corpus."
+  },
+  "qualifiedExclusions": [
+    {
+      "sessionKey": "1997",
+      "status": "not-validated-source-unavailable-online",
+      "evidence": "operations/pre-1999-source-boundary.json"
+    }
+  ],
+  "sessions": [
+    {"sessionKey":"1999","status":"validated","plan":"operations/1999-session-plan.json","workflow":".github/workflows/full-session-1999.yml"},
+    {"sessionKey":"2001","status":"validated","plan":"operations/2001-session-plan.json","workflow":".github/workflows/full-session-2001.yml"},
+    {"sessionKey":"2002-special-1","status":"validated","plan":"operations/2002-special-1-session-plan.json","workflow":".github/workflows/full-session-2002-special-1.yml"},
+    {"sessionKey":"2002-special-2","status":"validated","plan":"operations/2002-special-2-session-plan.json","workflow":".github/workflows/full-session-2002-special-2.yml"},
+    {"sessionKey":"2002-special-3","status":"validated","plan":"operations/2002-special-3-session-plan.json","workflow":".github/workflows/full-session-2002-special-3.yml"},
+    {"sessionKey":"2002-special-4","status":"validated","plan":"operations/2002-special-4-session-plan.json","workflow":".github/workflows/full-session-2002-special-4.yml"},
+    {"sessionKey":"2002-special-5","status":"validated","plan":"operations/2002-special-5-session-plan.json","workflow":".github/workflows/full-session-2002-special-5.yml"},
+    {"sessionKey":"2003","status":"validated","plan":"operations/2003-session-plan.json","workflow":".github/workflows/full-session-2003.yml"},
+    {"sessionKey":"2005","status":"validated","plan":"operations/2005-session-plan.json","workflow":".github/workflows/full-session-2005.yml"},
+    {"sessionKey":"2006-special","status":"validated","plan":"operations/2006-session-plan.json","workflow":".github/workflows/full-session-2006.yml"},
+    {"sessionKey":"2007","status":"validated","plan":"operations/2007-session-plan.json","workflow":".github/workflows/full-session-2007.yml"},
+    {"sessionKey":"2008-special","status":"validated","plan":"operations/2008-session-plan.json","workflow":".github/workflows/full-session-2008.yml"},
+    {"sessionKey":"2009","status":"validated","plan":"operations/2009-session-plan.json","workflow":".github/workflows/full-session-2009.yml"},
+    {"sessionKey":"2010-special","status":"validated","plan":"operations/2010-session-plan.json","workflow":".github/workflows/full-session-2010.yml"},
+    {"sessionKey":"2011","status":"validated","plan":"operations/2011-session-plan.json","workflow":".github/workflows/full-session-2011.yml"},
+    {"sessionKey":"2012","status":"validated","plan":"operations/2012-session-plan.json","workflow":".github/workflows/full-session-2012.yml"},
+    {"sessionKey":"2013","status":"validated","plan":"operations/2013-session-plan.json","workflow":".github/workflows/full-session-2013.yml"},
+    {"sessionKey":"2014","status":"validated","plan":"operations/2014-session-plan.json","workflow":".github/workflows/full-session-2014.yml"},
+    {"sessionKey":"2015","status":"validated","plan":"operations/2015-session-plan.json","workflow":".github/workflows/full-session-2015.yml"},
+    {"sessionKey":"2016","status":"validated","plan":"operations/2016-session-plan.json","workflow":".github/workflows/full-session-2016.yml"},
+    {"sessionKey":"2017","status":"validated","plan":"operations/2017-session-plan.json","workflow":".github/workflows/full-session-2017.yml"},
+    {"sessionKey":"2018","status":"validated","plan":"operations/2018-session-plan.json","workflow":".github/workflows/full-session-2018.yml"},
+    {"sessionKey":"2019","status":"validated","plan":"operations/2019-session-plan.json","workflow":".github/workflows/full-session-2019.yml"},
+    {"sessionKey":"2020","status":"validated","plan":"operations/2020-session-plan.json","workflow":".github/workflows/full-session-2020.yml"},
+    {"sessionKey":"2021","status":"validated","plan":"operations/2021-session-plan.json","workflow":".github/workflows/full-session-2021.yml"},
+    {"sessionKey":"2022","status":"validated","plan":"operations/2022-session-plan.json","workflow":".github/workflows/full-session-2022.yml"},
+    {"sessionKey":"2023","status":"validated","plan":"operations/2023-session-plan.json","workflow":".github/workflows/full-session-2023.yml"},
+    {"sessionKey":"2024","status":"validated","plan":"operations/2024-session-plan.json","workflow":".github/workflows/full-session-2024.yml"},
+    {"sessionKey":"2025","status":"validated","plan":"operations/2025-session-plan.json","workflow":".github/workflows/full-session-2025.yml"}
+  ]
+}
