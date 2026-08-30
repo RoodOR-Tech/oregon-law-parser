@@ -69,9 +69,8 @@ caught before CI did:
 - A subdivision heading **ends** the section above it rather than trailing it.
   Otherwise the heading swallows that section's source credit.
 
-## Increment 3 — notes and source credits (credits and stubs done)
+## Increment 3 — notes and source credits (done)
 
-- `ors_section_note` rows, keeping notes out of `body_text`.
 - `ors_source_credit` rows parsed from bracketed legislative history. Done:
   `tools/ors_credits.py` parses every real form recorded in FINDINGS.md --
   plain citation lists, per-citation `Amended by`/`Repealed by`/`Derived
