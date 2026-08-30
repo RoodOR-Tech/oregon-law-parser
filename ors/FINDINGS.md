@@ -789,6 +789,56 @@ correctly, and a genuine cross-tag stub newline, if one is ever printed,
 would still be preserved), they simply were not this bug. Removing them
 would not simplify anything real.
 
+## The fix confirmed against real data, and two follow-ons it surfaced
+
+Real CI numbers on the fix: `sectionRowCount` rose from 892 to 1122 (230 new
+stub sections), `statusCounts` went from 100% `operative` to `{"operative":
+892, "renumbered": 83, "repealed": 147}`, `embeddedStubMarkupSamples` fell
+from 50 to 4, `crossReferenceCandidateCount` fell from 4254 to 3917 (these
+numbers no longer double as another section's embedded text). Zero problems,
+zero integrity violations. This is the first genuinely confirmed change in
+four attempts, not another guess resting on a local reproduction.
+
+Splitting these 230 sections out for the first time immediately exercised
+two things that had never been reachable before:
+
+**A stub-only credit can run past a length cap that seemed generous
+enough.** The anchor-building lookahead for a bare-number stub searched
+only 400 characters ahead for the closing bracket. Chapter 192's own real
+`192.500` prints a citation list -- `[1973 c.794 §11; 1975 c.308 §1; 1975
+c.582 §150; 1975 c.606 §41a; 1977 c.107 §1; ...]` -- long enough that the
+close fell outside that window, so the match silently failed and the
+section reappeared as an `embeddedStubMarkupSamples` entry despite the fix.
+An ordinary operative section's own trailing credit is matched with no such
+cap (`TRAILING_CREDIT_PATTERN` via `re.search` over the whole remaining
+text); the stub lookahead now does the same, since a stub's credit can run
+exactly as long as an operative section's can.
+
+**A new non-citation credit form: a compound, subsection-scoped renumber
+note.** `unparsedCreditSegmentCount` went from 0 to 1 the moment `192.450`'s
+own credit was parsed on its own for the first time (previously merged into
+whatever section preceded it, so its credit was silently absorbed rather
+than ever reaching `ors_credits.py` at all):
+
+```
+subsections (1) to (3) renumbered 192.411 and subsections (4) to (7) renumbered 192.401 in 2017
+```
+
+Two subsection ranges of the same section, each renumbered to a different
+destination, joined by "and", with the same trailing "in YYYY" note already
+handled for the simple bare-renumber form. Subsection scoping is read past
+the same way it already is for `Formerly subsections (1) to (3) of
+NNN.NNN`; both destinations become `renumberReferences` rather than one
+being silently dropped for not fitting the single-destination bare-renumber
+pattern.
+
+Both fixes are further evidence for the same lesson this whole investigation
+turned into: a rule -- or a length limit -- proven against the cases visible
+so far is not proven against cases that were never reachable before. 230
+sections had never been split out on their own until this fix; whatever they
+turn out to contain that the rest of the pipeline hasn't seen yet is real
+data, not noise.
+
 ## First real cross-reference candidates
 
 The cross-reference measurement pass's first CI run against the real sample

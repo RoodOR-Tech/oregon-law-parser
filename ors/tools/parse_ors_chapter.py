@@ -511,7 +511,14 @@ def parse_chapter(markup, chapter_number):
             # BARE_NUMBER_PATTERN's comment for the real form this covers.
             bare_match = BARE_NUMBER_PATTERN.match(run)
             if bare_match is not None:
-                following = FOLLOWING_STUB_PATTERN.match(text[end:end + 400])
+                # No length cap: a stub-only section's credit can run to
+                # many citations (as long as any ordinary operative
+                # section's own trailing credit already can), and a capped
+                # window can miss the bracket's close entirely -- confirmed
+                # against chapter 192's own real 192.500, whose citation
+                # list runs past 400 characters before its final
+                # disposition.
+                following = FOLLOWING_STUB_PATTERN.match(text[end:])
                 if following is not None:
                     anchors.append({
                         "number": bare_match.group("number"),

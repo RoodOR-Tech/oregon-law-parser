@@ -594,6 +594,26 @@ class BoldNumberWithFollowingBracketTest(unittest.TestCase):
         self.assertEqual(result["unboldedStubLines"], [])
         self.assertEqual(result["embeddedStubMarkupSamples"], [])
 
+    def test_a_long_citation_list_before_the_disposition_is_still_found(self):
+        # Real form against chapter 192's own 192.500: a stub-only section
+        # can carry many session citations before its final disposition,
+        # the same as any operative section's own trailing credit can. A
+        # capped lookahead window missed the bracket's close entirely once
+        # real CI data showed a credit running past it.
+        long_credit = "; ".join(f"197{i} c.{100 + i} §{i}" for i in range(20))
+        long_credit += "; repealed by 2015 c.1 §1"
+        markup = (
+            "<p><b>192.499 An earlier section.</b> Body text. [1971 c.1 §1]</p>"
+            f"<p class=MsoNormal><b><span>      192.500</span></b>"
+            f"<span> [{long_credit}]</span></p>"
+            "<p><b>192.505 Next section.</b> More text. [1971 c.1 §2]</p>"
+        )
+        result = parser.parse_chapter(markup, "192")
+        by_number = {s["sectionNumber"]: s for s in result["sections"]}
+        self.assertEqual(by_number["192.500"]["status"], "repealed")
+        self.assertEqual(by_number["192.499"]["bodyText"], "Body text.")
+        self.assertEqual(result["embeddedStubMarkupSamples"], [])
+
 
 class SectionSortKeyTest(unittest.TestCase):
     def test_sections_order_the_way_the_statute_book_does(self):

@@ -118,6 +118,19 @@ BARE_RENUMBER_PATTERN = re.compile(
     r"(?:\s+in\s+(?:18|19|20)\d{2})?$",
     re.IGNORECASE,
 )
+# "subsections (1) to (3) renumbered 192.411 and subsections (4) to (7)
+# renumbered 192.401 in 2017" -- a bare-renumber note scoped to subsections,
+# possibly naming more than one destination joined by "and", with the same
+# optional trailing "in YYYY" as BARE_RENUMBER_PATTERN. Subsection scoping
+# is read past exactly as elsewhere in this module (see FORMERLY_REFERENCE_
+# PATTERN's own qualifier); the year states when the renumbering happened,
+# not a session that did it, so it is discarded the same way.
+SUBSECTION_RENUMBER_SUFFIX_PATTERN = re.compile(r"\s+in\s+(?:18|19|20)\d{2}$", re.IGNORECASE)
+SUBSECTION_RENUMBER_CLAUSE_PATTERN = re.compile(
+    r"^subsections?\s*\([^)]*\)(?:\s+to\s*\([^)]*\))?\s+renumbered\s+"
+    r"(?P<number>\d{1,3}[A-Z]?\.\d{3})$",
+    re.IGNORECASE,
+)
 # Two full citations joined by "and" instead of a semicolon: "2009 c.431 §6
 # and 2009 c.816 §15". Tried only after a segment fails to parse as one
 # citation outright, so it never fires on ordinary text that merely contains
@@ -171,6 +184,25 @@ def _section_numbers(sections_text):
         if match is not None:
             numbers.append(match.group(1))
     return numbers or [None]
+
+
+def _subsection_renumber_destinations(segment):
+    """Return the destination numbers for a subsection-scoped renumber
+    note, or None if the segment is not this form.
+
+    "subsections (1) to (3) renumbered 192.411 and subsections (4) to (7)
+    renumbered 192.401 in 2017" splits into two "and"-joined clauses, each
+    naming its own destination; every clause must match or this is not the
+    form at all (a partial match would silently drop a real destination).
+    """
+    body = SUBSECTION_RENUMBER_SUFFIX_PATTERN.sub("", segment)
+    numbers = []
+    for clause in AND_JOIN_PATTERN.split(body):
+        match = SUBSECTION_RENUMBER_CLAUSE_PATTERN.match(clause.strip())
+        if match is None:
+            return None
+        numbers.append(match.group("number"))
+    return numbers or None
 
 
 def _parse_citation_segment(segment):
@@ -236,6 +268,11 @@ def parse_source_credit(raw_credit):
         renumber_match = BARE_RENUMBER_PATTERN.match(segment)
         if renumber_match is not None:
             renumbers.append(renumber_match.group("number"))
+            continue
+
+        subsection_destinations = _subsection_renumber_destinations(segment)
+        if subsection_destinations is not None:
+            renumbers.extend(subsection_destinations)
             continue
 
         parsed = _parse_citation_segment(segment)

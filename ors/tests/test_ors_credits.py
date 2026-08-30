@@ -211,6 +211,39 @@ class RenumberNoteWithYearTest(unittest.TestCase):
         self.assertEqual(result["citations"], [])
 
 
+class SubsectionScopedRenumberNoteTest(unittest.TestCase):
+    def test_two_and_joined_subsection_ranges_each_yield_their_destination(self):
+        # Real form against chapter 192, surfaced only once the stub-anchor
+        # fix (parse_ors_chapter.py) let 192.450's own credit be parsed on
+        # its own rather than merged into a preceding section's credit.
+        result = credits.parse_source_credit(
+            "[subsections (1) to (3) renumbered 192.411 and subsections"
+            " (4) to (7) renumbered 192.401 in 2017]"
+        )
+        self.assertEqual(result["renumberReferences"], ["192.411", "192.401"])
+        self.assertEqual(result["citations"], [])
+        self.assertEqual(result["unparsedSegments"], [])
+
+    def test_a_single_subsection_range_renumber_note(self):
+        result = credits.parse_source_credit(
+            "[subsection (2) renumbered 90.100 in 1999]"
+        )
+        self.assertEqual(result["renumberReferences"], ["90.100"])
+
+    def test_a_partial_match_is_not_accepted(self):
+        # If only one "and"-joined clause is subsection-renumber-shaped,
+        # the whole segment must be reported rather than silently dropping
+        # the half that doesn't fit this form.
+        result = credits.parse_source_credit(
+            "[subsections (1) to (3) renumbered 192.411 and something else entirely]"
+        )
+        self.assertEqual(result["renumberReferences"], [])
+        self.assertEqual(
+            result["unparsedSegments"],
+            ["subsections (1) to (3) renumbered 192.411 and something else entirely"],
+        )
+
+
 class UnparsedSegmentTest(unittest.TestCase):
     def test_an_unrecognized_segment_is_reported_not_dropped(self):
         result = credits.parse_source_credit("[see also chapter 90]")

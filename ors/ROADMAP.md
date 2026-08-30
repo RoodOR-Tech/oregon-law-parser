@@ -121,7 +121,20 @@ caught before CI did:
   operative section's own text and credit unaffected -- the credit-
   collision concern raised earlier turned out to resolve itself once the
   stub is a real anchor, since the preceding section's span then correctly
-  ends where the stub begins.
+  ends where the stub begins. Confirmed against real CI data, the first
+  genuinely confirmed change in four attempts: `sectionRowCount` rose from
+  892 to 1122 and `statusCounts` went from 100% `operative` to real
+  `repealed`/`renumbered` counts, zero problems, zero integrity violations.
+  Splitting out 230 sections that had never stood on their own before
+  immediately surfaced two follow-ons, both fixed: the anchor lookahead for
+  a stub's bracket had a 400-character cap that a long citation list (real
+  chapter 192 example) could exceed, silently missing the close -- removed,
+  matching the uncapped search an ordinary operative section's own trailing
+  credit already gets; and a new non-citation credit form, a compound
+  subsection-scoped renumber note naming two destinations joined by "and"
+  (`subsections (1) to (3) renumbered 192.411 and subsections (4) to (7)
+  renumbered 192.401 in 2017`), added to `ors_credits.py` alongside the
+  existing bare-renumber and Formerly forms.
 - This is the table that joins to the amendment parser's `(year, chapter)`
   output. The join is data-only; neither program imports the other.
 
