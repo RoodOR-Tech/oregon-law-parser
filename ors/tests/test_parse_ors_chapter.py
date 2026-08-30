@@ -299,6 +299,71 @@ class SectionContentTest(unittest.TestCase):
         self.assertIsNotNone(self.by_number["161.005"]["sourceCreditRaw"])
 
 
+class CreditFollowedByANoteTest(unittest.TestCase):
+    """A trailing "Note:" block must not hide the section's own credit.
+
+    Real form, from CI's own body_text for 2025-1.002: "... [2025 c.256
+    §6] Note: Sections 3 and 4, chapter 88, Oregon Laws 2025, provide:
+    ...". The credit was not the last thing printed, so requiring the
+    bracket to reach the true end of the string (the original rule) missed
+    it entirely -- the section got no sourceCreditRaw and no
+    ors_source_credit row at all, with the credit silently merged into
+    bodyText along with its note.
+    """
+
+    def test_the_real_1_002_fragment_still_yields_its_own_credit(self):
+        markup = (
+            "<p><b>1.002 Some catchline.</b> Some statutory text."
+            " [2025 c.256 §6] Note: Sections 3 and 4, chapter 88,"
+            " Oregon Laws 2025, provide: Sec. 3. No later than September"
+            " 15, 2027, the State Court Administrator shall submit a"
+            " report.</p>"
+        )
+        result = parser.parse_chapter(markup, "1")
+        section = result["sections"][0]
+        self.assertEqual(section["sourceCreditRaw"], "[2025 c.256 §6]")
+        self.assertNotIn("2025 c.256", section["bodyText"])
+        # The note itself is not dropped -- note extraction is not built
+        # yet, so it stays in bodyText rather than disappearing.
+        self.assertIn("Sections 3 and 4, chapter 88", section["bodyText"])
+
+    def test_two_consecutive_notes_after_one_credit_are_both_kept(self):
+        # Real form: 2025-90.321 prints one credit followed by two separate
+        # Note: blocks back to back.
+        markup = (
+            "<p><b>90.321 Some catchline.</b> Some statutory text."
+            " [2025 c.574 §1] Note: 90.321 becomes operative January"
+            " 1, 2027. See section 4, chapter 574, Oregon Laws 2025."
+            " Note: Section 3, chapter 574, Oregon Laws 2025, provides:"
+            " Sec. 3. Before June 1, 2027.</p>"
+        )
+        result = parser.parse_chapter(markup, "90")
+        section = result["sections"][0]
+        self.assertEqual(section["sourceCreditRaw"], "[2025 c.574 §1]")
+        self.assertIn("becomes operative January", section["bodyText"])
+        self.assertIn("Section 3, chapter 574", section["bodyText"])
+
+    def test_an_ordinary_trailing_credit_with_no_note_is_unaffected(self):
+        markup = "<p><b>1.010 Some catchline.</b> Some statutory text. [1971 c.743 §1]</p>"
+        result = parser.parse_chapter(markup, "1")
+        section = result["sections"][0]
+        self.assertEqual(section["sourceCreditRaw"], "[1971 c.743 §1]")
+        self.assertEqual(section["bodyText"], "Some statutory text.")
+
+    def test_an_earlier_bracket_before_a_note_does_not_steal_the_real_credit(self):
+        # A bracket immediately followed by "Note:" earlier in the text must
+        # not be mistaken for the section's own trailing credit when a
+        # later bracket is the section's actual, truly-trailing credit.
+        markup = (
+            "<p><b>1.020 Some catchline.</b> Some text mentions [1965 c.1]"
+            " Note: an unrelated aside. More statutory text. [1990 c.5 §2]</p>"
+        )
+        result = parser.parse_chapter(markup, "1")
+        section = result["sections"][0]
+        self.assertEqual(section["sourceCreditRaw"], "[1990 c.5 §2]")
+        self.assertIn("[1965 c.1]", section["bodyText"])
+
+
 class StatusTest(unittest.TestCase):
     def setUp(self):
         self.by_number = {

@@ -994,6 +994,38 @@ rule, so the extraction rule that eventually strips these into
 `ors_section_note` rows is designed against what CI actually printed rather
 than against a guess.
 
+## A real correctness bug the note evidence exposed: credits silently dropped
+
+Cataloging those real note fragments turned up something more serious than
+a missing feature. `split_source_credit`'s `TRAILING_CREDIT_PATTERN`
+required the section's bracketed credit to reach the true end of the
+string (`\s*$`). Every one of the 152 real sections whose own credit is
+immediately followed by a "Note:"/"Notes:" block -- confirmed directly
+from CI's own `body_text`, not a guess, via the 2025-1.002 fragment quoted
+above -- failed that requirement. The credit was never split out at all:
+no `sourceCreditRaw`, no `ors_source_credit` row, with the whole bracket
+and its note left merged inside `body_text`.
+
+```python
+>>> split_source_credit(
+...     "Some statutory text. [2025 c.256 §6] Note: Sections 3 and 4, "
+...     "chapter 88, Oregon Laws 2025, provide: ..."
+... )
+('Some statutory text. [2025 c.256 §6] Note: Sections 3 and 4, chapter 88, '
+ 'Oregon Laws 2025, provide: ...', None)
+```
+
+Fixed by widening the pattern's lookahead to also accept a bracket
+immediately followed by a note introducer, and by having `split_source_
+credit` rejoin whatever follows the bracket onto the returned text instead
+of discarding it -- note extraction itself is not built yet, so the note
+stays in `body_text` rather than disappearing. The match is also now the
+*last* one found rather than the first: a note's own prose can mention a
+session-law citation in passing (the "chapter 88, Oregon Laws 2025" seen
+above already is one), so if that ever appeared in bracket form ahead of
+a section's real trailing credit, the original leftmost-match search would
+have seized on it instead.
+
 ## The other Legislative Counsel documents
 
 `ORS_Renum.pdf` is a renumbering table bearing on `ors_section.renumbered_to`,

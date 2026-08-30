@@ -85,7 +85,13 @@ caught before CI did:
   forced into a citation shape. A credit segment matching none of these is
   reported as `unparsedCreditSegmentCount`, gated at zero, rather than
   silently dropped -- the same discipline that caught the dropped title and
-  the missing chapter names in increment 2.
+  the missing chapter names in increment 2. Also fixed: a section whose
+  credit is immediately followed by a "Note:" block (found while
+  cataloging the real note forms below) was not reaching
+  `unparsedCreditSegmentCount` at all -- it never became an
+  `ors_source_credit` row in the first place, because the credit-splitting
+  rule required the bracket to reach the true end of the string. See
+  FINDINGS.md for the real fragment and the fix.
 - Subsection-level detail is intentionally not modeled: "subsection (3)
   enacted as ..." and the "(2),(3)" suffix in `§8(2),(3)` are read past to
   reach the citation underneath, but which subsection is not itself a column

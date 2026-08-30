@@ -86,7 +86,18 @@ STUB_ENTRY_OPEN_PATTERN = re.compile(r"^\d{1,3}[A-Z]?\.\d{3}\s*\[")
 # A trailing bracketed group is the section's source credit. Parsing its
 # contents into rows is increment 3; here it is only separated from the
 # statutory text so body_text holds the text and not the history.
-TRAILING_CREDIT_PATTERN = re.compile(r"(?P<credit>\[[^\[\]]*\])\s*$")
+#
+# The credit is not always the literal last thing printed: a real section
+# sometimes carries an editorial "Note:"/"Notes:" block immediately after
+# its own credit instead of nothing (see ors_section_notes.py's module
+# docstring for the real forms; 2025-1.002's "... 2025 c.256 §6] Note:
+# Sections 3 and 4, chapter 88, ..." is the fragment that surfaced this).
+# Requiring the bracket to reach the true end of the string missed the
+# credit entirely for every such section -- it never became a source-
+# credit row at all, silently staying merged into body_text along with its
+# note. The lookahead also accepts a bracket immediately followed by a
+# note introducer, so the credit is still recognized as one.
+TRAILING_CREDIT_PATTERN = re.compile(r"(?P<credit>\[[^\[\]]*\])\s*(?=$|Notes?:\s)")
 RENUMBERED_TO_PATTERN = re.compile(r"\bRenumbered\s+(?P<number>\d{1,3}[A-Z]?\.\d{3})", re.IGNORECASE)
 
 # The chapter document names itself as "192 - Records; Public Reports and
@@ -286,11 +297,28 @@ def classify_stub(stub_text):
 
 
 def split_source_credit(body):
-    """Separate a trailing bracketed source credit from the statutory text."""
-    match = TRAILING_CREDIT_PATTERN.search(body)
-    if match is None:
+    """Separate a trailing bracketed source credit from the statutory text.
+
+    The credit itself is removed either way. A note block following it (see
+    TRAILING_CREDIT_PATTERN's comment) is not statutory text either, but
+    note extraction is not built yet, so it is kept rather than dropped --
+    joined back onto the text ahead of the credit, the same body_text shape
+    a section with no trailing note already has.
+    """
+    # The last such match, not the first: a note's own prose can mention a
+    # session-law citation in passing (chapter 88, Oregon Laws 2025 was
+    # already seen as one), and if that ever appeared in bracket form
+    # ahead of a real trailing credit, .search()'s leftmost match would
+    # seize on it instead of the section's actual credit.
+    matches = list(TRAILING_CREDIT_PATTERN.finditer(body))
+    if not matches:
         return body.strip(), None
-    return body[: match.start()].strip(), match.group("credit")
+    match = matches[-1]
+    before = body[: match.start()].strip()
+    after = body[match.end():].strip()
+    if after:
+        return (f"{before} {after}" if before else after), match.group("credit")
+    return before, match.group("credit")
 
 
 def parse_chapter_heading(lines, expected_number=None):
