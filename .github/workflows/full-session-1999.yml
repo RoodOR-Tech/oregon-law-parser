@@ -9,8 +9,11 @@ on:
       - 'analyze/**'
       - 'tools/acquire_session_chapters.py'
       - 'tools/summarize_session_run.py'
+      - 'tools/validate_operational_certification.py'
+      - 'tools/test_validate_operational_certification.py'
       - 'operations/1999-session-plan.json'
       - 'operations/pre-1999-source-boundary.json'
+      - 'operations/certification-matrix.json'
   workflow_dispatch:
 
 concurrency:
