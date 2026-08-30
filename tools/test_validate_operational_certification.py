@@ -37,6 +37,8 @@ class CertificationValidatorTests(unittest.TestCase):
         data = json.loads(MATRIX.read_text())
         extra = copy.deepcopy(data["sessions"][0])
         extra["sessionKey"] = "1997"
+        extra["plan"] = "operations/1997-session-plan.json"
+        extra["workflow"] = ".github/workflows/full-session-1997.yml"
         data["sessions"].append(extra)
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaisesRegex(CertificationError, "predates operational floor"):
