@@ -536,6 +536,65 @@ class EmbeddedStubMarkupSampleTest(unittest.TestCase):
         self.assertEqual(result["embeddedStubMarkupSamples"], [])
 
 
+class BoldNumberWithFollowingBracketTest(unittest.TestCase):
+    """The real published form for a stub-only section, found by dumping raw
+    markup (find_embedded_stub_markup_samples) after two newline-collapsing
+    fixes each measured zero change against real chapters: the number is
+    bold on its own, and its bracket is a separate non-bold span right
+    after it in the same paragraph. Neither SECTION_CATCHLINE_PATTERN nor
+    SECTION_STUB_PATTERN can match this, since both require the catchline
+    or bracket inside the *same* bold run.
+    """
+
+    # Verbatim from the real CI dump of chapter 1's actual markup.
+    REAL_MARKUP = (
+        "<p class=MsoNormal style='margin-bottom:0in;line-height:normal;text-autospace:\r\n"
+        "none'><b><span style='font-family:\"Times New Roman\",serif'>      1.055</span></b>"
+        "<span\r\nstyle='font-family:\"Times New Roman\",serif'> [1959 c.638 §1; repealed by 2015\r\n"
+        "c.212 §2]</span></p>"
+    )
+
+    def test_the_real_markup_is_recognized_as_a_repealed_stub(self):
+        markup = "<p><b>1.050 An earlier section.</b> Body text. [1971 c.1 §1]</p>" + self.REAL_MARKUP
+        result = parser.parse_chapter(markup, "1")
+        by_number = {s["sectionNumber"]: s for s in result["sections"]}
+        self.assertIn("1.055", by_number)
+        section = by_number["1.055"]
+        self.assertEqual(section["status"], "repealed")
+        self.assertIsNone(section["catchline"])
+        self.assertIsNone(section["bodyText"])
+        self.assertEqual(section["sourceCreditRaw"], "[1959 c.638 §1; repealed by 2015 c.212 §2]")
+        # The preceding section's own text and credit must stay intact.
+        self.assertEqual(by_number["1.050"]["bodyText"], "Body text.")
+        self.assertEqual(by_number["1.050"]["sourceCreditRaw"], "[1971 c.1 §1]")
+
+    def test_a_run_of_consecutive_real_stubs_are_each_their_own_section(self):
+        # Real form: 1.167, 1.169, 1.170 print the same way, one after
+        # another, each in its own <p>.
+        markup = (
+            "<p><b>1.160 Procedural rules.</b> Courts shall be governed by"
+            " the spirit of the procedural statutes.</p>"
+            "<p class=MsoNormal><b><span>      1.167</span></b>"
+            "<span> [1981 s.s. c.3 §18; renumbered\r\n1.187 in 1999]</span></p>"
+            "<p class=MsoNormal><b><span>      1.169</span></b>"
+            "<span> [1987 c.559 §2; 1989 c.1008 §1;\r\n1995 c.781 §5; repealed by 1995 c.658 §127]</span></p>"
+            "<p class=MsoNormal><b><span>      1.170</span></b>"
+            "<span> [Repealed by 1981 s.s. c.3 §141]</span></p>"
+            "<p><b>1.171 Presiding judges.</b> A presiding judge appointed"
+            " under ORS 1.003 is presiding judge.</p>"
+        )
+        result = parser.parse_chapter(markup, "1")
+        by_number = {s["sectionNumber"]: s for s in result["sections"]}
+        self.assertEqual(by_number["1.167"]["status"], "renumbered")
+        self.assertEqual(by_number["1.167"]["renumberedTo"], "1.187")
+        self.assertEqual(by_number["1.169"]["status"], "repealed")
+        self.assertEqual(by_number["1.170"]["status"], "repealed")
+        # Neither diagnostic should re-flag these now that they are real
+        # anchors of their own.
+        self.assertEqual(result["unboldedStubLines"], [])
+        self.assertEqual(result["embeddedStubMarkupSamples"], [])
+
+
 class SectionSortKeyTest(unittest.TestCase):
     def test_sections_order_the_way_the_statute_book_does(self):
         numbers = ["161.100", "161.005", "279A.050", "161.067", "90.100"]

@@ -750,6 +750,45 @@ confirmation of a newline that later turned out to not be the real
 separator at all. The next CI run's `embeddedStubMarkupSamples` output is
 read directly, as ground truth, before any further fix is attempted.
 
+## Ground truth: the bracket was never the problem, the anchor rule was
+
+The raw markup dump ended the guessing. The real published form for
+`1.055` in chapter 1 is:
+
+```html
+<p class=MsoNormal style='margin-bottom:0in;line-height:normal;text-autospace:
+none'><b><span style='font-family:"Times New Roman",serif'>      1.055</span></b><span
+style='font-family:"Times New Roman",serif'> [1959 c.638 §1; repealed by 2015
+c.212 §2]</span></p>
+```
+
+Every stub-only section gets its own real `<p>` -- there was never a
+missing line break to preserve, which is exactly why both newline-collapsing
+fixes changed nothing: neither one was the real bug. The number is **bold**,
+printed alone, and its bracket is a **separate, non-bold `<span>`** right
+after it in the same paragraph. `SECTION_CATCHLINE_PATTERN` and
+`SECTION_STUB_PATTERN` both require the catchline or bracket to appear
+*inside* the matched bold run's own text; a bold run containing only
+"1.055" (nothing else, since the bracket lives in the next, non-bold span)
+matches neither, so it was silently treated as a non-anchor and its bracket
+fell into whatever section preceded it -- confirmed identically for `1.100`,
+`1.167`, `1.169` and `1.170` in the same dump.
+
+The fix adds a third case to the anchor-building loop: when a bold run is
+*exactly* a bare section number, look at the text immediately following it
+(outside the bold span) for a leading bracket, and treat the pair as a stub
+anchor if found. Verified against the real markup for `1.055` and a run of
+three consecutive real stubs (`1.167`/`1.169`/`1.170`) reproduced verbatim
+from the CI dump, each correctly becoming its own section with the right
+status, and the preceding operative section's own text and credit
+unaffected.
+
+The two abandoned newline fixes are kept rather than reverted: neither is
+wrong on its own terms (a genuine wrapped-prose newline still collapses
+correctly, and a genuine cross-tag stub newline, if one is ever printed,
+would still be preserved), they simply were not this bug. Removing them
+would not simplify anything real.
+
 ## First real cross-reference candidates
 
 The cross-reference measurement pass's first CI run against the real sample

@@ -69,7 +69,7 @@ caught before CI did:
 - A subdivision heading **ends** the section above it rather than trailing it.
   Otherwise the heading swallows that section's source credit.
 
-## Increment 3 — notes and source credits (credits done)
+## Increment 3 — notes and source credits (credits and stubs done)
 
 - `ors_section_note` rows, keeping notes out of `body_text`.
 - `ors_source_credit` rows parsed from bracketed legislative history. Done:
@@ -98,25 +98,30 @@ caught before CI did:
   citations or the two non-citation forms above; a genuine editorial note
   distinct from a credit has not yet been observed in the sample and needs
   its own evidence before a rule is written.
-- Repealed and renumbered sections. In progress; a real gap, confirmed by
-  cross-reference candidate measurement (numbers like `1.165`/`1.167`
-  embedded *inside* a different section's own `body_text`), but two
-  attempts at fixing `normalize_chapter_text`'s newline handling to close
-  it have each measured **zero change** against the real sample chapters --
-  identical `unboldedStubLineCount` (0), `sectionRowCount` (892) and
-  `crossReferenceCandidateCount` (4254) before and after both fixes, despite
-  each being verified against its own local reproduction of a guessed real
-  HTML shape (a newline inside one text run; then a newline between two
-  `<span>` tags). Guessing a third shape risks the same outcome, so
-  `find_embedded_stub_markup_samples` now dumps the actual raw markup bytes
-  around every unclaimed "number [" occurrence instead, read as ground
-  truth from the next real CI run before any further fix is attempted. Once
-  the real anchoring gap is closed, promoting these entries to real
-  `ors_section` rows still needs the anchor-building step broadened to
-  treat an unclaimed bracket-only line as a section of its own, and the
-  *preceding* section's trailing-credit pattern needs to stop grabbing the
-  last such stub's bracket as if it were its own credit (confirmed
-  happening in a local reproduction).
+- Repealed and renumbered sections. Done, after three wrong guesses and one
+  ground-truth dump. Cross-reference candidate measurement first proved the
+  gap was real (numbers like `1.165`/`1.167` embedded *inside* a different
+  section's own `body_text`); two attempts at fixing `normalize_chapter_
+  text`'s newline handling each measured **zero change** against the real
+  sample chapters, both wrong about the mechanism (there was no missing
+  newline to preserve). `find_embedded_stub_markup_samples` dumped the
+  actual raw markup instead of guessing again, and it showed the real form:
+  every stub-only section prints in its own `<p>`, with the number **bold**
+  and its bracket in a **separate, non-bold `<span>`** right after it --
+  `<b><span>      1.055</span></b><span> [1959 c.638 §1; repealed by 2015
+  c.212 §2]</span>`. `SECTION_CATCHLINE_PATTERN` and `SECTION_STUB_PATTERN`
+  both require the catchline or bracket inside the bold run's own text; a
+  bold run that is only the bare number matches neither, so it was silently
+  dropped as a non-anchor. The anchor-building loop now recognizes this
+  third case: a bold run that is exactly a bare number, with a bracket
+  immediately following it outside the bold span, anchors a stub the same
+  way a keyword-led or citation-led bracket already does. Verified against
+  the real markup for `1.055` and a run of three consecutive real stubs,
+  each becoming its own correctly-classified section with the preceding
+  operative section's own text and credit unaffected -- the credit-
+  collision concern raised earlier turned out to resolve itself once the
+  stub is a real anchor, since the preceding section's span then correctly
+  ends where the stub begins.
 - This is the table that joins to the amendment parser's `(year, chapter)`
   output. The join is data-only; neither program imports the other.
 

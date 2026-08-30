@@ -58,6 +58,20 @@ SECTION_CATCHLINE_PATTERN = re.compile(
 SECTION_STUB_PATTERN = re.compile(
     r"^(?P<number>\d{1,3}[A-Z]?\.\d{3})\s+(?P<stub>\[[^\[\]]*\])\s*$"
 )
+# The real published form for a stub-only section, confirmed by dumping raw
+# markup directly (find_embedded_stub_markup_samples): the number is bold on
+# its own, and its bracket is a *separate*, non-bold span immediately after
+# it in the same paragraph --
+#   <b><span>      1.055</span></b><span> [1959 c.638 §1; repealed by 2015
+#   c.212 §2]</span>
+# Neither SECTION_CATCHLINE_PATTERN nor SECTION_STUB_PATTERN matches this,
+# since both require the catchline or bracket to appear inside the *same*
+# bold run; a bold run containing only the number matches neither and was
+# silently dropped as a non-anchor, which is why two rounds of fixing
+# normalize_chapter_text's newline handling both measured zero change --
+# neither one was the real bug.
+BARE_NUMBER_PATTERN = re.compile(r"^(?P<number>\d{1,3}[A-Z]?\.\d{3})$")
+FOLLOWING_STUB_PATTERN = re.compile(r"^\s*(?P<stub>\[[^\[\]]*\])")
 # A literal source newline immediately followed by a new stub entry's
 # opening. See _collapse_internal_newlines's docstring: this is what tells a
 # real break between consecutive stub-only entries apart from an ordinary
@@ -491,6 +505,21 @@ def parse_chapter(markup, chapter_number):
                 "start": start,
                 "headingEnd": end,
             })
+        else:
+            # A bold run that is just the bare number, with its bracket
+            # printed in a following non-bold span -- see
+            # BARE_NUMBER_PATTERN's comment for the real form this covers.
+            bare_match = BARE_NUMBER_PATTERN.match(run)
+            if bare_match is not None:
+                following = FOLLOWING_STUB_PATTERN.match(text[end:end + 400])
+                if following is not None:
+                    anchors.append({
+                        "number": bare_match.group("number"),
+                        "catchline": None,
+                        "stub": following.group("stub"),
+                        "start": start,
+                        "headingEnd": end + following.end(),
+                    })
 
     anchors.sort(key=lambda item: item["start"])
 
