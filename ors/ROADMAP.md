@@ -93,11 +93,19 @@ caught before CI did:
   subsection-level decomposition as its own future table; a subsection-scoped
   `ors_source_credit` would join to that table once it exists, rather than
   this increment inventing a column for it now.
-- `ors_section_note` rows for editorial and preface notes. Not yet started:
-  everything parsed as a bracketed credit so far has been session-law
-  citations or the two non-citation forms above; a genuine editorial note
-  distinct from a credit has not yet been observed in the sample and needs
-  its own evidence before a rule is written.
+- `ors_section_note` rows for editorial and preface notes. In progress,
+  measurement stage: real CI data surfaced the first genuine example, found
+  in passing as a cross-reference candidate for 2025-1.002 -- `... 2025
+  c.256 §6] Note: Sections 3 and 4, chapter 88, Oregon Laws 2025, provide:
+  Sec. 3. No...`, a "Note:" block printed inline in `body_text` right after
+  the section's own bracketed credit, distinct from it and not yet stripped
+  out. `tools/ors_section_notes.py` finds candidate `Note:`/`Notes:`
+  introductions the same generous, unopinionated way `ors_cross_
+  references.py` measures citation shapes before `ors_cross_reference` rows
+  are built: reported as `editorialNoteCandidateCount` with per-candidate
+  context, diagnostic only and not yet gated. What real block shapes and
+  endings CI reports decides the extraction rule and `note_kind` values,
+  rather than guessing them now.
 - Repealed and renumbered sections. Done, after three wrong guesses and one
   ground-truth dump. Cross-reference candidate measurement first proved the
   gap was real (numbers like `1.165`/`1.167` embedded *inside* a different

@@ -900,6 +900,32 @@ Neither observation is acted on yet -- the diagnostic stays generous and
 unopinionated per its own docstring -- but both are real, so they are
 recorded now rather than left to be rediscovered next round.
 
+## Editorial notes: the same "chapter 88" fragment is also increment 3's missing form
+
+The cross-reference pass's own "chapter NNN" false-lead finding above hands
+increment 3 its first real evidence too: `Note: Sections 3 and 4, chapter
+88, Oregon Laws 2025, provide: Sec. 3. No...` is not only a session-law
+chapter mention misclassified as an ORS chapter reference -- it is also the
+first genuine **editorial note** the sample has produced, printed inline in
+`body_text` right after 2025-1.002's own bracketed credit and distinct from
+it. ROADMAP.md had recorded this `ors_section_note` form as not yet started
+for exactly this reason: every bracketed credit observed until now had been
+a session-law citation or one of the two non-citation forms already
+extracted (`Formerly X`, bare `Renumbered X`), and no genuine note distinct
+from a credit had turned up.
+
+Following the same order every earlier table in this pipeline used --
+measure before writing the rule -- `tools/ors_section_notes.py` adds
+`find_editorial_note_candidates`, matching `\bNotes?:\s` and reporting each
+hit with its section id and surrounding context, wired into
+`parse_ors_chapter.py`'s report as `editorialNoteCandidateCount` /
+`editorialNoteCandidates`, diagnostic only and not gated -- the same shape
+`ors_cross_references.py`'s measurement pass already took before
+`ors_cross_reference` rows were designed. What CI reports next (how many
+real note blocks exist across the sample, whether `Note:` and `Notes:` need
+different handling, and where a block actually ends) decides the
+extraction rule and `note_kind` values, rather than guessing them now.
+
 ## The other Legislative Counsel documents
 
 `ORS_Renum.pdf` is a renumbering table bearing on `ors_section.renumbered_to`,

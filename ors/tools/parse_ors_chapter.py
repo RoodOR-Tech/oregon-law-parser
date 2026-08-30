@@ -27,6 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from ors_chapters import chapter_sort_key, parse_chapter_number  # noqa: E402
 from ors_credits import parse_source_credit  # noqa: E402
 from ors_cross_references import find_cross_reference_candidates  # noqa: E402
+from ors_section_notes import find_editorial_note_candidates  # noqa: E402
 from ors_text import decode_markup, declared_charset, normalize_spaces  # noqa: E402
 
 SCRIPT_STYLE_PATTERN = re.compile(r"<(script|style)\b.*?</\1\s*>", re.IGNORECASE | re.DOTALL)
@@ -649,6 +650,11 @@ def build_rows(chapter_records, repo_root=None):
     # measures what forms actually appear, per find_cross_reference_
     # candidates's own docstring.
     cross_reference_candidates = []
+    # Candidate editorial/preface note introductions ("Note:", "Notes:")
+    # found in body_text. Increment 3's ors_section_note table has not been
+    # extended to this form yet; this only measures where such blocks
+    # appear, per find_editorial_note_candidates's own docstring.
+    editorial_note_candidates = []
 
     for record in chapter_records:
         number = record["chapterNumber"]
@@ -761,6 +767,10 @@ def build_rows(chapter_records, repo_root=None):
                     {"sectionId": section_id, **candidate}
                     for candidate in find_cross_reference_candidates(section["bodyText"])
                 )
+                editorial_note_candidates.extend(
+                    {"sectionId": section_id, **candidate}
+                    for candidate in find_editorial_note_candidates(section["bodyText"])
+                )
 
         problems.extend(f"chapter {number}: {item}" for item in parsed["problems"])
 
@@ -774,6 +784,7 @@ def build_rows(chapter_records, repo_root=None):
         "renumberReferences": renumber_references,
         "unparsedCreditSegments": unparsed_credit_segments,
         "crossReferenceCandidates": cross_reference_candidates,
+        "editorialNoteCandidates": editorial_note_candidates,
         "problems": problems,
     }
 
@@ -954,6 +965,14 @@ def main(argv=None):
             rows["crossReferenceCandidates"]
         ),
         "crossReferenceCandidates": rows["crossReferenceCandidates"][:500],
+        # Increment 3's one remaining unstarted item: candidate editorial/
+        # preface note introductions ("Note:", "Notes:") found in body_text,
+        # not yet stripped out into ors_section_note rows. See
+        # ors_section_notes.py's module docstring for the real fragment
+        # (2025-1.002's "chapter 88" note) that motivated this measurement.
+        # Diagnostic only, not gated.
+        "editorialNoteCandidateCount": len(rows["editorialNoteCandidates"]),
+        "editorialNoteCandidates": rows["editorialNoteCandidates"][:500],
         "chaptersWithoutName": [
             chapter["chapterNumber"] for chapter in rows["chapters"] if not chapter["chapterName"]
         ],
@@ -1012,6 +1031,7 @@ def main(argv=None):
         "unboldedStubDistinctNumberCount": report["unboldedStubDistinctNumberCount"],
         "crossReferenceCandidateCount": report["crossReferenceCandidateCount"],
         "crossReferenceCandidatesByKind": report["crossReferenceCandidatesByKind"],
+        "editorialNoteCandidateCount": report["editorialNoteCandidateCount"],
         "problemCount": len(report["problems"]),
         "chaptersWithoutName": report["chaptersWithoutName"],
         "integrityViolationCount": len(violations),

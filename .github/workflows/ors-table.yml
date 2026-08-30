@@ -251,6 +251,11 @@ jobs:
           # deliberately generous rather than a finished extraction rule.
           echo "Cross-reference candidates: $(jq -r '.crossReferenceCandidateCount' ors-parse.json)   By kind: $(jq -c '.crossReferenceCandidatesByKind' ors-parse.json)"
           jq -r '.crossReferenceCandidates[] | "  \(.sectionId) [\(.kind)] \(.text) -- \(.context)"' ors-parse.json | head -150 || true
+          # Increment 3's one remaining unstarted item, measurement stage.
+          # See ors_section_notes.py's module docstring for the real
+          # "chapter 88" note fragment that motivated this pass.
+          echo "Editorial note candidates: $(jq -r '.editorialNoteCandidateCount' ors-parse.json)"
+          jq -r '.editorialNoteCandidates[] | "  \(.sectionId) [\(.introducer)] \(.context)"' ors-parse.json | head -150 || true
 
       # The real gate. It runs last so the diagnostic steps above have already
       # printed their evidence into the log even on a failing run.

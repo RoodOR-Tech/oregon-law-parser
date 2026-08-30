@@ -712,6 +712,39 @@ class CrossReferenceCandidateTest(unittest.TestCase):
             self.assertNotEqual(candidate["sectionId"], "2025-161.025")
 
 
+class EditorialNoteCandidateTest(unittest.TestCase):
+    """build_rows wires ors_section_notes's measurement pass through."""
+
+    def test_the_fixture_carries_no_note_introducers(self):
+        record = {
+            "chapterNumber": "161",
+            "chapterSortKey": "000161 ",
+            "sha256": "a" * 64,
+            "parsed": parsed_fixture(),
+        }
+        rows = parser.build_rows([record])
+        self.assertEqual(rows["editorialNoteCandidates"], [])
+
+    def test_a_note_introducer_in_body_text_is_surfaced_with_its_section(self):
+        parsed = parsed_fixture()
+        parsed["sections"][0]["bodyText"] += (
+            " Note: Section 2, chapter 5, Oregon Laws 2020, provides:"
+        )
+        record = {
+            "chapterNumber": "161",
+            "chapterSortKey": "000161 ",
+            "sha256": "a" * 64,
+            "parsed": parsed,
+        }
+        rows = parser.build_rows([record])
+        section_id = f"2025-{parsed['sections'][0]['sectionNumber']}"
+        candidates = [
+            c for c in rows["editorialNoteCandidates"] if c["sectionId"] == section_id
+        ]
+        self.assertEqual(len(candidates), 1)
+        self.assertEqual(candidates[0]["introducer"], "Note:")
+
+
 class IntegrityTest(unittest.TestCase):
     def _rows(self):
         record = {
