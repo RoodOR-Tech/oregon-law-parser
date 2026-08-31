@@ -101,5 +101,81 @@ class MixedCandidateOrderTest(unittest.TestCase):
         )
 
 
+class ResolveCrossReferencesTest(unittest.TestCase):
+    def _candidates_for(self, section_id, body_text):
+        return [
+            {"sectionId": section_id, **candidate}
+            for candidate in xref.find_cross_reference_candidates(body_text)
+        ]
+
+    def test_a_bare_section_resolves_when_the_target_is_known(self):
+        candidates = self._candidates_for("2025-1.002", "as provided in ORS 90.100.")
+        rows = xref.resolve_cross_references(candidates, {"90.100": "2025-90.100"})
+        self.assertEqual(len(rows), 1)
+        row = rows[0]
+        self.assertEqual(row["referenceId"], "2025-1.002-x0001")
+        self.assertEqual(row["fromSectionId"], "2025-1.002")
+        self.assertEqual(row["toSectionNumber"], "90.100")
+        self.assertEqual(row["toSectionId"], "2025-90.100")
+        self.assertEqual(row["referenceKind"], "section")
+        self.assertEqual(row["ordinal"], 1)
+
+    def test_a_bare_section_stays_unresolved_when_the_target_is_unknown(self):
+        # Real shape per SCHEMA.md: a citation outside the fixed sample
+        # (or to a repealed/never-existing section) keeps to_section_id
+        # null rather than being dropped.
+        candidates = self._candidates_for("2025-1.002", "as provided in ORS 999.999.")
+        rows = xref.resolve_cross_references(candidates, {})
+        self.assertEqual(len(rows), 1)
+        self.assertIsNone(rows[0]["toSectionId"])
+        self.assertEqual(rows[0]["toSectionNumber"], "999.999")
+
+    def test_a_range_becomes_two_rows_one_per_endpoint(self):
+        candidates = self._candidates_for("2025-1.194", "ORS 1.194 to 1.200 apply.")
+        rows = xref.resolve_cross_references(
+            candidates, {"1.194": "2025-1.194", "1.200": "2025-1.200"}
+        )
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(
+            [(r["referenceKind"], r["toSectionNumber"], r["toSectionId"]) for r in rows],
+            [
+                ("range_start", "1.194", "2025-1.194"),
+                ("range_end", "1.200", "2025-1.200"),
+            ],
+        )
+        # Both endpoints share the range's own printed span.
+        self.assertEqual(rows[0]["charOffsetStart"], rows[1]["charOffsetStart"])
+        self.assertEqual(rows[0]["charOffsetEnd"], rows[1]["charOffsetEnd"])
+        self.assertEqual([r["ordinal"] for r in rows], [1, 2])
+
+    def test_a_chapter_reference_never_resolves_to_a_section(self):
+        candidates = self._candidates_for("2025-1.181", "subject to ORS chapter 287A.")
+        rows = xref.resolve_cross_references(candidates, {"287A": "2025-287A.010"})
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["referenceKind"], "chapter")
+        self.assertEqual(rows[0]["toSectionNumber"], "287A")
+        self.assertIsNone(rows[0]["toSectionId"])
+
+    def test_ordinals_are_per_section_and_restart(self):
+        candidates = (
+            self._candidates_for("2025-1.002", "See ORS 90.100 and ORS 90.200.")
+            + self._candidates_for("2025-1.003", "See ORS 90.100.")
+        )
+        rows = xref.resolve_cross_references(candidates, {})
+        by_section = {}
+        for row in rows:
+            by_section.setdefault(row["fromSectionId"], []).append(row["ordinal"])
+        self.assertEqual(by_section["2025-1.002"], [1, 2])
+        self.assertEqual(by_section["2025-1.003"], [1])
+
+    def test_reference_ids_are_traceable_to_their_section(self):
+        candidates = self._candidates_for("2025-1.002", "See ORS 90.100 and ORS 90.200.")
+        rows = xref.resolve_cross_references(candidates, {})
+        self.assertEqual(
+            [r["referenceId"] for r in rows],
+            ["2025-1.002-x0001", "2025-1.002-x0002"],
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

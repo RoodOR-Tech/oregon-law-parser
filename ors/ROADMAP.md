@@ -174,25 +174,35 @@ caught before CI did:
 ## Increment 4 — cross references and the relational build
 
 - `ors_cross_reference` rows, with unresolved citations preserved rather than
-  dropped. In progress, measurement stage: `tools/ors_cross_references.py`
-  finds candidate section, range and chapter mentions in `body_text` and
-  reports them (count, a by-kind breakdown, and per-candidate context) as
-  `crossReferenceCandidate*` fields, diagnostic only and not yet gated --
-  the same order every earlier table in this pipeline followed (probe
-  before parse, unparsed-segment count before the credit rule, stub-line
-  count before an anchoring rule). The patterns tried are deliberately
-  generous (any `NNN.NNN`, `NNN.NNN to NNN.NNN`, or `chapter NNN` shape) so
-  real phrasing is seen from CI before `reference_kind` values and
-  `to_section_id` resolution are designed against it. One of the two real
-  wrinkles the first CI run surfaced is now fixed: a bare "chapter NNN"
-  mention is not always an ORS chapter (a session-law chapter, "chapter 88,
-  Oregon Laws 2025", printed the same shape), so `CHAPTER_MENTION_PATTERN`
-  now requires an "ORS" lookbehind -- a session-law mention never matches
-  at all rather than being caught and rejected. The other (a bare section
-  mention sometimes carries a subsection suffix like `(3)`) needed no code
-  change: the existing pattern already stops at the section number. See
-  FINDINGS.md for the real forms. `reference_kind` values and
-  `to_section_id` resolution are not designed yet.
+  dropped. Measurement first, as every earlier table in this pipeline did
+  (probe before parse, unparsed-segment count before the credit rule,
+  stub-line count before an anchoring rule): `tools/ors_cross_references.py`
+  finds candidate section, range and chapter mentions in `body_text`,
+  deliberately generous (any `NNN.NNN`, `NNN.NNN to NNN.NNN`, or `ORS
+  chapter NNN` shape), and reports them as `crossReferenceCandidate*`
+  fields. Two real wrinkles the first CI run surfaced are both fixed: a
+  bare "chapter NNN" mention is not always an ORS chapter (a session-law
+  chapter, "chapter 88, Oregon Laws 2025", printed the same shape), fixed
+  by requiring an "ORS" lookbehind rather than catching and rejecting it
+  after the fact; a bare section mention sometimes carries a subsection
+  suffix like `(3)`, needing no code change since the existing pattern
+  already stops at the section number. See FINDINGS.md for the real forms.
+  `resolve_cross_references` now turns those candidates into rows:
+  `reference_kind` is `section`, `range_start`, `range_end` (a range
+  becomes two rows, one per endpoint, per SCHEMA.md) or `chapter`;
+  `to_section_id` resolves against every section this build has parsed
+  (across all its chapters, not just the citing section's own), staying
+  null for a citation the fixed seven-chapter sample cannot resolve or a
+  `chapter` reference (which names no single section for the schema's own
+  foreign key to point at) -- unresolved per citation, not per candidate
+  kind, matching SCHEMA.md's own note that an unresolved citation is real
+  data. Offsets are absolute into the chapter's own normalized text, the
+  same as every other row, derived from `body_text`'s own start offset
+  rather than re-scanned after the fact (see `bodyTextCharOffsetStart`'s
+  comment in `parse_ors_chapter.py`). Not yet confirmed against real CI
+  data -- `crossReferenceRowCount` and `crossReferenceResolvedCount` on the
+  next run settle whether resolution behaves as expected once real
+  citation density and the sample's own cross-chapter coverage are known.
 - CSV emission per table and a SQLite build from the CSVs.
 - The referential integrity checks listed in `SCHEMA.md` become a CI gate.
 

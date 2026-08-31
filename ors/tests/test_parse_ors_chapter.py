@@ -892,6 +892,78 @@ class SectionNoteRowTest(unittest.TestCase):
         self.assertEqual(self.rows["editorialNoteCandidates"], [])
 
 
+class CrossReferenceRowTest(unittest.TestCase):
+    """build_rows resolves cross-reference candidates across chapters."""
+
+    def setUp(self):
+        chapter_1 = (
+            "<p>2025 EDITION</p>"
+            "<p><b>1.002 Some catchline.</b> As provided in ORS 90.100 and"
+            " ORS 1.194 to 1.200, and subject to ORS chapter 90 and ORS"
+            " 999.999, the court may act. [1971 c.743 §1]</p>"
+        )
+        chapter_90 = (
+            "<p>2025 EDITION</p>"
+            "<p><b>90.100 Some other catchline.</b> Some statutory text."
+            " [1973 c.559 §1]</p>"
+        )
+        record_1 = {
+            "chapterNumber": "1",
+            "chapterSortKey": "000001 ",
+            "sha256": "a" * 64,
+            "parsed": parser.parse_chapter(chapter_1, "1"),
+        }
+        record_90 = {
+            "chapterNumber": "90",
+            "chapterSortKey": "000090 ",
+            "sha256": "b" * 64,
+            "parsed": parser.parse_chapter(chapter_90, "90"),
+        }
+        self.rows = parser.build_rows([record_1, record_90])
+        self.references = [
+            r for r in self.rows["crossReferences"] if r["fromSectionId"] == "2025-1.002"
+        ]
+
+    def test_a_bare_section_in_another_chapter_resolves(self):
+        section_refs = [r for r in self.references if r["referenceKind"] == "section"]
+        by_number = {r["toSectionNumber"]: r for r in section_refs}
+        self.assertEqual(by_number["90.100"]["toSectionId"], "2025-90.100")
+        # 999.999 is cited but never printed anywhere in this build: real
+        # data per SCHEMA.md, not a defect in resolution.
+        self.assertIsNone(by_number["999.999"]["toSectionId"])
+
+    def test_a_range_becomes_two_rows(self):
+        range_refs = sorted(
+            (r for r in self.references if r["referenceKind"] in ("range_start", "range_end")),
+            key=lambda r: r["ordinal"],
+        )
+        self.assertEqual(len(range_refs), 2)
+        self.assertEqual(range_refs[0]["referenceKind"], "range_start")
+        self.assertEqual(range_refs[0]["toSectionNumber"], "1.194")
+        self.assertEqual(range_refs[1]["referenceKind"], "range_end")
+        self.assertEqual(range_refs[1]["toSectionNumber"], "1.200")
+        # Neither 1.194 nor 1.200 is a real section in this fixture, so
+        # both stay unresolved -- the point of this test is the row shape,
+        # not resolution.
+        self.assertIsNone(range_refs[0]["toSectionId"])
+
+    def test_a_chapter_reference_never_gets_a_to_section_id(self):
+        chapter_refs = [r for r in self.references if r["referenceKind"] == "chapter"]
+        self.assertEqual(len(chapter_refs), 1)
+        self.assertEqual(chapter_refs[0]["toSectionNumber"], "90")
+        self.assertIsNone(chapter_refs[0]["toSectionId"])
+
+    def test_reference_offsets_are_absolute_into_the_chapter_text(self):
+        section_1_002 = next(s for s in self.rows["sections"] if s["sectionId"] == "2025-1.002")
+        for reference in self.references:
+            self.assertGreaterEqual(reference["charOffsetStart"], section_1_002["charOffsetStart"])
+            self.assertLessEqual(reference["charOffsetEnd"], section_1_002["charOffsetEnd"])
+
+    def test_ordinals_are_sequential_per_section(self):
+        ordinals = sorted(r["ordinal"] for r in self.references)
+        self.assertEqual(ordinals, list(range(1, len(self.references) + 1)))
+
+
 class IntegrityTest(unittest.TestCase):
     def _rows(self):
         record = {

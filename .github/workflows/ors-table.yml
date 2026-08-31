@@ -247,11 +247,15 @@ jobs:
           # whitespace structure.
           echo "Embedded-stub raw markup samples: $(jq -r '.embeddedStubMarkupSamples | length' ors-parse.json)"
           jq -c '.embeddedStubMarkupSamples[]' ors-parse.json | head -50 || true
-          # Increment 4, measurement stage: not yet gated. See
-          # ors_cross_references.py's module docstring for why this pass is
-          # deliberately generous rather than a finished extraction rule.
+          # Candidate measurement stays on: see ors_cross_references.py's
+          # module docstring for why the patterns are deliberately generous.
           echo "Cross-reference candidates: $(jq -r '.crossReferenceCandidateCount' ors-parse.json)   By kind: $(jq -c '.crossReferenceCandidatesByKind' ors-parse.json)"
           jq -r '.crossReferenceCandidates[] | "  \(.sectionId) [\(.kind)] \(.text) -- \(.context)"' ors-parse.json | head -150 || true
+          # Resolution rate depends on which chapters the fixed sample
+          # happens to include, not on extraction correctness -- see
+          # resolve_cross_references's own docstring -- so this is not
+          # gated the way unparsedCreditSegmentCount is.
+          echo "Cross-reference rows: $(jq -r '.crossReferenceRowCount' ors-parse.json)   Resolved: $(jq -r '.crossReferenceResolvedCount' ors-parse.json)"
           # Confirms extraction rather than motivating it now: a survivor
           # here means a "Note:"/"Notes:" form split_editorial_notes does
           # not yet recognize. See ors_section_notes.py's module docstring.

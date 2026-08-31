@@ -1104,6 +1104,34 @@ still miss. `problemCount`, `integrityViolationCount` and
 file's history, and the second one this same note-cataloging effort has
 now produced.
 
+## Cross-reference resolution, built against SCHEMA.md's own committed shape
+
+Unlike every extraction rule built so far in this pipeline, `resolve_
+cross_references` did not need a new round of real-data measurement to
+settle its shape -- SCHEMA.md already committed to it before any candidate
+was ever measured: a `range` candidate becomes two `ors_cross_reference`
+rows (`range_start` and `range_end`, one per endpoint) rather than a
+combined `range` kind, and an unresolved citation keeps `to_section_id`
+null "rather than being dropped ... citations to repealed or never-
+existing sections are real data." The measurement pass's own real evidence
+(the "chapter NNN" ORS-vs-session-law fix, and the settled subsection-
+suffix non-fix) already resolved the two open questions that *did* need
+real data before a rule could be written.
+
+The one genuine design decision this increment made was resolution scope:
+`to_section_id` is looked up against every section this build has parsed
+across all its chapters, not scoped per chapter, since a section in
+chapter 1 can cite a section in chapter 90 (both are in the fixed sample)
+and there is no reason to treat a same-chapter citation differently from a
+cross-chapter one. The fixed seven-chapter sample means most real
+citations -- to a section in one of the several hundred chapters *not* in
+the sample -- will not resolve no matter how real the reference is; that
+is expected, not a defect, and only a whole-edition build (increment 1b)
+changes it. `crossReferenceRowCount` and `crossReferenceResolvedCount` on
+the next real CI run are recorded here once known, the same measure-then-
+confirm order every other fix in this file followed, even though the rule
+itself did not need measurement to write.
+
 ## The other Legislative Counsel documents
 
 `ORS_Renum.pdf` is a renumbering table bearing on `ors_section.renumbered_to`,

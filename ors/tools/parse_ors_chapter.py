@@ -26,7 +26,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from ors_chapters import chapter_sort_key, parse_chapter_number  # noqa: E402
 from ors_credits import parse_source_credit  # noqa: E402
-from ors_cross_references import find_cross_reference_candidates  # noqa: E402
+from ors_cross_references import (  # noqa: E402
+    find_cross_reference_candidates,
+    resolve_cross_references,
+)
 from ors_section_notes import find_editorial_note_candidates, split_editorial_notes  # noqa: E402
 from ors_text import decode_markup, declared_charset, normalize_spaces  # noqa: E402
 
@@ -618,6 +621,18 @@ def parse_chapter(markup, chapter_number):
             for note in raw_notes
         ]
 
+        # Both branches below only ever narrow pre_notes from its own left
+        # edge inward (strip(), then a further left-anchored slice for a
+        # trailing credit) -- body_char_offset_start is therefore exactly
+        # anchor["headingEnd"] plus pre_notes's own leading whitespace,
+        # regardless of which branch runs. This is what lets a cross-
+        # reference match's position within body_text (see
+        # ors_cross_references.py) be placed in the chapter's normalized
+        # text without re-deriving it from body_text after the fact.
+        body_char_offset_start = anchor["headingEnd"] + (
+            len(pre_notes) - len(pre_notes.lstrip())
+        )
+
         if anchor["stub"] is not None:
             status, renumbered_to = classify_stub(anchor["stub"])
             # A stub section has no operative text: the bracket is the whole
@@ -640,6 +655,7 @@ def parse_chapter(markup, chapter_number):
             "sectionNumber": number,
             "catchline": anchor["catchline"],
             "bodyText": body or None,
+            "bodyTextCharOffsetStart": body_char_offset_start,
             "sourceCreditRaw": credit,
             "notes": notes,
             "status": status,
@@ -693,11 +709,19 @@ def build_rows(chapter_records, repo_root=None):
     # because it represents a real printed form this parser does not yet
     # understand.
     unparsed_credit_segments = []
-    # Candidate section/range/chapter mentions found in body_text. Increment
-    # 4's ors_cross_reference table has not been built yet; this only
-    # measures what forms actually appear, per find_cross_reference_
-    # candidates's own docstring.
+    # Candidate section/range/chapter mentions found in body_text, resolved
+    # into ors_cross_reference rows once every chapter has been walked (a
+    # candidate can cite a section in a chapter parsed later in this same
+    # call). See ors_cross_references.py's module docstring for the row
+    # shape and why an unresolved citation keeps to_section_id null.
     cross_reference_candidates = []
+    # sectionNumber -> sectionId, flat rather than scoped per edition: a
+    # routine call always parses one edition's chapters (a whole-edition
+    # rebuild for a new edition is its own separate call, not mixed into
+    # this one), so a flat map is exact for every real call shape without
+    # needing edition-aware plumbing resolve_cross_references would
+    # otherwise have to carry through its own generic signature.
+    section_ids_by_number = {}
     # Candidate editorial/preface note introductions ("Note:", "Notes:")
     # found in body_text. Increment 3's ors_section_note table has not been
     # extended to this form yet; this only measures where such blocks
@@ -766,6 +790,7 @@ def build_rows(chapter_records, repo_root=None):
 
         for ordinal, section in enumerate(parsed["sections"], start=1):
             section_id = f"{edition_id}-{section['sectionNumber']}"
+            section_ids_by_number[section["sectionNumber"]] = section_id
             sections.append({
                 "sectionId": section_id,
                 "chapterId": chapter_id,
@@ -822,8 +847,18 @@ def build_rows(chapter_records, repo_root=None):
                 })
 
             if section["bodyText"]:
+                base = section["bodyTextCharOffsetStart"]
                 cross_reference_candidates.extend(
-                    {"sectionId": section_id, **candidate}
+                    {
+                        "sectionId": section_id,
+                        **candidate,
+                        # Absolute, into the chapter's own normalized text --
+                        # see body_char_offset_start's own comment in
+                        # parse_chapter for why body_text's own offsets
+                        # translate directly with no further adjustment.
+                        "charOffsetStart": base + candidate["charOffsetStart"],
+                        "charOffsetEnd": base + candidate["charOffsetEnd"],
+                    }
                     for candidate in find_cross_reference_candidates(section["bodyText"])
                 )
                 # Confirms extraction rather than motivating it now: every
@@ -837,6 +872,8 @@ def build_rows(chapter_records, repo_root=None):
 
         problems.extend(f"chapter {number}: {item}" for item in parsed["problems"])
 
+    cross_references = resolve_cross_references(cross_reference_candidates, section_ids_by_number)
+
     return {
         "editions": sorted(editions.values(), key=lambda item: item["editionId"]),
         "chapters": chapters,
@@ -847,6 +884,7 @@ def build_rows(chapter_records, repo_root=None):
         "formerlyReferences": formerly_references,
         "renumberReferences": renumber_references,
         "unparsedCreditSegments": unparsed_credit_segments,
+        "crossReferences": cross_references,
         "crossReferenceCandidates": cross_reference_candidates,
         "editorialNoteCandidates": editorial_note_candidates,
         "problems": problems,
@@ -931,12 +969,30 @@ def check_referential_integrity(rows):
         if note["charOffsetStart"] >= note["charOffsetEnd"]:
             violations.append(f"note {note['noteId']} has an empty span")
 
+    seen_references = set()
+    for reference in rows["crossReferences"]:
+        if reference["fromSectionId"] not in seen_sections:
+            violations.append(f"cross reference {reference['referenceId']} has no from-section")
+        if reference["referenceId"] in seen_references:
+            violations.append(f"duplicate cross reference id {reference['referenceId']}")
+        seen_references.add(reference["referenceId"])
+        if reference["referenceKind"] not in REFERENCE_KINDS:
+            violations.append(
+                f"cross reference {reference['referenceId']} has unknown kind "
+                f"{reference['referenceKind']}"
+            )
+        # to_section_id is allowed to be null -- an unresolved citation is
+        # real data per SCHEMA.md, not a violation.
+        if reference["charOffsetStart"] >= reference["charOffsetEnd"]:
+            violations.append(f"cross reference {reference['referenceId']} has an empty span")
+
     return violations
 
 
 SECTION_STATUSES = {"operative", "repealed", "renumbered", "reserved", "note_only"}
 CREDIT_ACTIONS = {"enacted", "amended", "renumbered", "repealed", "unspecified"}
 NOTE_KINDS = {"source_credit", "editorial_note", "preface_note"}
+REFERENCE_KINDS = {"section", "range_start", "range_end", "chapter"}
 
 
 def main(argv=None):
@@ -1035,16 +1091,23 @@ def main(argv=None):
         # an embedded stub both measured zero change on real data. See
         # find_embedded_stub_markup_samples's docstring. Diagnostic only.
         "embeddedStubMarkupSamples": embedded_stub_markup_samples[:50],
-        # Increment 4, measurement stage: candidate section/range/chapter
-        # mentions found in body_text, not yet resolved into
-        # ors_cross_reference rows. See ors_cross_references.py's docstring
-        # for why this is deliberately generous and unopinionated rather
-        # than a finished extraction rule. Diagnostic only, not gated.
+        # Candidate section/range/chapter mentions found in body_text,
+        # measured the same deliberately generous and unopinionated way
+        # since before resolution was built. See ors_cross_references.py's
+        # docstring. Diagnostic only, not gated: resolution rate depends on
+        # which chapters the fixed sample happens to include, not on
+        # extraction correctness, so it is not a pass/fail signal the way
+        # unparsedCreditSegmentCount or editorialNoteCandidateCount are.
         "crossReferenceCandidateCount": len(rows["crossReferenceCandidates"]),
         "crossReferenceCandidatesByKind": candidate_counts_by_kind(
             rows["crossReferenceCandidates"]
         ),
         "crossReferenceCandidates": rows["crossReferenceCandidates"][:500],
+        "crossReferenceRowCount": len(rows["crossReferences"]),
+        "crossReferenceResolvedCount": sum(
+            1 for item in rows["crossReferences"] if item["toSectionId"] is not None
+        ),
+        "crossReferences": rows["crossReferences"][:500],
         "sectionNotes": rows["sectionNotes"][:500],
         # A survivor here after extraction means a "Note:"/"Notes:" form
         # split_editorial_notes does not yet recognize -- every real note
@@ -1118,6 +1181,8 @@ def main(argv=None):
         "unboldedStubDistinctNumberCount": report["unboldedStubDistinctNumberCount"],
         "crossReferenceCandidateCount": report["crossReferenceCandidateCount"],
         "crossReferenceCandidatesByKind": report["crossReferenceCandidatesByKind"],
+        "crossReferenceRowCount": report["crossReferenceRowCount"],
+        "crossReferenceResolvedCount": report["crossReferenceResolvedCount"],
         "editorialNoteCandidateCount": report["editorialNoteCandidateCount"],
         "problemCount": len(report["problems"]),
         "chaptersWithoutName": report["chaptersWithoutName"],
