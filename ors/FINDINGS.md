@@ -1186,6 +1186,18 @@ the full pipeline (parse, then build) produces a SQLite database whose
 `sectionRowCount` exactly, and the CI gate now checks that same equality
 on every real run as a join-completeness sanity check.
 
+Confirmed on the tool's first real CI run (commit `604adc4`, the 7-chapter
+sample): `ors-build.json` came back `valid: true` with row counts
+`ors_edition: 1`, `ors_volume: 21`, `ors_title: 60`, `ors_chapter: 7`,
+`ors_subdivision: 146`, `ors_section: 1125`, `ors_section_note: 152`,
+`ors_source_credit: 2911`, `ors_cross_reference: 4110`,
+`ors_acquisition_event: 8`. `ors_section` (1125) and `ors_cross_reference`
+(4110) match `ors-parse.json`'s own `sectionRowCount` and
+`crossReferenceRowCount` exactly, so the join dropped no rows on real
+data. Both new gate assertions passed on the strict (non-`continue-on-
+error`) gate step, and the `ors-tables/` directory (CSVs + `ors.sqlite`)
+uploaded alongside the other pipeline reports. Increment 4 is done.
+
 ## The other Legislative Counsel documents
 
 `ORS_Renum.pdf` is a renumbering table bearing on `ors_section.renumbered_to`,
