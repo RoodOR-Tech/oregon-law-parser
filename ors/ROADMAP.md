@@ -183,7 +183,16 @@ caught before CI did:
   count before an anchoring rule). The patterns tried are deliberately
   generous (any `NNN.NNN`, `NNN.NNN to NNN.NNN`, or `chapter NNN` shape) so
   real phrasing is seen from CI before `reference_kind` values and
-  `to_section_id` resolution are designed against it.
+  `to_section_id` resolution are designed against it. One of the two real
+  wrinkles the first CI run surfaced is now fixed: a bare "chapter NNN"
+  mention is not always an ORS chapter (a session-law chapter, "chapter 88,
+  Oregon Laws 2025", printed the same shape), so `CHAPTER_MENTION_PATTERN`
+  now requires an "ORS" lookbehind -- a session-law mention never matches
+  at all rather than being caught and rejected. The other (a bare section
+  mention sometimes carries a subsection suffix like `(3)`) needed no code
+  change: the existing pattern already stops at the section number. See
+  FINDINGS.md for the real forms. `reference_kind` values and
+  `to_section_id` resolution are not designed yet.
 - CSV emission per table and a SQLite build from the CSVs.
 - The referential integrity checks listed in `SCHEMA.md` become a CI gate.
 

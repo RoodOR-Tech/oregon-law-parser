@@ -65,6 +65,30 @@ class ChapterCandidateTest(unittest.TestCase):
         result = xref.find_cross_reference_candidates("subject to ORS chapter 279A.")
         self.assertEqual(result[0]["text"], "chapter 279A")
 
+    def test_a_session_law_chapter_mention_is_not_an_ors_chapter_candidate(self):
+        # Real forms: a session-law chapter is not preceded by "ORS", unlike
+        # every real ORS chapter mention observed so far.
+        result = xref.find_cross_reference_candidates(
+            "Note: Sections 3 and 4, chapter 88, Oregon Laws 2025, provide:"
+        )
+        self.assertEqual(result, [])
+
+    def test_a_session_law_chapter_after_section_n_is_not_a_candidate(self):
+        result = xref.find_cross_reference_candidates(
+            "the amount specified in section 1 (6), chapter 705, Oregon Laws 2013"
+        )
+        self.assertEqual(result, [])
+
+    def test_a_real_ors_chapter_mention_survives_alongside_a_session_law_one(self):
+        # Real form: both shapes appear in the same sentence.
+        result = xref.find_cross_reference_candidates(
+            "bonds issued under ORS 271.390 or ORS chapter 287A to finance capital "
+            "costs of the courthouse under section 10, chapter 685, Oregon Laws 2015"
+        )
+        chapter_candidates = [c for c in result if c["kind"] == "chapter"]
+        self.assertEqual(len(chapter_candidates), 1)
+        self.assertEqual(chapter_candidates[0]["text"], "chapter 287A")
+
 
 class MixedCandidateOrderTest(unittest.TestCase):
     def test_candidates_of_different_kinds_stay_in_reading_order(self):

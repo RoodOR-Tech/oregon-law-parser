@@ -896,9 +896,15 @@ consistent with that same scope decision -- but the current pass's bare
 swallow the subsection suffix, so this needs no code change; it is recorded
 here so the eventual extraction rule does not re-litigate it.
 
-Neither observation is acted on yet -- the diagnostic stays generous and
-unopinionated per its own docstring -- but both are real, so they are
-recorded now rather than left to be rediscovered next round.
+Neither observation was acted on immediately -- the diagnostic stayed
+generous and unopinionated per its own docstring -- but both were real, so
+they were recorded rather than left to be rediscovered next round.
+
+**Update, increment 4 start:** the "chapter NNN" fix is now made.
+`CHAPTER_MENTION_PATTERN` requires an "ORS" lookbehind, so a session-law
+chapter mention (no preceding "ORS") never matches at all -- excluded by
+construction rather than caught and then rejected. The subsection-suffix
+observation needed no code change, as recorded above, and stays that way.
 
 ## Editorial notes: the same "chapter 88" fragment is also increment 3's missing form
 

@@ -25,6 +25,25 @@ unopinionated: it finds candidate section-number, range and chapter
 mentions and reports each with surrounding context, rather than guessing the
 phrasing now. `reference_kind` and resolution against `to_section_id` are
 written once real samples from CI show what forms exist.
+
+A real CI run already settled one of those open questions the hard way:
+a bare "chapter NNN" is not always an ORS chapter. Real printed forms
+include both
+
+    issued under ORS 271.390 or ORS chapter 287A to finance capital costs
+    Note: Sections 3 and 4, chapter 88, Oregon Laws 2025, provide:
+    the amount specified in section 1 (6), chapter 705, Oregon Laws 2013
+
+and only the first is a genuine ORS chapter cross-reference -- it is
+preceded by "ORS". The other two cite a session-law chapter ("chapter 88,
+Oregon Laws 2025"), the same numbering `ors_source_credit` already uses for
+`session_law_chapter`; conflating the two would resolve a `chapter`
+candidate against the wrong table entirely. Every real ORS chapter mention
+observed is immediately preceded by "ORS ", so `CHAPTER_MENTION_PATTERN`
+requires that prefix rather than trying to rule out "Oregon Laws" or a
+preceding "section N," after the fact -- a session-law chapter mention
+simply does not match this pattern at all, rather than being caught and
+then rejected.
 """
 import re
 
@@ -34,7 +53,13 @@ SECTION_NUMBER_PATTERN = re.compile(r"\d{1,3}[A-Z]?\.\d{3}")
 RANGE_PATTERN = re.compile(
     r"(?P<start>\d{1,3}[A-Z]?\.\d{3})\s+to\s+(?P<end>\d{1,3}[A-Z]?\.\d{3})"
 )
-CHAPTER_MENTION_PATTERN = re.compile(r"\bchapter\s+(?P<number>\d{1,3}[A-Z]?)\b", re.IGNORECASE)
+# Requires the "ORS" prefix (as a lookbehind, so the match itself is still
+# just the "chapter NNN" phrase): see the module docstring for the real
+# session-law chapter mentions ("chapter 88, Oregon Laws 2025") this
+# excludes by construction rather than by rejecting them after a match.
+CHAPTER_MENTION_PATTERN = re.compile(
+    r"(?<=\bORS)\s+chapter\s+(?P<number>\d{1,3}[A-Z]?)\b", re.IGNORECASE
+)
 
 # Enough surrounding text to see the real phrasing without printing the
 # whole (sometimes very long) body_text back in the report.
@@ -78,10 +103,15 @@ def find_cross_reference_candidates(body_text):
         }))
 
     for match in CHAPTER_MENTION_PATTERN.finditer(body_text):
-        entries.append((match.start(), {
+        # The lookbehind's own \s+ is captured in the match (fixed-width
+        # lookbehinds can't consume it), so the reported span starts at
+        # "chapter" itself, not at the whitespace before it.
+        phrase = match.group(0).lstrip()
+        start = match.end() - len(phrase)
+        entries.append((start, {
             "kind": "chapter",
-            "text": match.group(0),
-            "context": _context(body_text, match.start(), match.end()),
+            "text": phrase,
+            "context": _context(body_text, start, match.end()),
         }))
 
     entries.sort(key=lambda item: item[0])
