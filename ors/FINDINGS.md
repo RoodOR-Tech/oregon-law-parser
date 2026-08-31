@@ -906,6 +906,23 @@ chapter mention (no preceding "ORS") never matches at all -- excluded by
 construction rather than caught and then rejected. The subsection-suffix
 observation needed no code change, as recorded above, and stays that way.
 
+Confirmed against real CI data, isolated correctly this time by comparing
+against the immediately preceding commit's own run (run
+[33336017211](https://github.com/RoodOR-Tech/oregon-law-parser/actions/runs/33336017211),
+head `1a7278e`) rather than a stale pre-note-extraction baseline:
+
+| field | before (`1a7278e`) | after (`d407bcc`) |
+|---|---|---|
+| `chapter` candidates | 182 | 112 |
+| `range` candidates | 634 | 634 |
+| `section` candidates | 2730 | 2730 |
+| `crossReferenceCandidateCount` | 3546 | 3476 |
+
+`range` and `section` are exactly unchanged -- proof the fix touched only
+the chapter pattern, not a side effect of anything else moving at the same
+time. 70 real session-law chapter mentions no longer misclassified as ORS
+chapter cross-references.
+
 ## Editorial notes: the same "chapter 88" fragment is also increment 3's missing form
 
 The cross-reference pass's own "chapter NNN" false-lead finding above hands
