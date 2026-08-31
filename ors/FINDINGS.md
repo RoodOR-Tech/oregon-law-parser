@@ -1127,10 +1127,24 @@ cross-chapter one. The fixed seven-chapter sample means most real
 citations -- to a section in one of the several hundred chapters *not* in
 the sample -- will not resolve no matter how real the reference is; that
 is expected, not a defect, and only a whole-edition build (increment 1b)
-changes it. `crossReferenceRowCount` and `crossReferenceResolvedCount` on
-the next real CI run are recorded here once known, the same measure-then-
-confirm order every other fix in this file followed, even though the rule
-itself did not need measurement to write.
+changes it.
+
+Confirmed against real CI data (run
+[33414668157](https://github.com/RoodOR-Tech/oregon-law-parser/actions/runs/33414668157)):
+`crossReferenceRowCount` reads **4110** -- exactly the 3476 measured
+candidates plus 634 extra rows, one per real `range` candidate becoming
+two rows instead of one (`crossReferenceCandidatesByKind.range` is itself
+634, so this arithmetic checks out precisely, not approximately).
+`crossReferenceResolvedCount` reads **2363**, resolving 57.5% of all rows
+-- higher than the "most stay unresolved" expectation above, and still not
+a defect: several of the fixed sample's own chapters (`90`, `192`, `646A`)
+are large enough that a real statute frequently cites another section
+within its own chapter, so same-chapter resolution alone accounts for a
+large share without needing whole-edition coverage. `problemCount`,
+`integrityViolationCount`, `unparsedCreditSegmentCount` and
+`editorialNoteCandidateCount` all held at their prior values -- this
+change moved only the two new fields, confirmed by nothing else in the
+gate shifting.
 
 ## The other Legislative Counsel documents
 
