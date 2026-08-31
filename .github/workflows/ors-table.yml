@@ -130,6 +130,22 @@ jobs:
             --report ors-parse.json \
             --rows ors-rows.json
 
+      - name: Build the relational tables (NDJSON, CSV, SQLite)
+        if: always()
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          if [ ! -f ors-rows.json ] || [ ! -f ors-roster.json ] || [ ! -f ors-acquisition.json ]; then
+            echo "Missing an input report; nothing to build."
+            exit 1
+          fi
+          python3 ors/tools/build_ors_relational.py \
+            --rows ors-rows.json \
+            --roster ors-roster.json \
+            --acquisition ors-acquisition.json \
+            --out-dir ors-tables \
+            --report ors-build.json
+
       - name: Print the structural fingerprint
         if: always()
         run: |
@@ -262,6 +278,17 @@ jobs:
           echo "Editorial note candidates not extracted: $(jq -r '.editorialNoteCandidateCount' ors-parse.json)"
           jq -r '.editorialNoteCandidates[] | "  \(.sectionId) [\(.introducer)] \(.context)"' ors-parse.json | head -150 || true
 
+      - name: Print the relational build's row counts
+        if: always()
+        run: |
+          set -uo pipefail
+          if [ ! -f ors-build.json ]; then
+            echo "No relational build report was written."
+            exit 0
+          fi
+          echo "Relational build row counts:"
+          jq -r '.rowCounts | to_entries[] | "  \(.key): \(.value)"' ors-build.json
+
       # The real gate. It runs last so the diagnostic steps above have already
       # printed their evidence into the log even on a failing run.
       - name: Gate on the table of titles, acquisition, probe and parse
@@ -282,6 +309,14 @@ jobs:
           # recorded in FINDINGS.md parses cleanly, so a non-zero count here is
           # a printed form the parser does not yet understand.
           jq -e '.valid == true and .sectionRowCount > 0 and .editionCount > 0 and (.problems | length) == 0 and (.integrityViolations | length) == 0 and (.chaptersWithoutName | length) == 0 and .unparsedCreditSegmentCount == 0 and .editorialNoteCandidateCount == 0' ors-parse.json >/dev/null
+          # The relational build only reshapes and joins rows parse_ors_
+          # chapter.py already validated above, so its own gate is just
+          # "it completed and wrote every table" -- ors_section's own row
+          # count is cross-checked against parse's own count as a sanity
+          # check that the join lost no rows.
+          jq -e '.valid == true' ors-build.json >/dev/null
+          jq -e --argjson expected "$(jq '.sectionRowCount' ors-parse.json)" \
+            '.rowCounts.ors_section == $expected' ors-build.json >/dev/null
 
       - name: Upload ORS pipeline reports
         if: always()
@@ -294,5 +329,7 @@ jobs:
             ors-structure-probe.json
             ors-parse.json
             ors-rows.json
+            ors-build.json
+            ors-tables/
           if-no-files-found: warn
           retention-days: 30

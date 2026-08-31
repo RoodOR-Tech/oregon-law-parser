@@ -1146,6 +1146,46 @@ large share without needing whole-edition coverage. `problemCount`,
 change moved only the two new fields, confirmed by nothing else in the
 gate shifting.
 
+## The relational build: two joins neither source report carries alone
+
+`tools/build_ors_relational.py` closes out increment 4's last item. It
+takes the roster report, the acquisition ledger and `parse_ors_chapter.
+py`'s own `--rows` output -- three reports that never see each other
+during routine CI -- and joins them into SCHEMA.md's nine tables, each
+emitted as NDJSON, CSV and a SQLite database (built by reading the CSVs
+back, since SCHEMA.md calls the CSVs the database's source, not the
+in-memory rows).
+
+Two columns cannot be filled from `rows.json` alone, because parsing
+itself never needed them:
+
+- `ors_chapter.source_format` and `.retrieved_at` are only in the
+  acquisition ledger's own per-chapter record (parsing reads the fetched
+  bytes, not the fetch's own metadata), joined back in by chapter number.
+- `ors_acquisition_event.edition_id` cannot come from the ledger at all --
+  a chapter's edition is only known once its own content has been parsed
+  (see "The chapter documents are Windows-1252 Word HTML exports" above),
+  and the roster fetch happens before any chapter fetch even starts. Every
+  routine build in this pipeline parses exactly one edition's chapters (a
+  new edition is its own separate run, per ROADMAP.md's working method),
+  so every acquisition event in a build -- including the roster fetch
+  itself -- is filed under that one edition. A chapter fetch that produced
+  a real parsed chapter uses that chapter's own edition_id; one that never
+  got that far (a failed fetch) falls back to the build's one edition. This
+  is the same simplifying assumption `resolve_cross_references`'s own
+  `section_ids_by_number` map already makes, named explicitly rather than
+  left implicit a second time.
+
+Unlike every extraction rule in this file, no real-data measurement was
+needed to write this: SCHEMA.md had already committed to every column, and
+`parse_ors_chapter.py`'s own gate already validates everything this tool
+reshapes, so there was no ambiguity left to resolve from CI. Verified
+end-to-end instead: the real `word_export_chapter.html` fixture run through
+the full pipeline (parse, then build) produces a SQLite database whose
+`ors_section` row count matches `parse_ors_chapter.py`'s own
+`sectionRowCount` exactly, and the CI gate now checks that same equality
+on every real run as a join-completeness sanity check.
+
 ## The other Legislative Counsel documents
 
 `ORS_Renum.pdf` is a renumbering table bearing on `ors_section.renumbered_to`,

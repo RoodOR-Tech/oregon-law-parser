@@ -171,7 +171,7 @@ caught before CI did:
 - This is the table that joins to the amendment parser's `(year, chapter)`
   output. The join is data-only; neither program imports the other.
 
-## Increment 4 — cross references and the relational build
+## Increment 4 — cross references and the relational build (done)
 
 - `ors_cross_reference` rows, with unresolved citations preserved rather than
   dropped. Measurement first, as every earlier table in this pipeline did
@@ -199,12 +199,41 @@ caught before CI did:
   data. Offsets are absolute into the chapter's own normalized text, the
   same as every other row, derived from `body_text`'s own start offset
   rather than re-scanned after the fact (see `bodyTextCharOffsetStart`'s
-  comment in `parse_ors_chapter.py`). Not yet confirmed against real CI
-  data -- `crossReferenceRowCount` and `crossReferenceResolvedCount` on the
-  next run settle whether resolution behaves as expected once real
-  citation density and the sample's own cross-chapter coverage are known.
-- CSV emission per table and a SQLite build from the CSVs.
+  comment in `parse_ors_chapter.py`). Confirmed against real CI data:
+  `crossReferenceRowCount` 4110 (exactly the 3476 measured candidates plus
+  634 range candidates each becoming two rows), `crossReferenceResolvedCount`
+  2363 (57.5%, higher than expected since several sample chapters are large
+  enough to frequently cite themselves). See FINDINGS.md for the detail.
+- CSV emission per table and a SQLite build from the CSVs. Done:
+  `tools/build_ors_relational.py` joins `parse_ors_chapter.py`'s own rows
+  with the roster and acquisition reports (neither of which the parser
+  itself ever sees) into all nine of SCHEMA.md's tables -- `ors_edition`
+  through `ors_acquisition_event` -- with SCHEMA.md's own snake_case
+  columns, and emits each as NDJSON, CSV and a SQLite database built by
+  reading the CSVs back (SCHEMA.md's own words: the CSVs, not the in-memory
+  rows, are the database's source, so a database can be rebuilt from a set
+  of CSV files alone). Two joins neither source report carries on its own:
+  `ors_chapter.source_format`/`.retrieved_at` come from the acquisition
+  ledger's own per-chapter record, matched by chapter number; `ors_
+  acquisition_event.edition_id` isn't knowable from the ledger alone since
+  edition identity is only established from a chapter's own content after
+  the fact, so every event in a build -- the roster fetch included --
+  is filed under the one edition that build parsed, the same
+  single-edition-per-build assumption `resolve_cross_references`'s own
+  `section_ids_by_number` map already relies on. No new measurement was
+  needed to write this: SCHEMA.md had already committed to every column
+  and join before this increment started, only the row-shaping was new.
+  Referential integrity is not re-checked in this tool: `parse_ors_
+  chapter.py`'s own gate already covers everything it emits, and this tool
+  only reshapes and joins, it does not invent new facts to validate.
 - The referential integrity checks listed in `SCHEMA.md` become a CI gate.
+  Substantially already true: `parse_ors_chapter.py`'s own Python-level
+  `check_referential_integrity` runs on every build and the workflow's own
+  gate step requires `integrityViolationCount == 0`, so a violation already
+  fails CI today. What is not yet a distinct, explicit gate step is a
+  single command a reviewer can point at as "the SCHEMA.md gate" the way
+  the amendment effort's gold gate is one command -- worth a follow-up if
+  that distinction ever matters, but not a real coverage gap today.
 
 ## Increment 5 — gold rows and a quality gate
 
