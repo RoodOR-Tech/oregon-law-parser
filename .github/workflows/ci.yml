@@ -47,6 +47,13 @@ jobs:
       - name: Test review tooling
         run: python3 ../tools/test_build_conflict_report.py -v
 
+      - name: Validate operational certification inventory
+        run: |
+          set -euo pipefail
+          python3 ../tools/test_validate_operational_certification.py -v
+          python3 ../tools/validate_operational_certification.py --root .. | tee ../operational-certification-validation.json
+          jq -e '.valid == true and .validatedOperationalFloor == 1999 and .validatedSessionCount == 29 and .goldCertificationDocuments == 50 and .unseenValidationDocuments == 25' ../operational-certification-validation.json >/dev/null
+
       - name: Upload unit-test log
         if: always()
         uses: actions/upload-artifact@v4
@@ -133,6 +140,15 @@ jobs:
               --report ../conflict-review-report.json
             jq -e '.schemaVersion == 1 and (.reviewCaseCount >= 0) and (.cases | type == "array")' ../conflict-review-report.json >/dev/null
           fi
+
+      - name: Upload operational certification validation
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: operational-certification-validation
+          path: operational-certification-validation.json
+          if-no-files-found: warn
+          retention-days: 90
 
       - name: Upload gold fixture acquisition report
         if: always()
