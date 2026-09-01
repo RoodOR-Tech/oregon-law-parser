@@ -1,0 +1,429 @@
+name: ORS relational table
+
+# Parallel to the session-law amendment pipeline. This workflow only exercises
+# the ORS effort under ors/ and never touches the frozen gold or unseen
+# validation corpora owned by the amendment parser.
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'ors/**'
+      - '.github/workflows/ors-table.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'ors/**'
+      - '.github/workflows/ors-table.yml'
+  workflow_dispatch:
+    inputs:
+      chapters:
+        description: 'Override the fixed development sample, e.g. 1,161,279A'
+        required: false
+        default: ''
+      enumerate_whole_edition:
+        description: 'Run whole-edition chapter roster enumeration (hundreds of requests to the real site). Set to "true" to run.'
+        required: false
+        default: ''
+      enumerate_titles:
+        description: 'Optional: limit whole-edition enumeration to these title numbers, e.g. 1,16 (default: every title)'
+        required: false
+        default: ''
+
+concurrency:
+  group: ors-table-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  offline-tests:
+    name: Offline unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run ORS tool tests
+        run: python3 -m unittest discover -s ors/tests -v
+
+  discover-and-probe:
+    name: Discover the edition and probe chapter structure
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: offline-tests
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Report the Java runtime used for text extraction
+        run: java -version
+
+      # The ORS landing page does not link chapters -- its bills_laws/ors
+      # links are the annual reference PDFs and the General Index -- and
+      # ORS_TitlesChapters.pdf is a table of titles giving chapter ranges, not
+      # a chapter list. It yields volumes and titles, and its ranges are what
+      # acquired chapters are checked against.
+      - name: Read the published table of titles
+        id: roster
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          python3 ors/tools/acquire_ors_roster.py \
+            --output ors-sources/ORS_TitlesChapters.pdf \
+            --tika-jar tika-app-2.8.0.jar \
+            --report ors-roster.json
+
+      - name: Acquire chapter sources
+        if: steps.roster.outcome == 'success'
+        continue-on-error: true
+        env:
+          CHAPTER_OVERRIDE: ${{ github.event.inputs.chapters }}
+        run: |
+          set -euo pipefail
+          if [ -n "$CHAPTER_OVERRIDE" ]; then
+            echo "Acquiring overridden chapters: $CHAPTER_OVERRIDE"
+            python3 ors/tools/acquire_ors_chapters.py \
+              --title-roster-file ors-roster.json \
+              --chapters "$CHAPTER_OVERRIDE" \
+              --output-dir ors-sources \
+              --report ors-acquisition.json
+          else
+            echo "Acquiring the fixed development sample."
+            python3 ors/tools/acquire_ors_chapters.py \
+              --title-roster-file ors-roster.json \
+              --chapters-file ors/sample/chapters.json \
+              --output-dir ors-sources \
+              --report ors-acquisition.json
+          fi
+
+      # When the table of titles cannot be read there are no ranges to check
+      # against. The sample is still acquired so chapter structure stays
+      # observable, and the report records that no check was made.
+      - name: Acquire sample chapters without the title ranges
+        if: steps.roster.outcome != 'success'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          python3 ors/tools/acquire_ors_chapters.py \
+            --chapters-file ors/sample/chapters.json \
+            --output-dir ors-sources \
+            --report ors-acquisition.json
+
+      - name: Probe chapter structure
+        if: always()
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          if [ ! -f ors-acquisition.json ]; then
+            echo "No acquisition report to probe."
+            exit 1
+          fi
+          python3 ors/tools/probe_ors_structure.py \
+            --acquisition-report ors-acquisition.json \
+            --report ors-structure-probe.json
+
+      - name: Parse chapters into relational rows
+        if: always()
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          if [ ! -f ors-acquisition.json ]; then
+            echo "No acquisition report to parse."
+            exit 1
+          fi
+          python3 ors/tools/parse_ors_chapter.py \
+            --acquisition-report ors-acquisition.json \
+            --report ors-parse.json \
+            --rows ors-rows.json
+
+      - name: Build the relational tables (NDJSON, CSV, SQLite)
+        if: always()
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          if [ ! -f ors-rows.json ] || [ ! -f ors-roster.json ] || [ ! -f ors-acquisition.json ]; then
+            echo "Missing an input report; nothing to build."
+            exit 1
+          fi
+          python3 ors/tools/build_ors_relational.py \
+            --rows ors-rows.json \
+            --roster ors-roster.json \
+            --acquisition ors-acquisition.json \
+            --out-dir ors-tables \
+            --report ors-build.json
+
+      - name: Print the structural fingerprint
+        if: always()
+        run: |
+          set -uo pipefail
+          if [ ! -f ors-structure-probe.json ]; then
+            echo "No structure probe report was written."
+            exit 0
+          fi
+          echo "Per-chapter counters:"
+          jq -r '["chapter","enc","bytes","lines","sectNums","lineAnchors","boldAnchors","ambiguous","credits","stubs"],
+                 (.chapters[] | [
+                   .chapterNumber, .sourceEncoding, .bytes, .visibleLineCount,
+                   .distinctSectionNumbers, .sectionAnchorLineCount,
+                   .boldSectionAnchorCount, .ambiguousSectionLineCount,
+                   .sourceCreditMatches, .repealStubMatches
+                 ]) | @tsv' ors-structure-probe.json | column -t
+          echo
+          echo "Unreadable chapters:"
+          jq -c '.unreadable' ors-structure-probe.json
+          echo
+          echo "Deep sample (first chapter):"
+          jq '.chapters[0] | {
+            chapterNumber, sourceUrl, sourceEncoding, declaredCharset,
+            tagHistogram: .tagHistogram[0:6],
+            classHistogram: .classHistogram[0:6],
+            sampleBoldSectionAnchors, sampleAmbiguousSectionLines,
+            sampleSourceCredits: .sampleSourceCredits[0:5],
+            sampleLines: .sampleLines[0:20]
+          }' ors-structure-probe.json
+
+      # Printed immediately before the gate so it stays in the readable tail
+      # of the log on a failing run.
+      - name: Print the table of titles
+        if: always()
+        run: |
+          set -uo pipefail
+          if [ ! -f ors-roster.json ]; then
+            echo "No roster report was written."
+            exit 0
+          fi
+          echo "Valid: $(jq -r '.valid' ors-roster.json)"
+          echo "Edition year: $(jq -r '.editionYear // "unknown"' ors-roster.json)"
+          echo "Roster SHA-256: $(jq -r '.rosterSha256 // "none"' ors-roster.json)"
+          echo "Volumes: $(jq -r '.volumeCount // 0' ors-roster.json)"
+          echo "Titles: $(jq -r '.titleCount // 0' ors-roster.json)"
+          echo "Unparsed roster lines: $(jq -r '.unparsedLineCount // 0' ors-roster.json)"
+          echo "Unresolved title lines: $(jq -r '.unresolvedTitleLineCount // 0' ors-roster.json)"
+          jq -r '.unresolvedTitleLines // [] | .[] | "  unresolved: \(.)"' ors-roster.json
+          jq -r '.unparsedLines // [] | .[] | "  unparsed: \(.)"' ors-roster.json
+          if [ "$(jq -r '.valid' ors-roster.json)" = "true" ]; then
+            # One folded line rather than one line per title. Sixty title
+            # lines pushed the summary and diagnostics out of the readable log
+            # tail on every failing run; the detail below is only needed when
+            # something is wrong, and the report artifact always carries it.
+            echo "Title ranges:"
+            jq -r '[.titles[] | "\(.titleNumber):\(.firstChapter)-\(.lastChapter)"] | join("  ")' \
+              ors-roster.json | fold -s -w 160
+          else
+            echo "Titles and the chapter ranges they cover:"
+            jq -r '.titles[] | "  vol \(.volumeNumber // "?")  title \(.titleNumber)  chs \(.firstChapter)-\(.lastChapter)  \(.titleName // "")"' \
+              ors-roster.json
+            echo "Problems: $(jq -c '.problems // [.error]' ors-roster.json)"
+            echo "Unparsed lines:"
+            jq -r '.unparsedLines // [] | .[]' ors-roster.json | head -20 || true
+            echo "Extracted text sample:"
+            jq -r '.textDiagnostics.sampleLines // [] | .[]' ors-roster.json | head -40 || true
+          fi
+
+      - name: Print the emitted rows
+        if: always()
+        run: |
+          set -uo pipefail
+          if [ ! -f ors-parse.json ]; then
+            echo "No parse report was written."
+            exit 0
+          fi
+          echo "Editions: $(jq -r '.editionCount' ors-parse.json)   Chapters: $(jq -r '.chapterRowCount' ors-parse.json)   Subdivisions: $(jq -r '.subdivisionRowCount' ors-parse.json)   Sections: $(jq -r '.sectionRowCount' ors-parse.json)"
+          echo "Section status counts: $(jq -c '.statusCounts' ors-parse.json)"
+          echo "Per chapter:"
+          jq -r '.perChapter[] | "  ch \(.chapterNumber)  title \(.titleNumber // "?")  \(.sectionCount) sections  \(.chapterName // "")"' ors-parse.json
+          echo "Problems: $(jq -r '.problems | length' ors-parse.json)"
+          jq -r '.problems[] | "  problem: \(.)"' ors-parse.json | head -20 || true
+          echo "Integrity violations: $(jq -r '.integrityViolations | length' ors-parse.json)"
+          jq -r '.integrityViolations[] | "  violation: \(.)"' ors-parse.json | head -20 || true
+          echo "Foreign anchors (bolded citations to other chapters): $(jq -r '.foreignAnchorCount' ors-parse.json)"
+          jq -r '.foreignAnchors[] | "  ch \(.chapterNumber): \(.anchors | join(", "))"' ors-parse.json | head -10 || true
+          if [ "$(jq -r '.editionDiagnostics | length' ors-parse.json)" != "0" ]; then
+            echo "Edition banner not found. What the parser sees:"
+            jq -r '.editionDiagnostics[0] | "  chapter \(.chapterNumber), \(.lineCount) lines",
+              "  year-like lines: \(.yearLikeLines | join(" | "))",
+              (.editionMentions[] | "  EDITION context: prev=\(.previous // "-") | line=\(.line) | next=\(.next // "-")"),
+              "  first lines: \(.sampleLines[0:12] | join(" | "))"' ors-parse.json
+          fi
+          echo "Chapters with no name: $(jq -r '.chaptersWithoutName | length' ors-parse.json)"
+          if [ "$(jq -r '.headingDiagnostics | length' ors-parse.json)" != "0" ]; then
+            echo "Chapter heading not found. What the parser sees:"
+            jq -r '.headingDiagnostics[0] | "  chapter \(.chapterNumber)",
+              (.numberMentions[] | "  number context: \(.)"),
+              "  first lines: \(.sampleLines[0:12] | join(" | "))"' ors-parse.json
+          fi
+          echo "Source credit rows: $(jq -r '.sourceCreditRowCount' ors-parse.json)   Formerly references: $(jq -r '.formerlyReferenceCount' ors-parse.json)   Renumber references: $(jq -r '.renumberReferenceCount' ors-parse.json)"
+          echo "Section note rows: $(jq -r '.sectionNoteRowCount' ors-parse.json)"
+          echo "Unparsed credit segments: $(jq -r '.unparsedCreditSegmentCount' ors-parse.json)"
+          jq -r '.unparsedCreditSegments[] | "  section \(.sectionId): \(.segments | join(" | "))"' ors-parse.json | head -150 || true
+          # Diagnostic only, not yet gated: see find_unbolded_stub_lines's
+          # docstring in parse_ors_chapter.py for why this measures the real
+          # gap rather than reusing the probe's looser repealStubMatches count.
+          echo "Unbolded stub-shaped lines: $(jq -r '.unboldedStubLineCount' ors-parse.json)   Distinct numbers: $(jq -r '.unboldedStubDistinctNumberCount' ors-parse.json)"
+          jq -r '.unboldedStubLines[] | "  chapter \(.chapterNumber) \(.number): \(.line)"' ors-parse.json | head -150 || true
+          # Raw-markup ground truth: two guessed fixes at the real HTML shape
+          # around an embedded stub both measured zero change on real data.
+          # See find_embedded_stub_markup_samples's docstring. jq -c (not -r)
+          # so embedded control characters print as visible \n/\t escapes
+          # rather than actual line breaks, removing any ambiguity about
+          # whitespace structure.
+          echo "Embedded-stub raw markup samples: $(jq -r '.embeddedStubMarkupSamples | length' ors-parse.json)"
+          jq -c '.embeddedStubMarkupSamples[]' ors-parse.json | head -50 || true
+          # Candidate measurement stays on: see ors_cross_references.py's
+          # module docstring for why the patterns are deliberately generous.
+          echo "Cross-reference candidates: $(jq -r '.crossReferenceCandidateCount' ors-parse.json)   By kind: $(jq -c '.crossReferenceCandidatesByKind' ors-parse.json)"
+          jq -r '.crossReferenceCandidates[] | "  \(.sectionId) [\(.kind)] \(.text) -- \(.context)"' ors-parse.json | head -150 || true
+          # Resolution rate depends on which chapters the fixed sample
+          # happens to include, not on extraction correctness -- see
+          # resolve_cross_references's own docstring -- so this is not
+          # gated the way unparsedCreditSegmentCount is.
+          echo "Cross-reference rows: $(jq -r '.crossReferenceRowCount' ors-parse.json)   Resolved: $(jq -r '.crossReferenceResolvedCount' ors-parse.json)"
+          # Confirms extraction rather than motivating it now: a survivor
+          # here means a "Note:"/"Notes:" form split_editorial_notes does
+          # not yet recognize. See ors_section_notes.py's module docstring.
+          echo "Editorial note candidates not extracted: $(jq -r '.editorialNoteCandidateCount' ors-parse.json)"
+          jq -r '.editorialNoteCandidates[] | "  \(.sectionId) [\(.introducer)] \(.context)"' ors-parse.json | head -150 || true
+
+      - name: Print the relational build's row counts
+        if: always()
+        run: |
+          set -uo pipefail
+          if [ ! -f ors-build.json ]; then
+            echo "No relational build report was written."
+            exit 0
+          fi
+          echo "Relational build row counts:"
+          jq -r '.rowCounts | to_entries[] | "  \(.key): \(.value)"' ors-build.json
+
+      # The real gate. It runs last so the diagnostic steps above have already
+      # printed their evidence into the log even on a failing run.
+      - name: Gate on the table of titles, acquisition, probe and parse
+        if: always()
+        run: |
+          set -euo pipefail
+          # unresolvedTitleLineCount must be zero: a number-led line the parser
+          # does not understand means a title may have been dropped, which is
+          # how title 19 and its chapter 192 went missing without a signal.
+          jq -e '.valid == true and .schemaVersion == 1 and .titleCount > 0 and .volumeCount > 0 and .unparsedLineCount == 0 and .unresolvedTitleLineCount == 0' ors-roster.json >/dev/null
+          jq -e '.valid == true and .titleRangesChecked == true and ([.chapters[] | select(.ok) | .sha256] | all(test("^[0-9a-f]{64}$")))' ors-acquisition.json >/dev/null
+          jq -e '[.chapters[] | select(.ok) | .titleNumber] | all(. != null)' ors-acquisition.json >/dev/null
+          jq -e '.valid == true and .probedChapterCount > 0' ors-structure-probe.json >/dev/null
+          # Rows must be emitted, every SCHEMA.md invariant must hold, and every
+          # chapter must resolve to an edition: editionId is the primary key of
+          # ors_edition and the discriminator between editions everywhere else.
+          # unparsedCreditSegmentCount must be zero: every real credit form
+          # recorded in FINDINGS.md parses cleanly, so a non-zero count here is
+          # a printed form the parser does not yet understand.
+          jq -e '.valid == true and .sectionRowCount > 0 and .editionCount > 0 and (.problems | length) == 0 and (.integrityViolations | length) == 0 and (.chaptersWithoutName | length) == 0 and .unparsedCreditSegmentCount == 0 and .editorialNoteCandidateCount == 0' ors-parse.json >/dev/null
+          # The relational build only reshapes and joins rows parse_ors_
+          # chapter.py already validated above, so its own gate is just
+          # "it completed and wrote every table" -- ors_section's own row
+          # count is cross-checked against parse's own count as a sanity
+          # check that the join lost no rows.
+          jq -e '.valid == true' ors-build.json >/dev/null
+          jq -e --argjson expected "$(jq '.sectionRowCount' ors-parse.json)" \
+            '.rowCounts.ors_section == $expected' ors-build.json >/dev/null
+
+      - name: Upload ORS pipeline reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ors-pipeline-reports
+          path: |
+            ors-roster.json
+            ors-acquisition.json
+            ors-structure-probe.json
+            ors-parse.json
+            ors-rows.json
+            ors-build.json
+            ors-tables/
+          if-no-files-found: warn
+          retention-days: 30
+
+  enumerate-whole-edition:
+    name: Enumerate the whole-edition chapter roster (manual dispatch only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: offline-tests
+    # No published document enumerates ORS chapters (see ROADMAP.md's
+    # increment 1b), so the only way to build a whole-edition roster is to
+    # probe every candidate in every title's declared range -- on the order
+    # of a thousand requests to the real site. That cost is why this job
+    # never runs on push or pull_request, only on an explicit dispatch that
+    # opts into it.
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.enumerate_whole_edition == 'true'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Report the Java runtime used for text extraction
+        run: java -version
+
+      - name: Read the published table of titles
+        run: |
+          set -euo pipefail
+          python3 ors/tools/acquire_ors_roster.py \
+            --output ors-sources/ORS_TitlesChapters.pdf \
+            --tika-jar tika-app-2.8.0.jar \
+            --report ors-roster.json
+
+      - name: Enumerate chapters by verified probing
+        env:
+          TITLES_OVERRIDE: ${{ github.event.inputs.enumerate_titles }}
+        run: |
+          set -euo pipefail
+          if [ -n "$TITLES_OVERRIDE" ]; then
+            echo "Enumerating titles: $TITLES_OVERRIDE"
+            python3 ors/tools/enumerate_ors_chapters.py \
+              --title-roster-file ors-roster.json \
+              --titles "$TITLES_OVERRIDE" \
+              --output-dir ors-sources \
+              --report ors-chapter-roster.json
+          else
+            echo "Enumerating every published title -- this is the whole edition."
+            python3 ors/tools/enumerate_ors_chapters.py \
+              --title-roster-file ors-roster.json \
+              --output-dir ors-sources \
+              --report ors-chapter-roster.json
+          fi
+
+      - name: Print the enumerated chapter roster
+        if: always()
+        run: |
+          set -uo pipefail
+          if [ ! -f ors-chapter-roster.json ]; then
+            echo "No enumeration report was written."
+            exit 0
+          fi
+          echo "Valid: $(jq -r '.valid' ors-chapter-roster.json)"
+          echo "Titles enumerated: $(jq -r '.titleRosterCount' ors-chapter-roster.json)"
+          echo "Probed: $(jq -r '.probedCount' ors-chapter-roster.json)   Chapters: $(jq -r '.chapterCount' ors-chapter-roster.json)   Absences: $(jq -r '.absenceCount' ors-chapter-roster.json)   Failures: $(jq -r '.failureCount' ors-chapter-roster.json)"
+          echo "Chapter numbers found:"
+          jq -r '[.chapters[] | select(.ok) | .chapterNumber] | join(", ")' ors-chapter-roster.json | fold -s -w 160
+          if [ "$(jq -r '.failureCount' ors-chapter-roster.json)" != "0" ]; then
+            echo "Failures (neither a confirmed chapter nor a confirmed absence -- investigate):"
+            jq -r '.failures[] | "  \(.chapterNumber): HTTP \(.httpStatus // "?") \(.error // "")"' ors-chapter-roster.json
+          fi
+
+      - name: Gate on the enumeration report
+        if: always()
+        run: |
+          set -euo pipefail
+          # failureCount must be zero: a failure is neither a verified chapter
+          # nor a verified absence, so it means the roster this run produced
+          # is incomplete rather than merely gappy.
+          jq -e '.valid == true and .chapterCount > 0 and .failureCount == 0' ors-chapter-roster.json >/dev/null
+
+      - name: Upload the enumerated chapter roster
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ors-whole-edition-chapter-roster
+          path: |
+            ors-roster.json
+            ors-chapter-roster.json
+            ors-sources/
+          if-no-files-found: warn
+          retention-days: 30

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Fixed development sample for the ORS relational-table pipeline. Every routine CI run acquires, probes and parses only these chapters so a cycle stays cheap. Whole-edition runs are reserved for manual dispatch.",
+  "selectionPolicy": "Chosen to span the structural cases the parser must survive, not to be representative of the statute book by volume. The roster is fixed: it changes only when a new structural case is identified, and the reason is recorded here.",
+  "notCorpus": "This is a development sample, not a reviewed gold corpus and not the amendment parser's frozen 50-law certification corpus. Nothing here establishes correctness expectations.",
+  "chapters": [
+    {
+      "chapterNumber": "1",
+      "rationale": "First chapter in the book. Exercises the leading-zero file stem ors001.html and the low end of chapter sorting."
+    },
+    {
+      "chapterNumber": "90",
+      "rationale": "Residential landlord and tenant law. A long, heavily subdivided chapter with many centered subdivision headings."
+    },
+    {
+      "chapterNumber": "161",
+      "rationale": "General provisions of the criminal code. Dense with repeal and renumbering stubs, and with cited section ranges that produce the wrapped-citation lines the probe flags as ambiguous."
+    },
+    {
+      "chapterNumber": "174",
+      "rationale": "Construction of statutes. Small chapter, useful as a fast smoke case and as a lower bound on section count."
+    },
+    {
+      "chapterNumber": "192",
+      "rationale": "Public records and meetings. Sections carry long multi-session source credits, which exercises credit parsing."
+    },
+    {
+      "chapterNumber": "279A",
+      "rationale": "Public contracting, general provisions. A lettered chapter, so it exercises the non-numeric chapter number path end to end."
+    },
+    {
+      "chapterNumber": "646A",
+      "rationale": "Trade regulation. A lettered chapter high in the numbering, guarding against an assumption that letter suffixes only appear in the 200s."
+    }
+  ]
+}
