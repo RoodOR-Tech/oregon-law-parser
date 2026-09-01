@@ -23,6 +23,14 @@ on:
         description: 'Override the fixed development sample, e.g. 1,161,279A'
         required: false
         default: ''
+      enumerate_whole_edition:
+        description: 'Run whole-edition chapter roster enumeration (hundreds of requests to the real site). Set to "true" to run.'
+        required: false
+        default: ''
+      enumerate_titles:
+        description: 'Optional: limit whole-edition enumeration to these title numbers, e.g. 1,16 (default: every title)'
+        required: false
+        default: ''
 
 concurrency:
   group: ors-table-${{ github.event.pull_request.number || github.ref }}
@@ -331,5 +339,91 @@ jobs:
             ors-rows.json
             ors-build.json
             ors-tables/
+          if-no-files-found: warn
+          retention-days: 30
+
+  enumerate-whole-edition:
+    name: Enumerate the whole-edition chapter roster (manual dispatch only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: offline-tests
+    # No published document enumerates ORS chapters (see ROADMAP.md's
+    # increment 1b), so the only way to build a whole-edition roster is to
+    # probe every candidate in every title's declared range -- on the order
+    # of a thousand requests to the real site. That cost is why this job
+    # never runs on push or pull_request, only on an explicit dispatch that
+    # opts into it.
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.enumerate_whole_edition == 'true'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Report the Java runtime used for text extraction
+        run: java -version
+
+      - name: Read the published table of titles
+        run: |
+          set -euo pipefail
+          python3 ors/tools/acquire_ors_roster.py \
+            --output ors-sources/ORS_TitlesChapters.pdf \
+            --tika-jar tika-app-2.8.0.jar \
+            --report ors-roster.json
+
+      - name: Enumerate chapters by verified probing
+        env:
+          TITLES_OVERRIDE: ${{ github.event.inputs.enumerate_titles }}
+        run: |
+          set -euo pipefail
+          if [ -n "$TITLES_OVERRIDE" ]; then
+            echo "Enumerating titles: $TITLES_OVERRIDE"
+            python3 ors/tools/enumerate_ors_chapters.py \
+              --title-roster-file ors-roster.json \
+              --titles "$TITLES_OVERRIDE" \
+              --output-dir ors-sources \
+              --report ors-chapter-roster.json
+          else
+            echo "Enumerating every published title -- this is the whole edition."
+            python3 ors/tools/enumerate_ors_chapters.py \
+              --title-roster-file ors-roster.json \
+              --output-dir ors-sources \
+              --report ors-chapter-roster.json
+          fi
+
+      - name: Print the enumerated chapter roster
+        if: always()
+        run: |
+          set -uo pipefail
+          if [ ! -f ors-chapter-roster.json ]; then
+            echo "No enumeration report was written."
+            exit 0
+          fi
+          echo "Valid: $(jq -r '.valid' ors-chapter-roster.json)"
+          echo "Titles enumerated: $(jq -r '.titleRosterCount' ors-chapter-roster.json)"
+          echo "Probed: $(jq -r '.probedCount' ors-chapter-roster.json)   Chapters: $(jq -r '.chapterCount' ors-chapter-roster.json)   Absences: $(jq -r '.absenceCount' ors-chapter-roster.json)   Failures: $(jq -r '.failureCount' ors-chapter-roster.json)"
+          echo "Chapter numbers found:"
+          jq -r '[.chapters[] | select(.ok) | .chapterNumber] | join(", ")' ors-chapter-roster.json | fold -s -w 160
+          if [ "$(jq -r '.failureCount' ors-chapter-roster.json)" != "0" ]; then
+            echo "Failures (neither a confirmed chapter nor a confirmed absence -- investigate):"
+            jq -r '.failures[] | "  \(.chapterNumber): HTTP \(.httpStatus // "?") \(.error // "")"' ors-chapter-roster.json
+          fi
+
+      - name: Gate on the enumeration report
+        if: always()
+        run: |
+          set -euo pipefail
+          # failureCount must be zero: a failure is neither a verified chapter
+          # nor a verified absence, so it means the roster this run produced
+          # is incomplete rather than merely gappy.
+          jq -e '.valid == true and .chapterCount > 0 and .failureCount == 0' ors-chapter-roster.json >/dev/null
+
+      - name: Upload the enumerated chapter roster
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ors-whole-edition-chapter-roster
+          path: |
+            ors-roster.json
+            ors-chapter-roster.json
+            ors-sources/
           if-no-files-found: warn
           retention-days: 30

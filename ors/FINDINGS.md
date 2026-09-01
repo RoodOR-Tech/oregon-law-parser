@@ -1198,6 +1198,67 @@ data. Both new gate assertions passed on the strict (non-`continue-on-
 error`) gate step, and the `ors-tables/` directory (CSVs + `ors.sqlite`)
 uploaded alongside the other pipeline reports. Increment 4 is done.
 
+## Verified chapter-roster enumeration, built from the range spec alone
+
+Increment 1b needed no new measurement before writing code, unlike almost
+every earlier table in this file: `ORS_TitlesChapters.pdf`'s own printed
+ranges (`chs 284-285C`, `chs 286A-289`) already say everything the algorithm
+needs to know about *where* to look, and the open question -- which
+integers in a range are real chapters, and how far a lettered family runs --
+is exactly the thing verification-by-fetching answers directly, with no
+intermediate measurement step to get wrong.
+
+`tools/enumerate_ors_chapters.py` walks each title's own declared range by
+its integer endpoints only (`candidate_digit_range`), so the published gap
+between two titles -- chapter 11, between title 1's `chs 1-10` and title
+2's `chs 12-25` -- is never even probed, matching the structure the roster
+already proved rather than guessing a global span. For each integer, the
+bare chapter is probed first, then lettered siblings starting from `A`,
+regardless of whether the bare number itself came back a chapter: assuming a
+letter can only exist alongside its own bare number would be exactly the
+kind of guess this increment exists to avoid. The walk for that integer
+stops at the first probe that isn't a confirmed chapter.
+
+One design question did need resolving up front: what should stop a
+digit's letter walk, and how should that differ from what stops a title's
+whole enumeration? A confirmed 404 is an authoritative "no more letters"
+answer. A non-404 failure (timeout, 5xx) is not -- it says nothing about
+whether a chapter is really there, so it cannot be treated as either a
+confirmed chapter or a confirmed absence. Both stop that digit's own letter
+walk (there is no way to keep probing past an inconclusive answer with any
+confidence), but they are counted separately: `absenceCount` for verified
+gaps, `failureCount` for probes that answered neither way. `failureCount`
+is gated at zero for the same reason `unparsedCreditSegmentCount` and
+`editorialNoteCandidateCount` are gated at zero elsewhere in this pipeline
+-- a nonzero count means the roster this run produced is demonstrably
+incomplete, not merely gappy, and should never be silently reported as
+finished.
+
+The report shape deliberately matches `acquire_ors_chapters.py`'s own
+acquisition report field-for-field (`chapterNumber`, `ok`, `sourceFormat`,
+`fixture`, `sha256`, `bytes`, `titleNumber`, ...), with every probe --
+chapter, absence and failure alike -- listed under `chapters` the same way
+acquisition lists every chapter it was asked to fetch. A confirmed absence
+or failure simply carries `ok: false`, so `probe_ors_structure.py`,
+`parse_ors_chapter.py` and `build_ors_relational.py` can all take this
+report as their acquisition input unmodified: their existing
+`chapter.get("ok")` filters already do the right thing without having ever
+been written with enumeration in mind. Verified end-to-end against a
+loopback server reproducing a small range with a real gap (a bare-number
+absence), a two-letter family, and a single-letter family stopping
+correctly at its own first missing letter: the discovered chapters carry
+correct digests, title attribution and saved fixtures, and the same report
+was handed to `probe_ors_structure.py` unmodified and read back cleanly.
+
+Not yet run against the real site: a whole-edition enumeration is on the
+order of a thousand requests to a state government site, a materially
+larger one-time action than anything this pipeline has run on its own
+before, so it is wired into `ors-table.yml` as its own `workflow_dispatch`-
+only job (`enumerate-whole-edition`, gated on an explicit
+`enumerate_whole_edition: true` input) rather than dispatched
+autonomously. The real chapter count, the real gap list and the real
+`failureCount` are still open questions once that first run happens.
+
 ## The other Legislative Counsel documents
 
 `ORS_Renum.pdf` is a renumbering table bearing on `ors_section.renumbered_to`,

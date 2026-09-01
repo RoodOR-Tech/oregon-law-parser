@@ -30,12 +30,49 @@ title ranges. A whole-edition build needs a real roster.
 - Walk each published title range, fetch each candidate chapter document, and
   record a 200 with its digest as a chapter and a 404 as an absence. Every
   chapter is then backed by a retrieved document and every gap by a recorded
-  response, which is verification rather than guessing.
+  response, which is verification rather than guessing. Built:
+  `tools/enumerate_ors_chapters.py`. For each integer inside a title's own
+  declared range (never beyond it, so the published gap between two titles,
+  like chapter 11 between titles 1 and 2, is never even probed), the bare
+  chapter is always probed, then lettered siblings (`90A`, `90B`, ...) are
+  probed starting from `A` regardless of whether the bare number itself
+  existed -- verification means not assuming a letter can only exist
+  alongside its bare number. The walk for that digit stops at the first
+  probe that is not a confirmed chapter; a genuine 404 and an inconclusive
+  failure (timeout, 5xx) both end it, but only the 404 is a verified
+  absence -- a failure is counted and reported separately (`failureCount`,
+  gated at zero) rather than folded into either outcome, so an incomplete
+  roster is visible rather than silently reported as complete.
 - Lettered chapters are expressed by the ranges themselves (`chs 284-285C`,
   `chs 286A-289`), so enumeration can follow the printed span rather than
-  guessing suffixes.
-- This is a whole-edition operation of several hundred requests, so it runs on
-  manual dispatch, not on every CI run.
+  guessing suffixes: `candidate_digit_range` walks only the integer part of
+  each title's own `firstChapter`/`lastChapter` (284 to 285 for `chs
+  284-285C`), and the letter-probing loop above discovers how far each
+  integer's own family actually runs.
+- This is a whole-edition operation of several hundred to low-thousands of
+  requests (every gap between two published titles costs one extra
+  bare-number probe, and every real gap inside a title's range costs one
+  bare probe plus one letter-A probe before it is confirmed absent), so it
+  runs on manual dispatch, not on every CI run: a new `enumerate-whole-
+  edition` job in `ors-table.yml`, gated on `workflow_dispatch` with an
+  explicit `enumerate_whole_edition: true` input (plus an optional
+  `enumerate_titles` input to scope a run to specific titles), never on
+  `push` or `pull_request`.
+- The report this tool writes uses the exact per-chapter shape
+  `acquire_ors_chapters.py`'s own acquisition report already uses
+  (`chapterNumber`, `ok`, `sourceFormat`, `fixture`, `sha256`, `bytes`,
+  `titleNumber`, ...), so it can be handed directly to
+  `probe_ors_structure.py`, `parse_ors_chapter.py` and
+  `build_ors_relational.py` as their acquisition-report input without a
+  translation step: a confirmed absence or failure simply carries `ok:
+  false` and is filtered out by their existing `chapter.get("ok")` checks,
+  the same as a chapter that was requested explicitly but never fetched.
+- Not yet confirmed against real data: a whole-edition run against the real
+  site is a materially larger one-time action (on the order of a thousand
+  requests to a state government site) than anything this pipeline has run
+  autonomously so far, so it is held for explicit confirmation before first
+  being dispatched, the same way the cross-reference resolution design was
+  held for a go-ahead before increment 4 started.
 
 ## Increment 2 — chapter parsing into `ors_section` (done)
 
