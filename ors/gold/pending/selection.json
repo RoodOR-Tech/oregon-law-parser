@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "corpusType": "ors-gold-candidate-selection",
+  "selectionStatus": "frozen-before-parser-evaluation",
+  "editionYear": 2025,
+  "purpose": "Independent quality-gate candidate selection for ORS relational parsing. These chapters are outside the fixed development sample and are selected from authoritative published ORS structure, not from parser output.",
+  "selectionPolicy": "Choose a small cross-section that spans ordinary numeric chapters, very large chapters, administrative-law structure, heavily regulated subject matter, and a lettered chapter with published pending-change notices. Do not change the selection in response to parser results.",
+  "developmentSampleExcluded": ["1", "90", "161", "174", "192", "279A", "646A"],
+  "chapters": [
+    {
+      "chapterNumber": "12",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors012.html",
+      "rationale": "Ordinary numeric chapter with operative sections, repealed stubs, subdivisions and temporary-note material."
+    },
+    {
+      "chapterNumber": "105",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors105.html",
+      "rationale": "Very large civil-property chapter selected to stress section enumeration without reusing a development chapter."
+    },
+    {
+      "chapterNumber": "183",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors183.html",
+      "rationale": "Administrative procedure chapter with dense cross-references and long source histories."
+    },
+    {
+      "chapterNumber": "471",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors471.html",
+      "rationale": "Large regulatory chapter with many subdivisions and section histories."
+    },
+    {
+      "chapterNumber": "659A",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors659A.html",
+      "rationale": "Lettered chapter outside the development sample; current publication also carries explicit 2026 pending-change notices above the 2025 edition text."
+    }
+  ]
+}
