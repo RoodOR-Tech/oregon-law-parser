@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Permanent provenance for ORS Increment 5 source staging. The five-chapter selection and source hashes were established before any parser evaluation of these chapters.",
+  "selectionCommit": "f455a5f03cfde7d9646a460c1544e5276cf0f90f",
+  "stagingWorkflow": {
+    "workflowId": 347952252,
+    "runId": 33570106878,
+    "runNumber": 1,
+    "conclusion": "success"
+  },
+  "artifacts": {
+    "sourceRegistry": {
+      "id": 9824607119,
+      "sha256": "fea2da91d3bd057c3278aab7486d4c780766581682dd6d79d1ec6d8b5e872341"
+    },
+    "acquisitionReport": {
+      "id": 9824606735,
+      "sha256": "4ca6f2fa9bbebe22c5b293ebf49d9bb6cd21dd56dcae9f7200833b29578d8121"
+    }
+  },
+  "editionYear": 2025,
+  "documentCount": 5,
+  "documents": [
+    {
+      "chapterNumber": "12",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors012.html",
+      "sourceFormat": "html",
+      "sha256": "395372094f134b5dee85206e978945bd9d257cf38ec31ab099cf2bd3544e6905",
+      "bytes": 123839,
+      "httpStatus": 200
+    },
+    {
+      "chapterNumber": "105",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors105.html",
+      "sourceFormat": "html",
+      "sha256": "d5834eb1ce365c84d7c2d6a75eacf8268fae25f0493ff1ec81ffe02872aead7b",
+      "bytes": 791645,
+      "httpStatus": 200
+    },
+    {
+      "chapterNumber": "183",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors183.html",
+      "sourceFormat": "html",
+      "sha256": "72cae077362c4900f024fc2a290a2088511994f44952a96edb1e6268e3b458cc",
+      "bytes": 388358,
+      "httpStatus": 200
+    },
+    {
+      "chapterNumber": "471",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors471.html",
+      "sourceFormat": "html",
+      "sha256": "180bb7778bd38476ced6d531c933bdf6e5c25f10781f9458e67fd9e5ef9d762c",
+      "bytes": 735232,
+      "httpStatus": 200
+    },
+    {
+      "chapterNumber": "659A",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors659A.html",
+      "sourceFormat": "html",
+      "sha256": "9ebbd735d2df8ee2f9cb0155bc135856a225394c963686709b449c7f3d66c5d7",
+      "bytes": 670354,
+      "httpStatus": 200
+    }
+  ],
+  "methodology": {
+    "selectionFrozenBeforeParserEvaluation": true,
+    "sourceHashesFrozenBeforeParserEvaluation": true,
+    "parserExecutedByStagingWorkflow": false,
+    "developmentSampleUsedAsGold": false,
+    "amendmentParserBenchmarksModified": false
+  }
+}

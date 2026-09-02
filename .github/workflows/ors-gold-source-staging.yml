@@ -1,0 +1,73 @@
+name: ORS gold source staging
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'ors/gold/pending/selection.json'
+      - 'ors/tools/stage_ors_gold_sources.py'
+      - 'ors/tests/test_stage_ors_gold_sources.py'
+      - '.github/workflows/ors-gold-source-staging.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ors-gold-source-staging-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run ORS offline tests
+        run: python3 -m unittest discover -s ors/tests -v
+
+      - name: Acquire frozen candidate sources only
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > /tmp/chapters.txt
+          import json
+          data = json.load(open('ors/gold/pending/selection.json'))
+          print(','.join(item['chapterNumber'] for item in data['chapters']))
+          PY
+          chapters="$(cat /tmp/chapters.txt)"
+          python3 ors/tools/acquire_ors_chapters.py \
+            --chapters "$chapters" \
+            --output-dir ors-gold-sources \
+            --report ors-gold-acquisition.json
+
+      - name: Freeze source hashes without parser execution
+        run: |
+          set -euo pipefail
+          python3 ors/tools/stage_ors_gold_sources.py \
+            --selection ors/gold/pending/selection.json \
+            --acquisition ors-gold-acquisition.json \
+            --output ors-gold-source-registry.json
+          jq -e '.valid == true and .documentCount == 5 and ([.documents[].sha256 | test("^[0-9a-f]{64}$")] | all)' ors-gold-source-registry.json >/dev/null
+
+      - name: Assert staging did not produce parser results
+        run: |
+          set -euo pipefail
+          test ! -e ors-rows.json
+          test ! -e ors-parse.json
+          test ! -e ors-build.json
+
+      - name: Upload acquisition report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ors-gold-source-acquisition
+          path: ors-gold-acquisition.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload frozen source registry
+        uses: actions/upload-artifact@v4
+        with:
+          name: ors-gold-source-registry
+          path: ors-gold-source-registry.json
+          if-no-files-found: error
+          retention-days: 90
