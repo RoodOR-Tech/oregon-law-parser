@@ -281,6 +281,24 @@ caught before CI did:
 - Thresholds set only after a first measurement, so they describe the parser
   rather than flatter it.
 
+Source staging done: the candidate selection (`ors/gold/pending/selection.json`)
+freezes five chapters outside the development sample -- `12`, `105`, `183`,
+`471` and `659A` -- chosen to span an ordinary numeric chapter, a very large
+civil-property chapter, dense administrative-procedure cross-references, a
+large regulatory chapter, and a lettered chapter carrying published 2026
+pending-change notices, before any parser evaluation of them.
+`tools/stage_ors_gold_sources.py` then proves the selection and the acquired
+bytes match exactly (same chapter set, same source URLs, real SHA-256
+digests) and asserts no parser artifact (`ors-rows.json`, `ors-parse.json`,
+`ors-build.json`) exists alongside the staging run, so the source registry
+can never be quietly built from something the parser already touched.
+`ors-gold-source-staging.yml` runs this on its own PR trigger and on manual
+dispatch; confirmed against a real dispatch run (workflow run `33570106878`):
+all 5 sources acquired, digests pinned in
+`ors/gold/reviews/source-staging-provenance.json`. Not yet done: the
+independent review producing each chapter's actual expected section rows,
+and the precision/recall tool and CI gate built against them.
+
 ## Increment 6 — edition-over-edition rebuild and pending changes
 
 - Rebuild against a new edition without destroying the previous one.
