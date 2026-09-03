@@ -71,3 +71,15 @@ jobs:
           path: ors-gold-source-registry.json
           if-no-files-found: error
           retention-days: 90
+
+      # The registry pins each document's digest, but a reviewer needs the
+      # actual bytes to read, not just proof they were frozen. Uploaded raw
+      # rather than reprocessed, so a reviewer can verify the SHA-256 against
+      # ors-gold-source-registry.json before treating it as the reviewed text.
+      - name: Upload frozen source documents
+        uses: actions/upload-artifact@v4
+        with:
+          name: ors-gold-source-documents
+          path: ors-gold-sources/
+          if-no-files-found: error
+          retention-days: 90
