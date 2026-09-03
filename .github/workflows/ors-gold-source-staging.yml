@@ -109,3 +109,9 @@ jobs:
           path: ors-gold-sources/
           if-no-files-found: error
           retention-days: 90
+
+      # TEMPORARY: prints chapter 12's frozen bytes into the job log so the
+      # independent reviewer can read them without an artifact download.
+      # Removed once the chapter-12 review pilot has the text it needs.
+      - name: TEMP print chapter 12 for the review pilot
+        run: base64 -w 0 ors-gold-sources/ors012.html; echo
