@@ -1,0 +1,1844 @@
+{
+  "schemaVersion": 1,
+  "corpusType": "ors-gold-expected-sections",
+  "chapterNumber": "471",
+  "chapterName": "Alcoholic Liquors Generally",
+  "editionYear": 2025,
+  "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors471.html",
+  "sourceSha256": "180bb7778bd38476ced6d531c933bdf6e5c25f10781f9458e67fd9e5ef9d762c",
+  "reviewBasis": "Read directly from the frozen source's own plain text (markup stripped with no section-segmentation logic applied) and cross-checked against the raw HTML markup, using the same auditable-script method validated on chapters 105 and 183: every <b>...</b> run matching a bare section-number-plus-heading pattern was extracted directly from the frozen source, independent of parse_ors_chapter.py. All 176 resulting operative catchlines were cross-checked against the chapter's own printed table of contents -- 176/176 matched, zero extra, zero missing. The remaining 95 sections omitted from the table of contents (this chapter's heavy 1970s-1999 renumbering history, largely from the 1999 c.351 licensing-law recodification) were found by a second script pass over the body text for bare section numbers immediately followed by a bracketed legislative-history citation, then classified repealed vs. renumbered (with destination number) by which keyword appears inside that section's own bracket -- including two sections renumbered out of this chapter entirely, into chapter 474 (471.502 to 474.105, 471.503 to 474.115).",
+  "reviewSources": [
+    "ors/gold/reviews/source-staging-provenance.json (frozen bytes, chapter 471 entry)"
+  ],
+  "methodology": {
+    "expectedRowsEstablishedFromParserOutput": false,
+    "tableOfContentsCrossChecked": true,
+    "everyGapBetweenConsecutiveTocEntriesInspected": true,
+    "catchlineExtractionMethod": "auditable script over raw <b> markup, not parse_ors_chapter.py",
+    "stubDetectionMethod": "auditable script matching bare section number + bracketed legislative-history citation, classified repealed/renumbered by keyword"
+  },
+  "subdivisions": [
+    {
+      "name": "ALCOHOLIC LIQUORS GENERALLY (General Provisions)",
+      "firstSectionNumber": "471.001",
+      "lastSectionNumber": "471.045"
+    },
+    {
+      "name": "PURCHASER'S QUALIFICATIONS AND IDENTIFICATION",
+      "firstSectionNumber": "471.105",
+      "lastSectionNumber": "471.150"
+    },
+    {
+      "name": "LIQUOR LICENSES (Generally)",
+      "firstSectionNumber": "471.155",
+      "lastSectionNumber": "471.162"
+    },
+    {
+      "name": "LIQUOR LICENSES (Authority of Cities and Counties)",
+      "firstSectionNumber": "471.164",
+      "lastSectionNumber": "471.166"
+    },
+    {
+      "name": "LIQUOR LICENSES (Mandatory Liability Insurance)",
+      "firstSectionNumber": "471.168",
+      "lastSectionNumber": "471.168"
+    },
+    {
+      "name": "LIQUOR LICENSES (Retail Licenses)",
+      "firstSectionNumber": "471.175",
+      "lastSectionNumber": "471.194"
+    },
+    {
+      "name": "LIQUOR LICENSES (Brewery-Public House License)",
+      "firstSectionNumber": "471.200",
+      "lastSectionNumber": "471.205"
+    },
+    {
+      "name": "LIQUOR LICENSES (Delivery Invoices)",
+      "firstSectionNumber": "471.207",
+      "lastSectionNumber": "471.220"
+    },
+    {
+      "name": "LIQUOR LICENSES (Manufacturing and Wholesale Licenses)",
+      "firstSectionNumber": "471.221",
+      "lastSectionNumber": "471.242"
+    },
+    {
+      "name": "LIQUOR LICENSES (Certificates of Approval)",
+      "firstSectionNumber": "471.244",
+      "lastSectionNumber": "471.267"
+    },
+    {
+      "name": "LIQUOR LICENSES (Use of Premises for Additional Activities)",
+      "firstSectionNumber": "471.268",
+      "lastSectionNumber": "471.270"
+    },
+    {
+      "name": "LIQUOR LICENSES (Human Trafficking at Premises)",
+      "firstSectionNumber": "471.271",
+      "lastSectionNumber": "471.271"
+    },
+    {
+      "name": "SHIPMENT AND DISTRIBUTION OF MALT BEVERAGES, WINE AND CIDER (Distribution to Malt Beverage, Wine and Cider Retail Licensees)",
+      "firstSectionNumber": "471.272",
+      "lastSectionNumber": "471.280"
+    },
+    {
+      "name": "SHIPMENT AND DISTRIBUTION OF MALT BEVERAGES, WINE AND CIDER (Direct Shipment of Malt Beverages, Wine and Cider to Consumer)",
+      "firstSectionNumber": "471.282",
+      "lastSectionNumber": "471.290"
+    },
+    {
+      "name": "LICENSING PROCEDURES (Generally)",
+      "firstSectionNumber": "471.292",
+      "lastSectionNumber": "471.310"
+    },
+    {
+      "name": "LICENSING PROCEDURES (Application for License)",
+      "firstSectionNumber": "471.311",
+      "lastSectionNumber": "471.313"
+    },
+    {
+      "name": "LICENSING PROCEDURES (Cancellation, Suspension, Restriction or Lapse of License, Certificate or Permit; Mandatory Training; Civil Penalties)",
+      "firstSectionNumber": "471.315",
+      "lastSectionNumber": "471.327"
+    },
+    {
+      "name": "LICENSING PROCEDURES (Miscellaneous Provisions Relating to Denial, Suspension or Cancellation of License)",
+      "firstSectionNumber": "471.329",
+      "lastSectionNumber": "471.340"
+    },
+    {
+      "name": "LICENSING PROCEDURES (Sales and Deliveries of Alcoholic Beverages to Minors by Licensees)",
+      "firstSectionNumber": "471.341",
+      "lastSectionNumber": "471.350"
+    },
+    {
+      "name": "LICENSING PROCEDURES (Examination of Books and Premises of Licensees)",
+      "firstSectionNumber": "471.351",
+      "lastSectionNumber": "471.355"
+    },
+    {
+      "name": "SERVICE PERMITS",
+      "firstSectionNumber": "471.360",
+      "lastSectionNumber": "471.390"
+    },
+    {
+      "name": "\"TIED HOUSE\" PROHIBITIONS",
+      "firstSectionNumber": "471.392",
+      "lastSectionNumber": "471.402"
+    },
+    {
+      "name": "PROHIBITIONS RELATING TO LIQUOR",
+      "firstSectionNumber": "471.403",
+      "lastSectionNumber": "471.505"
+    },
+    {
+      "name": "LOCAL OPTION",
+      "firstSectionNumber": "471.506",
+      "lastSectionNumber": "471.520"
+    },
+    {
+      "name": "THIRD-PARTY DELIVERY FACILITATORS",
+      "firstSectionNumber": "471.521",
+      "lastSectionNumber": "471.540"
+    },
+    {
+      "name": "ALCOHOL EDUCATION PROGRAM",
+      "firstSectionNumber": "471.541",
+      "lastSectionNumber": "471.550"
+    },
+    {
+      "name": "WARNING SIGNS RELATED TO ALCOHOL AND PREGNANCY",
+      "firstSectionNumber": "471.551",
+      "lastSectionNumber": "471.561"
+    },
+    {
+      "name": "LIABILITY FOR PROVIDING OR SERVING ALCOHOLIC BEVERAGES TO INTOXICATED PERSON OR MINOR",
+      "firstSectionNumber": "471.565",
+      "lastSectionNumber": "471.567"
+    },
+    {
+      "name": "USE OF ALCOHOLIC BEVERAGES IN CAREER EDUCATION OF MINOR",
+      "firstSectionNumber": "471.575",
+      "lastSectionNumber": "471.580"
+    },
+    {
+      "name": "ENFORCEMENT OF LIQUOR LAWS",
+      "firstSectionNumber": "471.605",
+      "lastSectionNumber": "471.703"
+    },
+    {
+      "name": "ORGANIZATION, POWERS AND DUTIES OF COMMISSION",
+      "firstSectionNumber": "471.705",
+      "lastSectionNumber": "471.830"
+    },
+    {
+      "name": "PENALTIES",
+      "firstSectionNumber": "471.990",
+      "lastSectionNumber": "471.990"
+    }
+  ],
+  "expectedSectionCount": 271,
+  "expectedSectionCountByStatus": {
+    "operative": 176,
+    "repealed": 73,
+    "renumbered": 22
+  },
+  "expectedSections": [
+    {
+      "ordinal": 1,
+      "sectionNumber": "471.001",
+      "catchline": "Definitions for ORS chapters 471 and 473.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 2,
+      "sectionNumber": "471.005",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 3,
+      "sectionNumber": "471.010",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 4,
+      "sectionNumber": "471.015",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 5,
+      "sectionNumber": "471.017",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 6,
+      "sectionNumber": "471.020",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 7,
+      "sectionNumber": "471.022",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 8,
+      "sectionNumber": "471.023",
+      "catchline": "“Cider” defined.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 9,
+      "sectionNumber": "471.025",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 10,
+      "sectionNumber": "471.027",
+      "catchline": "Short title.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 11,
+      "sectionNumber": "471.030",
+      "catchline": "Purpose of Liquor Control Act.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 12,
+      "sectionNumber": "471.035",
+      "catchline": "Certain products excepted from liquor laws.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 13,
+      "sectionNumber": "471.037",
+      "catchline": "Homemade beer, wine and fermented fruit juice exemption from liquor laws.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 14,
+      "sectionNumber": "471.038",
+      "catchline": "Nonbeverage food products.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 15,
+      "sectionNumber": "471.039",
+      "catchline": "Certain cruise ships exempt from liquor laws.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 16,
+      "sectionNumber": "471.040",
+      "catchline": "General powers and duties of the commission; rules; delegation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 17,
+      "sectionNumber": "471.045",
+      "catchline": "Liquor laws supersede and repeal inconsistent charters and ordinances.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 18,
+      "sectionNumber": "471.105",
+      "catchline": "Purchaser’s qualifications.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 19,
+      "sectionNumber": "471.110",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 20,
+      "sectionNumber": "471.115",
+      "catchline": "Limitations on purchasing may be imposed.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 21,
+      "sectionNumber": "471.120",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 22,
+      "sectionNumber": "471.125",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 23,
+      "sectionNumber": "471.130",
+      "catchline": "Requiring statement of age or identification from certain purchasers.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 24,
+      "sectionNumber": "471.135",
+      "catchline": "False statement of age; statement of age as defense.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 25,
+      "sectionNumber": "471.140",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 26,
+      "sectionNumber": "471.143",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 27,
+      "sectionNumber": "471.145",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 28,
+      "sectionNumber": "471.150",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 29,
+      "sectionNumber": "471.155",
+      "catchline": "Commission’s licensing duties; bonds.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 30,
+      "sectionNumber": "471.157",
+      "catchline": "Licenses issuable.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 31,
+      "sectionNumber": "471.159",
+      "catchline": "Enclosure of licensed premises.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 32,
+      "sectionNumber": "471.162",
+      "catchline": "Exemptions from license requirement.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 33,
+      "sectionNumber": "471.164",
+      "catchline": "Authority of cities and counties over establishments that offer entertainment or serve alcoholic beverages.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 34,
+      "sectionNumber": "471.166",
+      "catchline": "Local government recommendations on license issuance and renewal; rules; fees.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 35,
+      "sectionNumber": "471.168",
+      "catchline": "Certain licensees required to maintain liquor liability insurance or bond; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 36,
+      "sectionNumber": "471.175",
+      "catchline": "Full on-premises sales license; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 37,
+      "sectionNumber": "471.176",
+      "catchline": "Sale of mixed drinks and single servings of wine by holder of full on-premises sales license; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 38,
+      "sectionNumber": "471.178",
+      "catchline": "Limited on-premises sales license; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 39,
+      "sectionNumber": "471.180",
+      "catchline": "In-room supply of alcoholic beverages by hotel or arena.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 40,
+      "sectionNumber": "471.182",
+      "catchline": "Issuance of full or limited on-premises sales license to public passenger carrier; airline storage facilities.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 41,
+      "sectionNumber": "471.184",
+      "catchline": "Catering and other temporary off-premises service under full or limited on-premises sales license; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 42,
+      "sectionNumber": "471.186",
+      "catchline": "Off-premises sales license; deliveries to retail customers; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 43,
+      "sectionNumber": "471.190",
+      "catchline": "Temporary sales license; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 44,
+      "sectionNumber": "471.192",
+      "catchline": "Purchases by Indian tribe.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 45,
+      "sectionNumber": "471.194",
+      "catchline": "Purchases by airline.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 46,
+      "sectionNumber": "471.200",
+      "catchline": "Brewery-public house license; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 47,
+      "sectionNumber": "471.205",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.403"
+    },
+    {
+      "ordinal": 48,
+      "sectionNumber": "471.207",
+      "catchline": "Delivery invoices; retention period; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 49,
+      "sectionNumber": "471.210",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.155"
+    },
+    {
+      "ordinal": 50,
+      "sectionNumber": "471.213",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.164"
+    },
+    {
+      "ordinal": 51,
+      "sectionNumber": "471.215",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.157"
+    },
+    {
+      "ordinal": 52,
+      "sectionNumber": "471.217",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 53,
+      "sectionNumber": "471.218",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.168"
+    },
+    {
+      "ordinal": 54,
+      "sectionNumber": "471.220",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 55,
+      "sectionNumber": "471.221",
+      "catchline": "Brewery license; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 56,
+      "sectionNumber": "471.223",
+      "catchline": "Winery license.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 57,
+      "sectionNumber": "471.225",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 58,
+      "sectionNumber": "471.227",
+      "catchline": "Grower sales privilege license.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 59,
+      "sectionNumber": "471.229",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.282"
+    },
+    {
+      "ordinal": 60,
+      "sectionNumber": "471.230",
+      "catchline": "Distillery license.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 61,
+      "sectionNumber": "471.235",
+      "catchline": "Wholesale malt beverage and wine license.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 62,
+      "sectionNumber": "471.240",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 63,
+      "sectionNumber": "471.242",
+      "catchline": "Warehouse license.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 64,
+      "sectionNumber": "471.244",
+      "catchline": "Certificates of approval for malt beverages, cider or wine; special certificates of approval.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 65,
+      "sectionNumber": "471.245",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 66,
+      "sectionNumber": "471.250",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 67,
+      "sectionNumber": "471.251",
+      "catchline": "Certificates of approval for distilled liquor; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 68,
+      "sectionNumber": "471.253",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.200"
+    },
+    {
+      "ordinal": 69,
+      "sectionNumber": "471.255",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 70,
+      "sectionNumber": "471.257",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 71,
+      "sectionNumber": "471.259",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 72,
+      "sectionNumber": "471.260",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 73,
+      "sectionNumber": "471.262",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.302"
+    },
+    {
+      "ordinal": 74,
+      "sectionNumber": "471.264",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 75,
+      "sectionNumber": "471.265",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 76,
+      "sectionNumber": "471.267",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 77,
+      "sectionNumber": "471.268",
+      "catchline": "Homemade malt beverages and wines at licensed premises.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 78,
+      "sectionNumber": "471.270",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 79,
+      "sectionNumber": "471.271",
+      "catchline": "Requirement to report human trafficking at licensed premises; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 80,
+      "sectionNumber": "471.272",
+      "catchline": "Manner of shipping or transporting malt beverages, wine or cider.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 81,
+      "sectionNumber": "471.274",
+      "catchline": "Direct to retailer permit.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 82,
+      "sectionNumber": "471.275",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 83,
+      "sectionNumber": "471.280",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 84,
+      "sectionNumber": "471.282",
+      "catchline": "Direct shipper permit; fees.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 85,
+      "sectionNumber": "471.285",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 86,
+      "sectionNumber": "471.287",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 87,
+      "sectionNumber": "471.289",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.244"
+    },
+    {
+      "ordinal": 88,
+      "sectionNumber": "471.290",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.311"
+    },
+    {
+      "ordinal": 89,
+      "sectionNumber": "471.292",
+      "catchline": "Characteristics of license.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 90,
+      "sectionNumber": "471.294",
+      "catchline": "License terms; licenses issued for less than year; determination of fees.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 91,
+      "sectionNumber": "471.295",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.313"
+    },
+    {
+      "ordinal": 92,
+      "sectionNumber": "471.297",
+      "catchline": "Temporary letter of authority on change of ownership; revocation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 93,
+      "sectionNumber": "471.300",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 94,
+      "sectionNumber": "471.301",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.292"
+    },
+    {
+      "ordinal": 95,
+      "sectionNumber": "471.302",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 96,
+      "sectionNumber": "471.305",
+      "catchline": "Delivery of alcoholic beverages.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 97,
+      "sectionNumber": "471.307",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.180"
+    },
+    {
+      "ordinal": 98,
+      "sectionNumber": "471.310",
+      "catchline": "Cities, counties as licensees.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 99,
+      "sectionNumber": "471.311",
+      "catchline": "Application for license; rules; fees.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 100,
+      "sectionNumber": "471.312",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.331"
+    },
+    {
+      "ordinal": 101,
+      "sectionNumber": "471.313",
+      "catchline": "Grounds for refusing to issue license, certificate or permit, or for issuing restricted license, certificate or permit.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 102,
+      "sectionNumber": "471.315",
+      "catchline": "Grounds for cancellation, suspension or restriction of license, certificate or permit, requiring training or imposing civil penalty.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 103,
+      "sectionNumber": "471.316",
+      "catchline": "Mandatory suspension if licensee fails to prevent certain unlawful drug use or sales on premises; civil penalty.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 104,
+      "sectionNumber": "471.317",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.333"
+    },
+    {
+      "ordinal": 105,
+      "sectionNumber": "471.318",
+      "catchline": "Commission authority following lapse, suspension or revocation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 106,
+      "sectionNumber": "471.320",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 107,
+      "sectionNumber": "471.322",
+      "catchline": "Civil penalty in lieu of or in addition to short-term suspension of certain licenses and permits; limits on amount.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 108,
+      "sectionNumber": "471.325",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 109,
+      "sectionNumber": "471.326",
+      "catchline": "Refund of civil penalty if suspension not sustained on judicial review.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 110,
+      "sectionNumber": "471.327",
+      "catchline": "Civil penalty in addition to or in lieu of suspending certain other licenses, permits or certificates.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 111,
+      "sectionNumber": "471.329",
+      "catchline": "Serious and persistent problems involving noise as grounds for discipline of licensee or applicant.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 112,
+      "sectionNumber": "471.330",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.351"
+    },
+    {
+      "ordinal": 113,
+      "sectionNumber": "471.331",
+      "catchline": "Notice to licensee when refusal to renew or suspension or cancellation of license based on adverse neighborhood impact; no stay of order.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 114,
+      "sectionNumber": "471.333",
+      "catchline": "Effect of sanitation violations.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 115,
+      "sectionNumber": "471.335",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.404"
+    },
+    {
+      "ordinal": 116,
+      "sectionNumber": "471.340",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.442"
+    },
+    {
+      "ordinal": 117,
+      "sectionNumber": "471.341",
+      "catchline": "Mandatory clerk training course for employees of off-premises sales licensees; rules; fees; civil penalty.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 118,
+      "sectionNumber": "471.342",
+      "catchline": "Acquisition and use of age verification equipment in lieu of other penalty.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 119,
+      "sectionNumber": "471.344",
+      "catchline": "Responsible vendor program; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 120,
+      "sectionNumber": "471.345",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.446"
+    },
+    {
+      "ordinal": 121,
+      "sectionNumber": "471.346",
+      "catchline": "Uniform standards for minor decoy operations; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 122,
+      "sectionNumber": "471.350",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 123,
+      "sectionNumber": "471.351",
+      "catchline": "Examination of books and premises of licensees.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 124,
+      "sectionNumber": "471.355",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "471.294"
+    },
+    {
+      "ordinal": 125,
+      "sectionNumber": "471.360",
+      "catchline": "Service permit or temporary service permit required; waiver; penalty; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 126,
+      "sectionNumber": "471.365",
+      "catchline": "Characteristics of permit; verification of identity of permittee.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 127,
+      "sectionNumber": "471.370",
+      "catchline": "Expiration.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 128,
+      "sectionNumber": "471.375",
+      "catchline": "Service permit issuance and renewal; temporary service permit issuance; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 129,
+      "sectionNumber": "471.380",
+      "catchline": "Grounds for refusing to issue permit; request for hearing.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 130,
+      "sectionNumber": "471.385",
+      "catchline": "Grounds for revoking, restricting or suspending permit or imposing civil penalty; responsibility of licensee.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 131,
+      "sectionNumber": "471.390",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 132,
+      "sectionNumber": "471.392",
+      "catchline": "Definitions for ORS 471.392 to 471.400.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 133,
+      "sectionNumber": "471.394",
+      "catchline": "Prohibition on sales at both wholesale and retail; prohibition on financial connection between retailer and wholesaler.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 134,
+      "sectionNumber": "471.396",
+      "catchline": "Exceptions to prohibition on financial connection between wholesaler and retailer.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 135,
+      "sectionNumber": "471.398",
+      "catchline": "Prohibition of financial assistance from wholesaler to retailer.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 136,
+      "sectionNumber": "471.400",
+      "catchline": "Exceptions to prohibition of financial assistance; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 137,
+      "sectionNumber": "471.401",
+      "catchline": "Purchase of alcoholic liquor advertising space or time from retail licensee.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 138,
+      "sectionNumber": "471.402",
+      "catchline": "Sample tastings authorized.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 139,
+      "sectionNumber": "471.403",
+      "catchline": "License required to produce alcoholic liquor; exception.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 140,
+      "sectionNumber": "471.404",
+      "catchline": "Importing liquor without license prohibited; exceptions; fee.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 141,
+      "sectionNumber": "471.405",
+      "catchline": "Prohibited sales, purchases, possession, transportation, importation or solicitation in general; forfeiture upon conviction.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 142,
+      "sectionNumber": "471.406",
+      "catchline": "Activities covered by prohibitions on sale of alcoholic beverages.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 143,
+      "sectionNumber": "471.407",
+      "catchline": "Offer of alcoholic beverages as inducement to make purchases.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 144,
+      "sectionNumber": "471.408",
+      "catchline": "Alcoholic liquor may not be given as prize; exception.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 145,
+      "sectionNumber": "471.410",
+      "catchline": "Providing liquor to person under 21 or to intoxicated person; allowing consumption by minor on property; mandatory minimum penalties.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 146,
+      "sectionNumber": "471.412",
+      "catchline": "Allowing visibly intoxicated person to consume alcoholic beverages; good faith effort; effect on other liability; letters of reprimand.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 147,
+      "sectionNumber": "471.415",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 148,
+      "sectionNumber": "471.417",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 149,
+      "sectionNumber": "471.420",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 150,
+      "sectionNumber": "471.425",
+      "catchline": "Misrepresentations by licensee and others; maintenance of disorderly establishment.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 151,
+      "sectionNumber": "471.430",
+      "catchline": "Purchase or possession of alcoholic beverages by person under 21; entry of licensed premises by person under 21; penalty; immunity; suspension of driving privileges; assessment and treatment.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 152,
+      "sectionNumber": "471.432",
+      "catchline": "Examination for problem condition involving alcohol upon conviction; treatment program.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 153,
+      "sectionNumber": "471.434",
+      "catchline": "Immunity for violation of ORS 471.430 when reporting sexual assault crime.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 154,
+      "sectionNumber": "471.435",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 155,
+      "sectionNumber": "471.440",
+      "catchline": "Manufacture, fermentation or possession of mash, wort or wash; establishment or operation of distillery without license; prima facie evidence.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 156,
+      "sectionNumber": "471.442",
+      "catchline": "Wine compliance with standards.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 157,
+      "sectionNumber": "471.445",
+      "catchline": "Use of misleading mark or label on container; mixing liquors.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 158,
+      "sectionNumber": "471.446",
+      "catchline": "Seals on wine and cider containers; improper labeling; injurious or adulterated ingredients.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 159,
+      "sectionNumber": "471.448",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 160,
+      "sectionNumber": "471.450",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 161,
+      "sectionNumber": "471.452",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 162,
+      "sectionNumber": "471.455",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 163,
+      "sectionNumber": "471.456",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 164,
+      "sectionNumber": "471.457",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 165,
+      "sectionNumber": "471.460",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 166,
+      "sectionNumber": "471.463",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 167,
+      "sectionNumber": "471.465",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 168,
+      "sectionNumber": "471.470",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 169,
+      "sectionNumber": "471.473",
+      "catchline": "Liquor store business loss compensation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 170,
+      "sectionNumber": "471.475",
+      "catchline": "Mixing, storing or serving of liquor without license.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 171,
+      "sectionNumber": "471.478",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 172,
+      "sectionNumber": "471.480",
+      "catchline": "Sale of liquor by certain employees 18 years of age or older; minimum age requirements.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 173,
+      "sectionNumber": "471.482",
+      "catchline": "Sale or service of liquor by employees 18 years of age or older generally; rules; minimum age requirements.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 174,
+      "sectionNumber": "471.485",
+      "catchline": "Payment required on or before delivery of liquor.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 175,
+      "sectionNumber": "471.490",
+      "catchline": "Delivery or acceptance of instrument drawn upon insufficient funds or not payable according to terms; use of credit.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 176,
+      "sectionNumber": "471.495",
+      "catchline": "Report by wholesaler of instruments not paid on presentment required.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 177,
+      "sectionNumber": "471.500",
+      "catchline": "Application of ORS 471.485 to 471.495.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 178,
+      "sectionNumber": "471.501",
+      "catchline": "Malt beverage container refunds.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 179,
+      "sectionNumber": "471.502",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "474.105"
+    },
+    {
+      "ordinal": 180,
+      "sectionNumber": "471.503",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "474.115"
+    },
+    {
+      "ordinal": 181,
+      "sectionNumber": "471.505",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 182,
+      "sectionNumber": "471.506",
+      "catchline": "Petition and election for local option.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 183,
+      "sectionNumber": "471.510",
+      "catchline": "Sales not affected by local option laws.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 184,
+      "sectionNumber": "471.515",
+      "catchline": "Effective date of local option.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 185,
+      "sectionNumber": "471.520",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 186,
+      "sectionNumber": "471.521",
+      "catchline": "Definitions for ORS 471.521 to 471.537.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 187,
+      "sectionNumber": "471.524",
+      "catchline": "Third-party delivery facilitator employee or contractor requirements; training; penalties.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 188,
+      "sectionNumber": "471.525",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 189,
+      "sectionNumber": "471.527",
+      "catchline": "Third-party delivery facilitator training program; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 190,
+      "sectionNumber": "471.530",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 191,
+      "sectionNumber": "471.531",
+      "catchline": "Oregon Liquor and Cannabis Commission rules regarding delivery of alcoholic beverages.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 192,
+      "sectionNumber": "471.534",
+      "catchline": "Third-party delivery facilitator permit; fees; grounds to refuse to issue or to suspend or revoke permit; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 193,
+      "sectionNumber": "471.535",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 194,
+      "sectionNumber": "471.537",
+      "catchline": "Criminal and civil penalties.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 195,
+      "sectionNumber": "471.540",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 196,
+      "sectionNumber": "471.541",
+      "catchline": "Alcohol Education Program.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 197,
+      "sectionNumber": "471.542",
+      "catchline": "Alcohol server education course and examination; fees; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 198,
+      "sectionNumber": "471.545",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 199,
+      "sectionNumber": "471.547",
+      "catchline": "Alcohol Server Education Advisory Committee; members; purpose.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 200,
+      "sectionNumber": "471.549",
+      "catchline": "Civil penalty.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 201,
+      "sectionNumber": "471.550",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 202,
+      "sectionNumber": "471.551",
+      "catchline": "Warning signs required; contents; size; display.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 203,
+      "sectionNumber": "471.553",
+      "catchline": "Consultation with certain groups on production and posting of signs.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 204,
+      "sectionNumber": "471.555",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 205,
+      "sectionNumber": "471.556",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 206,
+      "sectionNumber": "471.557",
+      "catchline": "Solicitation of private funds.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 207,
+      "sectionNumber": "471.559",
+      "catchline": "Violations; penalty.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 208,
+      "sectionNumber": "471.560",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 209,
+      "sectionNumber": "471.561",
+      "catchline": "Production and distribution of signs.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 210,
+      "sectionNumber": "471.565",
+      "catchline": "Liability for providing or serving alcoholic beverages to intoxicated person; notice of claim.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 211,
+      "sectionNumber": "471.567",
+      "catchline": "Liability for providing alcoholic beverages to minor; liability of minor for misrepresentation of age.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 212,
+      "sectionNumber": "471.575",
+      "catchline": "School district culinary arts classes.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 213,
+      "sectionNumber": "471.580",
+      "catchline": "Education provider food or beverage career programs.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 214,
+      "sectionNumber": "471.605",
+      "catchline": "Duty of officers to enforce and to inform district attorney.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 215,
+      "sectionNumber": "471.610",
+      "catchline": "Confiscation of liquor and property by commission.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 216,
+      "sectionNumber": "471.615",
+      "catchline": "Duty to notify commission of conviction of licensee.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 217,
+      "sectionNumber": "471.620",
+      "catchline": "Property and places as common nuisances.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 218,
+      "sectionNumber": "471.625",
+      "catchline": "Lien on place used to unlawfully handle liquor.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 219,
+      "sectionNumber": "471.630",
+      "catchline": "Authority to abate nuisance.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 220,
+      "sectionNumber": "471.635",
+      "catchline": "Issuance of restraining order.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 221,
+      "sectionNumber": "471.640",
+      "catchline": "Service of restraining order.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 222,
+      "sectionNumber": "471.645",
+      "catchline": "Temporary injunction.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 223,
+      "sectionNumber": "471.650",
+      "catchline": "Nature of permanent injunction.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 224,
+      "sectionNumber": "471.655",
+      "catchline": "Owner may defend; evidence concerning nuisance.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 225,
+      "sectionNumber": "471.657",
+      "catchline": "Confiscation and forfeiture for violation of ORS 471.475.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 226,
+      "sectionNumber": "471.660",
+      "catchline": "Seizure of conveyance transporting liquor and liquor therein; notice to owner; return of conveyance; costs.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 227,
+      "sectionNumber": "471.665",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 228,
+      "sectionNumber": "471.666",
+      "catchline": "Disposal of seized liquor and of vehicle or other conveyance.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 229,
+      "sectionNumber": "471.670",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 230,
+      "sectionNumber": "471.675",
+      "catchline": "Resisting arrest or interfering with enforcement.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 231,
+      "sectionNumber": "471.680",
+      "catchline": "Allegation and proof in prosecutions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 232,
+      "sectionNumber": "471.685",
+      "catchline": "Governor authorized to suspend license.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 233,
+      "sectionNumber": "471.695",
+      "catchline": "Fingerprinting of license applicants and certain commission employees; criminal records check.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 234,
+      "sectionNumber": "471.700",
+      "catchline": "Revocation of license on gambling conviction.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 235,
+      "sectionNumber": "471.703",
+      "catchline": "Police notice to commission or social host when certain persons involved in motor vehicle accidents; content; commission duty.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 236,
+      "sectionNumber": "471.705",
+      "catchline": "Oregon Liquor and Cannabis Commission; qualifications; compensation; term; confirmation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 237,
+      "sectionNumber": "471.710",
+      "catchline": "Removal; prohibited interests of commissioner and employee; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 238,
+      "sectionNumber": "471.715",
+      "catchline": "Chairperson; meetings; quorum.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 239,
+      "sectionNumber": "471.720",
+      "catchline": "Administrator; other personnel.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 240,
+      "sectionNumber": "471.725",
+      "catchline": "Buying, leasing, contracting and borrowing powers of commission.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 241,
+      "sectionNumber": "471.730",
+      "catchline": "Regulatory powers of commission.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 242,
+      "sectionNumber": "471.732",
+      "catchline": "Policy relating to sanitation in licensed premises.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 243,
+      "sectionNumber": "471.735",
+      "catchline": "Testing and seizure of wines.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 244,
+      "sectionNumber": "471.737",
+      "catchline": "Vermouth sales.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 245,
+      "sectionNumber": "471.740",
+      "catchline": "Exclusive right of commission to handle certain liquors.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 246,
+      "sectionNumber": "471.745",
+      "catchline": "Fixing prices and selling liquor.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 247,
+      "sectionNumber": "471.747",
+      "catchline": "Granulated alcohol.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 248,
+      "sectionNumber": "471.750",
+      "catchline": "Liquor stores and warehouses; operation; sales; advertising; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 249,
+      "sectionNumber": "471.752",
+      "catchline": "Agent participation in programs for state employees; preference of spouse or child of deceased agent or agent with disability.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 250,
+      "sectionNumber": "471.753",
+      "catchline": "Agent compensation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 251,
+      "sectionNumber": "471.754",
+      "catchline": "Commission to develop recycling education materials.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 252,
+      "sectionNumber": "471.755",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 253,
+      "sectionNumber": "471.757",
+      "catchline": "Statement of financial interest in business of licensee.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 254,
+      "sectionNumber": "471.760",
+      "catchline": "Subpoena; oaths; depositions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 255,
+      "sectionNumber": "471.765",
+      "catchline": "Procedure when person refuses to testify or produce books.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 256,
+      "sectionNumber": "471.770",
+      "catchline": "Self-incrimination as a basis for refusing to testify or produce books.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 257,
+      "sectionNumber": "471.775",
+      "catchline": "Service of subpoenas; regulatory specialist authority and prohibitions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 258,
+      "sectionNumber": "471.780",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 259,
+      "sectionNumber": "471.785",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 260,
+      "sectionNumber": "471.790",
+      "catchline": "Commissioners not liable for official acts; commission funds entitled to priority.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 261,
+      "sectionNumber": "471.795",
+      "catchline": "Purchase and use of liquor by member or employee of commission.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 262,
+      "sectionNumber": "471.800",
+      "catchline": "Restrictions on out-of-state wine; imposition.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 263,
+      "sectionNumber": "471.802",
+      "catchline": "Wine label designation of American viticultural area; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 264,
+      "sectionNumber": "471.805",
+      "catchline": "Disposition of moneys; revolving fund; agent deposits.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 265,
+      "sectionNumber": "471.810",
+      "catchline": "Distribution of available moneys in Oregon Liquor and Cannabis Commission Account.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 266,
+      "sectionNumber": "471.815",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 267,
+      "sectionNumber": "471.817",
+      "catchline": "Alternative transportation organization to report annually.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 268,
+      "sectionNumber": "471.820",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 269,
+      "sectionNumber": "471.825",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 270,
+      "sectionNumber": "471.830",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 271,
+      "sectionNumber": "471.990",
+      "catchline": "Penalties.",
+      "status": "operative"
+    }
+  ],
+  "expectedSectionNotes": {
+    "note": "Not yet a structured per-note ground truth (SCHEMA.md's ors_section_note rows) -- note-level cataloguing was not attempted for this chapter, consistent with chapters 105 and 183; this increment still needs to design the note-level comparison before that work is worth doing for any chapter."
+  },
+  "unrelatedFindingsDuringReview": {
+    "note": "Comparing the parser's real output on this frozen source against this review surfaced a separate, pre-existing gap outside increment 5's own scope: ors_credits.py (increment 3, marked done) reports 4 unparsedCreditSegments for this chapter, against its own zero-tolerance gate. None of the 4 affect any field this review checks (section_number, catchline, status, renumbered_to all matched exactly, 271/271) -- they are malformed ors_source_credit citation forms this chapter's age exposed: a 'cor.' (corrective session) citation with no existing schema representation ('1983 cor. c.736 §1' on 471.410), a second citation joined by 'and by' rather than 'and' ('repealed by 1979 c.43 §1 and by 1979 c.190 §431' on 471.420), a bare non-citation predecessor reference in a form this module does not yet recognize ('enacted in lieu of 471.665 in 1997' on 471.666), and two full citations printed back to back with no semicolon between them, the first also using the plural 'amendments by' rather than 'Amended by' ('amendments by 2002 s.s.1 c.11 §1 repealed by 2002 s.s.2 c.1 §3' on 471.750). Left unfixed here rather than resolved inline: the 'cor.' form needs a schema decision (SCHEMA.md's ors_source_credit has no corrective-session column) this review is not positioned to make, and the missing-semicolon form needs a general multi-citation splitter this single example does not yet justify designing. Recorded here as a real, reproducible finding for increment 3 follow-up, not acted on."
+  }
+}

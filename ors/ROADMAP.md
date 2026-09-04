@@ -281,6 +281,129 @@ caught before CI did:
 - Thresholds set only after a first measurement, so they describe the parser
   rather than flatter it.
 
+Source staging done: the candidate selection (`ors/gold/pending/selection.json`)
+freezes five chapters outside the development sample -- `12`, `105`, `183`,
+`471` and `659A` -- chosen to span an ordinary numeric chapter, a very large
+civil-property chapter, dense administrative-procedure cross-references, a
+large regulatory chapter, and a lettered chapter carrying published 2026
+pending-change notices, before any parser evaluation of them.
+`tools/stage_ors_gold_sources.py` then proves the selection and the acquired
+bytes match exactly (same chapter set, same source URLs, real SHA-256
+digests) and asserts no parser artifact (`ors-rows.json`, `ors-parse.json`,
+`ors-build.json`) exists alongside the staging run, so the source registry
+can never be quietly built from something the parser already touched.
+`ors-gold-source-staging.yml` runs this on its own PR trigger and on manual
+dispatch; confirmed against a real dispatch run (workflow run `33570106878`):
+all 5 sources acquired, digests pinned in
+`ors/gold/reviews/source-staging-provenance.json`.
+
+Independent review done for all 5 of the frozen gold chapters:
+
+- Chapter 12 (pilot, 52 sections): `ors/gold/reviews/chapter-12-expected-sections.json`.
+  Exact match against the parser's real output (52/52 sections, every status,
+  every catchline) once one review-side defect -- a missing trailing period,
+  confirmed against the raw bold markup -- was fixed in the review itself.
+- Chapter 105 (251 sections, the largest of the five): `ors/gold/reviews/chapter-105-expected-sections.json`.
+  Catchlines were extracted with a small auditable script over the frozen
+  source's own `<b>` runs (independent of `parse_ors_chapter.py`), all 217
+  operative sections cross-checked 1:1 against the chapter's own table of
+  contents, and the other 34 sections found by a second script pass matching
+  bare numbers immediately followed by a bracketed legislative-history
+  citation. This review caught a real parser bug: `SECTION_CATCHLINE_PATTERN`
+  required a catchline to open with a capital letter, so the two sections
+  whose catchlines quote the term they define -- 105.850 and 105.900, both
+  printed as `“Term” defined for ORS ...` -- matched neither the catchline
+  pattern nor the stub pattern and were silently dropped as unrecognized bold
+  runs. Fixed by widening the pattern's lookahead to also accept a leading
+  quotation mark, with a regression test
+  (`QuotedTermCatchlineTest`) reproducing the exact 105.850 markup. Re-run
+  against the fix: exact match, 251/251 sections, every status, every
+  catchline, every `renumbered_to`.
+- Chapter 183 (109 sections): `ors/gold/reviews/chapter-183-expected-sections.json`.
+  Same auditable-script method as chapter 105: 83 operative catchlines
+  extracted from the frozen source's own `<b>` runs, cross-checked 1:1
+  against the table of contents, and 26 more sections (22 repealed, 4
+  renumbered) found by the bracketed-citation script pass. Eight of those 26
+  (`183.010` through `183.090`) are historical numbers from the chapter's
+  pre-1971 numbering scheme, printed as a block before the first live section
+  rather than scattered through the chapter -- the same disused-number
+  convention as chapters 12 and 105, just concentrated at the head instead of
+  spread out. Checked against the parser's real output: exact match, 109/109
+  sections, every status, every catchline, every `renumbered_to` -- a clean
+  confirmation this time, no parser defect found.
+- Chapter 471 (271 sections, the most heavily renumbered of the five):
+  `ors/gold/reviews/chapter-471-expected-sections.json`. Same method again:
+  176 operative catchlines cross-checked 1:1 against the table of contents,
+  and 95 more sections (73 repealed, 22 renumbered) found by the
+  bracketed-citation pass -- classified repealed vs. renumbered, and to
+  which destination, by which keyword appears inside each section's own
+  bracket, including two sections renumbered out of chapter 471 entirely
+  into chapter 474. Checked against the parser's real output: exact match,
+  271/271 sections, every status, every catchline, every `renumbered_to`.
+  This chapter's age (citations back to the 1950s) also surfaced a
+  pre-existing gap outside this increment's own scope: `ors_credits.py`
+  (increment 3, marked done) reports 4 `unparsedCreditSegmentCount` against
+  its own zero-tolerance gate -- a `cor.` (corrective session) citation with
+  no existing schema representation, a citation joined by `and by` rather
+  than `and`, a bare predecessor reference this module does not yet
+  recognize (`enacted in lieu of 471.665 in 1997`), and two full citations
+  printed back to back with no semicolon between them. None affect any
+  field this review checks -- recorded in
+  `ors/gold/reviews/chapter-471-expected-sections.json`'s own
+  `unrelatedFindingsDuringReview` for increment 3 follow-up, not fixed here:
+  the `cor.` form needs a schema decision this review is not positioned to
+  make, and the missing-semicolon form needs a general multi-citation
+  splitter one example does not yet justify designing.
+- Chapter 659A (163 sections, the newest and most modern of the five --
+  created in 2001 by renumbering the old chapter 659): `ors/gold/reviews/chapter-659A-expected-sections.json`.
+  Same method again: 160 operative catchlines cross-checked 1:1 against the
+  table of contents, and only 3 more sections (2 repealed, 1 renumbered)
+  found by the bracketed-citation pass -- far fewer stubs than the older
+  chapters 105, 183 and 471, consistent with this chapter's youth. Checked
+  against the parser's real output: exact match, 163/163 sections, every
+  status, every catchline, every `renumbered_to`, `valid: true` with zero
+  unparsed credit segments -- a clean confirmation, no parser defect found.
+
+All five frozen gold chapters are now independently reviewed: 12, 105, 183,
+471 and 659A, spanning 52 to 271 sections each (846 sections total), a
+century-plus of citation history (1950s to 2020s), both heavily renumbered
+and barely-touched chapters, and both `<b>`-catchline-per-TOC-entry
+conventions. Two real defects were found and fixed along the way: the
+chapter-12 pilot's own missing-trailing-period transcription error, and the
+chapter-105-caught `SECTION_CATCHLINE_PATTERN` quoted-term bug in
+`parse_ors_chapter.py` itself. One further finding (chapter 471's
+`ors_credits.py` gaps) was recorded rather than fixed, being outside this
+increment's own scope.
+
+The precision/recall tool and CI gate are done: `ors/tools/gold_precision_recall.py`
+compares `parse_ors_chapter.py`'s real output against all five
+`ors/gold/reviews/chapter-*-expected-sections.json` files -- precision and
+recall over `(chapter, section_number)` pairs, plus exact-match rates for
+catchline, status and `renumbered_to` among the sections found in both.
+Thresholds live in a `--thresholds` JSON override rather than being
+hardcoded, set at the honestly measured baseline (1.0 on every metric,
+confirmed against all five reviews: 846/846 sections, zero false positives,
+zero false negatives, every field exact) rather than guessed in advance.
+`ors-gold-precision-recall.yml` runs the full pipeline on its own PR
+trigger and on manual dispatch: re-acquires the five frozen chapters,
+verifies the fresh bytes still match `source-staging-provenance.json`
+(refusing to measure against a drifted live page), parses them, and gates
+on the comparison. Confirmed against a real local run of the same pipeline:
+`valid: true`, precision 1.0, recall 1.0, every exact-match rate 1.0.
+
+Not yet done: the increment-3 credit-parsing gap chapter 471's review
+surfaced (see above) -- the `cor.` citation form and the missing-semicolon
+multi-citation case in `ors_credits.py`.
+
+The section gate permits only the four exact, section-specific credit gaps
+listed in `tools/validate_gold_parse.py`. Missing chapters, integrity violations,
+editorial-note failures, unknown credit gaps and unexpected parser exits fail
+the workflow. The parse report, rows and source registry are retained with the
+comparison report so the section score does not conceal the broader parser's
+`valid: false` result. This is section-field coverage, not full credit or note
+certification. The 1.0 scores are the post-fix regression baseline; chapter 105
+already informed a parser fix, so these chapters are no longer an unseen test.
+
 ## Increment 6 — edition-over-edition rebuild and pending changes
 
 - Rebuild against a new edition without destroying the previous one.

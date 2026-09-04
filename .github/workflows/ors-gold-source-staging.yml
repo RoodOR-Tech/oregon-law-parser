@@ -56,6 +56,31 @@ jobs:
           test ! -e ors-parse.json
           test ! -e ors-build.json
 
+      # This job re-fetches every chapter on each run, so a page changed on
+      # the live site since the original freeze would otherwise be uploaded
+      # silently as if it were the reviewed source. The first freeze commits
+      # no provenance file yet, so there is nothing to check it against; any
+      # run after that must match it exactly, or fail rather than let a
+      # drifted document masquerade as the frozen one.
+      - name: Verify freshly acquired bytes match the committed provenance
+        run: |
+          set -euo pipefail
+          provenance=ors/gold/reviews/source-staging-provenance.json
+          if [ ! -f "$provenance" ]; then
+            echo "No committed provenance yet at $provenance -- this is the first freeze."
+            exit 0
+          fi
+          jq -S '[.documents[] | {chapterNumber, sha256}] | sort_by(.chapterNumber)' \
+            ors-gold-source-registry.json > /tmp/fresh-digests.json
+          jq -S '[.documents[] | {chapterNumber, sha256}] | sort_by(.chapterNumber)' \
+            "$provenance" > /tmp/committed-digests.json
+          if ! diff -u /tmp/committed-digests.json /tmp/fresh-digests.json; then
+            echo "::error::Freshly acquired source bytes do not match $provenance." \
+                 "A tracked legislature document may have changed since it was frozen." \
+                 "Refusing to upload these bytes as the reviewed source." >&2
+            exit 1
+          fi
+
       - name: Upload acquisition report
         uses: actions/upload-artifact@v4
         with:
@@ -69,5 +94,18 @@ jobs:
         with:
           name: ors-gold-source-registry
           path: ors-gold-source-registry.json
+          if-no-files-found: error
+          retention-days: 90
+
+      # The registry pins each document's digest, but a reviewer needs the
+      # actual bytes to read, not just proof they were frozen. The previous
+      # step already proved these bytes match the committed provenance (or
+      # that none exists yet), so this upload is the verified frozen text,
+      # not merely whatever this run happened to fetch.
+      - name: Upload frozen source documents
+        uses: actions/upload-artifact@v4
+        with:
+          name: ors-gold-source-documents
+          path: ors-gold-sources/
           if-no-files-found: error
           retention-days: 90

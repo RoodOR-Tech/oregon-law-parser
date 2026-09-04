@@ -1,0 +1,378 @@
+{
+  "schemaVersion": 1,
+  "corpusType": "ors-gold-expected-sections",
+  "chapterNumber": "12",
+  "chapterName": "Limitations of Actions and Suits",
+  "editionYear": 2025,
+  "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors012.html",
+  "sourceSha256": "395372094f134b5dee85206e978945bd9d257cf38ec31ab099cf2bd3544e6905",
+  "reviewBasis": "Read directly from the frozen source's own plain text (markup stripped with no section-segmentation logic applied -- the same neutral extraction a browser's rendered text view would give a human reviewer), independently of parse_ors_chapter.py. Every entry in the chapter's own printed table of contents was cross-checked against a full read of the body text; the three sections the table of contents omits (12.030, 12.133, 12.260) were found by reading past every table-of-contents entry to the next one and confirming each intervening span is a bare-number repealed stub, not a missed catchline.",
+  "reviewSources": [
+    "ors/gold/reviews/source-staging-provenance.json (frozen bytes, chapter 12 entry)"
+  ],
+  "methodology": {
+    "expectedRowsEstablishedFromParserOutput": false,
+    "tableOfContentsCrossChecked": true,
+    "everyGapBetweenConsecutiveTocEntriesInspected": true
+  },
+  "subdivisions": [
+    {
+      "name": "GENERAL PROVISIONS",
+      "firstSectionNumber": "12.010",
+      "lastSectionNumber": "12.282"
+    },
+    {
+      "name": "UNIFORM CONFLICT OF LAWS-LIMITATIONS ACT",
+      "firstSectionNumber": "12.410",
+      "lastSectionNumber": "12.480"
+    }
+  ],
+  "expectedSectionCount": 52,
+  "expectedSections": [
+    {
+      "ordinal": 1,
+      "sectionNumber": "12.010",
+      "catchline": "Time of commencing actions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 2,
+      "sectionNumber": "12.020",
+      "catchline": "When action deemed begun.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 3,
+      "sectionNumber": "12.030",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 4,
+      "sectionNumber": "12.040",
+      "catchline": "Limitations of suits generally; land patent suits; defense of possession by equitable title; suit on new promise, fraud or mistake.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 5,
+      "sectionNumber": "12.050",
+      "catchline": "Action to recover real property.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 6,
+      "sectionNumber": "12.060",
+      "catchline": "Suit or action on land contracts; time when they cease to affect the property.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 7,
+      "sectionNumber": "12.070",
+      "catchline": "Action on judgment, decree or sealed instrument.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 8,
+      "sectionNumber": "12.080",
+      "catchline": "Action on certain contracts or liabilities.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 9,
+      "sectionNumber": "12.085",
+      "catchline": "Action against garnishee.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 10,
+      "sectionNumber": "12.090",
+      "catchline": "Accounts; accrual of cause of action.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 11,
+      "sectionNumber": "12.100",
+      "catchline": "Action on official act or penalty.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 12,
+      "sectionNumber": "12.110",
+      "catchline": "Actions for certain injuries to person not arising on contract; action for overtime or premium pay; action for professional malpractice; effect of fraud or deceit; action for injuries to person arising from nuclear incident.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 13,
+      "sectionNumber": "12.115",
+      "catchline": "Action for negligent injury to person or property.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 14,
+      "sectionNumber": "12.117",
+      "catchline": "Actions based on child abuse.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 15,
+      "sectionNumber": "12.118",
+      "catchline": "Action based on conduct that constitutes sexual assault of adult or conduct allowing, permitting or encouraging sexual assault of adult.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 16,
+      "sectionNumber": "12.120",
+      "catchline": "Action on escape; action for defamation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 17,
+      "sectionNumber": "12.125",
+      "catchline": "Action arising under rental agreement.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 18,
+      "sectionNumber": "12.130",
+      "catchline": "Action for penalty.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 19,
+      "sectionNumber": "12.132",
+      "catchline": "Action arising out of real estate appraisal activity or appraisal review.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 20,
+      "sectionNumber": "12.133",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 21,
+      "sectionNumber": "12.135",
+      "catchline": "Action for damages from construction, alteration or repair of real property.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 22,
+      "sectionNumber": "12.137",
+      "catchline": "Action for loss of or damage to property arising from nuclear incident.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 23,
+      "sectionNumber": "12.140",
+      "catchline": "Actions not otherwise provided for.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 24,
+      "sectionNumber": "12.150",
+      "catchline": "Suspension of running of statute by absence or concealment.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 25,
+      "sectionNumber": "12.155",
+      "catchline": "Effect of notice of advance payment on running of period of limitation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 26,
+      "sectionNumber": "12.160",
+      "catchline": "Suspension for minors and persons who have disabling mental condition.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 27,
+      "sectionNumber": "12.170",
+      "catchline": "Disability must exist when right of action accrues.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 28,
+      "sectionNumber": "12.180",
+      "catchline": "Coexisting disabilities must all be removed.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 29,
+      "sectionNumber": "12.190",
+      "catchline": "Effect of death on limitations.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 30,
+      "sectionNumber": "12.195",
+      "catchline": "Effect of attorney death on limitations.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 31,
+      "sectionNumber": "12.200",
+      "catchline": "Suspension by war as to noncitizen.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 32,
+      "sectionNumber": "12.210",
+      "catchline": "Suspension by injunction or prohibition of statute.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 33,
+      "sectionNumber": "12.220",
+      "catchline": "Commencement of new action after involuntary dismissal.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 34,
+      "sectionNumber": "12.230",
+      "catchline": "Acknowledgment or promise taking contract case out of statute; effect of payment.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 35,
+      "sectionNumber": "12.240",
+      "catchline": "Effect of payment after obligation becomes due.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 36,
+      "sectionNumber": "12.250",
+      "catchline": "Actions by state, county or public corporations.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 37,
+      "sectionNumber": "12.260",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 38,
+      "sectionNumber": "12.270",
+      "catchline": "Conclusive presumption of validity of governmental subdivision boundary proceedings one year after effective date.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 39,
+      "sectionNumber": "12.272",
+      "catchline": "Action based on pesticide application.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 40,
+      "sectionNumber": "12.274",
+      "catchline": "Action against trustee of express trust.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 41,
+      "sectionNumber": "12.276",
+      "catchline": "Action for death, injury or damage resulting from breast implants.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 42,
+      "sectionNumber": "12.278",
+      "catchline": "Action against manufacturer of certain pickup trucks.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 43,
+      "sectionNumber": "12.280",
+      "catchline": "Action based on practice of land surveying.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 44,
+      "sectionNumber": "12.282",
+      "catchline": "Action against manufacturer of extendable equipment.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 45,
+      "sectionNumber": "12.410",
+      "catchline": "Definitions for ORS 12.410 to 12.480.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 46,
+      "sectionNumber": "12.420",
+      "catchline": "Purpose.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 47,
+      "sectionNumber": "12.430",
+      "catchline": "Claims based on law of other states; limitation period.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 48,
+      "sectionNumber": "12.440",
+      "catchline": "Application of statutes and rules governing conflict of laws.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 49,
+      "sectionNumber": "12.450",
+      "catchline": "When limitation period of another state not applicable.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 50,
+      "sectionNumber": "12.460",
+      "catchline": "Claims to which statutes apply.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 51,
+      "sectionNumber": "12.470",
+      "catchline": "Severability.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 52,
+      "sectionNumber": "12.480",
+      "catchline": "Short title.",
+      "status": "operative"
+    }
+  ],
+  "expectedSectionNotes": {
+    "note": "Not yet a structured per-note ground truth (SCHEMA.md's ors_section_note rows) -- recorded here only as counts and shapes observed during the same read, for the eventual note-level comparison this increment still needs to design.",
+    "seriesMembershipNotes": [
+      "12.118",
+      "12.132",
+      "12.137",
+      "12.195",
+      "12.270",
+      "12.282",
+      "12.410"
+    ],
+    "seeNoteUnderCrossReferences": [
+      "12.420",
+      "12.430",
+      "12.440",
+      "12.450",
+      "12.460",
+      "12.470",
+      "12.480"
+    ],
+    "quotedUncodifiedProvisionNotes": [
+      {
+        "attachedToSection": "12.118",
+        "sessionYear": 2019,
+        "sessionLawChapter": 448
+      },
+      {
+        "attachedToSection": "12.118",
+        "sessionYear": 2025,
+        "sessionLawChapter": 447
+      }
+    ]
+  }
+}

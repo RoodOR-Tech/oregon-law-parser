@@ -1,0 +1,112 @@
+name: ORS gold precision/recall gate
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'ors/gold/pending/selection.json'
+      - 'ors/gold/reviews/**'
+      - 'ors/tools/acquire_ors_chapters.py'
+      - 'ors/tools/parse_ors_chapter.py'
+      - 'ors/tools/gold_precision_recall.py'
+      - 'ors/tools/validate_gold_parse.py'
+      - 'ors/tests/test_validate_gold_parse.py'
+      - 'ors/tests/test_gold_precision_recall.py'
+      - '.github/workflows/ors-gold-precision-recall.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ors-gold-precision-recall-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run ORS offline tests
+        run: python3 -m unittest discover -s ors/tests -v
+
+      - name: Acquire frozen candidate sources
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > /tmp/chapters.txt
+          import json
+          data = json.load(open('ors/gold/pending/selection.json'))
+          print(','.join(item['chapterNumber'] for item in data['chapters']))
+          PY
+          chapters="$(cat /tmp/chapters.txt)"
+          python3 ors/tools/acquire_ors_chapters.py \
+            --chapters "$chapters" \
+            --output-dir ors-gold-sources \
+            --report ors-gold-acquisition.json
+
+      # Same integrity check as ors-gold-source-staging.yml: this job
+      # re-fetches every chapter fresh, so a page changed on the live site
+      # since the original freeze would otherwise be measured against as if
+      # it were the reviewed source. Refuse rather than silently measure
+      # against drifted bytes.
+      - name: Verify freshly acquired bytes match the committed provenance
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > ors-gold-source-registry.json
+          import hashlib, json
+          acquisition = json.load(open('ors-gold-acquisition.json'))
+          documents = []
+          for chapter in acquisition['chapters']:
+              data = open(chapter['fixture'], 'rb').read()
+              documents.append({
+                  'chapterNumber': chapter['chapterNumber'],
+                  'sha256': hashlib.sha256(data).hexdigest(),
+              })
+          json.dump({'documents': documents}, __import__('sys').stdout, indent=2)
+          PY
+          jq -S '[.documents[] | {chapterNumber, sha256}] | sort_by(.chapterNumber)' \
+            ors-gold-source-registry.json > /tmp/fresh-digests.json
+          jq -S '[.documents[] | {chapterNumber, sha256}] | sort_by(.chapterNumber)' \
+            ors/gold/reviews/source-staging-provenance.json > /tmp/committed-digests.json
+          if ! diff -u /tmp/committed-digests.json /tmp/fresh-digests.json; then
+            echo "::error::Freshly acquired source bytes do not match" \
+                 "ors/gold/reviews/source-staging-provenance.json. A tracked" \
+                 "legislature document may have changed since it was frozen." \
+                 "Refusing to measure precision/recall against drifted bytes." >&2
+            exit 1
+          fi
+
+      - name: Parse the frozen gold chapters and validate known exceptions
+        run: |
+          set +e
+          python3 ors/tools/parse_ors_chapter.py \
+            --acquisition-report ors-gold-acquisition.json \
+            --report ors-gold-parse.json \
+            --rows ors-gold-rows.json
+          parser_status=$?
+          set -euo pipefail
+          python3 ors/tools/validate_gold_parse.py \
+            --report ors-gold-parse.json \
+            --selection ors/gold/pending/selection.json \
+            --exit-code "$parser_status"
+
+      - name: Measure precision and recall against the independent reviews
+        run: |
+          python3 ors/tools/gold_precision_recall.py \
+            --gold-dir ors/gold/reviews \
+            --rows ors-gold-rows.json \
+            --report ors-gold-precision-recall-report.json
+
+      - name: Upload precision/recall report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ors-gold-precision-recall-report
+          path: |
+            ors-gold-precision-recall-report.json
+            ors-gold-parse.json
+            ors-gold-rows.json
+            ors-gold-source-registry.json
+          if-no-files-found: error
+          retention-days: 90

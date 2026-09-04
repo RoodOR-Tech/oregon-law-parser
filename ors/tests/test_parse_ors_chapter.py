@@ -299,6 +299,40 @@ class SectionContentTest(unittest.TestCase):
         self.assertIsNotNone(self.by_number["161.005"]["sourceCreditRaw"])
 
 
+class QuotedTermCatchlineTest(unittest.TestCase):
+    """A defining catchline can open by quoting the term it defines.
+
+    Real form, from chapter 105's own gold review: 105.850's catchline is
+    printed as "“Commercial property” defined for ORS 105.850 to
+    105.870." -- confirmed against the frozen source's raw markup, where the
+    bold run is otherwise identical in shape to any ordinary section heading.
+    SECTION_CATCHLINE_PATTERN originally required the catchline to open with
+    a capital letter, which this does not; the whole bold run then matched
+    neither the catchline pattern nor the stub pattern and was silently
+    dropped as a non-anchor, so 105.850 never became a row at all. Chapter
+    105's independent review caught the section missing entirely (251
+    expected sections against the parser's 249), not a wrong field on an
+    existing row.
+    """
+
+    def test_a_catchline_opening_with_a_quoted_term_is_still_recognized(self):
+        markup = (
+            "<p><b>105.850 “Commercial property” defined for ORS"
+            " 105.850 to 105.870.</b> As used in this section, “commercial"
+            " property” means land used for business purposes."
+            " [1985 c.717 §1]</p>"
+        )
+        result = parser.parse_chapter(markup, "105")
+        self.assertEqual(len(result["sections"]), 1)
+        section = result["sections"][0]
+        self.assertEqual(section["sectionNumber"], "105.850")
+        self.assertEqual(
+            section["catchline"],
+            "“Commercial property” defined for ORS 105.850 to 105.870.",
+        )
+        self.assertEqual(section["status"], "operative")
+
+
 class CreditFollowedByANoteTest(unittest.TestCase):
     """A trailing "Note:" block must not hide the section's own credit.
 

@@ -1,0 +1,761 @@
+{
+  "schemaVersion": 1,
+  "corpusType": "ors-gold-expected-sections",
+  "chapterNumber": "183",
+  "chapterName": "Administrative Procedures Act; Review of Rules; Civil Penalties",
+  "editionYear": 2025,
+  "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors183.html",
+  "sourceSha256": "72cae077362c4900f024fc2a290a2088511994f44952a96edb1e6268e3b458cc",
+  "reviewBasis": "Read directly from the frozen source's own plain text (markup stripped with no section-segmentation logic applied) and cross-checked against the raw HTML markup, using the same auditable-script method validated on chapter 105: every <b>...</b> run matching a bare section-number-plus-heading pattern was extracted directly from the frozen source, independent of parse_ors_chapter.py. All 83 resulting operative catchlines were cross-checked against the chapter's own printed table of contents -- 83/83 matched, zero extra, zero missing. The remaining 26 sections omitted from the table of contents were found by a second script pass over the body text for bare section numbers immediately followed by a bracketed legislative-history citation, each manually inspected in context. Eight of those 26 (183.010 through 183.090) are historical numbers from the chapter's pre-1971 numbering scheme, printed together as a block immediately before the first live section (183.310) rather than scattered between table-of-contents entries -- the same disused-number convention as chapter 12's and 105's stubs, just concentrated at the head of the chapter instead of spread through it.",
+  "reviewSources": [
+    "ors/gold/reviews/source-staging-provenance.json (frozen bytes, chapter 183 entry)"
+  ],
+  "methodology": {
+    "expectedRowsEstablishedFromParserOutput": false,
+    "tableOfContentsCrossChecked": true,
+    "everyGapBetweenConsecutiveTocEntriesInspected": true,
+    "catchlineExtractionMethod": "auditable script over raw <b> markup, not parse_ors_chapter.py",
+    "stubDetectionMethod": "auditable script matching bare section number + bracketed legislative-history citation, manually inspected"
+  },
+  "subdivisions": [
+    {
+      "name": "ADMINISTRATIVE PROCEDURES ACT (General Provisions)",
+      "firstSectionNumber": "183.310",
+      "lastSectionNumber": "183.320"
+    },
+    {
+      "name": "ADMINISTRATIVE PROCEDURES ACT (Adoption of Rules)",
+      "firstSectionNumber": "183.325",
+      "lastSectionNumber": "183.410"
+    },
+    {
+      "name": "ADMINISTRATIVE PROCEDURES ACT (Contested Cases)",
+      "firstSectionNumber": "183.411",
+      "lastSectionNumber": "183.471"
+    },
+    {
+      "name": "ADMINISTRATIVE PROCEDURES ACT (Judicial Review)",
+      "firstSectionNumber": "183.480",
+      "lastSectionNumber": "183.497"
+    },
+    {
+      "name": "ADMINISTRATIVE PROCEDURES ACT (Appeals From Circuit Courts)",
+      "firstSectionNumber": "183.500",
+      "lastSectionNumber": "183.500"
+    },
+    {
+      "name": "ADMINISTRATIVE PROCEDURES ACT (Alternative Dispute Resolution)",
+      "firstSectionNumber": "183.502",
+      "lastSectionNumber": "183.510"
+    },
+    {
+      "name": "ADMINISTRATIVE PROCEDURES ACT (Housing Cost Impact Statement)",
+      "firstSectionNumber": "183.530",
+      "lastSectionNumber": "183.538"
+    },
+    {
+      "name": "ADMINISTRATIVE PROCEDURES ACT (Effects of Rules on Small Business)",
+      "firstSectionNumber": "183.540",
+      "lastSectionNumber": "183.600"
+    },
+    {
+      "name": "ADMINISTRATIVE PROCEDURES ACT (Office of Administrative Hearings)",
+      "firstSectionNumber": "183.605",
+      "lastSectionNumber": "183.690"
+    },
+    {
+      "name": "PERMITS AND LICENSES",
+      "firstSectionNumber": "183.700",
+      "lastSectionNumber": "183.705"
+    },
+    {
+      "name": "REVIEW OF RULES (Legislative Assembly)",
+      "firstSectionNumber": "183.710",
+      "lastSectionNumber": "183.725"
+    },
+    {
+      "name": "REVIEW OF RULES (Oregon Sunshine Committee)",
+      "firstSectionNumber": "183.730",
+      "lastSectionNumber": "183.730"
+    },
+    {
+      "name": "CIVIL PENALTIES",
+      "firstSectionNumber": "183.745",
+      "lastSectionNumber": "183.745"
+    },
+    {
+      "name": "READABILITY OF PUBLIC WRITINGS",
+      "firstSectionNumber": "183.750",
+      "lastSectionNumber": "183.750"
+    }
+  ],
+  "expectedSectionCount": 109,
+  "expectedSectionCountByStatus": {
+    "operative": 83,
+    "repealed": 22,
+    "renumbered": 4
+  },
+  "expectedSections": [
+    {
+      "ordinal": 1,
+      "sectionNumber": "183.010",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 2,
+      "sectionNumber": "183.020",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 3,
+      "sectionNumber": "183.025",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "183.750"
+    },
+    {
+      "ordinal": 4,
+      "sectionNumber": "183.030",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 5,
+      "sectionNumber": "183.040",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 6,
+      "sectionNumber": "183.050",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 7,
+      "sectionNumber": "183.060",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 8,
+      "sectionNumber": "183.090",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "183.745"
+    },
+    {
+      "ordinal": 9,
+      "sectionNumber": "183.310",
+      "catchline": "Definitions for chapter.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 10,
+      "sectionNumber": "183.315",
+      "catchline": "Application of provisions of chapter to certain agencies.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 11,
+      "sectionNumber": "183.317",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 12,
+      "sectionNumber": "183.320",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 13,
+      "sectionNumber": "183.325",
+      "catchline": "Delegation of rulemaking authority to named officer or employee.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 14,
+      "sectionNumber": "183.330",
+      "catchline": "Description of organization; service of order; rules coordinator; order not final until put in writing.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 15,
+      "sectionNumber": "183.332",
+      "catchline": "Policy statement; conformity of state rules with equivalent federal laws and rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 16,
+      "sectionNumber": "183.333",
+      "catchline": "Policy statement; public involvement in development of policy and drafting of rules; advisory committees.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 17,
+      "sectionNumber": "183.335",
+      "catchline": "Notice; content; public comment; temporary rule adoption, amendment or suspension; substantial compliance required.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 18,
+      "sectionNumber": "183.336",
+      "catchline": "Cost of compliance effect on small businesses.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 19,
+      "sectionNumber": "183.337",
+      "catchline": "Procedure for agency adoption of federal rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 20,
+      "sectionNumber": "183.338",
+      "catchline": "Use of term “noncitizen” in rules and regulations.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 21,
+      "sectionNumber": "183.340",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 22,
+      "sectionNumber": "183.341",
+      "catchline": "Model rules of procedure; establishment; compilation; publication; agencies required to adopt procedural rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 23,
+      "sectionNumber": "183.350",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 24,
+      "sectionNumber": "183.355",
+      "catchline": "Filing and taking effect of rules; filing of executive orders; copies; fees; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 25,
+      "sectionNumber": "183.360",
+      "catchline": "Publication of rules and orders; exceptions; requirements; bulletin; judicial notice; citation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 26,
+      "sectionNumber": "183.362",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 27,
+      "sectionNumber": "183.365",
+      "catchline": "Publication of administrative rules in electronic form.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 28,
+      "sectionNumber": "183.370",
+      "catchline": "Distribution of published rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 29,
+      "sectionNumber": "183.380",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 30,
+      "sectionNumber": "183.390",
+      "catchline": "Petitions requesting adoption of rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 31,
+      "sectionNumber": "183.400",
+      "catchline": "Judicial determination of validity of rule.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 32,
+      "sectionNumber": "183.403",
+      "catchline": "Agency report to Legislative Assembly regarding temporary rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 33,
+      "sectionNumber": "183.405",
+      "catchline": "Agency review of rules; report by Secretary of State.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 34,
+      "sectionNumber": "183.407",
+      "catchline": "Small Business Rules Advisory Committee.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 35,
+      "sectionNumber": "183.410",
+      "catchline": "Agency determination of applicability of rule or statute to petitioner; effect; judicial review.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 36,
+      "sectionNumber": "183.411",
+      "catchline": "Delegation of final order authority.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 37,
+      "sectionNumber": "183.413",
+      "catchline": "Notice to parties before hearing of rights and procedure; failure to provide notice.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 38,
+      "sectionNumber": "183.415",
+      "catchline": "Notice of right to hearing.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 39,
+      "sectionNumber": "183.417",
+      "catchline": "Procedure in contested case hearing.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 40,
+      "sectionNumber": "183.418",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 41,
+      "sectionNumber": "183.420",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 42,
+      "sectionNumber": "183.421",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 43,
+      "sectionNumber": "183.425",
+      "catchline": "Depositions or subpoena of material witness; discovery.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 44,
+      "sectionNumber": "183.430",
+      "catchline": "Hearing on refusal to renew license; exceptions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 45,
+      "sectionNumber": "183.435",
+      "catchline": "Period allowed to request hearing for license refusal on grounds other than test or inspection results.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 46,
+      "sectionNumber": "183.440",
+      "catchline": "Subpoenas in contested cases.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 47,
+      "sectionNumber": "183.445",
+      "catchline": "Subpoena by agency or attorney of record of party when agency not subject to ORS 183.440.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 48,
+      "sectionNumber": "183.450",
+      "catchline": "Evidence in contested cases.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 49,
+      "sectionNumber": "183.452",
+      "catchline": "Representation of agencies at contested case hearings.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 50,
+      "sectionNumber": "183.453",
+      "catchline": "Representation of Oregon Health Authority and Department of Human Services at contested case hearings.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 51,
+      "sectionNumber": "183.455",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 52,
+      "sectionNumber": "183.457",
+      "catchline": "Representation of persons other than agencies participating in contested case hearings.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 53,
+      "sectionNumber": "183.458",
+      "catchline": "Nonattorney and out-of-state attorney representation of parties in certain contested case hearings.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 54,
+      "sectionNumber": "183.459",
+      "catchline": "Representation of home care worker by labor union representative.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 55,
+      "sectionNumber": "183.460",
+      "catchline": "Examination of evidence by agency.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 56,
+      "sectionNumber": "183.462",
+      "catchline": "Agency statement of ex parte communications; notice.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 57,
+      "sectionNumber": "183.464",
+      "catchline": "Proposed order by hearing officer; amendment by agency; exemptions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 58,
+      "sectionNumber": "183.470",
+      "catchline": "Orders in contested cases.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 59,
+      "sectionNumber": "183.471",
+      "catchline": "Preservation of orders in electronic format; fees.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 60,
+      "sectionNumber": "183.480",
+      "catchline": "Judicial review of agency orders.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 61,
+      "sectionNumber": "183.482",
+      "catchline": "Jurisdiction for review of contested cases; procedure; scope of court authority.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 62,
+      "sectionNumber": "183.484",
+      "catchline": "Jurisdiction for review of orders other than contested cases; procedure; scope of court authority.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 63,
+      "sectionNumber": "183.485",
+      "catchline": "Decision of court on review of contested case.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 64,
+      "sectionNumber": "183.486",
+      "catchline": "Form and scope of decision of reviewing court.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 65,
+      "sectionNumber": "183.490",
+      "catchline": "Agency may be compelled to act.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 66,
+      "sectionNumber": "183.495",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 67,
+      "sectionNumber": "183.497",
+      "catchline": "Awarding costs and attorney fees when finding for petitioner.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 68,
+      "sectionNumber": "183.500",
+      "catchline": "Appeals.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 69,
+      "sectionNumber": "183.502",
+      "catchline": "Authority of agencies to use alternative means of dispute resolution; model rules; amendment of agreements and forms; agency alternative dispute resolution programs.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 70,
+      "sectionNumber": "183.510",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 71,
+      "sectionNumber": "183.530",
+      "catchline": "Housing cost impact statement required for certain proposed rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 72,
+      "sectionNumber": "183.534",
+      "catchline": "Housing cost impact statement described; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 73,
+      "sectionNumber": "183.538",
+      "catchline": "Effect of failure to prepare housing cost impact statement; judicial review.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 74,
+      "sectionNumber": "183.540",
+      "catchline": "Reduction of economic impact on small business.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 75,
+      "sectionNumber": "183.545",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 76,
+      "sectionNumber": "183.550",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 77,
+      "sectionNumber": "183.560",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "183.700"
+    },
+    {
+      "ordinal": 78,
+      "sectionNumber": "183.562",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "183.702"
+    },
+    {
+      "ordinal": 79,
+      "sectionNumber": "183.600",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 80,
+      "sectionNumber": "183.605",
+      "catchline": "Office of Administrative Hearings.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 81,
+      "sectionNumber": "183.610",
+      "catchline": "Chief administrative law judge.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 82,
+      "sectionNumber": "183.615",
+      "catchline": "Administrative law judges; duties; qualifications; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 83,
+      "sectionNumber": "183.620",
+      "catchline": "Contract administrative law judges.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 84,
+      "sectionNumber": "183.625",
+      "catchline": "Assignment of administrative law judges; conduct of hearings.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 85,
+      "sectionNumber": "183.630",
+      "catchline": "Model rules of procedure; exemptions; depositions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 86,
+      "sectionNumber": "183.635",
+      "catchline": "Agencies required to use administrative law judges from Office of Administrative Hearings; exceptions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 87,
+      "sectionNumber": "183.640",
+      "catchline": "Use of Office of Administrative Hearings by exempt agencies and by political subdivisions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 88,
+      "sectionNumber": "183.645",
+      "catchline": "Request for change of administrative law judge; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 89,
+      "sectionNumber": "183.650",
+      "catchline": "Form of order; modification of form of order by agency; finding of historical fact.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 90,
+      "sectionNumber": "183.655",
+      "catchline": "Fees.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 91,
+      "sectionNumber": "183.660",
+      "catchline": "Office of Administrative Hearings Operating Account.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 92,
+      "sectionNumber": "183.665",
+      "catchline": "Estimates of office expenses.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 93,
+      "sectionNumber": "183.670",
+      "catchline": "Rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 94,
+      "sectionNumber": "183.675",
+      "catchline": "Alternative dispute resolution.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 95,
+      "sectionNumber": "183.680",
+      "catchline": "Standards and training program.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 96,
+      "sectionNumber": "183.685",
+      "catchline": "Ex parte communications.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 97,
+      "sectionNumber": "183.690",
+      "catchline": "Office of Administrative Hearings Oversight Committee.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 98,
+      "sectionNumber": "183.700",
+      "catchline": "Permits subject to ORS 183.702.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 99,
+      "sectionNumber": "183.702",
+      "catchline": "Statement of criteria and procedures for evaluating permit application; documentation of decision on application; required signature.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 100,
+      "sectionNumber": "183.705",
+      "catchline": "Extended term for renewed licenses; fees; continuing education; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 101,
+      "sectionNumber": "183.710",
+      "catchline": "Definitions for ORS 183.710 to 183.730.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 102,
+      "sectionNumber": "183.715",
+      "catchline": "Submission of adopted rule to Legislative Counsel required.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 103,
+      "sectionNumber": "183.720",
+      "catchline": "Procedure for review of agency rule; reports on rules claimed to be duplicative or conflicting.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 104,
+      "sectionNumber": "183.722",
+      "catchline": "Required agency response to Legislative Counsel determination; consideration of determination by interim committee.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 105,
+      "sectionNumber": "183.724",
+      "catchline": "Designation of interim committees for purposes of considering rule reports.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 106,
+      "sectionNumber": "183.725",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 107,
+      "sectionNumber": "183.730",
+      "catchline": "Review of rule by Oregon Sunshine Committee.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 108,
+      "sectionNumber": "183.745",
+      "catchline": "Civil penalty procedures; notice; hearing; judicial review; exemptions; recording; enforcement.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 109,
+      "sectionNumber": "183.750",
+      "catchline": "State agency required to prepare public writings in readable form.",
+      "status": "operative"
+    }
+  ],
+  "expectedSectionNotes": {
+    "note": "Not yet a structured per-note ground truth (SCHEMA.md's ors_section_note rows) -- note-level cataloguing was not attempted for this chapter, consistent with chapter 105's review; this increment still needs to design the note-level comparison before that work is worth doing for any chapter."
+  }
+}

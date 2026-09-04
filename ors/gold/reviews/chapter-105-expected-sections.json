@@ -1,0 +1,1675 @@
+{
+  "schemaVersion": 1,
+  "corpusType": "ors-gold-expected-sections",
+  "chapterNumber": "105",
+  "chapterName": "Property Rights",
+  "editionYear": 2025,
+  "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors105.html",
+  "sourceSha256": "d5834eb1ce365c84d7c2d6a75eacf8268fae25f0493ff1ec81ffe02872aead7b",
+  "reviewBasis": "Read directly from the frozen source's own plain text (markup stripped with no section-segmentation logic applied) and cross-checked against the raw HTML markup. Given this chapter's size (251 sections, 6x chapter 12's pilot), catchlines were extracted with a small auditable script that pulls every <b>...</b> run in the frozen source matching a bare section-number-plus-heading pattern (the same bold-run convention confirmed for chapter 12), independent of parse_ors_chapter.py -- the script performs no amendment or note parsing, only bold-run extraction. Every one of the resulting 217 operative catchlines was cross-checked against the chapter's own printed table of contents (217/217 matched, zero extra, zero missing). The remaining 34 sections omitted from both the table of contents and the bold-run extraction were found by a second independent script pass over the body text for bare section numbers immediately followed by a bracketed legislative-history citation (the same '[Repealed by ...]' / '[... renumbered ...]' convention manually confirmed for chapter 12's three stubs), then manually inspected in context to confirm each is a genuine repealed or renumbered stub rather than a missed catchline.",
+  "reviewSources": [
+    "ors/gold/reviews/source-staging-provenance.json (frozen bytes, chapter 105 entry)"
+  ],
+  "methodology": {
+    "expectedRowsEstablishedFromParserOutput": false,
+    "tableOfContentsCrossChecked": true,
+    "everyGapBetweenConsecutiveTocEntriesInspected": true,
+    "catchlineExtractionMethod": "auditable script over raw <b> markup, not parse_ors_chapter.py",
+    "stubDetectionMethod": "auditable script matching bare section number + bracketed legislative-history citation, manually inspected"
+  },
+  "subdivisions": [
+    {
+      "name": "ACTIONS FOR RECOVERY OF REAL PROPERTY",
+      "firstSectionNumber": "105.005",
+      "lastSectionNumber": "105.080"
+    },
+    {
+      "name": "FORCIBLE ENTRY AND WRONGFUL DETAINER",
+      "firstSectionNumber": "105.100",
+      "lastSectionNumber": "105.168"
+    },
+    {
+      "name": "EASEMENT OWNER OBLIGATIONS",
+      "firstSectionNumber": "105.170",
+      "lastSectionNumber": "105.185"
+    },
+    {
+      "name": "MODIFICATION OF LEASE TERMS",
+      "firstSectionNumber": "105.190",
+      "lastSectionNumber": "105.190"
+    },
+    {
+      "name": "ENCUMBRANCES",
+      "firstSectionNumber": "105.200",
+      "lastSectionNumber": "105.200"
+    },
+    {
+      "name": "PARTITION",
+      "firstSectionNumber": "105.205",
+      "lastSectionNumber": "105.405"
+    },
+    {
+      "name": "HOUSING RECEIVERSHIP",
+      "firstSectionNumber": "105.420",
+      "lastSectionNumber": "105.455"
+    },
+    {
+      "name": "SELLER’S PROPERTY DISCLOSURE STATEMENT",
+      "firstSectionNumber": "105.462",
+      "lastSectionNumber": "105.490"
+    },
+    {
+      "name": "ACTIONS AND SUITS FOR NUISANCES",
+      "firstSectionNumber": "105.505",
+      "lastSectionNumber": "105.530"
+    },
+    {
+      "name": "ABATEMENT OF NUISANCE ACTIVITIES OR CONDITIONS",
+      "firstSectionNumber": "105.550",
+      "lastSectionNumber": "105.600"
+    },
+    {
+      "name": "SUITS TO QUIET TITLE AND REMOVE CLOUD",
+      "firstSectionNumber": "105.605",
+      "lastSectionNumber": "105.620"
+    },
+    {
+      "name": "UNIFORM DISCLAIMER OF PROPERTY INTERESTS",
+      "firstSectionNumber": "105.623",
+      "lastSectionNumber": "105.665"
+    },
+    {
+      "name": "PUBLIC USE OF LANDS",
+      "firstSectionNumber": "105.668",
+      "lastSectionNumber": "105.700"
+    },
+    {
+      "name": "ACTION TO ESTABLISH BOUNDARY",
+      "firstSectionNumber": "105.705",
+      "lastSectionNumber": "105.725"
+    },
+    {
+      "name": "ACTIONS BASED ON CHANGE OF GRADE",
+      "firstSectionNumber": "105.755",
+      "lastSectionNumber": "105.760"
+    },
+    {
+      "name": "EXTINGUISHMENT OF FUTURE INTERESTS",
+      "firstSectionNumber": "105.770",
+      "lastSectionNumber": "105.774"
+    },
+    {
+      "name": "SUBSTANTIAL DAMAGE FROM FLOODING TO RESIDENTIAL STRUCTURES",
+      "firstSectionNumber": "105.780",
+      "lastSectionNumber": "105.780"
+    },
+    {
+      "name": "MISCELLANEOUS ACTIONS",
+      "firstSectionNumber": "105.805",
+      "lastSectionNumber": "105.835"
+    },
+    {
+      "name": "CARBON MONOXIDE ALARMS IN DWELLINGS",
+      "firstSectionNumber": "105.836",
+      "lastSectionNumber": "105.844"
+    },
+    {
+      "name": "RADON HAZARDS AND METHODS FOR TESTING AND MITIGATION",
+      "firstSectionNumber": "105.848",
+      "lastSectionNumber": "105.848"
+    },
+    {
+      "name": "ACTION FOR REDUCED COMMERCIAL PROPERTY VALUE RESULTING FROM STREET USE RESTRICTION",
+      "firstSectionNumber": "105.850",
+      "lastSectionNumber": "105.870"
+    },
+    {
+      "name": "SOLAR ENERGY EASEMENTS",
+      "firstSectionNumber": "105.880",
+      "lastSectionNumber": "105.895"
+    },
+    {
+      "name": "WIND ENERGY EASEMENTS",
+      "firstSectionNumber": "105.900",
+      "lastSectionNumber": "105.915"
+    },
+    {
+      "name": "PERSONAL PROPERTY RIGHTS",
+      "firstSectionNumber": "105.920",
+      "lastSectionNumber": "105.920"
+    },
+    {
+      "name": "MOTOR VEHICLE EVENT DATA RECORDERS",
+      "firstSectionNumber": "105.925",
+      "lastSectionNumber": "105.945"
+    },
+    {
+      "name": "RULE AGAINST PERPETUITIES",
+      "firstSectionNumber": "105.950",
+      "lastSectionNumber": "105.975"
+    },
+    {
+      "name": "XERISCAPING COMMERCIAL OR INDUSTRIAL PROPERTY",
+      "firstSectionNumber": "105.980",
+      "lastSectionNumber": "105.980"
+    }
+  ],
+  "expectedSectionCount": 251,
+  "expectedSectionCountByStatus": {
+    "operative": 217,
+    "repealed": 33,
+    "renumbered": 1
+  },
+  "expectedSections": [
+    {
+      "ordinal": 1,
+      "sectionNumber": "105.005",
+      "catchline": "Right of action; recovery; damages.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 2,
+      "sectionNumber": "105.010",
+      "catchline": "Contents of complaint.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 3,
+      "sectionNumber": "105.015",
+      "catchline": "Answer.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 4,
+      "sectionNumber": "105.020",
+      "catchline": "Substitution of landlord for tenant.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 5,
+      "sectionNumber": "105.025",
+      "catchline": "Verdict.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 6,
+      "sectionNumber": "105.030",
+      "catchline": "Damages for withholding; setoff for improvements.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 7,
+      "sectionNumber": "105.035",
+      "catchline": "Judgment when plaintiff’s right to possession expires.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 8,
+      "sectionNumber": "105.040",
+      "catchline": "Order to make survey.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 9,
+      "sectionNumber": "105.045",
+      "catchline": "Action not prejudiced by alienation by person in possession.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 10,
+      "sectionNumber": "105.050",
+      "catchline": "Cotenant shall prove ouster.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 11,
+      "sectionNumber": "105.055",
+      "catchline": "Conclusiveness of judgment.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 12,
+      "sectionNumber": "105.060",
+      "catchline": "Effect of new trial on plaintiff’s possession.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 13,
+      "sectionNumber": "105.065",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 14,
+      "sectionNumber": "105.070",
+      "catchline": "Rights of donee under Donation Law.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 15,
+      "sectionNumber": "105.075",
+      "catchline": "Notice to quit; action to recover possession not affected by forcible entry or wrongful detainer.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 16,
+      "sectionNumber": "105.080",
+      "catchline": "Reimbursement of tenants in common obtaining possession; lien.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 17,
+      "sectionNumber": "105.100",
+      "catchline": "Definition of “attorney.”",
+      "status": "operative"
+    },
+    {
+      "ordinal": 18,
+      "sectionNumber": "105.105",
+      "catchline": "Entry to be lawful and peaceable only.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 19,
+      "sectionNumber": "105.110",
+      "catchline": "Action for forcible entry or wrongful detainer.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 20,
+      "sectionNumber": "105.111",
+      "catchline": "Stay of eviction for state service member.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 21,
+      "sectionNumber": "105.112",
+      "catchline": "Action by tenant to recover personal property; forms.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 22,
+      "sectionNumber": "105.113",
+      "catchline": "Form of summons.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 23,
+      "sectionNumber": "105.115",
+      "catchline": "Causes of unlawful holding by force; action for return of possession.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 24,
+      "sectionNumber": "105.117",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "91.122"
+    },
+    {
+      "ordinal": 25,
+      "sectionNumber": "105.120",
+      "catchline": "Notice necessary to maintain action in certain cases; waiver of notice; effect of advance payments of rent.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 26,
+      "sectionNumber": "105.121",
+      "catchline": "Forms in action for possession of group recovery home; limitation on issues; attorney fees.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 27,
+      "sectionNumber": "105.123",
+      "catchline": "Complaint.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 28,
+      "sectionNumber": "105.124",
+      "catchline": "Form of complaint if ORS chapter 90 applies.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 29,
+      "sectionNumber": "105.125",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 30,
+      "sectionNumber": "105.126",
+      "catchline": "Form of complaint if ORS chapter 90 does not apply.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 31,
+      "sectionNumber": "105.128",
+      "catchline": "Landlord action to remove perpetrator of domestic violence, sexual assault or stalking from possession of dwelling unit; retention of possession by victim.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 32,
+      "sectionNumber": "105.130",
+      "catchline": "How action conducted; fees.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 33,
+      "sectionNumber": "105.132",
+      "catchline": "Assertion of counterclaim.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 34,
+      "sectionNumber": "105.135",
+      "catchline": "Service and return of summons; posting; contents; use of facsimile.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 35,
+      "sectionNumber": "105.136",
+      "catchline": "Form of notice to tenants regarding rental and eviction assistance.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 36,
+      "sectionNumber": "105.137",
+      "catchline": "Effect of failure of party to appear; attorney fees; judgment of dismissal; scheduling of trial; unrepresented defendant.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 37,
+      "sectionNumber": "105.138",
+      "catchline": "Compelling arbitration; procedure.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 38,
+      "sectionNumber": "105.139",
+      "catchline": "Burden of proof in certain cases.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 39,
+      "sectionNumber": "105.140",
+      "catchline": "Continuance.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 40,
+      "sectionNumber": "105.145",
+      "catchline": "Judgment on trial by court; duties of parties to stipulated agreement.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 41,
+      "sectionNumber": "105.146",
+      "catchline": "Failure of defendant to perform as ordered; judgment of restitution.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 42,
+      "sectionNumber": "105.147",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 43,
+      "sectionNumber": "105.148",
+      "catchline": "Contesting plaintiff’s affidavit or declaration of noncompliance; ex parte review of hearing request; delaying execution upon judgment of restitution.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 44,
+      "sectionNumber": "105.149",
+      "catchline": "Hearing on compliance with order.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 45,
+      "sectionNumber": "105.150",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 46,
+      "sectionNumber": "105.151",
+      "catchline": "Enforcement of judgment of restitution; notice of restitution.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 47,
+      "sectionNumber": "105.152",
+      "catchline": "Form of notice of restitution for judgment entered under ORS 105.146.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 48,
+      "sectionNumber": "105.153",
+      "catchline": "Form of notice of restitution for judgment not entered under ORS 105.146.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 49,
+      "sectionNumber": "105.154",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 50,
+      "sectionNumber": "105.155",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 51,
+      "sectionNumber": "105.156",
+      "catchline": "Form of writ of execution for judgment of restitution.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 52,
+      "sectionNumber": "105.157",
+      "catchline": "Form of eviction trespass notice.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 53,
+      "sectionNumber": "105.158",
+      "catchline": "Service of notice of restitution.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 54,
+      "sectionNumber": "105.159",
+      "catchline": "Computation of time before plaintiff may request writ of execution.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 55,
+      "sectionNumber": "105.160",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 56,
+      "sectionNumber": "105.161",
+      "catchline": "Service and enforcement of writ of execution and eviction trespass notice.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 57,
+      "sectionNumber": "105.163",
+      "catchline": "Setting aside judgment upon motion of tenant.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 58,
+      "sectionNumber": "105.164",
+      "catchline": "Setting aside old judgments by courts.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 59,
+      "sectionNumber": "105.165",
+      "catchline": "Alternative method of removing, storing and disposing of tenant’s personal property; requirements; landlord liability.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 60,
+      "sectionNumber": "105.168",
+      "catchline": "Minor as party in proceedings pertaining to residential dwellings.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 61,
+      "sectionNumber": "105.170",
+      "catchline": "Definitions for ORS 105.170 to 105.185.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 62,
+      "sectionNumber": "105.175",
+      "catchline": "Easement to be kept in repair; sharing costs; agreements.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 63,
+      "sectionNumber": "105.180",
+      "catchline": "Action for failure to comply with duty of holder; recovery of costs; arbitration.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 64,
+      "sectionNumber": "105.185",
+      "catchline": "Application of ORS 105.170 to 105.185.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 65,
+      "sectionNumber": "105.190",
+      "catchline": "Covenant of good faith and fair dealing; rights and obligations of parties.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 66,
+      "sectionNumber": "105.200",
+      "catchline": "Request for itemized statement.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 67,
+      "sectionNumber": "105.205",
+      "catchline": "Who may maintain partition.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 68,
+      "sectionNumber": "105.210",
+      "catchline": "When and how partition prevented.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 69,
+      "sectionNumber": "105.215",
+      "catchline": "Complaint.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 70,
+      "sectionNumber": "105.220",
+      "catchline": "Tenants and lien creditors as defendants; liens on undivided interests.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 71,
+      "sectionNumber": "105.225",
+      "catchline": "Summons; to whom directed.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 72,
+      "sectionNumber": "105.230",
+      "catchline": "Service by publication.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 73,
+      "sectionNumber": "105.235",
+      "catchline": "Answer.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 74,
+      "sectionNumber": "105.240",
+      "catchline": "Rights determinable; ascertainment of title where defendant defaults or sale is necessary.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 75,
+      "sectionNumber": "105.245",
+      "catchline": "Sale or partition ordered by court.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 76,
+      "sectionNumber": "105.250",
+      "catchline": "Compensation when partition cannot be made without prejudice to party’s interest.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 77,
+      "sectionNumber": "105.255",
+      "catchline": "How referees make partition; report.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 78,
+      "sectionNumber": "105.260",
+      "catchline": "Power of court over report; final judgment.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 79,
+      "sectionNumber": "105.265",
+      "catchline": "Persons not affected by judgment.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 80,
+      "sectionNumber": "105.270",
+      "catchline": "Order of sale on referees’ report.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 81,
+      "sectionNumber": "105.275",
+      "catchline": "Conclusiveness of order confirming report.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 82,
+      "sectionNumber": "105.280",
+      "catchline": "How sale made; notice of sale.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 83,
+      "sectionNumber": "105.285",
+      "catchline": "Distribution of proceeds of sale.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 84,
+      "sectionNumber": "105.290",
+      "catchline": "Distribution of proceeds by referee or payment into court.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 85,
+      "sectionNumber": "105.295",
+      "catchline": "Continuance of suit after proceeds paid into court.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 86,
+      "sectionNumber": "105.300",
+      "catchline": "When lienholder has other securities.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 87,
+      "sectionNumber": "105.305",
+      "catchline": "Credit allowed.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 88,
+      "sectionNumber": "105.310",
+      "catchline": "Setting off estate for life or years in part not sold.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 89,
+      "sectionNumber": "105.315",
+      "catchline": "Disposition of life estate or leasehold.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 90,
+      "sectionNumber": "105.320",
+      "catchline": "Compensation of tenants in case of sale.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 91,
+      "sectionNumber": "105.325",
+      "catchline": "When court determines value of tenancy.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 92,
+      "sectionNumber": "105.330",
+      "catchline": "Rules for determining value of certain estates.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 93,
+      "sectionNumber": "105.335",
+      "catchline": "Protection of unknown tenants.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 94,
+      "sectionNumber": "105.340",
+      "catchline": "Provision for future rights or interests.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 95,
+      "sectionNumber": "105.345",
+      "catchline": "Notice of terms of sale; separate sale of distinct parcels.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 96,
+      "sectionNumber": "105.350",
+      "catchline": "Purchase by referee, conservator or guardian forbidden.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 97,
+      "sectionNumber": "105.355",
+      "catchline": "Report of sale.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 98,
+      "sectionNumber": "105.360",
+      "catchline": "Exception to report; confirmation of sale; order of confirmation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 99,
+      "sectionNumber": "105.365",
+      "catchline": "Purchase by encumbrancer or party entitled to share.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 100,
+      "sectionNumber": "105.370",
+      "catchline": "Investment of proceeds for certain parties.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 101,
+      "sectionNumber": "105.375",
+      "catchline": "In whose name securities taken or investments made.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 102,
+      "sectionNumber": "105.380",
+      "catchline": "When securities are payable to parties.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 103,
+      "sectionNumber": "105.385",
+      "catchline": "Clerk’s treatment of securities and investments.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 104,
+      "sectionNumber": "105.390",
+      "catchline": "When proceeds paid to conservator or guardian of infant.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 105,
+      "sectionNumber": "105.395",
+      "catchline": "Payment of proceeds to conservator of incapacitated person.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 106,
+      "sectionNumber": "105.400",
+      "catchline": "When conservator or guardian may consent to partition.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 107,
+      "sectionNumber": "105.405",
+      "catchline": "Costs and expenses of partition.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 108,
+      "sectionNumber": "105.420",
+      "catchline": "Findings; policy.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 109,
+      "sectionNumber": "105.425",
+      "catchline": "Definitions for ORS 105.420 to 105.455.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 110,
+      "sectionNumber": "105.430",
+      "catchline": "Receivership for buildings that constitute threat to public health, safety or welfare; procedure.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 111,
+      "sectionNumber": "105.435",
+      "catchline": "Authority of receiver; financing agreements; fee; abatement work exempt from public contracting law.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 112,
+      "sectionNumber": "105.440",
+      "catchline": "Report of abatement expenditures; court approval; lien.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 113,
+      "sectionNumber": "105.445",
+      "catchline": "Effect on purchase money security interest of lien for unpaid abatement expenses.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 114,
+      "sectionNumber": "105.450",
+      "catchline": "Termination of receivership.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 115,
+      "sectionNumber": "105.452",
+      "catchline": "Applicability of Oregon Receivership Code.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 116,
+      "sectionNumber": "105.455",
+      "catchline": "Short title.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 117,
+      "sectionNumber": "105.462",
+      "catchline": "Definitions for ORS 105.462 to 105.490.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 118,
+      "sectionNumber": "105.463",
+      "catchline": "Preemptive effect of ORS 105.464.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 119,
+      "sectionNumber": "105.464",
+      "catchline": "Form of seller’s property disclosure statement.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 120,
+      "sectionNumber": "105.465",
+      "catchline": "Application of ORS 105.462 to 105.490, 696.301 and 696.870; disclosure statement.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 121,
+      "sectionNumber": "105.470",
+      "catchline": "Exclusions from ORS 105.462 to 105.490, 696.301 and 696.870.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 122,
+      "sectionNumber": "105.475",
+      "catchline": "Buyer’s statement of revocation of offer; criteria.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 123,
+      "sectionNumber": "105.480",
+      "catchline": "Representations in disclosure statement; application.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 124,
+      "sectionNumber": "105.485",
+      "catchline": "Allocation of burden of proof.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 125,
+      "sectionNumber": "105.490",
+      "catchline": "Effect of ORS 105.462 to 105.490, 696.301 and 696.870 on rights and remedies.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 126,
+      "sectionNumber": "105.505",
+      "catchline": "Remedies available for private nuisance.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 127,
+      "sectionNumber": "105.510",
+      "catchline": "Procedure for abating a nuisance.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 128,
+      "sectionNumber": "105.515",
+      "catchline": "Stay of issuance of warrant to abate.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 129,
+      "sectionNumber": "105.520",
+      "catchline": "Justification of sureties; proceedings when nuisance is not abated.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 130,
+      "sectionNumber": "105.525",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 131,
+      "sectionNumber": "105.530",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 132,
+      "sectionNumber": "105.550",
+      "catchline": "Definitions for ORS 105.550 to 105.600.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 133,
+      "sectionNumber": "105.555",
+      "catchline": "Places declared nuisances subject to abatement.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 134,
+      "sectionNumber": "105.560",
+      "catchline": "Action to restrain or enjoin nuisance; jurisdiction; remedies.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 135,
+      "sectionNumber": "105.565",
+      "catchline": "Complaint; service; jury trial; admissibility of reputation as evidence.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 136,
+      "sectionNumber": "105.570",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 137,
+      "sectionNumber": "105.575",
+      "catchline": "Precedence of action on court docket.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 138,
+      "sectionNumber": "105.580",
+      "catchline": "Order of abatement; cancellation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 139,
+      "sectionNumber": "105.585",
+      "catchline": "Costs of securing or decontaminating property as lien; priority of lien; filing notice of pendency.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 140,
+      "sectionNumber": "105.590",
+      "catchline": "Penalty for intentional violation of restraining order.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 141,
+      "sectionNumber": "105.595",
+      "catchline": "Action to abate nuisance not to affect other remedies; exception.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 142,
+      "sectionNumber": "105.597",
+      "catchline": "Places declared nuisances per se.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 143,
+      "sectionNumber": "105.600",
+      "catchline": "ORS 105.550 to 105.600 not to limit authority of cities or counties to further restrict activities.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 144,
+      "sectionNumber": "105.605",
+      "catchline": "Suits to determine adverse claims.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 145,
+      "sectionNumber": "105.610",
+      "catchline": "Suit to cancel patent of donee under Donation Law.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 146,
+      "sectionNumber": "105.615",
+      "catchline": "Action by tenant in common against cotenants.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 147,
+      "sectionNumber": "105.618",
+      "catchline": "Adverse possession of railroad property.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 148,
+      "sectionNumber": "105.620",
+      "catchline": "Acquiring title by adverse possession.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 149,
+      "sectionNumber": "105.623",
+      "catchline": "Short title.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 150,
+      "sectionNumber": "105.624",
+      "catchline": "Definitions for ORS 105.623 to 105.649.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 151,
+      "sectionNumber": "105.625",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 152,
+      "sectionNumber": "105.626",
+      "catchline": "Scope.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 153,
+      "sectionNumber": "105.627",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 154,
+      "sectionNumber": "105.628",
+      "catchline": "Effect on other law.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 155,
+      "sectionNumber": "105.629",
+      "catchline": "Power to disclaim; general requirements; when irrevocable.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 156,
+      "sectionNumber": "105.630",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 157,
+      "sectionNumber": "105.632",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 158,
+      "sectionNumber": "105.633",
+      "catchline": "Disclaimer of interest in property.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 159,
+      "sectionNumber": "105.634",
+      "catchline": "Disclaimer of rights of survivorship in jointly held property.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 160,
+      "sectionNumber": "105.635",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 161,
+      "sectionNumber": "105.636",
+      "catchline": "Disclaimer of interest by trustee.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 162,
+      "sectionNumber": "105.637",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 163,
+      "sectionNumber": "105.638",
+      "catchline": "Disclaimer of power of appointment or other power not held in fiduciary capacity.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 164,
+      "sectionNumber": "105.639",
+      "catchline": "Disclaimer by appointee, object or taker in default of exercise of power of appointment.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 165,
+      "sectionNumber": "105.640",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 166,
+      "sectionNumber": "105.641",
+      "catchline": "Disclaimer of power held in fiduciary capacity.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 167,
+      "sectionNumber": "105.642",
+      "catchline": "Delivery or filing.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 168,
+      "sectionNumber": "105.643",
+      "catchline": "When disclaimer barred or limited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 169,
+      "sectionNumber": "105.645",
+      "catchline": "Tax qualified disclaimer.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 170,
+      "sectionNumber": "105.646",
+      "catchline": "Recording of disclaimer.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 171,
+      "sectionNumber": "105.647",
+      "catchline": "Application to existing relationships.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 172,
+      "sectionNumber": "105.648",
+      "catchline": "Effect on recovery of money or property under ORS 411.620.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 173,
+      "sectionNumber": "105.649",
+      "catchline": "Uniformity of application and construction.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 174,
+      "sectionNumber": "105.655",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 175,
+      "sectionNumber": "105.660",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 176,
+      "sectionNumber": "105.665",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 177,
+      "sectionNumber": "105.668",
+      "catchline": "Immunity from liability for injury or property damage arising from use of trail or structures in public easement or right of way.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 178,
+      "sectionNumber": "105.670",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 179,
+      "sectionNumber": "105.672",
+      "catchline": "Definitions for ORS 105.672 to 105.696.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 180,
+      "sectionNumber": "105.675",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 181,
+      "sectionNumber": "105.676",
+      "catchline": "Public policy.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 182,
+      "sectionNumber": "105.677",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 183,
+      "sectionNumber": "105.680",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 184,
+      "sectionNumber": "105.682",
+      "catchline": "Liabilities of owner of land used by public for recreational purposes, gardening, woodcutting or harvest of special forest products.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 185,
+      "sectionNumber": "105.685",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 186,
+      "sectionNumber": "105.687",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 187,
+      "sectionNumber": "105.688",
+      "catchline": "Applicability of immunities from liability for owner of land; restrictions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 188,
+      "sectionNumber": "105.689",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 189,
+      "sectionNumber": "105.691",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 190,
+      "sectionNumber": "105.692",
+      "catchline": "Right to continued use of land following permitted use; presumption of dedication or other rights.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 191,
+      "sectionNumber": "105.693",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 192,
+      "sectionNumber": "105.695",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 193,
+      "sectionNumber": "105.696",
+      "catchline": "Duty of care or liability not created; exercise of care required of person using land.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 194,
+      "sectionNumber": "105.697",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 195,
+      "sectionNumber": "105.699",
+      "catchline": "Rules applicable to state lands.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 196,
+      "sectionNumber": "105.700",
+      "catchline": "Prohibiting public access to private land; notice requirements; damages.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 197,
+      "sectionNumber": "105.705",
+      "catchline": "Right to bring action; filing of judgment.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 198,
+      "sectionNumber": "105.710",
+      "catchline": "Pleadings.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 199,
+      "sectionNumber": "105.715",
+      "catchline": "Mode of proceeding.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 200,
+      "sectionNumber": "105.718",
+      "catchline": "Procedure for determining location of public land survey corner.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 201,
+      "sectionNumber": "105.720",
+      "catchline": "Oath and report of commissioners.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 202,
+      "sectionNumber": "105.725",
+      "catchline": "Proceedings on motion to confirm report.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 203,
+      "sectionNumber": "105.755",
+      "catchline": "State liability for damages resulting from change of grade of roads other than city streets; proceedings on cause of action; limitation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 204,
+      "sectionNumber": "105.760",
+      "catchline": "State or county liability for damages resulting from change of grade of streets; proceedings on cause of action.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 205,
+      "sectionNumber": "105.770",
+      "catchline": "Failure of contingency; application of extinguishment.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 206,
+      "sectionNumber": "105.772",
+      "catchline": "Preservation of future interests; filing of notice of intent required; limitation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 207,
+      "sectionNumber": "105.774",
+      "catchline": "Exclusions from application of ORS 105.770 and 105.772.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 208,
+      "sectionNumber": "105.780",
+      "catchline": "Notice of substantial damage from flooding to residential structures.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 209,
+      "sectionNumber": "105.805",
+      "catchline": "Action for waste.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 210,
+      "sectionNumber": "105.810",
+      "catchline": "Treble damages for injury to or removal of produce, trees or shrubs; costs and attorney fees; limitation on liability of contract logger.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 211,
+      "sectionNumber": "105.815",
+      "catchline": "When double damages are awarded for trespass; exception.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 212,
+      "sectionNumber": "105.820",
+      "catchline": "Remedy of tenants in common.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 213,
+      "sectionNumber": "105.825",
+      "catchline": "Action for injury to inheritance.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 214,
+      "sectionNumber": "105.830",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 215,
+      "sectionNumber": "105.831",
+      "catchline": "Damages for injury to mining claim.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 216,
+      "sectionNumber": "105.834",
+      "catchline": "Owner’s immunity from liability for theft of metal property.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 217,
+      "sectionNumber": "105.835",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 218,
+      "sectionNumber": "105.836",
+      "catchline": "Definitions for ORS 105.836 to 105.842 and 476.725.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 219,
+      "sectionNumber": "105.838",
+      "catchline": "Carbon monoxide alarm in dwelling.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 220,
+      "sectionNumber": "105.840",
+      "catchline": "Action by purchaser for failure of seller to install carbon monoxide alarm.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 221,
+      "sectionNumber": "105.842",
+      "catchline": "Tampering with carbon monoxide alarm.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 222,
+      "sectionNumber": "105.844",
+      "catchline": "Short title.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 223,
+      "sectionNumber": "105.848",
+      "catchline": "Radon information for potential buyers of one and two family dwellings.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 224,
+      "sectionNumber": "105.850",
+      "catchline": "“Commercial property” defined for ORS 105.850 to 105.870.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 225,
+      "sectionNumber": "105.855",
+      "catchline": "Requirement to compensate commercial property owners for reduced value of property caused by street use restriction; effect of other access to property.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 226,
+      "sectionNumber": "105.860",
+      "catchline": "Cause of action against city for compensation; appeal procedure; intervention.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 227,
+      "sectionNumber": "105.865",
+      "catchline": "Apportioning compensation among property owners; termination of city liability.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 228,
+      "sectionNumber": "105.870",
+      "catchline": "Limitation on commencement of action.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 229,
+      "sectionNumber": "105.880",
+      "catchline": "Conveyance prohibiting use of solar energy systems void.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 230,
+      "sectionNumber": "105.885",
+      "catchline": "Definitions for ORS 105.885 to 105.895.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 231,
+      "sectionNumber": "105.890",
+      "catchline": "Solar energy easement appurtenant; termination.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 232,
+      "sectionNumber": "105.895",
+      "catchline": "Requirements for easement creation by instrument; recordation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 233,
+      "sectionNumber": "105.900",
+      "catchline": "“Wind energy easement” defined for ORS 105.905 and 105.910.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 234,
+      "sectionNumber": "105.905",
+      "catchline": "Wind energy easement appurtenant; termination.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 235,
+      "sectionNumber": "105.910",
+      "catchline": "Requirements for easement creation by instrument; recordation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 236,
+      "sectionNumber": "105.915",
+      "catchline": "Recording instrument creating lease or lease option of real property for wind energy conversion system; requirements.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 237,
+      "sectionNumber": "105.920",
+      "catchline": "Joint tenancy in personal property; creation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 238,
+      "sectionNumber": "105.925",
+      "catchline": "Definitions for ORS 105.925 to 105.945.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 239,
+      "sectionNumber": "105.928",
+      "catchline": "Ownership of recorded data.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 240,
+      "sectionNumber": "105.932",
+      "catchline": "Effect of vehicle ownership transfer on ownership of data; prohibited insurer and lessor actions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 241,
+      "sectionNumber": "105.935",
+      "catchline": "Court order for retrieval or use of data by law enforcement officers or certain emergency service providers.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 242,
+      "sectionNumber": "105.938",
+      "catchline": "Court order for retrieval or use of data by insurer.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 243,
+      "sectionNumber": "105.942",
+      "catchline": "Retrieval or use of data for responding to medical emergency, for medical research or for vehicle servicing or repair.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 244,
+      "sectionNumber": "105.945",
+      "catchline": "Exempted data.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 245,
+      "sectionNumber": "105.950",
+      "catchline": "Statutory rule against perpetuities.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 246,
+      "sectionNumber": "105.955",
+      "catchline": "When nonvested property interest or power of appointment created.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 247,
+      "sectionNumber": "105.960",
+      "catchline": "Reformation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 248,
+      "sectionNumber": "105.965",
+      "catchline": "Exclusions from statutory rule against perpetuities.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 249,
+      "sectionNumber": "105.970",
+      "catchline": "Prospective application.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 250,
+      "sectionNumber": "105.975",
+      "catchline": "Short title; application and construction; supersession and repeal of common law.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 251,
+      "sectionNumber": "105.980",
+      "catchline": "Xeriscaping.",
+      "status": "operative"
+    }
+  ],
+  "expectedSectionNotes": {
+    "note": "Not yet a structured per-note ground truth (SCHEMA.md's ors_section_note rows) -- note-level cataloguing (series membership, cross-reference 'see note under', quoted uncodified provisions) was not attempted for this chapter given its size; this increment still needs to design the note-level comparison before that work is worth doing for any chapter."
+  }
+}
