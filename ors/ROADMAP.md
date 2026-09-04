@@ -420,6 +420,19 @@ comparison report so the section score does not conceal the broader parser's
 certification. The 1.0 scores are the post-fix regression baseline; chapter 105
 already informed a parser fix, so these chapters are no longer an unseen test.
 
+`ors/gold/reviews/chapter-12.json` -- the separately schemaed chapter-12 review
+integrated alongside this gate -- had every one of its 49 operative catchlines
+transcribed without the trailing period the source markup actually prints (e.g.
+"Time of commencing actions" for a bold run reading "Time of commencing
+actions."). Re-extracted directly from the same frozen chapter's `<b>...</b>`
+runs used elsewhere in this increment; the parser's real output was consulted
+only afterward, as a second, independent confirmation the corrected text was
+right, not as the source of the fix. All 49 rows now match the frozen markup
+exactly. `validate_ors_gold_reviews.py` does not check catchline text against
+source bytes, so this defect passed that gate silently; it also never reached
+`gold_precision_recall.py`, which only reads `chapter-*-expected-sections.json`
+files and does not glob `chapter-12.json` at all.
+
 ## Increment 6 — edition-over-edition rebuild and pending changes
 
 - Rebuild against a new edition without destroying the previous one.
