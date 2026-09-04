@@ -109,6 +109,3 @@ jobs:
           path: ors-gold-sources/
           if-no-files-found: error
           retention-days: 90
-
-      - name: TEMP print chapter 659A for the review pilot
-        run: base64 -w 0 ors-gold-sources/ors659A.html | fold -w 100000 | nl -ba -s ' CH659ALINE '
