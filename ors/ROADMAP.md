@@ -365,7 +365,7 @@ Independent review done for all 5 of the frozen gold chapters:
   unparsed credit segments -- a clean confirmation, no parser defect found.
 
 All five frozen gold chapters are now independently reviewed: 12, 105, 183,
-471 and 659A, spanning 52 to 271 sections each (817 sections total), a
+471 and 659A, spanning 52 to 271 sections each (846 sections total), a
 century-plus of citation history (1950s to 2020s), both heavily renumbered
 and barely-touched chapters, and both `<b>`-catchline-per-TOC-entry
 conventions. Two real defects were found and fixed along the way: the
@@ -375,9 +375,25 @@ chapter-105-caught `SECTION_CATCHLINE_PATTERN` quoted-term bug in
 `ors_credits.py` gaps) was recorded rather than fixed, being outside this
 increment's own scope.
 
-Not yet done: the precision/recall tool and CI gate built against all five
-reviews, and the increment-3 credit-parsing gap chapter 471's review
-surfaced (see above).
+The precision/recall tool and CI gate are done: `ors/tools/gold_precision_recall.py`
+compares `parse_ors_chapter.py`'s real output against all five
+`ors/gold/reviews/chapter-*-expected-sections.json` files -- precision and
+recall over `(chapter, section_number)` pairs, plus exact-match rates for
+catchline, status and `renumbered_to` among the sections found in both.
+Thresholds live in a `--thresholds` JSON override rather than being
+hardcoded, set at the honestly measured baseline (1.0 on every metric,
+confirmed against all five reviews: 846/846 sections, zero false positives,
+zero false negatives, every field exact) rather than guessed in advance.
+`ors-gold-precision-recall.yml` runs the full pipeline on its own PR
+trigger and on manual dispatch: re-acquires the five frozen chapters,
+verifies the fresh bytes still match `source-staging-provenance.json`
+(refusing to measure against a drifted live page), parses them, and gates
+on the comparison. Confirmed against a real local run of the same pipeline:
+`valid: true`, precision 1.0, recall 1.0, every exact-match rate 1.0.
+
+Not yet done: the increment-3 credit-parsing gap chapter 471's review
+surfaced (see above) -- the `cor.` citation form and the missing-semicolon
+multi-citation case in `ors_credits.py`.
 
 ## Increment 6 — edition-over-edition rebuild and pending changes
 
