@@ -350,10 +350,9 @@ Independent review done for all 5 of the frozen gold chapters:
   printed back to back with no semicolon between them. None affect any
   field this review checks -- recorded in
   `ors/gold/reviews/chapter-471-expected-sections.json`'s own
-  `unrelatedFindingsDuringReview` for increment 3 follow-up, not fixed here:
-  the `cor.` form needs a schema decision this review is not positioned to
-  make, and the missing-semicolon form needs a general multi-citation
-  splitter one example does not yet justify designing.
+  `unrelatedFindingsDuringReview` for increment 3 follow-up rather than
+  fixed inline during the review itself (since resolved separately -- see
+  below).
 - Chapter 659A (163 sections, the newest and most modern of the five --
   created in 2001 by renumbering the old chapter 659): `ors/gold/reviews/chapter-659A-expected-sections.json`.
   Same method again: 160 operative catchlines cross-checked 1:1 against the
@@ -391,9 +390,26 @@ verifies the fresh bytes still match `source-staging-provenance.json`
 on the comparison. Confirmed against a real local run of the same pipeline:
 `valid: true`, precision 1.0, recall 1.0, every exact-match rate 1.0.
 
-Not yet done: the increment-3 credit-parsing gap chapter 471's review
-surfaced (see above) -- the `cor.` citation form and the missing-semicolon
-multi-citation case in `ors_credits.py`.
+The increment-3 credit-parsing gap chapter 471's review surfaced is also
+now fixed: `ors_credits.py` recognizes all four real forms --
+`cor.` (corrective-session chapters, read past like the special-session
+marker but with no schema column of its own, since Oregon Laws assigns a
+corrective chapter the next number in that year's ordinary sequence rather
+than a separate one, so it never collides on `(session_year,
+session_law_chapter)`); a second citation joined by `and by` inheriting the
+first citation's own action rather than stating one independently; a bare
+`enacted in lieu of NNN.NNN` predecessor reference (the mirror image of
+`Formerly`/`Renumbered`, given its own `enactedInLieuReferences` list
+alongside those two, the same "SCHEMA.md has no table for this yet"
+treatment); and two full citations printed back to back with no delimiter
+at all, the second's own action keyword (including the plural "Amendments
+by") the only thing separating them. Chapter 471 now parses with `valid:
+true` and zero unparsed credit segments; the precision/recall gate
+re-confirmed unaffected (still 846/846, every rate 1.0), and the gate
+workflow's own "Parse the frozen gold chapters" step -- which had to
+tolerate `parse_ors_chapter.py`'s non-zero exit while this gap stood --
+reverted to the plain, stricter form now that the underlying exit code is
+genuinely clean.
 
 The section gate permits only the four exact, section-specific credit gaps
 listed in `tools/validate_gold_parse.py`. Missing chapters, integrity violations,
