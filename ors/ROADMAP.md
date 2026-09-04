@@ -395,6 +395,15 @@ Not yet done: the increment-3 credit-parsing gap chapter 471's review
 surfaced (see above) -- the `cor.` citation form and the missing-semicolon
 multi-citation case in `ors_credits.py`.
 
+The section gate permits only the four exact, section-specific credit gaps
+listed in `tools/validate_gold_parse.py`. Missing chapters, integrity violations,
+editorial-note failures, unknown credit gaps and unexpected parser exits fail
+the workflow. The parse report, rows and source registry are retained with the
+comparison report so the section score does not conceal the broader parser's
+`valid: false` result. This is section-field coverage, not full credit or note
+certification. The 1.0 scores are the post-fix regression baseline; chapter 105
+already informed a parser fix, so these chapters are no longer an unseen test.
+
 ## Increment 6 — edition-over-edition rebuild and pending changes
 
 - Rebuild against a new edition without destroying the previous one.

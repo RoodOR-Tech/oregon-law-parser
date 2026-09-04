@@ -39,7 +39,7 @@ DEFAULT_THRESHOLDS = {
 
 
 def load_json(path):
-    return json.loads(Path(path).read_text())
+    return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
 def compare_chapter(expected_doc, actual_sections_by_number):
@@ -230,7 +230,7 @@ def main(argv=None):
         "valid": not failures,
         "failures": failures,
     }
-    Path(args.report).write_text(json.dumps(report, indent=2) + "\n")
+    Path(args.report).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"valid": report["valid"], "overall": overall, "failures": failures}, indent=2))
     return 0 if report["valid"] else 1
 
