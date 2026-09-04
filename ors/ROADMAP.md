@@ -295,9 +295,33 @@ can never be quietly built from something the parser already touched.
 `ors-gold-source-staging.yml` runs this on its own PR trigger and on manual
 dispatch; confirmed against a real dispatch run (workflow run `33570106878`):
 all 5 sources acquired, digests pinned in
-`ors/gold/reviews/source-staging-provenance.json`. Not yet done: the
-independent review producing each chapter's actual expected section rows,
-and the precision/recall tool and CI gate built against them.
+`ors/gold/reviews/source-staging-provenance.json`.
+
+Independent review done for 2 of the 5 chapters so far:
+
+- Chapter 12 (pilot, 52 sections): `ors/gold/reviews/chapter-12-expected-sections.json`.
+  Exact match against the parser's real output (52/52 sections, every status,
+  every catchline) once one review-side defect -- a missing trailing period,
+  confirmed against the raw bold markup -- was fixed in the review itself.
+- Chapter 105 (251 sections, the largest of the five): `ors/gold/reviews/chapter-105-expected-sections.json`.
+  Catchlines were extracted with a small auditable script over the frozen
+  source's own `<b>` runs (independent of `parse_ors_chapter.py`), all 217
+  operative sections cross-checked 1:1 against the chapter's own table of
+  contents, and the other 34 sections found by a second script pass matching
+  bare numbers immediately followed by a bracketed legislative-history
+  citation. This review caught a real parser bug: `SECTION_CATCHLINE_PATTERN`
+  required a catchline to open with a capital letter, so the two sections
+  whose catchlines quote the term they define -- 105.850 and 105.900, both
+  printed as `“Term” defined for ORS ...` -- matched neither the catchline
+  pattern nor the stub pattern and were silently dropped as unrecognized bold
+  runs. Fixed by widening the pattern's lookahead to also accept a leading
+  quotation mark, with a regression test
+  (`QuotedTermCatchlineTest`) reproducing the exact 105.850 markup. Re-run
+  against the fix: exact match, 251/251 sections, every status, every
+  catchline, every `renumbered_to`.
+
+Not yet done: the remaining 3 chapters (`183`, `471`, `659A`), and the
+precision/recall tool and CI gate built against all five reviews.
 
 ## Increment 6 — edition-over-edition rebuild and pending changes
 

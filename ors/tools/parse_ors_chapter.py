@@ -43,9 +43,14 @@ BOLD_OPEN_PATTERN = re.compile(r"^<\s*b\b", re.IGNORECASE)
 BOLD_CLOSE_PATTERN = re.compile(r"^<\s*/\s*b\b", re.IGNORECASE)
 
 # A section heading: number then catchline. An opening parenthesis marks a
-# wrapped subsection citation instead, so it is excluded.
+# wrapped subsection citation instead, so it is excluded. A catchline that
+# defines a term also opens by quoting that term -- 105.850's own "“Commercial
+# property” defined for ORS 105.850 to 105.870." is the real form that
+# surfaced this, confirmed against chapter 105's gold review -- so an opening
+# quotation mark is accepted here alongside a capital letter, not only the
+# capital letter of an ordinary sentence-initial catchline.
 SECTION_CATCHLINE_PATTERN = re.compile(
-    r"^(?P<number>\d{1,3}[A-Z]?\.\d{3})\s+(?=[A-Z])(?P<catchline>.*)$"
+    r"^(?P<number>\d{1,3}[A-Z]?\.\d{3})\s+(?=[A-Z“‘\"'])(?P<catchline>.*)$"
 )
 # A section printed only as a bracketed history: nothing else appears on the
 # line after the number. A keyword leading the bracket ("[Repealed by ...]")
