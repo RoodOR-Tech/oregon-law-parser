@@ -85,11 +85,19 @@ jobs:
       # non-zero exit for a different, already-documented reason is not.
       - name: Parse the frozen gold chapters
         run: |
-          set -uo pipefail
+          # GitHub Actions launches this step's shell with -e already active
+          # (bash --noprofile --norc -eo pipefail {0}), so `set +e` here is
+          # required, not optional -- `set -u -o pipefail` alone only adds
+          # flags, it does not turn errexit back off. Confirmed the hard way:
+          # a first attempt at this step used `set -uo pipefail` without
+          # `+e` and still failed on parse_ors_chapter.py's expected
+          # non-zero exit, never even reaching the check below.
+          set +e
           python3 ors/tools/parse_ors_chapter.py \
             --acquisition-report ors-gold-acquisition.json \
             --report ors-gold-parse.json \
             --rows ors-gold-rows.json
+          set -euo pipefail
           python3 -c "
           import json
           rows = json.load(open('ors-gold-rows.json'))
