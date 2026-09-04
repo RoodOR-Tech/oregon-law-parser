@@ -297,7 +297,7 @@ dispatch; confirmed against a real dispatch run (workflow run `33570106878`):
 all 5 sources acquired, digests pinned in
 `ors/gold/reviews/source-staging-provenance.json`.
 
-Independent review done for 2 of the 5 chapters so far:
+Independent review done for 3 of the 5 chapters so far:
 
 - Chapter 12 (pilot, 52 sections): `ors/gold/reviews/chapter-12-expected-sections.json`.
   Exact match against the parser's real output (52/52 sections, every status,
@@ -319,8 +319,20 @@ Independent review done for 2 of the 5 chapters so far:
   (`QuotedTermCatchlineTest`) reproducing the exact 105.850 markup. Re-run
   against the fix: exact match, 251/251 sections, every status, every
   catchline, every `renumbered_to`.
+- Chapter 183 (109 sections): `ors/gold/reviews/chapter-183-expected-sections.json`.
+  Same auditable-script method as chapter 105: 83 operative catchlines
+  extracted from the frozen source's own `<b>` runs, cross-checked 1:1
+  against the table of contents, and 26 more sections (22 repealed, 4
+  renumbered) found by the bracketed-citation script pass. Eight of those 26
+  (`183.010` through `183.090`) are historical numbers from the chapter's
+  pre-1971 numbering scheme, printed as a block before the first live section
+  rather than scattered through the chapter -- the same disused-number
+  convention as chapters 12 and 105, just concentrated at the head instead of
+  spread out. Checked against the parser's real output: exact match, 109/109
+  sections, every status, every catchline, every `renumbered_to` -- a clean
+  confirmation this time, no parser defect found.
 
-Not yet done: the remaining 3 chapters (`183`, `471`, `659A`), and the
+Not yet done: the remaining 2 chapters (`471`, `659A`), and the
 precision/recall tool and CI gate built against all five reviews.
 
 ## Increment 6 — edition-over-edition rebuild and pending changes
