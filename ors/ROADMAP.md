@@ -297,7 +297,7 @@ dispatch; confirmed against a real dispatch run (workflow run `33570106878`):
 all 5 sources acquired, digests pinned in
 `ors/gold/reviews/source-staging-provenance.json`.
 
-Independent review done for 3 of the 5 chapters so far:
+Independent review done for 4 of the 5 chapters so far:
 
 - Chapter 12 (pilot, 52 sections): `ors/gold/reviews/chapter-12-expected-sections.json`.
   Exact match against the parser's real output (52/52 sections, every status,
@@ -331,9 +331,33 @@ Independent review done for 3 of the 5 chapters so far:
   spread out. Checked against the parser's real output: exact match, 109/109
   sections, every status, every catchline, every `renumbered_to` -- a clean
   confirmation this time, no parser defect found.
+- Chapter 471 (271 sections, the most heavily renumbered of the five):
+  `ors/gold/reviews/chapter-471-expected-sections.json`. Same method again:
+  176 operative catchlines cross-checked 1:1 against the table of contents,
+  and 95 more sections (73 repealed, 22 renumbered) found by the
+  bracketed-citation pass -- classified repealed vs. renumbered, and to
+  which destination, by which keyword appears inside each section's own
+  bracket, including two sections renumbered out of chapter 471 entirely
+  into chapter 474. Checked against the parser's real output: exact match,
+  271/271 sections, every status, every catchline, every `renumbered_to`.
+  This chapter's age (citations back to the 1950s) also surfaced a
+  pre-existing gap outside this increment's own scope: `ors_credits.py`
+  (increment 3, marked done) reports 4 `unparsedCreditSegmentCount` against
+  its own zero-tolerance gate -- a `cor.` (corrective session) citation with
+  no existing schema representation, a citation joined by `and by` rather
+  than `and`, a bare predecessor reference this module does not yet
+  recognize (`enacted in lieu of 471.665 in 1997`), and two full citations
+  printed back to back with no semicolon between them. None affect any
+  field this review checks -- recorded in
+  `ors/gold/reviews/chapter-471-expected-sections.json`'s own
+  `unrelatedFindingsDuringReview` for increment 3 follow-up, not fixed here:
+  the `cor.` form needs a schema decision this review is not positioned to
+  make, and the missing-semicolon form needs a general multi-citation
+  splitter one example does not yet justify designing.
 
-Not yet done: the remaining 2 chapters (`471`, `659A`), and the
-precision/recall tool and CI gate built against all five reviews.
+Not yet done: the remaining 1 chapter (`659A`), the precision/recall tool
+and CI gate built against all five reviews, and the increment-3 credit-
+parsing gap chapter 471's review surfaced (see above).
 
 ## Increment 6 — edition-over-edition rebuild and pending changes
 
