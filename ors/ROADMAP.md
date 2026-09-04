@@ -297,7 +297,7 @@ dispatch; confirmed against a real dispatch run (workflow run `33570106878`):
 all 5 sources acquired, digests pinned in
 `ors/gold/reviews/source-staging-provenance.json`.
 
-Independent review done for 4 of the 5 chapters so far:
+Independent review done for all 5 of the frozen gold chapters:
 
 - Chapter 12 (pilot, 52 sections): `ors/gold/reviews/chapter-12-expected-sections.json`.
   Exact match against the parser's real output (52/52 sections, every status,
@@ -354,10 +354,30 @@ Independent review done for 4 of the 5 chapters so far:
   the `cor.` form needs a schema decision this review is not positioned to
   make, and the missing-semicolon form needs a general multi-citation
   splitter one example does not yet justify designing.
+- Chapter 659A (163 sections, the newest and most modern of the five --
+  created in 2001 by renumbering the old chapter 659): `ors/gold/reviews/chapter-659A-expected-sections.json`.
+  Same method again: 160 operative catchlines cross-checked 1:1 against the
+  table of contents, and only 3 more sections (2 repealed, 1 renumbered)
+  found by the bracketed-citation pass -- far fewer stubs than the older
+  chapters 105, 183 and 471, consistent with this chapter's youth. Checked
+  against the parser's real output: exact match, 163/163 sections, every
+  status, every catchline, every `renumbered_to`, `valid: true` with zero
+  unparsed credit segments -- a clean confirmation, no parser defect found.
 
-Not yet done: the remaining 1 chapter (`659A`), the precision/recall tool
-and CI gate built against all five reviews, and the increment-3 credit-
-parsing gap chapter 471's review surfaced (see above).
+All five frozen gold chapters are now independently reviewed: 12, 105, 183,
+471 and 659A, spanning 52 to 271 sections each (817 sections total), a
+century-plus of citation history (1950s to 2020s), both heavily renumbered
+and barely-touched chapters, and both `<b>`-catchline-per-TOC-entry
+conventions. Two real defects were found and fixed along the way: the
+chapter-12 pilot's own missing-trailing-period transcription error, and the
+chapter-105-caught `SECTION_CATCHLINE_PATTERN` quoted-term bug in
+`parse_ors_chapter.py` itself. One further finding (chapter 471's
+`ors_credits.py` gaps) was recorded rather than fixed, being outside this
+increment's own scope.
+
+Not yet done: the precision/recall tool and CI gate built against all five
+reviews, and the increment-3 credit-parsing gap chapter 471's review
+surfaced (see above).
 
 ## Increment 6 — edition-over-edition rebuild and pending changes
 

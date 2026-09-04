@@ -1,0 +1,1177 @@
+{
+  "schemaVersion": 1,
+  "corpusType": "ors-gold-expected-sections",
+  "chapterNumber": "659A",
+  "chapterName": "Unlawful Discrimination in Employment, Public Accommodations and Real Property Transactions; Administrative and Civil Enforcement",
+  "editionYear": 2025,
+  "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors659A.html",
+  "sourceSha256": "9ebbd735d2df8ee2f9cb0155bc135856a225394c963686709b449c7f3d66c5d7",
+  "reviewBasis": "Read directly from the frozen source's own plain text (markup stripped with no section-segmentation logic applied) and cross-checked against the raw HTML markup, using the same auditable-script method validated on chapters 105, 183 and 471: every <b>...</b> run matching a bare section-number-plus-heading pattern was extracted directly from the frozen source, independent of parse_ors_chapter.py. All 160 resulting operative catchlines were cross-checked against the chapter's own printed table of contents -- 160/160 matched, zero extra, zero missing. The remaining 3 sections omitted from the table of contents were found by a second script pass over the body text for bare section numbers immediately followed by a bracketed legislative-history citation (this being a comparatively modern chapter -- 659A was itself created in 2001 by renumbering the old chapter 659 -- far fewer stubs survive than in the older chapters 105, 183 and 471). This is the fifth and final chapter of increment 5's frozen gold selection.",
+  "reviewSources": [
+    "ors/gold/reviews/source-staging-provenance.json (frozen bytes, chapter 659A entry)"
+  ],
+  "methodology": {
+    "expectedRowsEstablishedFromParserOutput": false,
+    "tableOfContentsCrossChecked": true,
+    "everyGapBetweenConsecutiveTocEntriesInspected": true,
+    "catchlineExtractionMethod": "auditable script over raw <b> markup, not parse_ors_chapter.py",
+    "stubDetectionMethod": "auditable script matching bare section number + bracketed legislative-history citation, manually inspected"
+  },
+  "subdivisions": [
+    {
+      "name": "DEFINITIONS",
+      "firstSectionNumber": "659A.001",
+      "lastSectionNumber": "659A.001"
+    },
+    {
+      "name": "PURPOSE AND POLICY",
+      "firstSectionNumber": "659A.003",
+      "lastSectionNumber": "659A.015"
+    },
+    {
+      "name": "UNLAWFUL EMPLOYMENT DISCRIMINATION BECAUSE OF RACE, COLOR, RELIGION, SEX, SEXUAL ORIENTATION, NATIONAL ORIGIN, MARITAL STATUS OR AGE",
+      "firstSectionNumber": "659A.029",
+      "lastSectionNumber": "659A.036"
+    },
+    {
+      "name": "UNLAWFUL EMPLOYMENT DISCRIMINATION AGAINST INJURED WORKERS (Unlawful Discrimination Against Injured Workers)",
+      "firstSectionNumber": "659A.040",
+      "lastSectionNumber": "659A.052"
+    },
+    {
+      "name": "UNLAWFUL EMPLOYMENT DISCRIMINATION AGAINST INJURED WORKERS (Benefits for Injured State Workers and Covered Dependents)",
+      "firstSectionNumber": "659A.060",
+      "lastSectionNumber": "659A.069"
+    },
+    {
+      "name": "UNLAWFUL EMPLOYMENT DISCRIMINATION AND REQUIRED LEAVE RELATED TO MILITARY SERVICE (Unlawful Discrimination for Service in Uniformed Service)",
+      "firstSectionNumber": "659A.082",
+      "lastSectionNumber": "659A.082"
+    },
+    {
+      "name": "UNLAWFUL EMPLOYMENT DISCRIMINATION AND REQUIRED LEAVE RELATED TO MILITARY SERVICE (Leave of Absence for State Service)",
+      "firstSectionNumber": "659A.086",
+      "lastSectionNumber": "659A.088"
+    },
+    {
+      "name": "UNLAWFUL EMPLOYMENT DISCRIMINATION AND REQUIRED LEAVE RELATED TO MILITARY SERVICE (Notification to Director of Veterans’ Affairs)",
+      "firstSectionNumber": "659A.089",
+      "lastSectionNumber": "659A.089"
+    },
+    {
+      "name": "UNLAWFUL EMPLOYMENT DISCRIMINATION AND REQUIRED LEAVE RELATED TO MILITARY SERVICE (Oregon Military Family Leave Act)",
+      "firstSectionNumber": "659A.090",
+      "lastSectionNumber": "659A.100"
+    },
+    {
+      "name": "UNLAWFUL DISCRIMINATION AGAINST PERSONS WITH DISABILITIES",
+      "firstSectionNumber": "659A.103",
+      "lastSectionNumber": "659A.145"
+    },
+    {
+      "name": "UNLAWFUL DISCRIMINATION AND REASONABLE ACCOMMODATION RELATED TO PREGNANCY",
+      "firstSectionNumber": "659A.146",
+      "lastSectionNumber": "659A.148"
+    },
+    {
+      "name": "FAMILY LEAVE",
+      "firstSectionNumber": "659A.150",
+      "lastSectionNumber": "659A.186"
+    },
+    {
+      "name": "LEAVE TO ATTEND CRIMINAL PROCEEDING",
+      "firstSectionNumber": "659A.190",
+      "lastSectionNumber": "659A.198"
+    },
+    {
+      "name": "WHISTLEBLOWING (Disclosures by Employee of Violation of State or Federal Law)",
+      "firstSectionNumber": "659A.199",
+      "lastSectionNumber": "659A.199"
+    },
+    {
+      "name": "WHISTLEBLOWING (Disclosures by Public and Nonprofit Employees)",
+      "firstSectionNumber": "659A.200",
+      "lastSectionNumber": "659A.224"
+    },
+    {
+      "name": "WHISTLEBLOWING (Reports of Violations of Election Laws)",
+      "firstSectionNumber": "659A.228",
+      "lastSectionNumber": "659A.228"
+    },
+    {
+      "name": "WHISTLEBLOWING (Initiating or Aiding Administrative, Criminal or Civil Proceeding)",
+      "firstSectionNumber": "659A.230",
+      "lastSectionNumber": "659A.233"
+    },
+    {
+      "name": "WHISTLEBLOWING (Legislative Testimony)",
+      "firstSectionNumber": "659A.236",
+      "lastSectionNumber": "659A.236"
+    },
+    {
+      "name": "UNLAWFUL EMPLOYMENT DISCRIMINATION RELATING TO EMPLOYEE HOUSING",
+      "firstSectionNumber": "659A.250",
+      "lastSectionNumber": "659A.262"
+    },
+    {
+      "name": "PROTECTIONS BECAUSE OF DOMESTIC VIOLENCE, HARASSMENT, SEXUAL ASSAULT, BIAS OR STALKING (Leave)",
+      "firstSectionNumber": "659A.270",
+      "lastSectionNumber": "659A.285"
+    },
+    {
+      "name": "PROTECTIONS BECAUSE OF DOMESTIC VIOLENCE, HARASSMENT, SEXUAL ASSAULT, BIAS OR STALKING (Prohibited Conduct)",
+      "firstSectionNumber": "659A.290",
+      "lastSectionNumber": "659A.290"
+    },
+    {
+      "name": "MISCELLANEOUS UNLAWFUL EMPLOYMENT DISCRIMINATION (Prohibited Testing)",
+      "firstSectionNumber": "659A.300",
+      "lastSectionNumber": "659A.306"
+    },
+    {
+      "name": "MISCELLANEOUS UNLAWFUL EMPLOYMENT DISCRIMINATION (Miscellaneous Provisions)",
+      "firstSectionNumber": "659A.309",
+      "lastSectionNumber": "659A.362"
+    },
+    {
+      "name": "WORKPLACE FAIRNESS",
+      "firstSectionNumber": "659A.370",
+      "lastSectionNumber": "659A.390"
+    },
+    {
+      "name": "ACCESS TO PUBLIC ACCOMMODATIONS (Unlawful Discrimination in Public Accommodations)",
+      "firstSectionNumber": "659A.400",
+      "lastSectionNumber": "659A.410"
+    },
+    {
+      "name": "ACCESS TO PUBLIC ACCOMMODATIONS (Access to Employee Toilet Facilities)",
+      "firstSectionNumber": "659A.411",
+      "lastSectionNumber": "659A.417"
+    },
+    {
+      "name": "ACCESS TO PUBLIC ACCOMMODATIONS (Closed Captioning on Television Receivers)",
+      "firstSectionNumber": "659A.419",
+      "lastSectionNumber": "659A.420"
+    },
+    {
+      "name": "UNLAWFUL DISCRIMINATION IN REAL PROPERTY TRANSACTIONS",
+      "firstSectionNumber": "659A.421",
+      "lastSectionNumber": "659A.425"
+    },
+    {
+      "name": "UNLAWFUL DISCRIMINATION BECAUSE OF EMPLOYMENT STATUS",
+      "firstSectionNumber": "659A.550",
+      "lastSectionNumber": "659A.550"
+    },
+    {
+      "name": "ADMINISTRATIVE ACTIONS FOR UNLAWFUL DISCRIMINATION (Enforcement Powers of Bureau of Labor and Industries)",
+      "firstSectionNumber": "659A.800",
+      "lastSectionNumber": "659A.815"
+    },
+    {
+      "name": "ADMINISTRATIVE ACTIONS FOR UNLAWFUL DISCRIMINATION (Complaint, Investigation and Hearing Procedures)",
+      "firstSectionNumber": "659A.820",
+      "lastSectionNumber": "659A.865"
+    },
+    {
+      "name": "CIVIL ACTIONS FOR UNLAWFUL DISCRIMINATION",
+      "firstSectionNumber": "659A.870",
+      "lastSectionNumber": "659A.890"
+    },
+    {
+      "name": "PENALTIES",
+      "firstSectionNumber": "659A.990",
+      "lastSectionNumber": "659A.990"
+    }
+  ],
+  "expectedSectionCount": 163,
+  "expectedSectionCountByStatus": {
+    "operative": 160,
+    "repealed": 2,
+    "renumbered": 1
+  },
+  "expectedSections": [
+    {
+      "ordinal": 1,
+      "sectionNumber": "659A.001",
+      "catchline": "Definitions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 2,
+      "sectionNumber": "659A.003",
+      "catchline": "Purpose of ORS chapter 659A.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 3,
+      "sectionNumber": "659A.004",
+      "catchline": "Short title.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 4,
+      "sectionNumber": "659A.006",
+      "catchline": "Declaration of policy against unlawful discrimination; opportunity to obtain employment without unlawful discrimination recognized as a civil right; exception of religious group.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 5,
+      "sectionNumber": "659A.009",
+      "catchline": "Declaration of policy against discrimination in employment because of age.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 6,
+      "sectionNumber": "659A.012",
+      "catchline": "State agencies to carry out policy against discrimination in employment; evaluation of supervisors; affirmative action reports.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 7,
+      "sectionNumber": "659A.015",
+      "catchline": "Affirmative action reports to include information on contracts to minority businesses.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 8,
+      "sectionNumber": "659A.029",
+      "catchline": "“Because of sex” defined for ORS 659A.030.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 9,
+      "sectionNumber": "659A.030",
+      "catchline": "Discrimination because of race, color, religion, sex, sexual orientation, gender identity, national origin, marital status, age or expunged juvenile record prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 10,
+      "sectionNumber": "659A.033",
+      "catchline": "Violation of ORS 659A.030 by denying religious leave or prohibiting certain religious observances or practices; determination of reasonable accommodation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 11,
+      "sectionNumber": "659A.036",
+      "catchline": "Short title.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 12,
+      "sectionNumber": "659A.040",
+      "catchline": "Discrimination against worker applying for or inquiring about workers’ compensation benefits prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 13,
+      "sectionNumber": "659A.043",
+      "catchline": "Reinstatement of injured worker to former position; certificate evidencing ability to work; effect of collective bargaining agreement; termination of right to reinstatement; when reinstatement right terminates.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 14,
+      "sectionNumber": "659A.046",
+      "catchline": "Reemployment of injured worker in other available and suitable work; termination of right to reemployment; effect of collective bargaining agreement.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 15,
+      "sectionNumber": "659A.049",
+      "catchline": "Rights of reinstatement and reemployment protected.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 16,
+      "sectionNumber": "659A.052",
+      "catchline": "Reemployment rights of injured state workers; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 17,
+      "sectionNumber": "659A.060",
+      "catchline": "Definitions for ORS 659A.060 to 659A.069.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 18,
+      "sectionNumber": "659A.063",
+      "catchline": "State to continue group health benefits for injured worker and covered dependents; when ended.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 19,
+      "sectionNumber": "659A.066",
+      "catchline": "Worker may continue benefits after employer’s obligation ends.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 20,
+      "sectionNumber": "659A.069",
+      "catchline": "Discrimination against state worker applying for benefits under ORS 659A.060 to 659A.069 prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 21,
+      "sectionNumber": "659A.082",
+      "catchline": "Discrimination against person for service in uniformed service prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 22,
+      "sectionNumber": "659A.086",
+      "catchline": "Employment rights of members of organized militia when called into active state service.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 23,
+      "sectionNumber": "659A.088",
+      "catchline": "Violation of ORS 659A.086 as unlawful employment practice; complaint; remedies and penalties.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 24,
+      "sectionNumber": "659A.089",
+      "catchline": "Notification to Director of Veterans’ Affairs.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 25,
+      "sectionNumber": "659A.090",
+      "catchline": "Definitions for ORS 659A.090 to 659A.099.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 26,
+      "sectionNumber": "659A.093",
+      "catchline": "Employer required to provide leave; job protection; benefits; notice to employer; use of accrued leave; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 27,
+      "sectionNumber": "659A.096",
+      "catchline": "Denial of leave, retaliation and discrimination prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 28,
+      "sectionNumber": "659A.099",
+      "catchline": "Short title.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 29,
+      "sectionNumber": "659A.100",
+      "catchline": null,
+      "status": "renumbered",
+      "renumberedTo": "659A.122"
+    },
+    {
+      "ordinal": 30,
+      "sectionNumber": "659A.103",
+      "catchline": "Policy.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 31,
+      "sectionNumber": "659A.104",
+      "catchline": "Description of disability for purposes of ORS 659A.103 to 659A.145.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 32,
+      "sectionNumber": "659A.106",
+      "catchline": "Employers to whom ORS 659A.112 to 659A.139 apply.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 33,
+      "sectionNumber": "659A.109",
+      "catchline": "Discrimination against individual for using procedures in ORS 659A.103 to 659A.145 prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 34,
+      "sectionNumber": "659A.112",
+      "catchline": "Employment discrimination.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 35,
+      "sectionNumber": "659A.115",
+      "catchline": "Qualification for position.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 36,
+      "sectionNumber": "659A.118",
+      "catchline": "Reasonable accommodation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 37,
+      "sectionNumber": "659A.121",
+      "catchline": "Undue hardship.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 38,
+      "sectionNumber": "659A.122",
+      "catchline": "Definitions for ORS 659A.124, 659A.127 and 659A.130.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 39,
+      "sectionNumber": "659A.124",
+      "catchline": "Illegal use of drugs.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 40,
+      "sectionNumber": "659A.127",
+      "catchline": "Permitted employer action.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 41,
+      "sectionNumber": "659A.130",
+      "catchline": "Conditions that do not constitute impairment.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 42,
+      "sectionNumber": "659A.133",
+      "catchline": "Medical examinations and inquiries of job applicants.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 43,
+      "sectionNumber": "659A.136",
+      "catchline": "Medical examinations and inquiries of employees.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 44,
+      "sectionNumber": "659A.139",
+      "catchline": "Construction of ORS 659A.103 to 659A.145.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 45,
+      "sectionNumber": "659A.141",
+      "catchline": "Damages recoverable for harm or theft of assistance animal.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 46,
+      "sectionNumber": "659A.142",
+      "catchline": "Discrimination against individual with disability by employment agency, labor organization, place of public accommodation or state government prohibited; discrimination in provision of healthcare; mental disorder treatment not evidence of inability to manage property.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 47,
+      "sectionNumber": "659A.143",
+      "catchline": "Assistance animals.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 48,
+      "sectionNumber": "659A.144",
+      "catchline": "Required accommodations in transient lodging; liability; limitations on applicability.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 49,
+      "sectionNumber": "659A.145",
+      "catchline": "Discrimination against individual with disability in real property transactions prohibited; advertising discriminatory preference prohibited; allowance for reasonable modification; assisting discriminatory practices prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 50,
+      "sectionNumber": "659A.146",
+      "catchline": "Reasonable accommodation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 51,
+      "sectionNumber": "659A.147",
+      "catchline": "Prohibited conduct; posting requirements; Commissioner of Bureau of Labor and Industries to develop training and education materials; undue hardship exception; remedies.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 52,
+      "sectionNumber": "659A.148",
+      "catchline": "Employers to whom provisions relating to reasonable accommodation apply.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 53,
+      "sectionNumber": "659A.150",
+      "catchline": "Definitions for ORS 659A.150 to 659A.186.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 54,
+      "sectionNumber": "659A.153",
+      "catchline": "Covered employers.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 55,
+      "sectionNumber": "659A.156",
+      "catchline": "Eligible employees; exceptions; eligibility during public health emergency; restoration of time worked.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 56,
+      "sectionNumber": "659A.157",
+      "catchline": "Determining family member by reason of affinity.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 57,
+      "sectionNumber": "659A.159",
+      "catchline": "Purposes for which family leave may be taken.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 58,
+      "sectionNumber": "659A.162",
+      "catchline": "Length of leave; conditions; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 59,
+      "sectionNumber": "659A.164",
+      "catchline": "Meaning of “one-year period” for purposes of determining amount of leave available to eligible employee; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 60,
+      "sectionNumber": "659A.165",
+      "catchline": "Notice to employer; exceptions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 61,
+      "sectionNumber": "659A.168",
+      "catchline": "Medical verification requirements; exceptions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 62,
+      "sectionNumber": "659A.171",
+      "catchline": "Job protection; benefits.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 63,
+      "sectionNumber": "659A.174",
+      "catchline": "Use of paid leave.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 64,
+      "sectionNumber": "659A.177",
+      "catchline": "Special rules for teachers.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 65,
+      "sectionNumber": "659A.180",
+      "catchline": "Postings by employer.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 66,
+      "sectionNumber": "659A.183",
+      "catchline": "Denying family leave to eligible employee prohibited; retaliation prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 67,
+      "sectionNumber": "659A.186",
+      "catchline": "Exclusivity of provisions; construction; concurrent leave.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 68,
+      "sectionNumber": "659A.190",
+      "catchline": "Definitions for ORS 659A.190 to 659A.198.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 69,
+      "sectionNumber": "659A.192",
+      "catchline": "Leave to attend criminal proceeding; undue hardship on employer; scheduling criminal proceeding.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 70,
+      "sectionNumber": "659A.194",
+      "catchline": "Denying leave to employee prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 71,
+      "sectionNumber": "659A.196",
+      "catchline": "Notice to employer; records confidential.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 72,
+      "sectionNumber": "659A.198",
+      "catchline": "Use of paid leave.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 73,
+      "sectionNumber": "659A.199",
+      "catchline": "Prohibited conduct by employer.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 74,
+      "sectionNumber": "659A.200",
+      "catchline": "Definitions for ORS 659A.200 to 659A.224.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 75,
+      "sectionNumber": "659A.203",
+      "catchline": "Prohibited conduct by public or nonprofit employer; prohibited conduct by school services employer during public health emergency; remedies.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 76,
+      "sectionNumber": "659A.206",
+      "catchline": "Effects of ORS 659A.200 to 659A.224 on employees.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 77,
+      "sectionNumber": "659A.209",
+      "catchline": "Effect on public record disclosures.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 78,
+      "sectionNumber": "659A.210",
+      "catchline": "Affirmative defense.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 79,
+      "sectionNumber": "659A.212",
+      "catchline": "Policy on cooperation with law enforcement officials; duty to report person subject to warrant for arrest.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 80,
+      "sectionNumber": "659A.215",
+      "catchline": "Remedies not exclusive.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 81,
+      "sectionNumber": "659A.218",
+      "catchline": "Disclosure of employee’s name without consent prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 82,
+      "sectionNumber": "659A.219",
+      "catchline": "Uniform standards and procedures manual for implementation of Whistleblower Law; requirements.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 83,
+      "sectionNumber": "659A.220",
+      "catchline": "Bureau of Labor and Industries to collect and compile information relating to disclosures; report to legislature.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 84,
+      "sectionNumber": "659A.221",
+      "catchline": "Uniform application to all public employers; optional procedure for disclosures; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 85,
+      "sectionNumber": "659A.224",
+      "catchline": "Short title.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 86,
+      "sectionNumber": "659A.228",
+      "catchline": "Discrimination for reporting violation of election laws prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 87,
+      "sectionNumber": "659A.230",
+      "catchline": "Discrimination for initiating or aiding in criminal or civil proceedings prohibited; remedies not exclusive.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 88,
+      "sectionNumber": "659A.233",
+      "catchline": "Discrimination for reporting certain violations or testifying at unemployment compensation hearing prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 89,
+      "sectionNumber": "659A.236",
+      "catchline": "Discrimination for testifying before Legislative Assembly, committee or task force prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 90,
+      "sectionNumber": "659A.250",
+      "catchline": "Definitions for ORS 659A.250 to 659A.262.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 91,
+      "sectionNumber": "659A.253",
+      "catchline": "Restriction of access to employee housing owned or controlled by employer prohibited; telephone accessibility.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 92,
+      "sectionNumber": "659A.256",
+      "catchline": "Regulations by employers concerning use and occupancy of employee housing; requirements; notice.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 93,
+      "sectionNumber": "659A.259",
+      "catchline": "Eviction from employee housing or discrimination against employee for reporting violations of ORS 659A.250 to 659A.262 prohibited; enforcement.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 94,
+      "sectionNumber": "659A.262",
+      "catchline": "Warrant on behalf of person entitled to access to housing; vacation of warrant; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 95,
+      "sectionNumber": "659A.270",
+      "catchline": "Definitions for ORS 659A.270 to 659A.285.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 96,
+      "sectionNumber": "659A.272",
+      "catchline": "Employer required to provide leave.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 97,
+      "sectionNumber": "659A.275",
+      "catchline": "Undue hardship.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 98,
+      "sectionNumber": "659A.277",
+      "catchline": "Denying leave to employee prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 99,
+      "sectionNumber": "659A.279",
+      "catchline": "Required posting of summaries of statutes and rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 100,
+      "sectionNumber": "659A.280",
+      "catchline": "Notice to employer; records confidential.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 101,
+      "sectionNumber": "659A.283",
+      "catchline": "Paid leave for public employees.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 102,
+      "sectionNumber": "659A.285",
+      "catchline": "Use of paid leave.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 103,
+      "sectionNumber": "659A.290",
+      "catchline": "Prohibited conduct by employer; records confidential.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 104,
+      "sectionNumber": "659A.300",
+      "catchline": "Requiring breathalyzer, polygraph, psychological stress or brain-wave test or genetic test prohibited; exceptions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 105,
+      "sectionNumber": "659A.303",
+      "catchline": "Employer prohibited from obtaining, seeking to obtain or using genetic information.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 106,
+      "sectionNumber": "659A.306",
+      "catchline": "Requiring employee to pay for medical examination as condition of continued employment prohibited; exceptions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 107,
+      "sectionNumber": "659A.309",
+      "catchline": "Discrimination solely because of employment of another family member prohibited; exceptions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 108,
+      "sectionNumber": "659A.312",
+      "catchline": "Leave of absence to donate bone marrow; verification by employer.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 109,
+      "sectionNumber": "659A.314",
+      "catchline": "Discrimination for service as appointed member of state board or commission; requiring employee to use accrued leave prohibited; remedy for violation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 110,
+      "sectionNumber": "659A.315",
+      "catchline": "Restricting use of tobacco in nonworking hours prohibited; exceptions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 111,
+      "sectionNumber": "659A.318",
+      "catchline": "Discrimination relating to academic degree in theology or religious occupations prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 112,
+      "sectionNumber": "659A.320",
+      "catchline": "Discrimination based on information in credit history prohibited; exceptions; remedies for violation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 113,
+      "sectionNumber": "659A.321",
+      "catchline": "Seniority systems and benefit plans not unlawful employment practices.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 114,
+      "sectionNumber": "659A.330",
+      "catchline": "Employee social media account privacy; exception.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 115,
+      "sectionNumber": "659A.340",
+      "catchline": "Interfering with employee’s good faith disclosure of information concerning unlawful conduct or certain violations prohibited; remedy.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 116,
+      "sectionNumber": "659A.343",
+      "catchline": "Discrimination based on individual’s presentation of identification other than Real ID prohibited; remedies.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 117,
+      "sectionNumber": "659A.347",
+      "catchline": "Discrimination related to possession of valid driver license.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 118,
+      "sectionNumber": "659A.350",
+      "catchline": "Interns.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 119,
+      "sectionNumber": "659A.355",
+      "catchline": "Discrimination based on wage inquiry or wage complaint; exception.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 120,
+      "sectionNumber": "659A.357",
+      "catchline": "Restricting salary history inquiries.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 121,
+      "sectionNumber": "659A.360",
+      "catchline": "Restricting criminal conviction inquiries; exceptions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 122,
+      "sectionNumber": "659A.362",
+      "catchline": "Enforcement.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 123,
+      "sectionNumber": "659A.370",
+      "catchline": "Employer prohibited from entering into agreements that prevent employee from discussing certain unlawful conduct; exceptions; remedies.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 124,
+      "sectionNumber": "659A.375",
+      "catchline": "Employer policies relating to prevention of discrimination and sexual assault; requirements.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 125,
+      "sectionNumber": "659A.377",
+      "catchline": "Requirements for mediation related to claims or allegations of unlawful conduct as described under ORS 659A.370.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 126,
+      "sectionNumber": "659A.380",
+      "catchline": "When severance or separation agreements are voidable by employer.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 127,
+      "sectionNumber": "659A.390",
+      "catchline": "Restrictions on no-rehire provisions as condition of workers’ compensation settlements; exceptions; remedy for violation; civil penalties.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 128,
+      "sectionNumber": "659A.400",
+      "catchline": "Place of public accommodation defined.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 129,
+      "sectionNumber": "659A.403",
+      "catchline": "Discrimination in place of public accommodation prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 130,
+      "sectionNumber": "659A.406",
+      "catchline": "Aiding or abetting certain discrimination prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 131,
+      "sectionNumber": "659A.409",
+      "catchline": "Notice that discrimination will be made in place of public accommodation prohibited; age exceptions.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 132,
+      "sectionNumber": "659A.410",
+      "catchline": "Refusing to accept currency or coins as payment prohibited; advertising and education duties of Bureau of Labor and Industries; exceptions; remedies for violation.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 133,
+      "sectionNumber": "659A.411",
+      "catchline": "Definitions for ORS 659A.411 to 659A.415.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 134,
+      "sectionNumber": "659A.413",
+      "catchline": "Denial of access prohibited; exception.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 135,
+      "sectionNumber": "659A.415",
+      "catchline": "Liability for damages; physical changes not required.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 136,
+      "sectionNumber": "659A.417",
+      "catchline": "Violation of ORS 659A.413.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 137,
+      "sectionNumber": "659A.419",
+      "catchline": "Closed captioning required on television receivers in places of public accommodation; exceptions; training requirements; penalties; rules.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 138,
+      "sectionNumber": "659A.420",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 139,
+      "sectionNumber": "659A.421",
+      "catchline": "Discrimination in selling, renting or leasing real property prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 140,
+      "sectionNumber": "659A.424",
+      "catchline": null,
+      "status": "repealed"
+    },
+    {
+      "ordinal": 141,
+      "sectionNumber": "659A.425",
+      "catchline": "Violation based on facially neutral housing policy.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 142,
+      "sectionNumber": "659A.550",
+      "catchline": "Discrimination because of employment status prohibited; penalties.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 143,
+      "sectionNumber": "659A.800",
+      "catchline": "Elimination and prevention of discrimination by Bureau of Labor and Industries; subpoenas.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 144,
+      "sectionNumber": "659A.805",
+      "catchline": "Rules for carrying out ORS chapter 659A.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 145,
+      "sectionNumber": "659A.810",
+      "catchline": "Willful interference with administration of law and violation of orders of commissioner prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 146,
+      "sectionNumber": "659A.815",
+      "catchline": "Advisory agencies and intergroup-relations councils.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 147,
+      "sectionNumber": "659A.820",
+      "catchline": "Complaints.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 148,
+      "sectionNumber": "659A.825",
+      "catchline": "Complaints filed by Attorney General or commissioner; temporary cease and desist orders in certain cases.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 149,
+      "sectionNumber": "659A.830",
+      "catchline": "Authority of commissioner.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 150,
+      "sectionNumber": "659A.835",
+      "catchline": "Investigation; finding of substantial evidence.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 151,
+      "sectionNumber": "659A.840",
+      "catchline": "Settlement.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 152,
+      "sectionNumber": "659A.845",
+      "catchline": "Formal charges.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 153,
+      "sectionNumber": "659A.850",
+      "catchline": "Hearing; orders; fees.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 154,
+      "sectionNumber": "659A.855",
+      "catchline": "Civil penalty for certain complaints filed by commissioner.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 155,
+      "sectionNumber": "659A.860",
+      "catchline": "Settlement agreements and orders.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 156,
+      "sectionNumber": "659A.865",
+      "catchline": "Retaliatory action prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 157,
+      "sectionNumber": "659A.870",
+      "catchline": "Election of remedies.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 158,
+      "sectionNumber": "659A.875",
+      "catchline": "Time limitations.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 159,
+      "sectionNumber": "659A.880",
+      "catchline": "Notice informing complainant of right to file civil action.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 160,
+      "sectionNumber": "659A.883",
+      "catchline": "Contractual shortening of statute of limitations prohibited.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 161,
+      "sectionNumber": "659A.885",
+      "catchline": "Civil action.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 162,
+      "sectionNumber": "659A.890",
+      "catchline": "Civil action for violation of ORS 659A.865.",
+      "status": "operative"
+    },
+    {
+      "ordinal": 163,
+      "sectionNumber": "659A.990",
+      "catchline": "Penalties.",
+      "status": "operative"
+    }
+  ],
+  "expectedSectionNotes": {
+    "note": "Not yet a structured per-note ground truth (SCHEMA.md's ors_section_note rows) -- note-level cataloguing was not attempted for this chapter, consistent with chapters 105, 183 and 471; this increment still needs to design the note-level comparison before that work is worth doing for any chapter."
+  }
+}
