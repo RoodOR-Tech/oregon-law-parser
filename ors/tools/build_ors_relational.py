@@ -189,6 +189,24 @@ def build_source_credit_rows(rows):
     return sorted(result, key=lambda item: item["credit_id"])
 
 
+def build_pending_change_rows(rows):
+    result = [
+        {
+            "pending_change_id": item["pendingChangeId"],
+            "chapter_id": item["chapterId"],
+            "ordinal": item["ordinal"],
+            "session_year": item["sessionYear"],
+            "session_law_chapter": item.get("sessionLawChapter"),
+            "change_kind": item["changeKind"],
+            "notice_text": item["noticeText"],
+            "char_offset_start": item["charOffsetStart"],
+            "char_offset_end": item["charOffsetEnd"],
+        }
+        for item in rows.get("pendingChanges", [])
+    ]
+    return sorted(result, key=lambda item: item["pending_change_id"])
+
+
 def build_cross_reference_rows(rows):
     result = [
         {
@@ -283,6 +301,10 @@ TABLE_COLUMNS = {
         "credit_id", "section_id", "ordinal", "session_year", "session_law_chapter",
         "session_law_section", "special_session", "action", "raw_credit",
     ],
+    "ors_chapter_pending_change": [
+        "pending_change_id", "chapter_id", "ordinal", "session_year", "session_law_chapter",
+        "change_kind", "notice_text", "char_offset_start", "char_offset_end",
+    ],
     "ors_cross_reference": [
         "reference_id", "from_section_id", "to_section_number", "to_section_id",
         "reference_kind", "ordinal", "char_offset_start", "char_offset_end",
@@ -314,6 +336,7 @@ def build_tables(rows, roster, acquisition):
         "ors_section": build_section_rows(rows),
         "ors_section_note": build_section_note_rows(rows),
         "ors_source_credit": build_source_credit_rows(rows),
+        "ors_chapter_pending_change": build_pending_change_rows(rows),
         "ors_cross_reference": build_cross_reference_rows(rows),
         "ors_acquisition_event": build_acquisition_event_rows(rows, roster, acquisition),
     }
