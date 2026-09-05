@@ -165,6 +165,31 @@ amendment parser: `(session_year, session_law_chapter)` is exactly the
 `action` defaults to `unspecified` rather than being guessed. The printed credit
 does not always state the action, and inventing one would defeat the join.
 
+### `ors_chapter_pending_change`
+
+A chapter document's own printed notice that a later legislative session has
+already changed it, ahead of the next edition being published -- see
+FINDINGS.md's "Chapters advertise pending changes". `(session_year,
+session_law_chapter)` is the same join key `ors_source_credit` uses to reach
+the amendment parser's `(year, chapter)` output.
+
+| column | type | notes |
+|---|---|---|
+| `pending_change_id` | TEXT PK | `{chapter_id}-p{ordinal:03d}` |
+| `chapter_id` | TEXT FK → `ors_chapter` | |
+| `ordinal` | INTEGER | order as printed |
+| `session_year` | INTEGER | `2026` |
+| `session_law_chapter` | INTEGER | nullable; null when the notice names no specific Oregon Laws chapter (it only points at that session's consolidated amended/repealed table) |
+| `change_kind` | TEXT | `amended_or_repealed_elsewhere`, `new_series_section`, `new_compiled_section` |
+| `notice_text` | TEXT | the exact printed notice this row was extracted from |
+| `char_offset_start` | INTEGER | |
+| `char_offset_end` | INTEGER | |
+
+A notice naming more than one Oregon Laws chapter becomes one row per chapter
+named, all sharing the same `notice_text` and offsets. This table records
+that a chapter has already changed; it does not itself diff section text
+between editions -- see "Deferred to a later schema version" below.
+
 ### `ors_cross_reference`
 
 Section-to-section citations found in statutory text.
@@ -216,6 +241,7 @@ gate in CI, in the same spirit as the amendment effort's gold gate:
 6. Every chapter discovered in the index produced at least one `ors_section`
    row, or is explicitly recorded as an empty chapter with a reason.
 7. Every `ors_chapter` row has a non-null `source_sha256`.
+8. Every `ors_chapter_pending_change.chapter_id` resolves to an `ors_chapter`.
 
 ## Deferred to a later schema version
 

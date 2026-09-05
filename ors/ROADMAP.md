@@ -445,6 +445,37 @@ files and does not glob `chapter-12.json` at all.
   chapters involved — the published 2025 edition already advertises 2026
   changes — which is a printed join to the amendment parser's output.
 
+Only the last of these three is started: the other two need a second real
+ORS edition to rebuild against and diff, and only the 2025 edition is
+published today (Oregon publishes ORS editions in odd years, so the next is
+2027). Building that machinery now against a hand-built synthetic "second
+edition" would be the first departure in this pipeline from measuring
+against real acquired bytes before writing a rule, so it is held rather than
+guessed at.
+
+The `ors_chapter_pending_change` table is done, against real data: three of
+the five increment 5 gold chapters (183, 471, 659A; 12 and 105 print
+neither) print this notice in their own front matter, in exactly three
+distinct shapes, confirmed directly against the frozen bytes rather than
+assumed -- see FINDINGS.md's "Chapters advertise pending changes" and
+`tools/ors_pending_changes.py`'s own module docstring for the verbatim
+forms. Each notice prints as its own paragraph, which
+`normalize_chapter_text` already collapses to one line regardless of how it
+wraps in the raw markup, so extraction is a plain per-line regex match, no
+new normalization needed. One shape (`amended_or_repealed_elsewhere`) names
+no specific Oregon Laws chapter -- it only points at that session's
+consolidated amended/repealed table -- and becomes one row with
+`session_law_chapter` left null; the other two
+(`new_series_section`, `new_compiled_section`) each name one or more Oregon
+Laws chapters directly, and each named chapter becomes its own row in the
+exact `(session_year, session_law_chapter)` shape `ors_source_credit`
+already uses to join to the amendment parser's `(year, chapter)` output.
+Wired through `parse_ors_chapter.py` (`pendingChangeRowCount`,
+`pendingChangeCountByKind` in its report) and `build_ors_relational.py`
+(the tenth SCHEMA.md table). Confirmed against the real, frozen five-
+chapter gold corpus: 10 rows across the three chapters that print a notice,
+`valid: true`, zero integrity violations.
+
 ## Working method
 
 Increments 2 through 4 are developed against the fixed sample in

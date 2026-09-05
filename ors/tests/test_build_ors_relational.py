@@ -83,6 +83,17 @@ def sample_rows():
             "charOffsetStart": 105,
             "charOffsetEnd": 111,
         }],
+        "pendingChanges": [{
+            "pendingChangeId": "2025-1-p001",
+            "chapterId": "2025-1",
+            "ordinal": 1,
+            "sessionYear": 2026,
+            "sessionLawChapter": 57,
+            "changeKind": "new_series_section",
+            "noticeText": "New sections of law were added ... 2026 Session Laws 0057",
+            "charOffsetStart": 5,
+            "charOffsetEnd": 9,
+        }],
     }
 
 
@@ -195,6 +206,20 @@ class SimpleTableRowTest(unittest.TestCase):
         row = build.build_cross_reference_rows(sample_rows())[0]
         self.assertEqual(row["reference_id"], "2025-1.002-x0001")
         self.assertIsNone(row["to_section_id"])
+
+    def test_pending_change_rows(self):
+        row = build.build_pending_change_rows(sample_rows())[0]
+        self.assertEqual(row["pending_change_id"], "2025-1-p001")
+        self.assertEqual(row["chapter_id"], "2025-1")
+        self.assertEqual(row["session_law_chapter"], 57)
+        self.assertEqual(row["change_kind"], "new_series_section")
+
+    def test_a_pending_change_naming_no_specific_chapter_keeps_it_null(self):
+        rows = sample_rows()
+        rows["pendingChanges"][0]["sessionLawChapter"] = None
+        rows["pendingChanges"][0]["changeKind"] = "amended_or_repealed_elsewhere"
+        row = build.build_pending_change_rows(rows)[0]
+        self.assertIsNone(row["session_law_chapter"])
 
 
 class AcquisitionEventRowTest(unittest.TestCase):
