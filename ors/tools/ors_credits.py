@@ -28,6 +28,23 @@ sample chapters:
     [repealed by 2001 c.596 s25 (90.771 enacted in lieu of 90.770)]
                                                    -- trailing parenthetical whose own
                                                    -- first token is a section number
+    [1983 cor. c.736 s1]                          -- a corrective-session chapter
+    [repealed by 1979 c.43 s1 and by 1979 c.190 s431]
+                                                   -- a second citation sharing the
+                                                   -- first citation's own action,
+                                                   -- joined by "and by" rather than
+                                                   -- a bare "and"
+    [enacted in lieu of 471.665 in 1997]           -- bare predecessor reference, the
+                                                   -- mirror image of Formerly/Renumbered
+    [amendments by 2002 s.s.1 c.11 s1 repealed by 2002 s.s.2 c.1 s3]
+                                                   -- two full citations printed back to
+                                                   -- back with no delimiter between
+                                                   -- them, the first also using the
+                                                   -- plural "Amendments by"
+
+All four of these were surfaced by chapter 471's own real credit strings --
+the oldest and most heavily amended of the five ORS increment 5 gold
+chapters, spanning citations back to the 1950s.
 
 A citation with no leading action word states no action, and SCHEMA.md is
 explicit that action must not be guessed for it: it is recorded as
@@ -55,19 +72,32 @@ import re
 #     part of the section. The scoping is not modeled (see module docstring),
 #     but the citation underneath still is, as an enactment.
 CREDIT_PREFIX_PATTERNS = [
-    (re.compile(r"^(?P<action>Amended|Repealed|Renumbered|Reenacted)\s+by\s+", re.IGNORECASE),
-     {"amended": "amended", "repealed": "repealed", "renumbered": "renumbered", "reenacted": "enacted"}),
+    (re.compile(r"^(?P<action>Amended|Amendments|Repealed|Renumbered|Reenacted)\s+by\s+", re.IGNORECASE),
+     {"amended": "amended", "amendments": "amended", "repealed": "repealed", "renumbered": "renumbered", "reenacted": "enacted"}),
     (re.compile(r"^Derived\s+from\s+", re.IGNORECASE), "enacted"),
     (re.compile(
         r"^subsections?\s*\([^)]*\)(?:\s+to\s*\([^)]*\))?\s+enacted\s+as\s+", re.IGNORECASE
     ), "enacted"),
 ]
-# A session-law citation: year, optional special-session marker, chapter,
-# section(s), optional trailing parenthetical annotation.
+# A session-law citation: year, optional special-session or corrective-
+# session marker, chapter, section(s), optional trailing parenthetical
+# annotation.
 #
 # The special-session marker is either bare ("s.s.", pre-2000s convention) or
 # numbered with no space before the digit ("s.s.1", "s.s.3"); both are
 # followed by a space before "c.".
+#
+# "cor." marks a corrective-session chapter -- one enacted under Legislative
+# Counsel's own corrective-amendment authority rather than a regular or
+# special legislative session (real form: "1983 cor. c.736 §1", chapter
+# 471's own 471.410). Oregon Laws assigns a corrective chapter the next
+# available number in that year's ordinary chapter sequence, not a separate
+# one, so a corrective chapter and a regular chapter never collide on
+# (session_year, session_law_chapter) -- the marker states how the chapter
+# was enacted, not which chapter it is. It is read past like the special-
+# session marker's own position, but unlike special_session it has no
+# SCHEMA.md column of its own to populate, so it is simply discarded once
+# recognized.
 #
 # The section mark is printed as the section sign, singular (S) or doubled
 # for a plural citation (SS); a bare "s." form is also accepted since not
@@ -88,7 +118,7 @@ CREDIT_PREFIX_PATTERNS = [
 # starts with.
 CREDIT_CITATION_PATTERN = re.compile(
     r"^(?P<year>(?:18|19|20)\d{2})\s*"
-    r"(?P<special>s\.\s*s\.\s*\d*)?\s*"
+    r"(?:(?P<special>s\.\s*s\.\s*\d*)|cor\.)?\s*"
     r"c\.\s*(?P<chapter>\d+)"
     r"(?:\s*(?:§§|§|s\.)\s*"
     r"(?P<sections>(?:[0-9]+[a-z]?)?(?:\s*\([0-9]+[a-z]?\))*"
@@ -118,6 +148,21 @@ BARE_RENUMBER_PATTERN = re.compile(
     r"(?:\s+in\s+(?:18|19|20)\d{2})?$",
     re.IGNORECASE,
 )
+# "enacted in lieu of 471.665 in 1997" -- the mirror image of Formerly and
+# Renumbered: this section is the new number, naming the predecessor it
+# replaces rather than the destination it moved to. Real form: chapter
+# 471's own 471.666, whose predecessor 471.665 carries the matching
+# "(471.666 enacted in lieu of 471.665)" annotation on its own repeal
+# citation (see CREDIT_CITATION_PATTERN's trailing-parenthetical comment).
+# Neither a citation nor a destination reference, so it gets its own bucket
+# rather than being folded into either existing one. The optional trailing
+# "in YYYY" states when the enactment happened, discarded the same way as
+# BARE_RENUMBER_PATTERN's own.
+ENACTED_IN_LIEU_PATTERN = re.compile(
+    r"^enacted\s+in\s+lieu\s+of\s+(?P<number>\d{1,3}[A-Z]?\.\d{3})"
+    r"(?:\s+in\s+(?:18|19|20)\d{2})?$",
+    re.IGNORECASE,
+)
 # "subsections (1) to (3) renumbered 192.411 and subsections (4) to (7)
 # renumbered 192.401 in 2017" -- a bare-renumber note scoped to subsections,
 # possibly naming more than one destination joined by "and", with the same
@@ -136,6 +181,19 @@ SUBSECTION_RENUMBER_CLAUSE_PATTERN = re.compile(
 # citation outright, so it never fires on ordinary text that merely contains
 # the word "and".
 AND_JOIN_PATTERN = re.compile(r"\s+and\s+", re.IGNORECASE)
+# "repealed by 1979 c.43 §1 and by 1979 c.190 §431" -- the second citation
+# after an "and" states no action word of its own, just a bare leading "by",
+# inheriting the first citation's action rather than stating its own.
+BARE_BY_PATTERN = re.compile(r"^by\s+", re.IGNORECASE)
+# A second citation's own action keyword immediately following the first
+# with no delimiter at all: "amendments by 2002 s.s.1 c.11 §1 repealed by
+# 2002 s.s.2 c.1 §3" (chapter 471's own 471.750) is the real observed form.
+# Tried only as a last resort, after a segment fails whole, the "and"-join
+# split, and the bare "and by" fallback above, so it never fires on a
+# segment some earlier, narrower rule already explains.
+MID_SEGMENT_ACTION_PREFIX_PATTERN = re.compile(
+    r"\b(?:Amended|Amendments|Repealed|Renumbered|Reenacted)\s+by\s+", re.IGNORECASE
+)
 
 
 def strip_brackets(raw_credit):
@@ -205,6 +263,27 @@ def _subsection_renumber_destinations(segment):
     return numbers or None
 
 
+def _citations_from_match(citation_match, action, raw_segment):
+    """Build the citation dict(s) a matched CREDIT_CITATION_PATTERN states.
+
+    Shared by _parse_citation_segment's own ordinary path and the "and by"
+    fallback below, which builds a second citation from a bare "by ..."
+    remainder using the first citation's own action rather than one stated
+    in the remainder itself.
+    """
+    return [
+        {
+            "action": action,
+            "sessionYear": int(citation_match.group("year")),
+            "specialSession": _special_session_number(citation_match.group("special")),
+            "sessionLawChapter": int(citation_match.group("chapter")),
+            "sessionLawSection": section_number,
+            "rawSegment": raw_segment,
+        }
+        for section_number in _section_numbers(citation_match.group("sections"))
+    ]
+
+
 def _parse_citation_segment(segment):
     """Parse one segment as a single action-qualified citation.
 
@@ -225,17 +304,63 @@ def _parse_citation_segment(segment):
     if citation_match is None:
         return None
 
-    return [
-        {
-            "action": action or "unspecified",
-            "sessionYear": int(citation_match.group("year")),
-            "specialSession": _special_session_number(citation_match.group("special")),
-            "sessionLawChapter": int(citation_match.group("chapter")),
-            "sessionLawSection": section_number,
-            "rawSegment": segment,
-        }
-        for section_number in _section_numbers(citation_match.group("sections"))
-    ]
+    return _citations_from_match(citation_match, action or "unspecified", segment)
+
+
+def _parse_and_joined_segment(segment):
+    """Parse a segment as two citations joined by "and" instead of a
+    semicolon, or None if this is not that form.
+
+    The ordinary case is two independently action-qualified citations
+    ("2009 c.431 §6 and 2009 c.816 §15", neither stating an action here).
+    The other real form is "repealed by 1979 c.43 §1 and by 1979 c.190
+    §431": the second citation carries no action word of its own beyond a
+    bare leading "by", inheriting the first citation's action rather than
+    stating one independently.
+    """
+    parts = AND_JOIN_PATTERN.split(segment)
+    if len(parts) != 2:
+        return None
+    first_part, second_part = parts
+    first_parsed = _parse_citation_segment(first_part)
+    if first_parsed is None:
+        return None
+    second_parsed = _parse_citation_segment(second_part)
+    if second_parsed is None:
+        bare_by_match = BARE_BY_PATTERN.match(second_part)
+        if bare_by_match is not None:
+            citation_match = CREDIT_CITATION_PATTERN.match(second_part[bare_by_match.end():].strip())
+            if citation_match is not None:
+                second_parsed = _citations_from_match(
+                    citation_match, first_parsed[0]["action"], second_part
+                )
+    if second_parsed is None:
+        return None
+    return first_parsed + second_parsed
+
+
+def _split_at_embedded_action_prefix(segment):
+    """Split a segment at a second action-prefixed citation printed with no
+    delimiter of its own, or None if this is not that form.
+
+    Real form: "amendments by 2002 s.s.1 c.11 §1 repealed by 2002 s.s.2 c.1
+    §3" (chapter 471's own 471.750) -- two full citations back to back, the
+    second's own "repealed by" the only thing separating them. Every action
+    prefix appearing after the start of the segment is tried as a candidate
+    split point, in printed order, since a citation cannot itself contain
+    one of these keywords, and the first candidate where both halves parse
+    completely is accepted.
+    """
+    for match in MID_SEGMENT_ACTION_PREFIX_PATTERN.finditer(segment):
+        if match.start() == 0:
+            continue
+        first_part = segment[:match.start()].strip()
+        second_part = segment[match.start():]
+        first_parsed = _parse_citation_segment(first_part)
+        second_parsed = _parse_citation_segment(second_part)
+        if first_parsed is not None and second_parsed is not None:
+            return first_parsed + second_parsed
+    return None
 
 
 def parse_source_credit(raw_credit):
@@ -246,6 +371,7 @@ def parse_source_credit(raw_credit):
                    sessionLawSection, rawSegment}], in printed order
       formerlyReferences: [section_number, ...]
       renumberReferences: [section_number, ...]
+      enactedInLieuReferences: [section_number, ...]
       unparsedSegments: [segment, ...]
 
     A citation naming several sections under one doubled section mark
@@ -257,6 +383,7 @@ def parse_source_credit(raw_credit):
     citations = []
     formerly = []
     renumbers = []
+    enacted_in_lieu = []
     unparsed = []
 
     for segment in segments:
@@ -270,6 +397,11 @@ def parse_source_credit(raw_credit):
             renumbers.append(renumber_match.group("number"))
             continue
 
+        enacted_in_lieu_match = ENACTED_IN_LIEU_PATTERN.match(segment)
+        if enacted_in_lieu_match is not None:
+            enacted_in_lieu.append(enacted_in_lieu_match.group("number"))
+            continue
+
         subsection_destinations = _subsection_renumber_destinations(segment)
         if subsection_destinations is not None:
             renumbers.extend(subsection_destinations)
@@ -280,13 +412,15 @@ def parse_source_credit(raw_credit):
             citations.extend(parsed)
             continue
 
-        and_parts = AND_JOIN_PATTERN.split(segment)
-        if len(and_parts) == 2:
-            parsed_parts = [_parse_citation_segment(part) for part in and_parts]
-            if all(part is not None for part in parsed_parts):
-                for part in parsed_parts:
-                    citations.extend(part)
-                continue
+        parsed = _parse_and_joined_segment(segment)
+        if parsed is not None:
+            citations.extend(parsed)
+            continue
+
+        parsed = _split_at_embedded_action_prefix(segment)
+        if parsed is not None:
+            citations.extend(parsed)
+            continue
 
         unparsed.append(segment)
 
@@ -294,5 +428,6 @@ def parse_source_credit(raw_credit):
         "citations": citations,
         "formerlyReferences": formerly,
         "renumberReferences": renumbers,
+        "enactedInLieuReferences": enacted_in_lieu,
         "unparsedSegments": unparsed,
     }

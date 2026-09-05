@@ -325,6 +325,112 @@ class SubsectionScopedCitationTest(unittest.TestCase):
         self.assertEqual(citation["sessionLawSection"], "8")
 
 
+class CorrectiveSessionTest(unittest.TestCase):
+    """"cor." marks a corrective-session chapter, not a special session."""
+
+    def test_a_corrective_session_citation_parses_as_an_ordinary_chapter(self):
+        # Real form against chapter 471's own 471.410.
+        result = credits.parse_source_credit("[1983 cor. c.736 §1]")
+        citation = result["citations"][0]
+        self.assertEqual(citation["sessionYear"], 1983)
+        self.assertEqual(citation["sessionLawChapter"], 736)
+        self.assertEqual(citation["sessionLawSection"], "1")
+        # The marker states how the chapter was enacted, not which chapter
+        # it is (see ors_credits.py's own comment on why this never
+        # collides with an ordinary chapter number) -- it is not a special
+        # session, so it must not populate that field.
+        self.assertIsNone(citation["specialSession"])
+
+    def test_a_corrective_citation_still_carries_its_own_action(self):
+        result = credits.parse_source_credit("[repealed by 1983 cor. c.736 §1]")
+        citation = result["citations"][0]
+        self.assertEqual(citation["action"], "repealed")
+        self.assertEqual(citation["sessionLawChapter"], 736)
+
+
+class AndByJoinedCitationTest(unittest.TestCase):
+    """A second "and"-joined citation stating no action of its own beyond a
+    bare "by" inherits the first citation's action."""
+
+    def test_the_second_citation_inherits_the_first_citations_action(self):
+        # Real form against chapter 471's own 471.420.
+        result = credits.parse_source_credit(
+            "[repealed by 1979 c.43 §1 and by 1979 c.190 §431]"
+        )
+        self.assertEqual(
+            [(c["action"], c["sessionYear"], c["sessionLawChapter"], c["sessionLawSection"])
+             for c in result["citations"]],
+            [("repealed", 1979, 43, "1"), ("repealed", 1979, 190, "431")],
+        )
+        self.assertEqual(result["unparsedSegments"], [])
+
+    def test_an_ordinary_and_join_with_no_bare_by_is_unaffected(self):
+        # Neither side here has a bare "by" remainder, so this must still
+        # go through the plain and-join path, not the inherited-action one.
+        result = credits.parse_source_credit("[2009 c.431 §6 and 2009 c.816 §15]")
+        self.assertEqual(
+            [c["action"] for c in result["citations"]], ["unspecified", "unspecified"]
+        )
+
+
+class EnactedInLieuReferenceTest(unittest.TestCase):
+    """"enacted in lieu of NNN.NNN" names a predecessor this section
+    replaces -- the mirror image of Formerly/Renumbered, not a citation."""
+
+    def test_enacted_in_lieu_of_is_not_a_citation(self):
+        # Real form against chapter 471's own 471.666.
+        result = credits.parse_source_credit(
+            "[1989 c.791 §18; enacted in lieu of 471.665 in 1997; 2021 c.351 §130]"
+        )
+        self.assertEqual(result["enactedInLieuReferences"], ["471.665"])
+        self.assertEqual(len(result["citations"]), 2)
+        self.assertEqual(result["unparsedSegments"], [])
+
+    def test_enacted_in_lieu_of_with_no_trailing_year(self):
+        result = credits.parse_source_credit("[enacted in lieu of 8.172]")
+        self.assertEqual(result["enactedInLieuReferences"], ["8.172"])
+        self.assertEqual(result["citations"], [])
+
+
+class AmendmentsPluralActionTest(unittest.TestCase):
+    def test_amendments_by_maps_to_the_schema_amended_action(self):
+        result = credits.parse_source_credit("[amendments by 2002 s.s.1 c.11 §1]")
+        citation = result["citations"][0]
+        self.assertEqual(citation["action"], "amended")
+        self.assertEqual(citation["sessionYear"], 2002)
+        self.assertEqual(citation["specialSession"], 1)
+
+
+class EmbeddedActionPrefixSplitTest(unittest.TestCase):
+    """Two full citations printed back to back with no delimiter of their
+    own, the second's own action keyword the only thing separating them."""
+
+    def test_two_citations_with_no_delimiter_between_them_both_parse(self):
+        # Real form against chapter 471's own 471.750.
+        result = credits.parse_source_credit(
+            "[amendments by 2002 s.s.1 c.11 §1 repealed by 2002 s.s.2 c.1 §3]"
+        )
+        self.assertEqual(
+            [(c["action"], c["sessionYear"], c["sessionLawChapter"],
+              c["sessionLawSection"], c["specialSession"])
+             for c in result["citations"]],
+            [("amended", 2002, 11, "1", 1), ("repealed", 2002, 1, "3", 2)],
+        )
+        self.assertEqual(result["unparsedSegments"], [])
+
+    def test_prose_merely_containing_an_action_word_is_not_split(self):
+        # Neither half of a candidate split is a real citation here, so the
+        # whole segment must still be reported rather than torn in two.
+        result = credits.parse_source_credit(
+            "[some note that happens to mention repealed by implication]"
+        )
+        self.assertEqual(result["citations"], [])
+        self.assertEqual(
+            result["unparsedSegments"],
+            ["some note that happens to mention repealed by implication"],
+        )
+
+
 class BracketStrippingTest(unittest.TestCase):
     def test_brackets_are_optional_on_input(self):
         with_brackets = credits.parse_source_credit("[1971 c.743 §1]")

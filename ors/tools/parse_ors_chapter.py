@@ -702,13 +702,14 @@ def build_rows(chapter_records, repo_root=None):
     source_credits = []
     section_notes = []
     problems = []
-    # "Formerly NNN.NNN" and bare "Renumbered NNN.NNN" segments name a section
-    # rather than citing a session law, so they never become ors_source_credit
-    # rows. They are still real data, so they are collected rather than
-    # dropped; SCHEMA.md has no table for them yet, which is a deliberate
-    # scope limit recorded in ROADMAP.md.
+    # "Formerly NNN.NNN", bare "Renumbered NNN.NNN" and "enacted in lieu of
+    # NNN.NNN" segments name a section rather than citing a session law, so
+    # they never become ors_source_credit rows. They are still real data, so
+    # they are collected rather than dropped; SCHEMA.md has no table for
+    # them yet, which is a deliberate scope limit recorded in ROADMAP.md.
     formerly_references = []
     renumber_references = []
+    enacted_in_lieu_references = []
     # A credit segment that is neither a session-law citation nor one of the
     # two forms above. Surfaced explicitly rather than silently absorbed,
     # because it represents a real printed form this parser does not yet
@@ -834,6 +835,10 @@ def build_rows(chapter_records, repo_root=None):
                     {"sectionId": section_id, "sectionNumber": number}
                     for number in parsed_credit["renumberReferences"]
                 )
+                enacted_in_lieu_references.extend(
+                    {"sectionId": section_id, "sectionNumber": number}
+                    for number in parsed_credit["enactedInLieuReferences"]
+                )
                 if parsed_credit["unparsedSegments"]:
                     unparsed_credit_segments.append({
                         "sectionId": section_id,
@@ -888,6 +893,7 @@ def build_rows(chapter_records, repo_root=None):
         "sectionNotes": section_notes,
         "formerlyReferences": formerly_references,
         "renumberReferences": renumber_references,
+        "enactedInLieuReferences": enacted_in_lieu_references,
         "unparsedCreditSegments": unparsed_credit_segments,
         "crossReferences": cross_references,
         "crossReferenceCandidates": cross_reference_candidates,
@@ -1066,6 +1072,7 @@ def main(argv=None):
         "sectionNoteRowCount": len(rows["sectionNotes"]),
         "formerlyReferenceCount": len(rows["formerlyReferences"]),
         "renumberReferenceCount": len(rows["renumberReferences"]),
+        "enactedInLieuReferenceCount": len(rows["enactedInLieuReferences"]),
         # A credit segment that is neither a session-law citation nor a
         # recognized non-citation form (Formerly/Renumbered). Gated at zero:
         # every real form recorded in FINDINGS.md parses cleanly, so a

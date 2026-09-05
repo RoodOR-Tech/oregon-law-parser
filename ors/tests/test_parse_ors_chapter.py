@@ -814,6 +814,38 @@ class SourceCreditRowTest(unittest.TestCase):
         self.assertEqual(self.rows["unparsedCreditSegments"], [])
 
 
+class EnactedInLieuReferenceTest(unittest.TestCase):
+    """A bare "enacted in lieu of NNN.NNN" reference is captured the same
+    way formerlyReferences/renumberReferences are, without becoming a
+    credit row -- see ors_credits.py's own ENACTED_IN_LIEU_PATTERN."""
+
+    def test_captured_without_becoming_a_credit(self):
+        # Real form: chapter 471's own 471.666.
+        markup = (
+            "<p>2025 EDITION</p>"
+            "<p><b>471.666 Some catchline.</b> Some statutory text."
+            " [1989 c.791 §18; enacted in lieu of 471.665 in 1997;"
+            " 2021 c.351 §130]</p>"
+        )
+        parsed = parser.parse_chapter(markup, "471")
+        record = {
+            "chapterNumber": "471",
+            "chapterSortKey": "000471 ",
+            "sha256": "a" * 64,
+            "parsed": parsed,
+        }
+        rows = parser.build_rows([record])
+        self.assertEqual(
+            rows["enactedInLieuReferences"],
+            [{"sectionId": "2025-471.666", "sectionNumber": "471.665"}],
+        )
+        lieu_credits = [
+            c for c in rows["sourceCredits"] if c["sectionId"] == "2025-471.666"
+        ]
+        self.assertEqual(len(lieu_credits), 2)
+        self.assertEqual(rows["unparsedCreditSegments"], [])
+
+
 class CrossReferenceCandidateTest(unittest.TestCase):
     """The fixture's own body text carries a real range mention twice."""
 
