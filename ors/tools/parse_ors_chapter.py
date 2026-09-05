@@ -30,6 +30,7 @@ from ors_cross_references import (  # noqa: E402
     find_cross_reference_candidates,
     resolve_cross_references,
 )
+from ors_pending_changes import find_pending_change_notices  # noqa: E402
 from ors_section_notes import find_editorial_note_candidates, split_editorial_notes  # noqa: E402
 from ors_text import decode_markup, declared_charset, normalize_spaces  # noqa: E402
 
@@ -682,6 +683,7 @@ def parse_chapter(markup, chapter_number):
         "boldRunCount": len(bold_spans),
         "sections": sections,
         "subdivisions": subdivisions,
+        "pendingChangeNotices": find_pending_change_notices(lines),
         "foreignAnchors": foreign_anchors,
         "unboldedStubLines": find_unbolded_stub_lines(
             lines, bold_spans, {anchor["number"] for anchor in anchors}
@@ -701,6 +703,7 @@ def build_rows(chapter_records, repo_root=None):
     sections = []
     source_credits = []
     section_notes = []
+    pending_changes = []
     problems = []
     # "Formerly NNN.NNN", bare "Renumbered NNN.NNN" and "enacted in lieu of
     # NNN.NNN" segments name a section rather than citing a session law, so
@@ -774,6 +777,19 @@ def build_rows(chapter_records, repo_root=None):
             "sourceEncoding": record.get("sourceEncoding"),
             "sectionCount": len(parsed["sections"]),
         })
+
+        for ordinal, notice in enumerate(parsed["pendingChangeNotices"], start=1):
+            pending_changes.append({
+                "pendingChangeId": f"{chapter_id}-p{ordinal:03d}",
+                "chapterId": chapter_id,
+                "ordinal": ordinal,
+                "sessionYear": notice["sessionYear"],
+                "sessionLawChapter": notice["sessionLawChapter"],
+                "changeKind": notice["changeKind"],
+                "noticeText": notice["noticeText"],
+                "charOffsetStart": notice["charOffsetStart"],
+                "charOffsetEnd": notice["charOffsetEnd"],
+            })
 
         subdivision_ids = {}
         for ordinal, subdivision in enumerate(parsed["subdivisions"], start=1):
@@ -891,6 +907,7 @@ def build_rows(chapter_records, repo_root=None):
         "sections": sections,
         "sourceCredits": source_credits,
         "sectionNotes": section_notes,
+        "pendingChanges": pending_changes,
         "formerlyReferences": formerly_references,
         "renumberReferences": renumber_references,
         "enactedInLieuReferences": enacted_in_lieu_references,
@@ -966,6 +983,26 @@ def check_referential_integrity(rows):
                 f"credit {credit['creditId']} has an implausible session year {credit['sessionYear']}"
             )
 
+    seen_pending_changes = set()
+    for pending_change in rows["pendingChanges"]:
+        if pending_change["chapterId"] not in chapter_ids:
+            violations.append(
+                f"pending change {pending_change['pendingChangeId']} has no chapter"
+            )
+        if pending_change["pendingChangeId"] in seen_pending_changes:
+            violations.append(f"duplicate pending change id {pending_change['pendingChangeId']}")
+        seen_pending_changes.add(pending_change["pendingChangeId"])
+        if pending_change["changeKind"] not in PENDING_CHANGE_KINDS:
+            violations.append(
+                f"pending change {pending_change['pendingChangeId']} has unknown kind "
+                f"{pending_change['changeKind']}"
+            )
+        if not 1850 <= pending_change["sessionYear"] <= 2100:
+            violations.append(
+                f"pending change {pending_change['pendingChangeId']} has an implausible "
+                f"session year {pending_change['sessionYear']}"
+            )
+
     seen_notes = set()
     for note in rows["sectionNotes"]:
         if note["sectionId"] not in seen_sections:
@@ -1004,6 +1041,9 @@ SECTION_STATUSES = {"operative", "repealed", "renumbered", "reserved", "note_onl
 CREDIT_ACTIONS = {"enacted", "amended", "renumbered", "repealed", "unspecified"}
 NOTE_KINDS = {"source_credit", "editorial_note", "preface_note"}
 REFERENCE_KINDS = {"section", "range_start", "range_end", "chapter"}
+PENDING_CHANGE_KINDS = {
+    "amended_or_repealed_elsewhere", "new_series_section", "new_compiled_section",
+}
 
 
 def main(argv=None):
@@ -1070,6 +1110,8 @@ def main(argv=None):
         "statusCounts": status_counts(rows["sections"]),
         "sourceCreditRowCount": len(rows["sourceCredits"]),
         "sectionNoteRowCount": len(rows["sectionNotes"]),
+        "pendingChangeRowCount": len(rows["pendingChanges"]),
+        "pendingChangeCountByKind": pending_change_counts_by_kind(rows["pendingChanges"]),
         "formerlyReferenceCount": len(rows["formerlyReferences"]),
         "renumberReferenceCount": len(rows["renumberReferences"]),
         "enactedInLieuReferenceCount": len(rows["enactedInLieuReferences"]),
@@ -1188,6 +1230,8 @@ def main(argv=None):
         "foreignAnchorCount": report["foreignAnchorCount"],
         "sourceCreditRowCount": report["sourceCreditRowCount"],
         "sectionNoteRowCount": report["sectionNoteRowCount"],
+        "pendingChangeRowCount": report["pendingChangeRowCount"],
+        "pendingChangeCountByKind": report["pendingChangeCountByKind"],
         "unparsedCreditSegmentCount": report["unparsedCreditSegmentCount"],
         "unboldedStubLineCount": report["unboldedStubLineCount"],
         "unboldedStubDistinctNumberCount": report["unboldedStubDistinctNumberCount"],
@@ -1214,6 +1258,13 @@ def candidate_counts_by_kind(candidates):
     counts = {}
     for candidate in candidates:
         counts[candidate["kind"]] = counts.get(candidate["kind"], 0) + 1
+    return dict(sorted(counts.items()))
+
+
+def pending_change_counts_by_kind(pending_changes):
+    counts = {}
+    for pending_change in pending_changes:
+        counts[pending_change["changeKind"]] = counts.get(pending_change["changeKind"], 0) + 1
     return dict(sorted(counts.items()))
 
 

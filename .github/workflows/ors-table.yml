@@ -256,6 +256,7 @@ jobs:
           fi
           echo "Source credit rows: $(jq -r '.sourceCreditRowCount' ors-parse.json)   Formerly references: $(jq -r '.formerlyReferenceCount' ors-parse.json)   Renumber references: $(jq -r '.renumberReferenceCount' ors-parse.json)"
           echo "Section note rows: $(jq -r '.sectionNoteRowCount' ors-parse.json)"
+          echo "Pending change rows: $(jq -r '.pendingChangeRowCount' ors-parse.json)   By kind: $(jq -c '.pendingChangeCountByKind' ors-parse.json)"
           echo "Unparsed credit segments: $(jq -r '.unparsedCreditSegmentCount' ors-parse.json)"
           jq -r '.unparsedCreditSegments[] | "  section \(.sectionId): \(.segments | join(" | "))"' ors-parse.json | head -150 || true
           # Diagnostic only, not yet gated: see find_unbolded_stub_lines's
