@@ -31,6 +31,14 @@ chapter) shape `ors_credits.py` already parses out of a section's own
 citations, so each named chapter becomes its own row: a printed join to the
 amendment parser's `(year, chapter)` output, per ROADMAP.md and FINDINGS.md.
 
+A chapter list can print in either of two real shapes: every chapter fully
+qualified ("2026 Session Laws 0050; 2026 Session Laws 0104"), as in every
+gold-chapter example above, or -- per FINDINGS.md's own earlier "Chapters
+advertise pending changes" fragment -- only the first chapter qualified and
+the rest bare, semicolon-separated numbers ("2026 Session Laws 0011; 0017;
+0085; 0096"). `_session_law_chapters` tries both forms per segment so
+either shape yields every chapter named, not just the first.
+
 Each notice prints as its own paragraph in the source, which
 `normalize_chapter_text` already collapses to a single line regardless of
 how it wraps in the raw markup -- confirmed directly against the real,
@@ -61,9 +69,38 @@ NEW_COMPILED_SECTION_NOTICE_PATTERN = re.compile(
 # Real notices zero-pad the chapter number ("Session Laws 0057"), unlike an
 # ordinary source credit's own "c.57" -- stripped here by \d+'s own leading
 # zeros never surviving int().
-SESSION_LAW_CHAPTER_PATTERN = re.compile(
-    r"(?:18|19|20)\d{2}\s+Session Laws\s+0*(?P<chapter>\d+)"
+#
+# Two real shapes exist for a list of more than one chapter. Every chapter
+# 183/471/659A notice repeats the full citation for every item ("2026
+# Session Laws 0050; 2026 Session Laws 0104; 2026 Session Laws 0105"), but
+# FINDINGS.md's own "Chapters advertise pending changes" records a second,
+# abbreviated real form where only the first item is fully qualified and
+# the rest are bare, semicolon-separated numbers ("2026 Session Laws 0011;
+# 0017; 0085; 0096") -- a Codex review of this module's first version
+# confirmed the fully-qualified-only pattern silently dropped every chapter
+# after the first in that shape, losing three of four real join keys.
+SESSION_LAW_CHAPTER_FULL_PATTERN = re.compile(
+    r"^(?:18|19|20)\d{2}\s+Session Laws\s+0*(?P<chapter>\d+)$"
 )
+SESSION_LAW_CHAPTER_BARE_PATTERN = re.compile(r"^0*(?P<chapter>\d+)$")
+
+
+def _session_law_chapters(chapters_text):
+    """Parse one or more Oregon Laws chapter numbers from a notice's own
+    trailing, semicolon-separated list -- see the patterns' own comment for
+    the two real shapes this handles."""
+    chapters = []
+    for segment in chapters_text.split(";"):
+        segment = segment.strip()
+        if not segment:
+            continue
+        match = (
+            SESSION_LAW_CHAPTER_FULL_PATTERN.match(segment)
+            or SESSION_LAW_CHAPTER_BARE_PATTERN.match(segment)
+        )
+        if match is not None:
+            chapters.append(int(match.group("chapter")))
+    return chapters
 
 # (change_kind, pattern). Order does not matter: the three notices are
 # textually distinct enough that at most one pattern ever matches a given
@@ -96,12 +133,7 @@ def find_pending_change_notices(lines):
             if change_kind == "amended_or_repealed_elsewhere":
                 chapters = [None]
             else:
-                chapters = [
-                    int(chapter_match.group("chapter"))
-                    for chapter_match in SESSION_LAW_CHAPTER_PATTERN.finditer(
-                        match.group("chapters")
-                    )
-                ]
+                chapters = _session_law_chapters(match.group("chapters"))
             for chapter in chapters:
                 found.append({
                     "changeKind": change_kind,

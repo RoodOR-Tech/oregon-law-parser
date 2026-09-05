@@ -71,6 +71,22 @@ class NewSeriesSectionTest(unittest.TestCase):
             self.assertEqual(row["sessionYear"], 2026)
             self.assertEqual(row["noticeText"], self.NOTICE)
 
+    def test_an_abbreviated_chapter_list_still_yields_every_chapter(self):
+        # Real fragment from FINDINGS.md's own "Chapters advertise pending
+        # changes": only the first item is fully qualified, the rest are
+        # bare, semicolon-separated numbers. A Codex review of the first
+        # version of this module found it silently dropped every chapter
+        # after the first in this shape.
+        notice = (
+            "New sections of law were added by legislative action to this "
+            "ORS chapter or to a series within this ORS chapter by the "
+            "Legislative Assembly during its 2026 regular session. See "
+            "sections in the following 2026 Oregon Laws chapters: 2026 "
+            "Session Laws 0011; 0017; 0085; 0096"
+        )
+        result = find_pending_change_notices(lines_for(notice))
+        self.assertEqual([row["sessionLawChapter"] for row in result], [11, 17, 85, 96])
+
     # Real fragment from chapter 659A (single named chapter).
     def test_a_single_named_chapter(self):
         notice = (
