@@ -846,6 +846,57 @@ class EnactedInLieuReferenceTest(unittest.TestCase):
         self.assertEqual(rows["unparsedCreditSegments"], [])
 
 
+class PendingChangeNoticeTest(unittest.TestCase):
+    """A chapter's own front-matter notice becomes an ors_chapter_pending_
+    change row, per increment 6 part 1 -- see ors_pending_changes.py."""
+
+    def test_a_notice_becomes_a_pending_change_row(self):
+        # Real form: chapter 659A's own front matter.
+        markup = (
+            "<p>Chapter 659A - Some Name</p>"
+            "<p>ORS sections in this chapter were amended or repealed by the"
+            " Legislative Assembly during its 2026 regular session. See the"
+            " table of ORS sections amended or repealed during the 2026"
+            " regular session: 2026 A&amp;R Tables</p>"
+            "<p>2025 EDITION</p>"
+            "<p><b>659A.001 Definitions.</b> Some statutory text."
+            " [2001 c.621 §1]</p>"
+        )
+        parsed = parser.parse_chapter(markup, "659A")
+        record = {
+            "chapterNumber": "659A",
+            "chapterSortKey": "000659A",
+            "sha256": "a" * 64,
+            "parsed": parsed,
+        }
+        rows = parser.build_rows([record])
+        self.assertEqual(len(rows["pendingChanges"]), 1)
+        pending_change = rows["pendingChanges"][0]
+        self.assertEqual(pending_change["pendingChangeId"], "2025-659A-p001")
+        self.assertEqual(pending_change["chapterId"], "2025-659A")
+        self.assertEqual(pending_change["sessionYear"], 2026)
+        self.assertIsNone(pending_change["sessionLawChapter"])
+        self.assertEqual(pending_change["changeKind"], "amended_or_repealed_elsewhere")
+        violations = parser.check_referential_integrity(rows)
+        self.assertEqual(violations, [])
+
+    def test_no_notice_yields_no_pending_change_rows(self):
+        markup = (
+            "<p>Chapter 1 - Some Name</p>"
+            "<p>2025 EDITION</p>"
+            "<p><b>1.002 Definitions.</b> Some statutory text. [1971 c.1 §1]</p>"
+        )
+        parsed = parser.parse_chapter(markup, "1")
+        record = {
+            "chapterNumber": "1",
+            "chapterSortKey": "000001 ",
+            "sha256": "a" * 64,
+            "parsed": parsed,
+        }
+        rows = parser.build_rows([record])
+        self.assertEqual(rows["pendingChanges"], [])
+
+
 class CrossReferenceCandidateTest(unittest.TestCase):
     """The fixture's own body text carries a real range mention twice."""
 
