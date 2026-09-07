@@ -1,0 +1,701 @@
+{
+  "schemaVersion": 1,
+  "corpusType": "ors-gold-editorial-notes",
+  "editionYear": 2025,
+  "reviewMethod": {
+    "basis": "Frozen authoritative HTML paragraphs, independently transcribed with a source-only BeautifulSoup helper; all Note:/Notes: occurrences audited. No production parser imports or note-row output used to establish expectations.",
+    "parserNoteOutputConsultedBeforeFreeze": false,
+    "normalization": "HTML entities decoded as windows-1252; consecutive whitespace collapsed to one space. Notes end at next note, section heading (including an alternate version), subdivision heading, or chapter footer.",
+    "coverage": "All editorial notes attached to sections in the five frozen chapters; chapter prefaces and standalone uncodified law cataloguing are outside this table.",
+    "exclusions": [
+      {
+        "chapterNumber": "105",
+        "paragraph": 1371,
+        "reason": "Unbolded flood-insurance Note inside the legislatively prescribed seller disclosure form is statutory body text, not editorial commentary."
+      }
+    ]
+  },
+  "expectedNoteCount": 80,
+  "chapters": [
+    {
+      "chapterNumber": "12",
+      "sourceSha256": "395372094f134b5dee85206e978945bd9d257cf38ec31ab099cf2bd3544e6905",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors012.html",
+      "sourceBytes": 123839,
+      "notes": [
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 110,
+          "paragraphEnd": 110,
+          "noteText": "Note: 12.118 was added to and made a part of ORS chapter 12 by legislative action but was not added to any smaller series therein. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-12.118",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 111,
+          "paragraphEnd": 112,
+          "noteText": "Note: Section 3, chapter 448, Oregon Laws 2019, provides: Sec. 3. Applicability of ORS 12.118. Notwithstanding any other provision of law, section 2 of this 2019 Act [12.118] applies to all actions commenced on or after the effective date of this 2019 Act [June 20, 2019], including any action that would have been barred by application of any period of limitations prior to the effective date of this 2019 Act. [2019 c.448 §3]",
+          "sectionId": "2025-12.118",
+          "ordinal": 2
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 113,
+          "paragraphEnd": 117,
+          "noteText": "Note: Section 3, chapter 447, Oregon Laws 2025, provides: Sec. 3. Applicability of 2025 amendments to ORS 12.117 and 12.118. (1) Except as provided in subsection (2) of this section, the amendments to ORS 12.117 and 12.118 by sections 1 and 2 of this 2025 Act apply to claims arising on or after the effective date of this 2025 Act [June 26, 2025]. (2)(a) A claim based on conduct allowing, permitting or encouraging child abuse or child sexual abuse that arises before the effective date of this 2025 Act is subject to the statute of limitations provided in ORS 12.117 (1)(a), unless a final judgment has been entered on the claim before the effective date of this 2025 Act. (b) A claim based on conduct allowing, permitting or encouraging sexual assault that arises before the effective date of this 2025 Act must be commenced within five years from the date the person discovers, or in the exercise of reasonable care should have discovered, the causal connection between the sexual assault and the injury, unless a final judgment has been entered on the claim before the effective date of this 2025 Act. (c) As used in this subsection, “final judgment” means a judgment for which the time to appeal has expired without any party filing an appeal or that is not subject to further appeal or review. [2025 c.447 §3]",
+          "sectionId": "2025-12.118",
+          "ordinal": 3
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 127,
+          "paragraphEnd": 127,
+          "noteText": "Note: 12.132 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 12 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-12.132",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 160,
+          "paragraphEnd": 160,
+          "noteText": "Note: 12.137 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 12 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-12.137",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 179,
+          "paragraphEnd": 179,
+          "noteText": "Note: 12.195 was added to and made a part of ORS chapter 12 by legislative action but was not added to any smaller series therein. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-12.195",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 206,
+          "paragraphEnd": 206,
+          "noteText": "Note: 12.270 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 12 by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-12.270",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 234,
+          "paragraphEnd": 234,
+          "noteText": "Note: 12.282 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 12 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-12.282",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 239,
+          "paragraphEnd": 239,
+          "noteText": "Note: 12.410 to 12.480 were enacted into law by the Legislative Assembly but were not added to or made a part of ORS chapter 12 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-12.410",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 241,
+          "paragraphEnd": 241,
+          "noteText": "Note: See note under 12.410.",
+          "sectionId": "2025-12.420",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 246,
+          "paragraphEnd": 246,
+          "noteText": "Note: See note under 12.410.",
+          "sectionId": "2025-12.430",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 248,
+          "paragraphEnd": 248,
+          "noteText": "Note: See note under 12.410.",
+          "sectionId": "2025-12.440",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 250,
+          "paragraphEnd": 250,
+          "noteText": "Note: See note under 12.410.",
+          "sectionId": "2025-12.450",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 254,
+          "paragraphEnd": 254,
+          "noteText": "Note: See note under 12.410.",
+          "sectionId": "2025-12.460",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 256,
+          "paragraphEnd": 256,
+          "noteText": "Note: See note under 12.410.",
+          "sectionId": "2025-12.470",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 258,
+          "paragraphEnd": 258,
+          "noteText": "Note: See note under 12.410.",
+          "sectionId": "2025-12.480",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "chapterNumber": "105",
+      "sourceSha256": "d5834eb1ce365c84d7c2d6a75eacf8268fae25f0493ff1ec81ffe02872aead7b",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors105.html",
+      "sourceBytes": 791645,
+      "notes": [
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 657,
+          "paragraphEnd": 657,
+          "noteText": "Note: The amendments to 105.136 by section 6, chapter 598, Oregon Laws 2025, become operative September 28, 2027. See section 7, chapter 598, Oregon Laws 2025. The text that is operative on and after September 28, 2027, is set forth for the user’s convenience.",
+          "sectionId": "2025-105.136",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 669,
+          "paragraphEnd": 669,
+          "noteText": "Note: 105.136 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 105 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-105.136",
+          "ordinal": 2
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 719,
+          "paragraphEnd": 731,
+          "noteText": "Note: Sections 1 to 3, chapter 598, Oregon Laws 2025, provide: Sec. 1. Section 2 of this 2025 Act is added to and made a part of ORS 105.100 to 105.168. [2025 c.598 §1] Sec. 2. Rescheduling eviction trial for new parents receiving certain housing supports. (1) As used in this section, “health-related social needs housing supports” means housing supports approved for the demonstration project under 42 U.S.C. 1315 by the Centers for Medicare and Medicaid Services. (2) In an action for possession based on nonpayment, as defined in ORS 90.395, a defendant may move the court to reschedule the trial supported by a motion and declaration under penalty of perjury that the person: (a) Is the parent of a child under 12 months of age who is living in the dwelling unit; (b) Is a recipient of medical assistance, as defined in ORS 414.025; (c) Was approved, on a date of approval specified in the declaration, by the Oregon Health Authority or a coordinated care organization, as defined in ORS 414.025, to receive health-related social needs housing supports; and (d) Delivered documentation to the plaintiff as provided in subsection (3) of this section. (3) On or before filing a motion and declaration under subsection (2) of this section, the defendant shall deliver to the plaintiff a copy of an award letter or any other documentation showing approval for health-related social needs housing supports. The defendant may redact the names of any medical providers, Oregon Health Plan member identification numbers or other protected personal information, not including the defendant’s name or contact information, that appears in the documentation. (4) Notwithstanding ORS 105.137 (6), a court shall grant the motion and shall reschedule the trial to a date no sooner than 90 days and no later than 104 days from the date of the motion if: (a) The motion and declaration under subsection (2) of this section are filed at least three judicial days prior to the date set for trial, unless good cause is shown; and (b) The court finds that the requirements of subsection (2) of this section are met. [2025 c.598 §2] Sec. 3. Section 2 of this 2025 Act is repealed on September 28, 2027. [2025 c.598 §3]",
+          "sectionId": "2025-105.137",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 756,
+          "paragraphEnd": 756,
+          "noteText": "Note: 105.146 to 105.149 were added to and made a part of 105.100 to 105.168 by legislative action but were not added to any smaller series therein. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-105.146",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 798,
+          "paragraphEnd": 798,
+          "noteText": "Note: See note under 105.146.",
+          "sectionId": "2025-105.148",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 816,
+          "paragraphEnd": 816,
+          "noteText": "Note: See note under 105.146.",
+          "sectionId": "2025-105.149",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 943,
+          "paragraphEnd": 943,
+          "noteText": "Note: The amendments to 105.163 by section 11, chapter 39, Oregon Laws 2021, become operative January 2, 2028. See section 12, chapter 39, Oregon Laws 2021. The text that is operative on and after January 2, 2028, is set forth for the user’s convenience.",
+          "sectionId": "2025-105.163",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1773,
+          "paragraphEnd": 1773,
+          "noteText": "Note: 105.780 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 105 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-105.780",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "chapterNumber": "183",
+      "sourceSha256": "72cae077362c4900f024fc2a290a2088511994f44952a96edb1e6268e3b458cc",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors183.html",
+      "sourceBytes": 388358,
+      "notes": [
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 276,
+          "paragraphEnd": 276,
+          "noteText": "Note: 183.338 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 183 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-183.338",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 328,
+          "paragraphEnd": 328,
+          "noteText": "Note: 183.365 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 183 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-183.365",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 363,
+          "paragraphEnd": 363,
+          "noteText": "Note: 183.403 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 183 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-183.403",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 383,
+          "paragraphEnd": 383,
+          "noteText": "Note: 183.405 was added to and made a part of 183.325 to 183.410 by legislative action but was not added to any smaller series therein. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-183.405",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 403,
+          "paragraphEnd": 403,
+          "noteText": "Note: 183.407 was added to and made a part of 183.325 to 183.410 by legislative action but was not added to any smaller series therein. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-183.407",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 407,
+          "paragraphEnd": 407,
+          "noteText": "Note: 183.411 was added to and made a part of ORS chapter 183 by legislative action but was not added to any smaller series therein. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-183.411",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 486,
+          "paragraphEnd": 486,
+          "noteText": "Note: 183.452 was added to and made a part of 183.413 to 183.470 by legislative action but was not added to any other series. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-183.452",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 488,
+          "paragraphEnd": 488,
+          "noteText": "Note: 183.453 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 183 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-183.453",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 515,
+          "paragraphEnd": 515,
+          "noteText": "Note: 183.457 was added to and made a part of 183.413 to 183.470 by legislative action but was not added to any other series. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-183.457",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 525,
+          "paragraphEnd": 525,
+          "noteText": "Note: 183.458 was added to and made a part of 183.413 to 183.470 by legislative action but was not added to any other series. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-183.458",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 534,
+          "paragraphEnd": 534,
+          "noteText": "Note: 183.459 was added to and made a part of 183.413 to 183.470 by legislative action but was not added to any other series. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-183.459",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 573,
+          "paragraphEnd": 573,
+          "noteText": "Note: 183.471 was added to and made a part of ORS chapter 183 by legislative action but was not added to any smaller series therein. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-183.471",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 629,
+          "paragraphEnd": 629,
+          "noteText": "Note: 183.497 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 183 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-183.497",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 650,
+          "paragraphEnd": 650,
+          "noteText": "Note: 183.502 was added to and made a part of ORS chapter 183 by legislative action but was not added to any smaller series therein. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-183.502",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 661,
+          "paragraphEnd": 661,
+          "noteText": "Note: 183.530 to 183.538 were added to and made a part of ORS chapter 183 by legislative action but were not added to any smaller series therein. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-183.530",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 668,
+          "paragraphEnd": 668,
+          "noteText": "Note: See note under 183.530.",
+          "sectionId": "2025-183.534",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 672,
+          "paragraphEnd": 672,
+          "noteText": "Note: See note under 183.530.",
+          "sectionId": "2025-183.538",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 832,
+          "paragraphEnd": 832,
+          "noteText": "Note: 183.700 and 183.702 were enacted into law by the Legislative Assembly but were not added to or made a part of ORS chapter 183 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-183.700",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 837,
+          "paragraphEnd": 837,
+          "noteText": "Note: See note under 183.700.",
+          "sectionId": "2025-183.702",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 854,
+          "paragraphEnd": 854,
+          "noteText": "Note: 183.710 to 183.730 were enacted into law by the Legislative Assembly but were not added to or made a part of ORS chapter 183 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-183.710",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 856,
+          "paragraphEnd": 856,
+          "noteText": "Note: See note under 183.710.",
+          "sectionId": "2025-183.715",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 872,
+          "paragraphEnd": 872,
+          "noteText": "Note: See note under 183.710.",
+          "sectionId": "2025-183.720",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 880,
+          "paragraphEnd": 880,
+          "noteText": "Note: See note under 183.710.",
+          "sectionId": "2025-183.722",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 884,
+          "paragraphEnd": 884,
+          "noteText": "Note: See note under 183.710.",
+          "sectionId": "2025-183.724",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 890,
+          "paragraphEnd": 890,
+          "noteText": "Note: See note under 183.710.",
+          "sectionId": "2025-183.730",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 913,
+          "paragraphEnd": 913,
+          "noteText": "Note: 183.745 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 183 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-183.745",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 919,
+          "paragraphEnd": 919,
+          "noteText": "Note: 183.750 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 183 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-183.750",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "chapterNumber": "471",
+      "sourceSha256": "180bb7778bd38476ced6d531c933bdf6e5c25f10781f9458e67fd9e5ef9d762c",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors471.html",
+      "sourceBytes": 735232,
+      "notes": [
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 627,
+          "paragraphEnd": 627,
+          "noteText": "Note: The amendments to 471.230 by section 3, chapter 649, Oregon Laws 2021, become operative January 2, 2028, and apply to distilled liquor retail sales made by a distillery retail outlet agent on or after January 2, 2028. See section 4, chapter 649, Oregon Laws 2021. The text that is operative on and after January 2, 2028, is set forth for the user’s convenience.",
+          "sectionId": "2025-471.230",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 682,
+          "paragraphEnd": 682,
+          "noteText": "Note: Definitions for 471.268 are found in 471.037.",
+          "sectionId": "2025-471.268",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1057,
+          "paragraphEnd": 1057,
+          "noteText": "Note: 471.402 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 471 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-471.402",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1151,
+          "paragraphEnd": 1151,
+          "noteText": "Note: 471.432 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 471 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-471.432",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1156,
+          "paragraphEnd": 1156,
+          "noteText": "Note: 471.434 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 471 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-471.434",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1390,
+          "paragraphEnd": 1390,
+          "noteText": "Note: 471.565 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 471 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-471.565",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1395,
+          "paragraphEnd": 1395,
+          "noteText": "Note: 471.567 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 471 or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-471.567",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "chapterNumber": "659A",
+      "sourceSha256": "9ebbd735d2df8ee2f9cb0155bc135856a225394c963686709b449c7f3d66c5d7",
+      "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors659A.html",
+      "sourceBytes": 670354,
+      "notes": [
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 254,
+          "paragraphEnd": 255,
+          "noteText": "Note: Section 59 (5), chapter 228, Oregon Laws 2023, provides: Sec. 59. (5) The amendments to ORS 659A.029 by section 47 of this 2023 Act apply to unlawful employment discrimination occurring before, on or after the effective date of this 2023 Act [July 13, 2023]. [2023 c.228 §59(5)]",
+          "sectionId": "2025-659A.029",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 291,
+          "paragraphEnd": 291,
+          "noteText": "Note: 659A.036 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 659A or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-659A.036",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 404,
+          "paragraphEnd": 404,
+          "noteText": "Note: 659A.086, 659A.088 and 659A.089 were enacted into law by the Legislative Assembly but were not added to or made a part of ORS chapter 659A or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-659A.086",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 408,
+          "paragraphEnd": 408,
+          "noteText": "Note: See note under 659A.086.",
+          "sectionId": "2025-659A.088",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 413,
+          "paragraphEnd": 413,
+          "noteText": "Note: See note under 659A.086.",
+          "sectionId": "2025-659A.089",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 518,
+          "paragraphEnd": 518,
+          "noteText": "Note: 659A.122 was made a part of 659A.103 to 659A.145 by legislative action but was not added to any smaller series therein. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-659A.122",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 556,
+          "paragraphEnd": 556,
+          "noteText": "Note: 659A.141 was added to and made a part of ORS chapter 659 by legislative action but was not added to ORS chapter 659A or any smaller series therein. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-659A.141",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 607,
+          "paragraphEnd": 607,
+          "noteText": "Note: 659A.143 was added to and made a part of 659A.103 to 659A.145 by legislative action but was not added to any smaller series therein. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-659A.143",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1139,
+          "paragraphEnd": 1139,
+          "noteText": "Note: 659A.340 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 659A or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-659A.340",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1164,
+          "paragraphEnd": 1164,
+          "noteText": "Note: 659A.357 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 659A or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-659A.357",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1176,
+          "paragraphEnd": 1176,
+          "noteText": "Note: 659A.360 and 659A.362 were enacted into law by the Legislative Assembly but were not added to or made a part of ORS chapter 659A or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-659A.360",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1178,
+          "paragraphEnd": 1178,
+          "noteText": "Note: See note under 659A.360.",
+          "sectionId": "2025-659A.362",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1216,
+          "paragraphEnd": 1216,
+          "noteText": "Note: 659A.377 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 659A or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-659A.377",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1307,
+          "paragraphEnd": 1307,
+          "noteText": "Note: 659A.410 was enacted into law by the Legislative Assembly but was not added to or made a part of ORS chapter 659A or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-659A.410",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1313,
+          "paragraphEnd": 1313,
+          "noteText": "Note: 659A.411 to 659A.415 and 659A.417 were enacted into law by the Legislative Assembly but were not added to or made a part of ORS chapter 659A or any series therein by legislative action. See Preface to Oregon Revised Statutes for further explanation.",
+          "sectionId": "2025-659A.411",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1321,
+          "paragraphEnd": 1321,
+          "noteText": "Note: See note under 659A.411.",
+          "sectionId": "2025-659A.413",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1324,
+          "paragraphEnd": 1324,
+          "noteText": "Note: See note under 659A.411.",
+          "sectionId": "2025-659A.415",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1326,
+          "paragraphEnd": 1326,
+          "noteText": "Note: See note under 659A.411.",
+          "sectionId": "2025-659A.417",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1480,
+          "paragraphEnd": 1483,
+          "noteText": "Note: Section 7 (2), chapter 379, Oregon Laws 2025, provides: Sec. 7. (2) The amendments to ORS 659A.830, 659A.870, 659A.875 and 659A.880 by sections 3 to 6 of this 2025 Act apply to complaints and actions: (a) Filed on or after the effective date of this 2025 Act [June 24, 2025]. (b) Filed before the effective date of this 2025 Act and for which no notice was issued by the Bureau of Labor and Industries under ORS 659A.880. [2025 c.379 §7(2)]",
+          "sectionId": "2025-659A.830",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1547,
+          "paragraphEnd": 1547,
+          "noteText": "Note: See note under 659A.830.",
+          "sectionId": "2025-659A.870",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1561,
+          "paragraphEnd": 1561,
+          "noteText": "Note: See note under 659A.830.",
+          "sectionId": "2025-659A.875",
+          "ordinal": 1
+        },
+        {
+          "noteKind": "editorial_note",
+          "paragraphStart": 1575,
+          "paragraphEnd": 1575,
+          "noteText": "Note: See note under 659A.830.",
+          "sectionId": "2025-659A.880",
+          "ordinal": 1
+        }
+      ]
+    }
+  ]
+}
