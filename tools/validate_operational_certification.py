@@ -56,9 +56,11 @@ def validate(root: Path, matrix_path: Path):
 
     sessions = matrix.get("sessions", [])
     require(sessions, "certification matrix contains no validated sessions")
-    keys = [item.get("sessionKey") for item in sessions]
-    plans = [item.get("plan") for item in sessions]
-    workflows = [item.get("workflow") for item in sessions]
+    pending = matrix.get("pendingSessions", [])
+    inventory = sessions + pending
+    keys = [item.get("sessionKey") for item in inventory]
+    plans = [item.get("plan") for item in inventory]
+    workflows = [item.get("workflow") for item in inventory]
     require(None not in keys + plans + workflows, "every session needs sessionKey, plan, and workflow")
     require(len(keys) == len(set(keys)), "duplicate sessionKey in certification matrix")
     require(len(plans) == len(set(plans)), "duplicate session plan in certification matrix")
@@ -66,6 +68,10 @@ def validate(root: Path, matrix_path: Path):
 
     for item in sessions:
         require(item.get("status") == "validated", f"{item.get('sessionKey')}: session is not marked validated")
+    for item in pending:
+        require(item.get("status") == "pending-validation",
+                f"{item.get('sessionKey')}: pending session must not claim validation")
+    for item in inventory:
         key = item["sessionKey"]
         try:
             year = int(key[:4])
@@ -75,8 +81,8 @@ def validate(root: Path, matrix_path: Path):
         require((root / item["plan"]).is_file(), f"{key}: missing session plan {item['plan']}")
         require((root / item["workflow"]).is_file(), f"{key}: missing workflow {item['workflow']}")
 
-    repo_plans = {str(path.relative_to(root)) for path in (root / "operations").glob("*-session-plan.json")}
-    repo_workflows = {str(path.relative_to(root)) for path in (root / ".github/workflows").glob("full-session-*.yml")}
+    repo_plans = {path.relative_to(root).as_posix() for path in (root / "operations").glob("*-session-plan.json")}
+    repo_workflows = {path.relative_to(root).as_posix() for path in (root / ".github/workflows").glob("full-session-*.yml")}
     matrix_plans = set(plans)
     matrix_workflows = set(workflows)
     require(matrix_plans == repo_plans,
@@ -107,6 +113,8 @@ def validate(root: Path, matrix_path: Path):
         "valid": True,
         "validatedOperationalFloor": floor,
         "validatedSessionCount": len(sessions),
+        "pendingSessionCount": len(pending),
+        "inventorySessionCount": len(inventory),
         "qualifiedExclusionCount": len(exclusions),
         "goldCertificationDocuments": len(gold_docs),
         "unseenValidationDocuments": len(unseen_docs),

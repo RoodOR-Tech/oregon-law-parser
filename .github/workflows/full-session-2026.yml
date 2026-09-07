@@ -9,6 +9,9 @@ on:
       - 'analyze/**'
       - 'tools/acquire_session_chapters.py'
       - 'tools/summarize_session_run.py'
+      - 'tools/validate_operational_certification.py'
+      - 'tools/test_validate_operational_certification.py'
+      - 'operations/certification-matrix.json'
       - 'operations/2026-session-plan.json'
   workflow_dispatch:
 
@@ -71,11 +74,12 @@ jobs:
             local padded="$1"
             local id="2026orlaw${padded}"
             local fixture="../session-fixtures/${id}.pdf"
-            local source_url="https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orLaw${padded}.pdf"
+            local source_url
             if [[ ! -f "$fixture" ]]; then
               printf '%s\t%s\n' "$id" "source-missing" >> ../session-parser-exit-codes.tsv
               return 0
             fi
+            source_url="$(jq -er --arg id "$id" '.documents[] | select(.id == $id and .ok == true) | .sourceUrl' ../session-acquisition-report.json)" || return 1
             set +e
             timeout 120s stack exec -- analyze "$fixture" --tika-jar ../tika-app-2.8.0.jar --source-url "$source_url" > "../session-results/${id}.json"
             code=$?

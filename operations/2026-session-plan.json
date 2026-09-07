@@ -5,8 +5,8 @@
   "firstChapter": 1,
   "lastChapter": 142,
   "expectedDocuments": 142,
-  "sourcePattern": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orLaw{chapter:04d}.pdf",
-  "rangeReference": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orLaw0142.pdf",
+  "sourcePattern": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orlaw{chapter:04d}.pdf",
+  "rangeReference": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orlaw0142.pdf",
   "reconciliationCriticalChapters": [57, 93, 126],
   "reviewPolicy": "Operational failures and Conflict/ParsedUnverified/Incomplete outputs are review queues. They do not change frozen certification or unseen-validation expectations without separate authoritative review."
 }

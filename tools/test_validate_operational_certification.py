@@ -33,6 +33,26 @@ class CertificationValidatorTests(unittest.TestCase):
             with self.assertRaisesRegex(CertificationError, "duplicate sessionKey"):
                 validate(ROOT, self.write_matrix(data, tmp))
 
+    def test_pending_2026_is_inventoried_without_claiming_validation(self):
+        result = validate(ROOT, MATRIX)
+        self.assertEqual(result['validatedSessionCount'], 29)
+        self.assertEqual(result['pendingSessionCount'], 1)
+        self.assertEqual(result['inventorySessionCount'], 30)
+
+    def test_pending_session_cannot_claim_validated_status(self):
+        data = json.loads(MATRIX.read_text())
+        data['pendingSessions'][0]['status'] = 'validated'
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(CertificationError, 'must not claim validation'):
+                validate(ROOT, self.write_matrix(data, tmp))
+
+    def test_duplicate_between_pending_and_validated_is_rejected(self):
+        data = json.loads(MATRIX.read_text())
+        data['pendingSessions'][0]['sessionKey'] = data['sessions'][0]['sessionKey']
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(CertificationError, 'duplicate sessionKey'):
+                validate(ROOT, self.write_matrix(data, tmp))
+
     def test_pre1999_session_cannot_be_marked_validated(self):
         data = json.loads(MATRIX.read_text())
         extra = copy.deepcopy(data["sessions"][0])

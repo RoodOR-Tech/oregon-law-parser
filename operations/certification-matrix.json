@@ -14,6 +14,9 @@
       "evidence": "operations/pre-1999-source-boundary.json"
     }
   ],
+  "pendingSessions": [
+    {"sessionKey":"2026","status":"pending-validation","plan":"operations/2026-session-plan.json","workflow":".github/workflows/full-session-2026.yml"}
+  ],
   "sessions": [
     {"sessionKey":"1999","status":"validated","plan":"operations/1999-session-plan.json","workflow":".github/workflows/full-session-1999.yml"},
     {"sessionKey":"2001","status":"validated","plan":"operations/2001-session-plan.json","workflow":".github/workflows/full-session-2001.yml"},

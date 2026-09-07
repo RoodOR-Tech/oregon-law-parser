@@ -411,14 +411,30 @@ tolerate `parse_ors_chapter.py`'s non-zero exit while this gap stood --
 reverted to the plain, stricter form now that the underlying exit code is
 genuinely clean.
 
-The section gate permits only the four exact, section-specific credit gaps
-listed in `tools/validate_gold_parse.py`. Missing chapters, integrity violations,
-editorial-note failures, unknown credit gaps and unexpected parser exits fail
-the workflow. The parse report, rows and source registry are retained with the
-comparison report so the section score does not conceal the broader parser's
-`valid: false` result. This is section-field coverage, not full credit or note
-certification. The 1.0 scores are the post-fix regression baseline; chapter 105
-already informed a parser fix, so these chapters are no longer an unseen test.
+The gold gate now requires `valid: true`, a zero parser exit status and zero
+unparsed credit segments. The four historical credit exceptions have been
+removed. Missing chapters, integrity violations and editorial-note failures
+also fail the workflow.
+
+Editorial note validation covers 80 source-reviewed notes across all five
+chapters (12: 16, 105: 8, 183: 27, 471: 7, 659A: 22). Expectations in
+`gold/reviews/editorial-notes.json` were transcribed from the frozen source
+paragraphs before comparing note rows; the file records source hashes and
+paragraph ranges. The first comparison on the pre-fix parser found 70 exact
+matches, three missing notes and seven notes contaminated by adjacent text.
+The parser now attaches notes across intervening form headings and alternate
+future versions, stops at the next printed boundary, and retains a statutory
+form's unbolded flood-insurance note in the body. All 80 notes match after
+whitespace normalization, including their section, ordinal, kind and text.
+The gate rejects missing, extra, duplicate, misattached or altered notes and
+provenance drift. The report is retained alongside parse, rows and source
+evidence; the initial failing measurement is preserved in
+`gold/reviews/editorial-notes-first-evaluation.json`.
+
+This certifies the measured section fields and editorial notes for these five
+chapters, not all ORS editions, chapter prefaces, or all source-credit fields.
+These chapters have informed parser fixes and are a regression benchmark,
+not an unseen test.
 
 `ors/gold/reviews/chapter-12.json` -- the separately schemaed chapter-12 review
 integrated alongside this gate -- had every one of its 49 operative catchlines

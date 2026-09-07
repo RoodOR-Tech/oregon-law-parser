@@ -77,7 +77,7 @@ def split_editorial_notes(raw_text):
     return remainder, notes
 
 
-def find_editorial_note_candidates(body_text):
+def find_editorial_note_candidates(body_text, excluded_offsets=()):
     """Find candidate editorial/preface note introductions in one section.
 
     Returns a list of {"introducer", "context"} dicts in reading order.
@@ -90,6 +90,8 @@ def find_editorial_note_candidates(body_text):
 
     candidates = []
     for match in NOTE_INTRODUCER_PATTERN.finditer(body_text):
+        if match.start() in excluded_offsets:
+            continue
         hi = min(len(body_text), match.end() + CONTEXT_RADIUS)
         candidates.append({
             "introducer": match.group(0).strip(),
