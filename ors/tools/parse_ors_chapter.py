@@ -31,7 +31,7 @@ from ors_cross_references import (  # noqa: E402
     resolve_cross_references,
 )
 from ors_pending_changes import find_pending_change_notices  # noqa: E402
-from ors_section_notes import find_editorial_note_candidates, split_editorial_notes  # noqa: E402
+from ors_section_notes import NOTE_INTRODUCER_PATTERN, find_editorial_note_candidates  # noqa: E402
 from ors_text import decode_markup, declared_charset, normalize_spaces  # noqa: E402
 
 SCRIPT_STYLE_PATTERN = re.compile(r"<(script|style)\b.*?</\1\s*>", re.IGNORECASE | re.DOTALL)
@@ -583,6 +583,41 @@ def parse_chapter(markup, chapter_number):
         if any(candidate["start"] < anchor["start"] < limit for anchor in anchors):
             subdivisions.append(candidate)
 
+    # Notes are chapter-level printed blocks. A form heading or an alternate
+    # future version can interrupt a section's body span without changing
+    # which section owns the editorial notes printed beneath it.
+    note_owners = [a for a in anchors if chapter_number is None
+                   or a['number'].startswith(f'{chapter_number}.')]
+    for start, stop in bold_spans:
+        bare_version = re.fullmatch(r"(\d{1,3}[A-Z]?\.\d{3})\.", text[start:stop].strip())
+        if bare_version and any(a['number'] == bare_version[1] and a['start'] < start for a in anchors):
+            note_owners.append({'number': bare_version[1], 'start': start, 'headingEnd': stop})
+    note_owners.sort(key=lambda a: a['start'])
+    note_starts = []
+    for match in NOTE_INTRODUCER_PATTERN.finditer(text):
+        owner = next((a for a in reversed(note_owners) if a['start'] < match.start()), None)
+        if owner is None:
+            continue
+        bold = any(start <= match.start() < stop for start, stop in bold_spans)
+        prior = text[owner['headingEnd']:match.start()].strip()
+        follows_credit = split_source_credit(prior)[1] is not None or (owner.get('stub') and not prior)
+        follows_note = bool(note_starts and note_starts[-1]['start'] > owner['start'])
+        if bold or follows_credit or follows_note:
+            note_starts.append({'start': match.start(), 'number': owner['number']})
+    boundaries = sorted({a['start'] for a in note_owners}
+                        | {n['start'] for n in note_starts}
+                        | {c['start'] for c in candidates}
+                        | {start for line, start, stop in lines if re.fullmatch(r'_+', line)}
+                        | {len(text)})
+    notes_by_number = {}
+    for note in note_starts:
+        stop = next(boundary for boundary in boundaries if boundary > note['start'])
+        stop -= len(text[note['start']:stop]) - len(text[note['start']:stop].rstrip())
+        notes_by_number.setdefault(note['number'], []).append({
+            'text': text[note['start']:stop],
+            'charOffsetStart': note['start'], 'charOffsetEnd': stop,
+        })
+
     sections = []
     problems = []
     foreign_anchors = []
@@ -616,16 +651,10 @@ def parse_chapter(markup, chapter_number):
         # credit/body handling untouched. See split_editorial_notes's
         # docstring for the block-boundary rule and FINDINGS.md for the
         # real forms that settled it.
-        raw_span = text[anchor["headingEnd"]:end]
-        pre_notes, raw_notes = split_editorial_notes(raw_span)
-        notes = [
-            {
-                "text": note["text"],
-                "charOffsetStart": anchor["headingEnd"] + note["charOffsetStart"],
-                "charOffsetEnd": anchor["headingEnd"] + note["charOffsetEnd"],
-            }
-            for note in raw_notes
-        ]
+        notes = notes_by_number.get(number, [])
+        body_end = min([end] + [n['charOffsetStart'] for n in notes
+                               if anchor['headingEnd'] <= n['charOffsetStart'] < end])
+        pre_notes = text[anchor['headingEnd']:body_end]
 
         # Both branches below only ever narrow pre_notes from its own left
         # edge inward (strip(), then a further left-anchored slice for a
@@ -662,6 +691,8 @@ def parse_chapter(markup, chapter_number):
             "catchline": anchor["catchline"],
             "bodyText": body or None,
             "bodyTextCharOffsetStart": body_char_offset_start,
+            "statutoryNoteOffsets": [m.start() for m in NOTE_INTRODUCER_PATTERN.finditer(body or '')
+                                     if body_char_offset_start + m.start() not in {n['start'] for n in note_starts}],
             "sourceCreditRaw": credit,
             "notes": notes,
             "status": status,
@@ -891,9 +922,12 @@ def build_rows(chapter_records, repo_root=None):
                 # real note this measured should already be a row in
                 # section_notes above, so a survivor here means a note form
                 # split_editorial_notes does not yet recognize.
+                # Only recognized editorial notes count here. A statutory
+                # form's unbolded "Note:" is retained in bodyText.
                 editorial_note_candidates.extend(
                     {"sectionId": section_id, **candidate}
-                    for candidate in find_editorial_note_candidates(section["bodyText"])
+                    for candidate in find_editorial_note_candidates(
+                        section['bodyText'], section.get('statutoryNoteOffsets', []))
                 )
 
         problems.extend(f"chapter {number}: {item}" for item in parsed["problems"])

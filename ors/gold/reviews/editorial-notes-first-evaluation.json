@@ -1,0 +1,57 @@
+{
+  "valid": false,
+  "expectedNoteCount": 80,
+  "actualNoteCount": 77,
+  "matchedNoteCount": 70,
+  "missingNotes": [
+    [
+      "2025-105.136",
+      2
+    ],
+    [
+      "2025-105.137",
+      1
+    ],
+    [
+      "2025-105.148",
+      1
+    ]
+  ],
+  "extraNotes": [],
+  "mismatchedNotes": [
+    [
+      "2025-105.136",
+      1
+    ],
+    [
+      "2025-105.163",
+      1
+    ],
+    [
+      "2025-12.480",
+      1
+    ],
+    [
+      "2025-183.750",
+      1
+    ],
+    [
+      "2025-471.230",
+      1
+    ],
+    [
+      "2025-471.567",
+      1
+    ],
+    [
+      "2025-659A.036",
+      1
+    ]
+  ],
+  "failures": [
+    "note identity, kind or text differs from source review"
+  ],
+  "parserCommit": "086feff86784dadd6892995072d106bc2486841a",
+  "expectationsFile": "ors/gold/reviews/editorial-notes.json",
+  "purpose": "Preserved first note-row comparison, before note parser corrections. Expectations came from source-only review."
+}
