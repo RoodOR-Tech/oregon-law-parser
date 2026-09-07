@@ -461,6 +461,45 @@ files and does not glob `chapter-12.json` at all.
   chapters involved — the published 2025 edition already advertises 2026
   changes — which is a printed join to the amendment parser's output.
 
+Two of the four pieces are done; the other two need a second real ORS
+edition, which does not exist yet (only the 2025 edition is published; the
+next is 2027), so they are not guessed at with synthetic data.
+
+`tools/diff_ors_editions.py` is the section-level diffing primitive: a
+deterministic, data-only comparison over two editions' own canonical
+`ors_section` NDJSON rows, matched by `section_number`, classifying each as
+added, removed, changed (with a field-by-field before/after for
+`catchline`, `body_text`, `status` and `renumbered_to`) or unchanged.
+Surrogate `section_id`s (which embed the edition) never themselves count as
+a change, only the four statutory fields do. Its own `reconciliation`
+field is an explicit `{"status": "not-run", ...}` placeholder rather than a
+guess, so amendment-parser reconciliation is never implied before it
+exists. Built and tested against synthetic section-row fixtures, since
+there is no second real edition to diff yet; not wired to a real two-
+edition rebuild or to any CI workflow.
+
+The `ors_chapter_pending_change` table is done, against real data: a
+chapter document's own front matter already prints, in one of three
+distinct shapes, that a later legislative session has already changed it
+ahead of the next edition being published -- confirmed directly against
+the real, frozen increment 5 gold chapters (183, 471 and 659A print these
+notices; 12 and 105 print neither). `tools/ors_pending_changes.py`
+extracts them: one shape names no specific Oregon Laws chapter and becomes
+a single row with `session_law_chapter` left null; the other two each name
+one or more Oregon Laws chapters -- in either of two real printed forms,
+every chapter fully qualified or only the first one qualified and the rest
+bare, semicolon-separated numbers -- and each named chapter becomes its
+own row, in the exact `(session_year, session_law_chapter)` shape
+`ors_source_credit` already uses to join to the amendment parser's `(year,
+chapter)` output. Wired through `parse_ors_chapter.py`
+(`pendingChangeRowCount`, `pendingChangeCountByKind`, a referential
+integrity check) and `build_ors_relational.py` (the tenth SCHEMA.md
+table, in NDJSON/CSV/SQLite). Confirmed against a real live acquisition of
+the routine dev sample (14 pending-change rows across several of its seven
+chapters) and against the frozen five-chapter gold corpus (10 rows across
+the three chapters that print a notice); `valid: true`, zero integrity
+violations in both.
+
 ## Working method
 
 Increments 2 through 4 are developed against the fixed sample in
