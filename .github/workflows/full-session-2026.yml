@@ -13,6 +13,8 @@ on:
       - 'tools/test_validate_operational_certification.py'
       - 'operations/certification-matrix.json'
       - 'operations/2026-session-plan.json'
+      - 'operations/reviews/2026-*'
+      - 'ors/tools/reconcile_pending_changes.py'
   workflow_dispatch:
 
 concurrency:
@@ -106,6 +108,24 @@ jobs:
           code=$?
           echo "exit_code=$code" >> "$GITHUB_OUTPUT"
           exit 0
+
+      - name: Reconcile source-pinned ORS pending notices
+        run: |
+          python3 ors/tools/reconcile_pending_changes.py \
+            --pending operations/reviews/2026-ors-pending-changes.ndjson \
+            --session-results-dir session-results \
+            --report session-2026-ors-reconciliation.json
+          jq '{pendingChangeCount, chapterSpecificNoticeCount, nonSpecificNoticeCount, matchedParsedCount, matchedParserErrorCount, missingSessionResultCount, allChapterSpecificNoticesResolved}' session-2026-ors-reconciliation.json
+          jq -e '.pendingChangeCount == 10 and .matchedParsedCount == 8 and .nonSpecificNoticeCount == 2 and .allChapterSpecificNoticesResolved == true' session-2026-ors-reconciliation.json >/dev/null
+
+      - name: Upload ORS reconciliation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: session-2026-ors-reconciliation
+          path: session-2026-ors-reconciliation.json
+          if-no-files-found: error
+          retention-days: 90
 
       - name: Upload session acquisition report
         if: always()

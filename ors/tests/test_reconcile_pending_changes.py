@@ -20,14 +20,14 @@ class PendingChangeReconciliationTests(unittest.TestCase):
                 {
                     "pending_change_id": "2025-659A-pc001",
                     "chapter_id": "2025-659A",
-                    "notice_kind": "new_series_section",
+                    "change_kind": "new_series_section",
                     "session_year": 2026,
                     "session_law_chapter": 57,
                 },
                 {
                     "pending_change_id": "2025-659A-pc002",
                     "chapter_id": "2025-659A",
-                    "notice_kind": "amended_or_repealed_elsewhere",
+                    "change_kind": "amended_or_repealed_elsewhere",
                     "session_year": 2026,
                     "session_law_chapter": None,
                 },
@@ -37,13 +37,19 @@ class PendingChangeReconciliationTests(unittest.TestCase):
             self.assertTrue(report["allChapterSpecificNoticesResolved"])
             self.assertEqual(report["rows"][0]["reconciliation_status"], "matched-parsed")
             self.assertEqual(report["rows"][1]["reconciliation_status"], "non-specific-notice")
+            # change_kind is the real ors_chapter_pending_change column name
+            # (see SCHEMA.md and build_ors_relational.py); it must survive
+            # into the report rather than being read under a name -- like an
+            # earlier "notice_kind" -- that never matches the real rows.
+            self.assertEqual(report["rows"][0]["change_kind"], "new_series_section")
+            self.assertEqual(report["rows"][1]["change_kind"], "amended_or_repealed_elsewhere")
 
     def test_missing_result_is_explicit_and_not_treated_as_parser_failure(self):
         report = mod.reconcile([
             {
                 "pending_change_id": "pc",
                 "chapter_id": "2025-659A",
-                "notice_kind": "new_compiled_section",
+                "change_kind": "new_compiled_section",
                 "session_year": 2026,
                 "session_law_chapter": 93,
             }
@@ -60,7 +66,7 @@ class PendingChangeReconciliationTests(unittest.TestCase):
                 {
                     "pending_change_id": "pc",
                     "chapter_id": "2025-659A",
-                    "notice_kind": "new_compiled_section",
+                    "change_kind": "new_compiled_section",
                     "session_year": 2026,
                     "session_law_chapter": 126,
                 }
@@ -82,7 +88,7 @@ class PendingChangeReconciliationTests(unittest.TestCase):
                 {
                     "pending_change_id": "pc",
                     "chapter_id": "2025-659A",
-                    "notice_kind": "new_series_section",
+                    "change_kind": "new_series_section",
                     "session_year": "2026",
                     "session_law_chapter": 57,
                 }

@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "sessionYear": 2026,
+  "validatedRun": "https://github.com/RoodOR-Tech/oregon-law-parser/actions/runs/34170029882",
+  "validatedHead": "a577c2fef82a0bc8a2874877560548f9444d880a",
+  "expectedDocuments": 142,
+  "acquiredDocuments": 142,
+  "parsedDocuments": 142,
+  "operationalGatePassed": true,
+  "operationalReportArtifact": {
+    "id": 10035479622,
+    "sha256": "5a3d13eed40fbba84dbb17b4a3d3b3171438f461851bfdbe605c5bd464f0609f"
+  },
+  "parserResultsArtifact": {
+    "id": 10035479382,
+    "sha256": "a06712cd9d7f406c48d2ee66b6282bc3b32dcf20881a43ebefe64f90e76149ca"
+  },
+  "pendingNoticeSnapshot": {
+    "path": "operations/reviews/2026-ors-pending-changes.ndjson",
+    "parserCommit": "7f6fab362b1d6bbdf6c0304b8ee0212abb2939a6",
+    "sources": [
+      {
+        "chapterNumber": "12",
+        "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors012.html",
+        "retrievedAt": "2026-09-04T22:46:20Z",
+        "sha256": "395372094f134b5dee85206e978945bd9d257cf38ec31ab099cf2bd3544e6905"
+      },
+      {
+        "chapterNumber": "105",
+        "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors105.html",
+        "retrievedAt": "2026-09-04T22:46:20Z",
+        "sha256": "d5834eb1ce365c84d7c2d6a75eacf8268fae25f0493ff1ec81ffe02872aead7b"
+      },
+      {
+        "chapterNumber": "183",
+        "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors183.html",
+        "retrievedAt": "2026-09-04T22:46:20Z",
+        "sha256": "72cae077362c4900f024fc2a290a2088511994f44952a96edb1e6268e3b458cc"
+      },
+      {
+        "chapterNumber": "471",
+        "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors471.html",
+        "retrievedAt": "2026-09-04T22:46:20Z",
+        "sha256": "180bb7778bd38476ced6d531c933bdf6e5c25f10781f9458e67fd9e5ef9d762c"
+      },
+      {
+        "chapterNumber": "659A",
+        "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors659A.html",
+        "retrievedAt": "2026-09-04T22:46:20Z",
+        "sha256": "9ebbd735d2df8ee2f9cb0155bc135856a225394c963686709b449c7f3d66c5d7"
+      }
+    ],
+    "scope": "Ten notices from five gold chapters; eight chapter-specific references and two non-specific amendment notices. Matching parser outputs does not apply amendments to ORS text."
+  }
+}

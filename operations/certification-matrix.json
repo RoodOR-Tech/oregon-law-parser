@@ -14,9 +14,7 @@
       "evidence": "operations/pre-1999-source-boundary.json"
     }
   ],
-  "pendingSessions": [
-    {"sessionKey":"2026","status":"pending-validation","plan":"operations/2026-session-plan.json","workflow":".github/workflows/full-session-2026.yml"}
-  ],
+  "pendingSessions": [],
   "sessions": [
     {"sessionKey":"1999","status":"validated","plan":"operations/1999-session-plan.json","workflow":".github/workflows/full-session-1999.yml"},
     {"sessionKey":"2001","status":"validated","plan":"operations/2001-session-plan.json","workflow":".github/workflows/full-session-2001.yml"},
@@ -46,6 +44,7 @@
     {"sessionKey":"2022","status":"validated","plan":"operations/2022-session-plan.json","workflow":".github/workflows/full-session-2022.yml"},
     {"sessionKey":"2023","status":"validated","plan":"operations/2023-session-plan.json","workflow":".github/workflows/full-session-2023.yml"},
     {"sessionKey":"2024","status":"validated","plan":"operations/2024-session-plan.json","workflow":".github/workflows/full-session-2024.yml"},
-    {"sessionKey":"2025","status":"validated","plan":"operations/2025-session-plan.json","workflow":".github/workflows/full-session-2025.yml"}
+    {"sessionKey":"2025","status":"validated","plan":"operations/2025-session-plan.json","workflow":".github/workflows/full-session-2025.yml"},
+    {"sessionKey":"2026","status":"validated","plan":"operations/2026-session-plan.json","workflow":".github/workflows/full-session-2026.yml"}
   ]
 }

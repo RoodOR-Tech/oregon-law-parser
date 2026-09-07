@@ -22,7 +22,7 @@ class CertificationValidatorTests(unittest.TestCase):
         result = validate(ROOT, MATRIX)
         self.assertTrue(result["valid"])
         self.assertEqual(result["validatedOperationalFloor"], 1999)
-        self.assertEqual(result["validatedSessionCount"], 29)
+        self.assertEqual(result["validatedSessionCount"], 30)
         self.assertEqual(result["goldCertificationDocuments"], 50)
         self.assertEqual(result["unseenValidationDocuments"], 25)
 
@@ -33,21 +33,29 @@ class CertificationValidatorTests(unittest.TestCase):
             with self.assertRaisesRegex(CertificationError, "duplicate sessionKey"):
                 validate(ROOT, self.write_matrix(data, tmp))
 
-    def test_pending_2026_is_inventoried_without_claiming_validation(self):
-        result = validate(ROOT, MATRIX)
+    def pending_matrix(self):
+        data = json.loads(MATRIX.read_text())
+        entry = data["sessions"].pop()
+        entry["status"] = "pending-validation"
+        data["pendingSessions"] = [entry]
+        return data
+
+    def test_pending_session_is_inventoried_without_claiming_validation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            result = validate(ROOT, self.write_matrix(self.pending_matrix(), tmp))
         self.assertEqual(result['validatedSessionCount'], 29)
         self.assertEqual(result['pendingSessionCount'], 1)
         self.assertEqual(result['inventorySessionCount'], 30)
 
     def test_pending_session_cannot_claim_validated_status(self):
-        data = json.loads(MATRIX.read_text())
+        data = self.pending_matrix()
         data['pendingSessions'][0]['status'] = 'validated'
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaisesRegex(CertificationError, 'must not claim validation'):
                 validate(ROOT, self.write_matrix(data, tmp))
 
     def test_duplicate_between_pending_and_validated_is_rejected(self):
-        data = json.loads(MATRIX.read_text())
+        data = self.pending_matrix()
         data['pendingSessions'][0]['sessionKey'] = data['sessions'][0]['sessionKey']
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaisesRegex(CertificationError, 'duplicate sessionKey'):
