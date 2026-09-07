@@ -67,7 +67,7 @@ def reconcile(pending_rows, session_results):
         base = {
             "pending_change_id": pending.get("pending_change_id"),
             "ors_chapter_id": pending.get("chapter_id"),
-            "notice_kind": pending.get("notice_kind"),
+            "change_kind": pending.get("change_kind"),
             "session_year": year,
             "session_law_chapter": chapter,
         }
