@@ -1,6 +1,6 @@
 import copy
 import unittest
-from ors.tools.validate_gold_parse import KNOWN_CREDIT_GAPS, validate
+from ors.tools.validate_gold_parse import validate
 
 
 class GoldParseValidationTests(unittest.TestCase):
@@ -11,15 +11,15 @@ class GoldParseValidationTests(unittest.TestCase):
             "chaptersWithoutName": [], "unreadableChapterCount": 0,
             "editorialNoteCandidateCount": 0, "parsedChapterCount": 1,
             "perChapter": [{"chapterNumber": "471"}], "sectionRowCount": 271,
-            "unparsedCreditSegments": [
-                {"sectionId": section, "segments": [segment]}
-                for section, segment in sorted(KNOWN_CREDIT_GAPS)],
-            "unparsedCreditSegmentCount": 4, "valid": False,
+            "unparsedCreditSegments": [],
+            "unparsedCreditSegmentCount": 0, "valid": True,
         }
 
-    def test_only_known_gaps_are_allowed(self):
-        self.assertEqual(validate(self.report, self.selection, 1), [])
-        self.report["unparsedCreditSegments"][0]["segments"] = ["new failure"]
+    def test_no_credit_gap_is_allowed(self):
+        self.assertEqual(validate(self.report, self.selection, 0), [])
+        self.report['unparsedCreditSegments'] = [{'sectionId': '2025-471.410', 'segments': ['1983 cor. c.736 §1']}]
+        self.report['unparsedCreditSegmentCount'] = 1
+        self.report['valid'] = False
         self.assertTrue(validate(self.report, self.selection, 1))
 
     def test_other_parser_failures_are_never_masked(self):
@@ -31,7 +31,7 @@ class GoldParseValidationTests(unittest.TestCase):
             with self.subTest(field=field):
                 report = copy.deepcopy(self.report)
                 report[field] = value
-                self.assertTrue(validate(report, self.selection, 1))
+                self.assertTrue(validate(report, self.selection, 0))
         self.assertTrue(validate(self.report, self.selection, 2))
 
     def test_fixing_known_gaps_is_allowed(self):

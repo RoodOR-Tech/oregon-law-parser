@@ -1,20 +1,12 @@
-"""Keep the section benchmark's known credit gaps from masking other failures."""
+"""Require a complete, valid parse of the frozen gold chapter selection."""
 import argparse
 import json
 from pathlib import Path
 
 
-KNOWN_CREDIT_GAPS = {
-    ("2025-471.410", "1983 cor. c.736 §1"),
-    ("2025-471.420", "repealed by 1979 c.43 §1 and by 1979 c.190 §431"),
-    ("2025-471.666", "enacted in lieu of 471.665 in 1997"),
-    ("2025-471.750", "amendments by 2002 s.s.1 c.11 §1 repealed by 2002 s.s.2 c.1 §3"),
-}
-
-
 def validate(report, selection, exit_code):
     errors = []
-    if exit_code not in (0, 1):
+    if exit_code != 0:
         errors.append(f"unexpected parser exit code: {exit_code}")
     for field in ("problems", "integrityViolations", "unreadable", "chaptersWithoutName"):
         if report.get(field) != []:
@@ -28,14 +20,10 @@ def validate(report, selection, exit_code):
         errors.append("parsed chapters differ from frozen selection")
     if report.get("sectionRowCount", 0) <= 0:
         errors.append("no section rows")
-    gaps = [(item["sectionId"], segment)
-            for item in report["unparsedCreditSegments"] for segment in item["segments"]]
-    if len(gaps) != len(set(gaps)) or not set(gaps) <= KNOWN_CREDIT_GAPS:
-        errors.append("unrecognized or duplicate credit gaps")
-    if report.get("unparsedCreditSegmentCount") != len(gaps):
-        errors.append("credit gap count mismatch")
-    if report.get("valid") is not (not gaps) or exit_code != int(bool(gaps)):
-        errors.append("parser validity/exit code does not match known credit gaps")
+    if report.get('unparsedCreditSegments') != [] or report.get('unparsedCreditSegmentCount') != 0:
+        errors.append('unparsed credit segments are not allowed')
+    if report.get("valid") is not True:
+        errors.append("parser must report valid: true")
     return errors
 
 
