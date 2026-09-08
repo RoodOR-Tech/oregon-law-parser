@@ -3,7 +3,7 @@
 
 The join key is the printed pending-change tuple (session_year,
 session_law_chapter). Parser result identity comes from the established
-operational filename convention: YYYYourlaw####.json. This tool does not infer
+operational filename convention: YYYYorlaw####.json. This tool does not infer
 that a non-specific chapter notice changed any particular Oregon Laws chapter.
 """
 import argparse
