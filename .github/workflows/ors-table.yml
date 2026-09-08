@@ -428,3 +428,80 @@ jobs:
             ors-sources/
           if-no-files-found: warn
           retention-days: 30
+
+      # ors-chapter-roster.json is already acquisition-report shaped (see
+      # enumerate_ors_chapters.py's own module docstring), so it feeds
+      # parse_ors_chapter.py directly, the same way ors-acquisition.json
+      # does in the routine discover-and-probe job above. Parsing and
+      # building run here, inside the same job, rather than in a later
+      # dispatch: the raw sources this step needs were just fetched at real
+      # cost (on the order of a thousand requests) and never leave this
+      # runner, so nothing has to round-trip through artifact storage or
+      # this repository's own egress just to build the tables.
+      - name: Parse the whole edition into relational rows
+        if: always()
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          if [ ! -f ors-chapter-roster.json ]; then
+            echo "No enumeration report to parse."
+            exit 1
+          fi
+          python3 ors/tools/parse_ors_chapter.py \
+            --acquisition-report ors-chapter-roster.json \
+            --report ors-parse.json \
+            --rows ors-rows.json
+
+      - name: Build the whole-edition relational tables (NDJSON, CSV, SQLite)
+        if: always()
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          if [ ! -f ors-rows.json ] || [ ! -f ors-roster.json ] || [ ! -f ors-chapter-roster.json ]; then
+            echo "Missing an input report; nothing to build."
+            exit 1
+          fi
+          python3 ors/tools/build_ors_relational.py \
+            --rows ors-rows.json \
+            --roster ors-roster.json \
+            --acquisition ors-chapter-roster.json \
+            --out-dir ors-tables \
+            --report ors-build.json
+
+      # This is a first real look at chapters increment 5's gold review and
+      # the increment 1-4 development sample never covered, so problems and
+      # unparsed credit segments are expected here, not gated on: the point
+      # of this run is to measure their real scale before writing a fix, the
+      # same discipline every earlier increment in this pipeline followed.
+      - name: Print whole-edition parse and build counts
+        if: always()
+        run: |
+          set -uo pipefail
+          if [ -f ors-parse.json ]; then
+            echo "Editions: $(jq -r '.editionCount' ors-parse.json)   Chapters: $(jq -r '.chapterRowCount' ors-parse.json)   Sections: $(jq -r '.sectionRowCount' ors-parse.json)"
+            echo "Problems: $(jq -r '.problems | length' ors-parse.json)   Integrity violations: $(jq -r '.integrityViolations | length' ors-parse.json)"
+            echo "Chapters with no name: $(jq -r '.chaptersWithoutName | length' ors-parse.json)"
+            echo "Unparsed credit segments: $(jq -r '.unparsedCreditSegmentCount' ors-parse.json)"
+            echo "Pending change rows: $(jq -r '.pendingChangeRowCount' ors-parse.json)"
+          else
+            echo "No parse report was written."
+          fi
+          if [ -f ors-build.json ]; then
+            echo "Relational build row counts:"
+            jq -r '.rowCounts | to_entries[] | "  \(.key): \(.value)"' ors-build.json
+          else
+            echo "No relational build report was written."
+          fi
+
+      - name: Upload the whole-edition relational tables
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ors-whole-edition-tables
+          path: |
+            ors-parse.json
+            ors-rows.json
+            ors-build.json
+            ors-tables/
+          if-no-files-found: warn
+          retention-days: 30
