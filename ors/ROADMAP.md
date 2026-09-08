@@ -461,9 +461,10 @@ files and does not glob `chapter-12.json` at all.
   chapters involved — the published 2025 edition already advertises 2026
   changes — which is a printed join to the amendment parser's output.
 
-Two of the four pieces are done; the other two need a second real ORS
-edition, which does not exist yet (only the 2025 edition is published; the
-next is 2027), so they are not guessed at with synthetic data.
+Three of the four pieces are done, in one form or another; genuine section-
+level rebuild and diffing still need a second real ORS edition, which does
+not exist yet (only the 2025 edition is published; the next is 2027), so
+that piece is not guessed at with synthetic data.
 
 `tools/diff_ors_editions.py` is the section-level diffing primitive: a
 deterministic, data-only comparison over two editions' own canonical
@@ -499,6 +500,25 @@ the routine dev sample (14 pending-change rows across several of its seven
 chapters) and against the frozen five-chapter gold corpus (10 rows across
 the three chapters that print a notice); `valid: true`, zero integrity
 violations in both.
+
+`tools/reconcile_pending_changes.py` is a real, working form of
+reconciliation against the amendment parser's output that does not need a
+second edition: it joins `ors_chapter_pending_change` rows to session-law
+parser result files by the printed `(session_year, session_law_chapter)`
+identity, using the operational `YYYYourlaw####.json` filename convention
+to find each result. A notice naming no specific chapter is reported as
+`non-specific-notice` rather than guessed at; a named chapter with no
+matching result file is `missing-session-result`; one whose parser result
+itself carries errors is kept distinct as `matched-parser-error` rather
+than folded into either of the others. This is a different reconciliation
+from the section-diff one above -- it matches printed notices to session
+results, not changed section text to session laws -- and is unaffected by
+there being only one published edition. `notice_kind` in an earlier version
+of this tool never matched the real `change_kind` column any pending-
+change row actually carries, so every row's kind silently read back `null`
+against real data; fixed, with a regression assertion that fails against
+the old code and a real-data check confirming all three real `change_kind`
+values now round-trip correctly.
 
 ## Working method
 
