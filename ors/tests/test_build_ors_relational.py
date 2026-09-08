@@ -350,6 +350,35 @@ class SqliteBuildTest(unittest.TestCase):
             finally:
                 connection.close()
 
+    def test_a_field_over_the_default_csv_read_limit_round_trips_intact(self):
+        # Real failure from a whole-edition run (664 chapters, 64,498
+        # sections): csv.DictWriter has no field-size limit, but
+        # csv.DictReader enforces one (131072 bytes by default), so
+        # write_csv wrote a long real body_text without complaint and
+        # build_sqlite's own read of it back raised "field larger than
+        # field limit (131072)". A field comfortably past that default is
+        # exactly what reproduces it.
+        with tempfile.TemporaryDirectory() as tmp:
+            out_dir = Path(tmp)
+            oversized_text = "x" * 200_000
+            rows = {"sections": [{
+                **sample_rows()["sections"][0],
+                "bodyText": oversized_text,
+            }]}
+            section_rows = build.build_section_rows(rows)
+            csv_path = build.write_csv("ors_section", section_rows, out_dir)
+            sqlite_path = out_dir / "ors.sqlite"
+            build.build_sqlite({"ors_section": csv_path}, sqlite_path)
+
+            connection = sqlite3.connect(sqlite_path)
+            try:
+                text = connection.execute(
+                    "SELECT body_text FROM ors_section"
+                ).fetchone()[0]
+                self.assertEqual(len(text), 200_000)
+            finally:
+                connection.close()
+
     def test_a_null_foreign_key_comes_back_as_sql_null_not_empty_string(self):
         with tempfile.TemporaryDirectory() as tmp:
             out_dir = Path(tmp)
