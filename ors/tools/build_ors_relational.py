@@ -35,7 +35,23 @@ import argparse
 import csv
 import json
 import sqlite3
+import sys
 from pathlib import Path
+
+# csv.DictWriter has no field-size limit, but csv.DictReader enforces one
+# (128 KiB by default) -- a write/read asymmetry that a real chapter's own
+# body_text can exceed at full-edition scale (confirmed by a real whole-
+# edition run: 664 chapters, 64,498 sections, one field over 131072 bytes,
+# build_sqlite's own csv.DictReader raising "field larger than field limit"
+# reading back a CSV write_csv had already written successfully). Raised
+# once, at import time, rather than per read: field_size_limit is a global
+# C-level setting, not scoped to one reader.
+try:
+    csv.field_size_limit(sys.maxsize)
+except OverflowError:
+    # Some platforms' C long is narrower than Python's sys.maxsize; the
+    # largest value the platform accepts is still far beyond any real field.
+    csv.field_size_limit(2**31 - 1)
 
 
 def _volume_id(edition_id, volume_number):
