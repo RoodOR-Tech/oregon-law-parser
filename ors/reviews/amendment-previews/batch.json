@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "entries": [
+    {
+      "base": "471810-base.json",
+      "plan": "2026-c44-s19.json"
+    },
+    {
+      "base": "659A410-base.json",
+      "plan": "2026-c126-s3.json"
+    }
+  ]
+}

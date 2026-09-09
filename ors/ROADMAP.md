@@ -570,6 +570,26 @@ credits are not attributed to the derived text. The original edition stays
 intact. This single-amendment preview does not claim to incorporate all later
 changes; multi-amendment ordering and broader application remain future work.
 
+### Ordered preview batches and a second real amendment
+
+`tools/build_preview_batch.py` retains original rows and every derived preview,
+orders independent reviewed plans by operative date, and requires an explicit
+`predecessorPreviewId` for successive changes to the same section. A successor
+must carry a frozen base-row hash matching its predecessor's exact derived text.
+Duplicate IDs, unordered competing plans, branches, cycles, missing or
+cross-section predecessors, and backwards operative dates are rejected.
+Future plans remain pending at the requested as-of date.
+
+The real batch includes ORS 659A.410 after 2026 c.126 section 3 (operative April
+7, 2026), followed by the existing ORS 471.810 preview (June 5, 2026). The second
+preview replaces subsection (4) with the enacted cash-rounding exceptions;
+its entire body and date were independently reviewed against PDF pages 2-4.
+Original source references to sections 1 and 2 of the Act are retained without
+inventing future ORS codification. Both real plans affect different sections;
+successive same-section histories are covered by synthetic regression tests,
+not claimed as a real multi-amendment consolidation. This remains a scoped
+preview collection, not an official or complete consolidated ORS edition.
+
 ## Working method
 
 Increments 2 through 4 are developed against the fixed sample in
