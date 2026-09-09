@@ -552,6 +552,24 @@ matches. This is scoped reference verification, not whole-document recall,
 effective-date analysis or automatic application of amendments. The original
 seven-row review and frozen certification/unseen corpora remain unchanged.
 
+### First reviewed amendment preview
+
+`tools/build_amendment_preview.py` creates a separate derived preview of ORS
+471.810 after 2026 c.44 section 19. The reviewed replacement changes one account
+name. The complete proposed body was independently compared with the enacted
+section on PDF pages 12-13; page 26 supplies the June 5, 2026 effective date.
+The deferred operation of sections 35-39 does not cover section 19.
+
+The preview requires the reviewed base row and source digests, an exact
+section-verification result with matching amendment-source provenance, a unique
+replacement target and a full normalized-body digest matching the independently
+reviewed enacted text. An explicit as-of date must reach the reviewed operative
+date. It emits JSON and Markdown with before/proposed text and source references,
+not a replacement ORS row or an official edition. Source offsets and old source
+credits are not attributed to the derived text. The original edition stays
+intact. This single-amendment preview does not claim to incorporate all later
+changes; multi-amendment ordering and broader application remain future work.
+
 ## Working method
 
 Increments 2 through 4 are developed against the fixed sample in

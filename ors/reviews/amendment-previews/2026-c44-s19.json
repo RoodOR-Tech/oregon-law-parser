@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "previewId": "preview-2026-c44-s19-2025-471.810",
+  "baseSectionId": "2025-471.810",
+  "baseRowSha256": "a3d094ca216b0d84465e94f603df4b8453f5e91d832e669d874438184538b110",
+  "baseSourceSha256": "180bb7778bd38476ced6d531c933bdf6e5c25f10781f9458e67fd9e5ef9d762c",
+  "orsSection": "471.810",
+  "sessionYear": 2026,
+  "sessionLawChapter": 44,
+  "sessionLawSection": "19",
+  "action": "A",
+  "measure": "HB 4070",
+  "lawSource": {
+    "url": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orlaw0044.pdf",
+    "sha256": "8ba8349af88201d2a28b6df31db6607861bb65cd4957e49d3c994a3275f58f3b",
+    "bytes": 154439,
+    "retrievedAt": "2026-09-09T02:42:46.060112+00:00",
+    "pages": [
+      12,
+      13,
+      26
+    ]
+  },
+  "effectiveDate": "2026-06-05",
+  "operativeDate": "2026-06-05",
+  "dateReview": "Page 26 explicitly prints Effective date June 5, 2026. Section 40 delays sections 35-39 only; it does not include section 19.",
+  "edit": {
+    "old": "Mental Health Alcoholism and Drug Services Account",
+    "new": "Mental Health and Substance Use Account",
+    "occurrences": 1
+  },
+  "expectedNormalizedBodySha256": "01cd9ca131f76a0b9d91ea80e65238a620dd91a65d29a415516432a38885aa6e",
+  "textReview": "Visually checked section 19 on pages 12-13 and effective-date clauses on page 26. Compared the complete enacted body independently extracted from the PDF with the proposed replacement. Removed bracketed deletion and page header/footer, joined line-end split words, collapsed whitespace, and corrected the extraction-only spacing Depart ment to Department after visual review. No other text changes.",
+  "scope": "Single reviewed amendment preview, not an official ORS edition or certification of all intervening changes."
+}
