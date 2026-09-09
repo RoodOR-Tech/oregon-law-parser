@@ -19,6 +19,9 @@ on:
       - 'ors/reviews/2026-amendment-table*.json'
       - 'ors/tools/verify_amendment_references.py'
       - 'ors/tests/test_verify_amendment_references.py'
+      - 'ors/tools/build_amendment_preview.py'
+      - 'ors/tests/test_build_amendment_preview.py'
+      - 'ors/reviews/amendment-previews/**'
   workflow_dispatch:
 
 concurrency:
@@ -142,6 +145,17 @@ jobs:
             --report session-2026-section-verification.json
           jq -e '.gatePassed == true and .referenceCount == 11 and .exactMatchCount == 11' session-2026-section-verification.json >/dev/null
 
+      - name: Build reviewed ORS 471.810 amendment preview
+        run: |
+          python3 ors/tools/build_amendment_preview.py \
+            --base ors/reviews/amendment-previews/471810-base.json \
+            --plan ors/reviews/amendment-previews/2026-c44-s19.json \
+            --verification session-2026-section-verification.json \
+            --as-of 2026-06-05 \
+            --report session-2026-amendment-preview.json \
+            --markdown session-2026-amendment-preview.md
+          jq -c '{amendmentPreview: .}' session-2026-amendment-preview.json
+
       - name: Upload ORS reconciliation report
         if: always()
         uses: actions/upload-artifact@v4
@@ -151,6 +165,8 @@ jobs:
             session-2026-ors-reconciliation.json
             session-2026-general-notices.json
             session-2026-section-verification.json
+            session-2026-amendment-preview.json
+            session-2026-amendment-preview.md
           if-no-files-found: error
           retention-days: 90
 

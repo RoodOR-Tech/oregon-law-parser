@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "edition": "2025",
+  "source": {
+    "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors471.html",
+    "sha256": "180bb7778bd38476ced6d531c933bdf6e5c25f10781f9458e67fd9e5ef9d762c",
+    "bytes": 735232,
+    "retrievedAt": "2026-09-04T22:46:20Z"
+  },
+  "section": {
+    "section_id": "2025-471.810",
+    "chapter_id": "2025-471",
+    "subdivision_id": "2025-471-sd0030",
+    "section_number": "471.810",
+    "section_sort_key": "000471 .810",
+    "catchline": "Distribution of available moneys in Oregon Liquor and Cannabis Commission Account.",
+    "body_text": "(1) At the end of each month, the Oregon Liquor and Cannabis Commission shall certify the amount of moneys available for distribution in the Oregon Liquor and Cannabis Commission Account and, after withholding such moneys as it may deem necessary to pay its outstanding obligations, shall within 35 days of the month for which a distribution is made direct the State Treasurer to pay the amounts due, upon warrants drawn by the Oregon Department of Administrative Services, as follows:\n (a) Fifty-six percent, or the amount remaining after the distribution under subsection (4) of this section, credited to the General Fund available for general governmental purposes wherein it shall be considered as revenue during the quarter immediately preceding receipt;\n (b) Twenty percent to the cities of the state in such shares as the population of each city bears to the population of the cities of the state, as determined by Portland State University last preceding such apportionment, under ORS 190.510 to 190.610;\n (c) Ten percent to counties in such shares as their respective populations bear to the total population of the state, as estimated from time to time by Portland State University; and\n (d) Fourteen percent to the cities of the state to be distributed as provided in ORS 221.770 and this section.\n (2) The commission shall direct the Oregon Department of Administrative Services to transfer 50 percent of the revenues from the taxes imposed by ORS 473.030 and 473.035 to the Mental Health Alcoholism and Drug Services Account in the General Fund to be paid monthly as provided in ORS 430.380.\n (3) If the amount of revenues received from the taxes imposed by ORS 473.030 for the preceding month was reduced as a result of credits claimed under ORS 473.047, the commission shall compute the difference between the amounts paid or transferred as described in subsections (1)(b), (c) and (d) and (2) of this section and the amounts that would have been paid or transferred under subsections (1)(b), (c) and (d) and (2) of this section if no credits had been claimed. The commission shall direct the Oregon Department of Administrative Services to pay or transfer amounts equal to the differences computed for subsections (1)(b), (c) and (d) and (2) of this section from the General Fund to the recipients or accounts described in subsections (1)(b), (c) and (d) and (2) of this section.\n (4) Notwithstanding subsection (1) of this section, no city or county shall receive for any fiscal year an amount less than the amount distributed to the city or county in accordance with ORS 471.350 (1965 Replacement Part), 473.190 and 473.210 (1965 Replacement Part) and this section during the 1966-1967 fiscal year unless the city or county had a decline in population as shown by its census. If the population declined, the per capita distribution to the city or county shall be not less than the total per capita distribution during the 1966-1967 fiscal year. Any additional funds required to maintain the level of distribution under this subsection shall be paid from funds credited under subsection (1)(a) of this section.\n (5) Notwithstanding subsection (1) of this section, amounts to be distributed from the Oregon Liquor and Cannabis Commission Account that are attributable to a per bottle surcharge imposed by the Oregon Liquor and Cannabis Commission, shall be credited to the General Fund.",
+    "status": "operative",
+    "renumbered_to": null,
+    "ordinal": 265,
+    "char_offset_start": 334744,
+    "char_offset_end": 338546
+  }
+}
