@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "sessionYear": 2026,
+  "reviewMethod": "Independent visual review of all A/R rows for ORS chapters 653 and 658 on PDF page 4 (RS26-T-4). Expansion beyond the five ORS gold chapters; frozen gold and unseen benchmarks are unchanged. Reviewed before evaluating parser output.",
+  "reviewedChapters": [
+    "653",
+    "658"
+  ],
+  "source": {
+    "url": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026OrLawAR.pdf",
+    "sha256": "0db96df54637b8b1402dad9574ac7d56d6921f986d2b8b9e506da59e11fa205e",
+    "bytes": 79937,
+    "retrievedAt": "2026-09-09T01:20:24.858913+00:00"
+  },
+  "references": [
+    {
+      "orsSection": "653.020",
+      "action": "A",
+      "sessionLawChapter": 2,
+      "sessionLawSection": "1",
+      "measure": "SB 1518",
+      "page": 4
+    },
+    {
+      "orsSection": "653.307",
+      "action": "A",
+      "sessionLawChapter": 7,
+      "sessionLawSection": "1",
+      "measure": "HB 4013",
+      "page": 4
+    },
+    {
+      "orsSection": "653.547",
+      "action": "A",
+      "sessionLawChapter": 2,
+      "sessionLawSection": "2",
+      "measure": "SB 1518",
+      "page": 4
+    },
+    {
+      "orsSection": "658.991",
+      "action": "A",
+      "sessionLawChapter": 53,
+      "sessionLawSection": "4",
+      "measure": "HB 4089",
+      "page": 4
+    }
+  ]
+}
