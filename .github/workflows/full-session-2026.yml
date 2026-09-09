@@ -21,6 +21,8 @@ on:
       - 'ors/tests/test_verify_amendment_references.py'
       - 'ors/tools/build_amendment_preview.py'
       - 'ors/tests/test_build_amendment_preview.py'
+      - 'ors/tools/build_preview_batch.py'
+      - 'ors/tests/test_build_preview_batch.py'
       - 'ors/reviews/amendment-previews/**'
   workflow_dispatch:
 
@@ -156,6 +158,15 @@ jobs:
             --markdown session-2026-amendment-preview.md
           jq -c '{amendmentPreview: .}' session-2026-amendment-preview.json
 
+      - name: Build ordered reviewed amendment previews
+        run: |
+          python3 ors/tools/build_preview_batch.py \
+            --manifest ors/reviews/amendment-previews/batch.json \
+            --verification session-2026-section-verification.json \
+            --as-of 2026-06-05 \
+            --output-dir session-2026-preview-batch
+          jq -e '.planCount == 2 and .previewCount == 2 and .pendingCount == 0' session-2026-preview-batch/batch.json >/dev/null
+
       - name: Upload ORS reconciliation report
         if: always()
         uses: actions/upload-artifact@v4
@@ -167,6 +178,7 @@ jobs:
             session-2026-section-verification.json
             session-2026-amendment-preview.json
             session-2026-amendment-preview.md
+            session-2026-preview-batch/
           if-no-files-found: error
           retention-days: 90
 
