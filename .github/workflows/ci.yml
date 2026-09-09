@@ -52,7 +52,7 @@ jobs:
           set -euo pipefail
           python3 ../tools/test_validate_operational_certification.py -v
           python3 ../tools/validate_operational_certification.py --root .. | tee ../operational-certification-validation.json
-          jq -e '.valid == true and .validatedOperationalFloor == 1999 and .validatedSessionCount == 29 and .goldCertificationDocuments == 50 and .unseenValidationDocuments == 25' ../operational-certification-validation.json >/dev/null
+          jq -e '.valid == true and .validatedOperationalFloor == 1999 and .validatedSessionCount == 30 and .goldCertificationDocuments == 50 and .unseenValidationDocuments == 25' ../operational-certification-validation.json >/dev/null
 
       - name: Upload unit-test log
         if: always()
