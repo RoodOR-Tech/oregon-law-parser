@@ -15,6 +15,8 @@ on:
       - 'operations/2026-session-plan.json'
       - 'operations/reviews/2026-*'
       - 'ors/tools/reconcile_pending_changes.py'
+      - 'ors/tools/resolve_general_notices.py'
+      - 'ors/reviews/2026-amendment-table.json'
   workflow_dispatch:
 
 concurrency:
@@ -118,12 +120,24 @@ jobs:
           jq '{pendingChangeCount, chapterSpecificNoticeCount, nonSpecificNoticeCount, matchedParsedCount, matchedParserErrorCount, missingSessionResultCount, allChapterSpecificNoticesResolved}' session-2026-ors-reconciliation.json
           jq -e '.pendingChangeCount == 10 and .matchedParsedCount == 8 and .nonSpecificNoticeCount == 2 and .allChapterSpecificNoticesResolved == true' session-2026-ors-reconciliation.json >/dev/null
 
+      - name: Resolve general ORS notices through reviewed amendment table
+        run: |
+          python3 ors/tools/resolve_general_notices.py \
+            --pending operations/reviews/2026-ors-pending-changes.ndjson \
+            --review ors/reviews/2026-amendment-table.json \
+            --session-results-dir session-results \
+            --report session-2026-general-notices.json
+          jq '{generalNoticeCount, resolvedNoticeCount, unresolvedNoticeCount, matchedReferenceCount}' session-2026-general-notices.json
+          jq -e '.generalNoticeCount == 2 and .resolvedNoticeCount == 2 and .unresolvedNoticeCount == 0 and .matchedReferenceCount == 7' session-2026-general-notices.json >/dev/null
+
       - name: Upload ORS reconciliation report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: session-2026-ors-reconciliation
-          path: session-2026-ors-reconciliation.json
+          path: |
+            session-2026-ors-reconciliation.json
+            session-2026-general-notices.json
           if-no-files-found: error
           retention-days: 90
 

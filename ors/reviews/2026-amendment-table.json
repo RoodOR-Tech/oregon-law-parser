@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "sessionYear": 2026,
+  "reviewMethod": "Transcribed from and visually checked against PDF page 4 (RS26-T-4), independently of parser results. Complete A/R rows for ORS chapters 471 and 659A only; Add rows are excluded.",
+  "reviewedChapters": [
+    "471",
+    "659A"
+  ],
+  "source": {
+    "url": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026OrLawAR.pdf",
+    "sha256": "0db96df54637b8b1402dad9574ac7d56d6921f986d2b8b9e506da59e11fa205e",
+    "bytes": 79937,
+    "retrievedAt": "2026-09-09T01:20:24.858913+00:00"
+  },
+  "references": [
+    {
+      "orsSection": "471.810",
+      "action": "A",
+      "sessionLawChapter": 44,
+      "sessionLawSection": "19",
+      "measure": "HB 4070",
+      "page": 4
+    },
+    {
+      "orsSection": "659A.043",
+      "action": "A",
+      "sessionLawChapter": 109,
+      "sessionLawSection": "55",
+      "measure": "HB 4040",
+      "page": 4
+    },
+    {
+      "orsSection": "659A.046",
+      "action": "A",
+      "sessionLawChapter": 109,
+      "sessionLawSection": "56",
+      "measure": "HB 4040",
+      "page": 4
+    },
+    {
+      "orsSection": "659A.049",
+      "action": "A",
+      "sessionLawChapter": 109,
+      "sessionLawSection": "57",
+      "measure": "HB 4040",
+      "page": 4
+    },
+    {
+      "orsSection": "659A.063",
+      "action": "A",
+      "sessionLawChapter": 109,
+      "sessionLawSection": "58",
+      "measure": "HB 4040",
+      "page": 4
+    },
+    {
+      "orsSection": "659A.410",
+      "action": "A",
+      "sessionLawChapter": 126,
+      "sessionLawSection": "3",
+      "measure": "HB 4178",
+      "page": 4
+    },
+    {
+      "orsSection": "659A.885",
+      "action": "A",
+      "sessionLawChapter": 57,
+      "sessionLawSection": "5",
+      "measure": "HB 4111",
+      "page": 4
+    }
+  ]
+}

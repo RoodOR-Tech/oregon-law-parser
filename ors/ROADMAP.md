@@ -523,6 +523,19 @@ against real data; fixed, with a regression assertion that fails against
 the old code and a real-data check confirming all three real `change_kind`
 values now round-trip correctly.
 
+### Reviewed amendment-table links for general notices
+
+`tools/resolve_general_notices.py` supplements general amendment/repeal notices
+using a separately reviewed official A&R table snapshot. The 2026 review covers
+all seven A/R rows for ORS chapters 471 and 659A on PDF page 4, with URL, digest,
+byte count, retrieval time and page provenance. Original canonical notices
+retain their null session-law chapter. A separate report links the reviewed
+references to available session-law parser results. Missing results, parser
+errors, unreviewed chapters and other sessions remain unresolved. The 2026
+operational workflow requires both general notices and all seven references to
+match. These are notice-to-result links, not verification of section-level
+parser semantics, effective dates, or application of amendments to ORS text.
+
 ## Working method
 
 Increments 2 through 4 are developed against the fixed sample in
