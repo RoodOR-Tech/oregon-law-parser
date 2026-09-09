@@ -536,6 +536,22 @@ operational workflow requires both general notices and all seven references to
 match. These are notice-to-result links, not verification of section-level
 parser semantics, effective dates, or application of amendments to ORS text.
 
+### Section-level verification of reviewed amendment references
+
+`tools/verify_amendment_references.py` checks the original seven reviewed
+references plus four independently reviewed references in ORS 653 and 658.
+An exact match requires the acquisition URL and hash, session year/chapter,
+measure, affected ORS section and action, and operative body evidence naming
+the reviewed session-law section number. Title-only evidence cannot pass.
+Missing rows, wrong actions or clauses, malformed results and provenance
+mismatches are explicit failures; the JSON report retains evidence excerpts
+and whole-document validation status for review. Other operative clauses for
+the same ORS section are allowed and are not mistaken for contradictory
+instructions at the reviewed clause. The full 2026 workflow requires all 11
+matches. This is scoped reference verification, not whole-document recall,
+effective-date analysis or automatic application of amendments. The original
+seven-row review and frozen certification/unseen corpora remain unchanged.
+
 ## Working method
 
 Increments 2 through 4 are developed against the fixed sample in

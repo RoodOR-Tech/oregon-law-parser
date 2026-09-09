@@ -16,7 +16,9 @@ on:
       - 'operations/reviews/2026-*'
       - 'ors/tools/reconcile_pending_changes.py'
       - 'ors/tools/resolve_general_notices.py'
-      - 'ors/reviews/2026-amendment-table.json'
+      - 'ors/reviews/2026-amendment-table*.json'
+      - 'ors/tools/verify_amendment_references.py'
+      - 'ors/tests/test_verify_amendment_references.py'
   workflow_dispatch:
 
 concurrency:
@@ -130,6 +132,16 @@ jobs:
           jq '{generalNoticeCount, resolvedNoticeCount, unresolvedNoticeCount, matchedReferenceCount}' session-2026-general-notices.json
           jq -e '.generalNoticeCount == 2 and .resolvedNoticeCount == 2 and .unresolvedNoticeCount == 0 and .matchedReferenceCount == 7' session-2026-general-notices.json >/dev/null
 
+      - name: Verify reviewed section-level amendment references
+        run: |
+          python3 ors/tools/verify_amendment_references.py \
+            --review ors/reviews/2026-amendment-table.json \
+            --review ors/reviews/2026-amendment-table-expansion.json \
+            --results-dir session-results \
+            --acquisition-report session-acquisition-report.json \
+            --report session-2026-section-verification.json
+          jq -e '.gatePassed == true and .referenceCount == 11 and .exactMatchCount == 11' session-2026-section-verification.json >/dev/null
+
       - name: Upload ORS reconciliation report
         if: always()
         uses: actions/upload-artifact@v4
@@ -138,6 +150,7 @@ jobs:
           path: |
             session-2026-ors-reconciliation.json
             session-2026-general-notices.json
+            session-2026-section-verification.json
           if-no-files-found: error
           retention-days: 90
 
