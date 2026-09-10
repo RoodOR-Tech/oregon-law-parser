@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "previewId": "preview-2026-c76-s1-2025-696.370",
+  "baseSectionId": "2025-696.370",
+  "baseRowSha256": "b636febd7d8654704bb31dc4a3cfee407eec06cb87d6a053edc43244d9306a3b",
+  "baseSourceSha256": "09aa7f88f9e2699dd8878d6a3d22db39ad3562399aebbcaa00e843271d8e0883",
+  "orsSection": "696.370",
+  "sessionYear": 2026,
+  "sessionLawChapter": 76,
+  "sessionLawSection": "1",
+  "action": "A",
+  "measure": "SB 1513",
+  "lawSource": {
+    "url": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orlaw0076.pdf",
+    "sha256": "aea93b4e932bef5cbac586f5e817b80661086ab91402fed746f1487746cc320d",
+    "bytes": 27919,
+    "retrievedAt": "2026-09-10T03:00:21.427474+00:00",
+    "pages": [
+      1,
+      2
+    ]
+  },
+  "effectiveDate": "2026-03-31",
+  "operativeDate": "2026-03-31",
+  "dateReview": "Section 4 takes effect on passage; page 2 prints March 31, 2026. Section 3 defers only the section 2 amendments until July 1, 2027.",
+  "edit": {
+    "old": "(5) A name of a real estate team may not include the terms \u201crealty\u201d or \u201creal estate\u201d and may not be identical to the registered business name.\n (6)",
+    "new": "(5)",
+    "occurrences": 1
+  },
+  "expectedNormalizedBodySha256": "203f9f91b35dfda4eddee25bca142db64dc5f0958d66a76a8b768ab18314e65d",
+  "bodyReview": "Full enacted section 1 independently extracted with PDFium and visually checked against pages 1-2, with bracketed deletions removed. Frozen text: 2026-c76-s1-enacted.txt. U+FFFE discretionary line-break markers and running header/footer removed; whitespace normalized. No substantive text corrections.",
+  "scope": "Reviewed two-stage history in one act only; not an official edition or a complete check of other laws."
+}

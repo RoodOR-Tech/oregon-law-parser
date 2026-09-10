@@ -142,10 +142,11 @@ jobs:
           python3 ors/tools/verify_amendment_references.py \
             --review ors/reviews/2026-amendment-table.json \
             --review ors/reviews/2026-amendment-table-expansion.json \
+            --review ors/reviews/2026-amendment-table-chain.json \
             --results-dir session-results \
             --acquisition-report session-acquisition-report.json \
             --report session-2026-section-verification.json
-          jq -e '.gatePassed == true and .referenceCount == 11 and .exactMatchCount == 11' session-2026-section-verification.json >/dev/null
+          jq -e '.gatePassed == true and .referenceCount == 13 and .exactMatchCount == 13' session-2026-section-verification.json >/dev/null
 
       - name: Build reviewed ORS 471.810 amendment preview
         run: |
@@ -167,6 +168,20 @@ jobs:
             --output-dir session-2026-preview-batch
           jq -e '.planCount == 2 and .previewCount == 2 and .pendingCount == 0' session-2026-preview-batch/batch.json >/dev/null
 
+      - name: Verify real successive amendments at operative date boundaries
+        run: |
+          for boundary in 2026-03-30:0 2026-03-31:1 2027-06-30:1 2027-07-01:2; do
+            day="${boundary%:*}"
+            count="${boundary#*:}"
+            python3 ors/tools/build_preview_batch.py \
+              --manifest ors/reviews/amendment-previews/696370-chain.json \
+              --verification session-2026-section-verification.json \
+              --as-of "$day" \
+              --output-dir "session-2026-real-chain/$day"
+            jq -e --argjson count "$count" '.planCount == 2 and .previewCount == $count and .pendingCount == (2 - $count)' "session-2026-real-chain/$day/batch.json" >/dev/null
+          done
+          jq -e '.previews[1].beforeBodyText == .previews[0].proposedBodyText and .previews[1].predecessorPreviewId == .previews[0].previewId and .currentPreviewBySection["2025-696.370"] == .previews[1].previewId' session-2026-real-chain/2027-07-01/batch.json >/dev/null
+
       - name: Upload ORS reconciliation report
         if: always()
         uses: actions/upload-artifact@v4
@@ -179,6 +194,7 @@ jobs:
             session-2026-amendment-preview.json
             session-2026-amendment-preview.md
             session-2026-preview-batch/
+            session-2026-real-chain/
           if-no-files-found: error
           retention-days: 90
 

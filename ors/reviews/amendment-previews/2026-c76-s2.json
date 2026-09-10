@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "previewId": "preview-2026-c76-s2-2025-696.370",
+  "baseSectionId": "2025-696.370",
+  "baseRowSha256": "3c9368db789d67a6eb1bd9f17a8610869fc043417ff17754812d8f6f0025b65f",
+  "baseSourceSha256": "09aa7f88f9e2699dd8878d6a3d22db39ad3562399aebbcaa00e843271d8e0883",
+  "orsSection": "696.370",
+  "sessionYear": 2026,
+  "sessionLawChapter": 76,
+  "sessionLawSection": "2",
+  "action": "A",
+  "measure": "SB 1513",
+  "lawSource": {
+    "url": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orlaw0076.pdf",
+    "sha256": "aea93b4e932bef5cbac586f5e817b80661086ab91402fed746f1487746cc320d",
+    "bytes": 27919,
+    "retrievedAt": "2026-09-10T03:00:21.427474+00:00",
+    "pages": [
+      1,
+      2
+    ]
+  },
+  "effectiveDate": "2026-03-31",
+  "operativeDate": "2027-07-01",
+  "dateReview": "Section 4 takes effect on passage; page 2 prints March 31, 2026. Section 3 defers only the section 2 amendments until July 1, 2027.",
+  "edit": {
+    "old": "the multiple buyers respectively.",
+    "new": "the multiple buyers respectively.\n (6) A name of a real estate team may not include the terms \u201crealty\u201d or \u201creal estate\u201d and may not be identical to the registered business name.",
+    "occurrences": 1
+  },
+  "expectedNormalizedBodySha256": "b0ff494cb25138ac0e8b4327636ace66e97a51870dbc66e619e30a6d26f37743",
+  "bodyReview": "Full enacted section 2 independently extracted with PDFium and visually checked against pages 1-2, with bracketed deletions removed. Frozen text: 2026-c76-s2-enacted.txt. U+FFFE discretionary line-break markers and running header/footer removed; whitespace normalized. No substantive text corrections.",
+  "scope": "Reviewed two-stage history in one act only; not an official edition or a complete check of other laws.",
+  "predecessorPreviewId": "preview-2026-c76-s1-2025-696.370"
+}

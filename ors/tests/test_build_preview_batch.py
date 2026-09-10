@@ -109,5 +109,54 @@ class PreviewBatchTests(unittest.TestCase):
             self.build(chain + [third])
 
 
+class RealAmendmentChainTests(unittest.TestCase):
+    proof = PreviewBatchTests.proof
+    build = PreviewBatchTests.build
+
+    def setUp(self):
+        self.directory = ROOT / "reviews/amendment-previews"
+        read = lambda name: json.loads((self.directory / name).read_text(encoding="utf-8"))
+        self.entries = [{"base": read(e["base"]), "plan": read(e["plan"])}
+                        for e in read("696370-chain.json")["entries"]]
+
+    def test_real_operative_date_boundaries(self):
+        for day, count in (("2026-03-30", 0), ("2026-03-31", 1),
+                           ("2027-06-30", 1), ("2027-07-01", 2)):
+            with self.subTest(as_of=day):
+                report = self.build(as_of=day)
+                self.assertEqual(report["previewCount"], count)
+                self.assertEqual(report["pendingCount"], 2 - count)
+                self.assertEqual(report["pendingPreviewIds"],
+                                 [e["plan"]["previewId"] for e in self.entries[count:]])
+                expected = ({"2025-696.370": self.entries[count-1]["plan"]["previewId"]}
+                            if count else {})
+                self.assertEqual(report["currentPreviewBySection"], expected)
+
+    def test_both_versions_equal_independently_reviewed_enacted_bodies(self):
+        original = copy.deepcopy(self.entries)
+        report = self.build(as_of="2027-07-01")
+        self.assertEqual(report, self.build(list(reversed(self.entries)), "2027-07-01"))
+        self.assertEqual(self.entries, original)
+        first, second = report["previews"]
+        self.assertEqual(second["beforeBodyText"], first["proposedBodyText"])
+        self.assertEqual(second["predecessorPreviewId"], first["previewId"])
+        for n, preview in enumerate(report["previews"], 1):
+            expected = (self.directory / f"2026-c76-s{n}-enacted.txt").read_text(encoding="utf-8").strip()
+            self.assertEqual(" ".join(preview["proposedBodyText"].split()), expected)
+        self.assertNotIn("A name of a real estate team may not include", first["proposedBodyText"])
+        self.assertIn("(6) A name of a real estate team may not include", second["proposedBodyText"])
+        self.assertIn("(5) A name of a real estate team may not include", self.entries[0]["base"]["section"]["body_text"])
+
+    def test_successor_cannot_apply_to_original_ors_row(self):
+        self.entries[1]["plan"]["baseRowSha256"] = self.entries[0]["plan"]["baseRowSha256"]
+        with self.assertRaisesRegex(ValueError, "base row changed"):
+            self.build(as_of="2027-07-01")
+
+    def test_second_clause_needs_its_own_parser_evidence(self):
+        proof = self.proof(self.entries[:1])
+        with self.assertRaisesRegex(ValueError, "reference"):
+            build_batch(self.entries, proof, "2027-07-01")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "sessionYear": 2026,
+  "reviewMethod": "Independent visual review of both ORS 696.370 A/R rows on PDF page 4 (RS26-T-4), followed by full-text and date review of 2026 chapter 76 pages 1-2, before evaluating session parser output. This is one act with two explicitly successive amendments.",
+  "reviewedChapters": [
+    "696"
+  ],
+  "source": {
+    "url": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026OrLawAR.pdf",
+    "sha256": "0db96df54637b8b1402dad9574ac7d56d6921f986d2b8b9e506da59e11fa205e",
+    "bytes": 79937,
+    "retrievedAt": "2026-09-09T01:20:24.858913+00:00"
+  },
+  "references": [
+    {
+      "orsSection": "696.370",
+      "action": "A",
+      "sessionLawChapter": 76,
+      "sessionLawSection": "1",
+      "measure": "SB 1513",
+      "page": 4
+    },
+    {
+      "orsSection": "696.370",
+      "action": "A",
+      "sessionLawChapter": 76,
+      "sessionLawSection": "2",
+      "measure": "SB 1513",
+      "page": 4
+    }
+  ]
+}
