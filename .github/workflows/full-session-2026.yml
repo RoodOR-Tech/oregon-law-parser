@@ -23,6 +23,8 @@ on:
       - 'ors/tests/test_build_amendment_preview.py'
       - 'ors/tools/build_preview_batch.py'
       - 'ors/tests/test_build_preview_batch.py'
+      - 'ors/tools/build_preview_catalog.py'
+      - 'ors/tests/test_build_preview_catalog.py'
       - 'ors/reviews/amendment-previews/**'
   workflow_dispatch:
 
@@ -182,6 +184,19 @@ jobs:
           done
           jq -e '.previews[1].beforeBodyText == .previews[0].proposedBodyText and .previews[1].predecessorPreviewId == .previews[0].previewId and .currentPreviewBySection["2025-696.370"] == .previews[1].previewId' session-2026-real-chain/2027-07-01/batch.json >/dev/null
 
+      - name: Publish reviewed preview collection and explicit coverage gaps
+        run: |
+          for boundary in 2026-09-09:3 2027-07-01:4; do
+            day="${boundary%:*}"
+            count="${boundary#*:}"
+            python3 ors/tools/build_preview_catalog.py \
+              --manifest ors/reviews/amendment-previews/catalog.json \
+              --verification session-2026-section-verification.json \
+              --as-of "$day" \
+              --output-dir "session-2026-preview-catalog/$day"
+            jq -e --argjson count "$count" '.verifiedReferenceCount == 13 and .plannedReferenceCount == 4 and .referencesNeedingTextReview == 9 and .allReviewedReferencesHavePlans == false and .appliedPreviewCount == $count and .scheduledPreviewCount == (4 - $count)' "session-2026-preview-catalog/$day/catalog.json" >/dev/null
+          done
+
       - name: Upload ORS reconciliation report
         if: always()
         uses: actions/upload-artifact@v4
@@ -195,6 +210,7 @@ jobs:
             session-2026-amendment-preview.md
             session-2026-preview-batch/
             session-2026-real-chain/
+            session-2026-preview-catalog/
           if-no-files-found: error
           retention-days: 90
 

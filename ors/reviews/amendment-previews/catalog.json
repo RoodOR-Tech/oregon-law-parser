@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "entries": [
+    {"base": "471810-base.json", "plan": "2026-c44-s19.json"},
+    {"base": "659A410-base.json", "plan": "2026-c126-s3.json"},
+    {"base": "696370-base.json", "plan": "2026-c76-s1.json"},
+    {"base": "696370-base.json", "plan": "2026-c76-s2.json"}
+  ]
+}
