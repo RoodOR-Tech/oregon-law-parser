@@ -547,7 +547,8 @@ Missing rows, wrong actions or clauses, malformed results and provenance
 mismatches are explicit failures; the JSON report retains evidence excerpts
 and whole-document validation status for review. Other operative clauses for
 the same ORS section are allowed and are not mistaken for contradictory
-instructions at the reviewed clause. The full 2026 workflow requires all 11
+instructions at the reviewed clause. Together with the two chain references
+described below, the full 2026 workflow requires all 13
 matches. This is scoped reference verification, not whole-document recall,
 effective-date analysis or automatic application of amendments. The original
 seven-row review and frozen certification/unseen corpora remain unchanged.
@@ -598,6 +599,27 @@ verify both complete bodies, and reject a stale predecessor or missing second
 clause evidence. See `reviews/amendment-previews/696370-review.md` for provenance.
 This is a two-stage history within one act, not a harmonization of separate
 acts, an official edition, or complete amendment coverage.
+
+### Dated preview collection and coverage queue
+
+`tools/build_preview_catalog.py` combines all four reviewed plans across three
+ORS sections using `reviews/amendment-previews/catalog.json`. It publishes the
+original bases, every applied version, scheduled plans, and an explicit queue of
+verified references still lacking text/date review. Of 13 verified references,
+four have plans and nine remain unplanned. An unplanned reference has unknown
+dates, not an inferred future date or an assumption that the law is unchanged.
+The latest reviewed preview is explicitly scoped and does not certify current law.
+
+The catalog validates the entire planned history, including scheduled successors,
+before publishing any snapshot. Duplicated references, duplicate plans, unverified
+plans, inconsistent verification counts, altered sources and invalid future bodies
+are rejected. CI builds the collection for September 9, 2026 (three applied,
+one scheduled) and July 1, 2027 (four applied). Both retain all nine review gaps.
+
+Batch and catalog output paths must be new directories. This prevents a rerun
+for an earlier date from leaving later-version Markdown files in the directory.
+Existing collections and unrelated files are preserved; choose a distinct output
+path for each run or snapshot date.
 
 ## Working method
 

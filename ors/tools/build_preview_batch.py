@@ -69,12 +69,21 @@ def build_batch(entries, verification, as_of):
             "currentPreviewBySection": dict(sorted(current.items())), "previews": previews}
 
 
+def write_batch(report, output):
+    """Write a new collection; never leave stale future versions in reused output."""
+    output = Path(output)
+    output.mkdir(parents=True, exist_ok=False)
+    (output / "batch.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    for i, preview in enumerate(report["previews"], 1):
+        (output / f"preview-{i}.md").write_text(render_markdown(preview), encoding="utf-8")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", required=True)
     parser.add_argument("--verification", required=True)
     parser.add_argument("--as-of", required=True)
-    parser.add_argument("--output-dir", required=True)
+    parser.add_argument("--output-dir", required=True, help="new directory; existing output is never overwritten")
     args = parser.parse_args()
     read = lambda p: json.loads(Path(p).read_text(encoding="utf-8"))
     manifest_path = Path(args.manifest)
@@ -83,11 +92,7 @@ def main():
     entries = [{"base": read(manifest_path.parent / e["base"]),
                 "plan": read(manifest_path.parent / e["plan"])} for e in manifest["entries"]]
     report = build_batch(entries, read(args.verification), args.as_of)
-    output = Path(args.output_dir)
-    output.mkdir(parents=True, exist_ok=True)
-    (output / "batch.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    for i, preview in enumerate(report["previews"], 1):
-        (output / f"preview-{i}.md").write_text(render_markdown(preview), encoding="utf-8")
+    write_batch(report, args.output_dir)
     print(json.dumps({"amendmentPreviewBatch": report}))
 
 
