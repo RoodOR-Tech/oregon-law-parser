@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "previewId": "preview-2026-c109-s58-2025-659A.063",
+  "baseSectionId": "2025-659A.063",
+  "baseRowSha256": "e14a662ceec7a26b3094961c99f09e9e5208ffa58bcaef68b939859f1c2d21b1",
+  "baseSourceSha256": "9ebbd735d2df8ee2f9cb0155bc135856a225394c963686709b449c7f3d66c5d7",
+  "orsSection": "659A.063",
+  "sessionYear": 2026,
+  "sessionLawChapter": 109,
+  "sessionLawSection": "58",
+  "action": "A",
+  "measure": "HB 4040",
+  "lawSource": {
+    "url": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orlaw0109.pdf",
+    "sha256": "2d09e20de293f7a036d1689848550c0a32dae1ebb05a41a028a3996be518e79d",
+    "bytes": 252100,
+    "retrievedAt": "2026-09-10T12:48:31.602842+00:00",
+    "pages": [
+      42,
+      43,
+      44
+    ]
+  },
+  "effectiveDate": "2026-04-07",
+  "operativeDate": "2026-04-07",
+  "dateReview": "Section 61 emergency clause and final page print April 7, 2026. Operative deferrals in sections 4, 8, 13, 22, 39 and 42 cover other specified provisions, not sections 55-58.",
+  "edit": {
+    "old": "or a nurse practitioner authorized to provide compensable medical services under ORS 656.245 has determined the worker to be medically stationary and a notice of closure has been entered;\n (b) The worker returns to work for the State of Oregon, after a period of continued coverage under this section, and satisfies any probationary or minimum work requirement to be eligible for group health benefits;\n (c) The worker takes full- or part-time employment with another employer that is comparable in terms of the number of hours per week the worker was employed with the State of Oregon or the worker retires;\n (d) Twelve months have elapsed since the date the State of Oregon received notice that the worker filed a workers\u2019 compensation claim pursuant to ORS chapter 656;\n (e) The claim is denied and the claimant fails to appeal within the time provided by ORS 656.319 or the Workers\u2019 Compensation Board or a workers\u2019 compensation hearings referee or a court issues an order finding the claim is not compensable;\n (f) The worker does not pay the required premium or portion thereof in a timely manner in accordance with the terms and conditions under this section;\n (g) The worker elects to discontinue coverage under this section and notifies the State of Oregon in writing of this election;\n (h) The worker\u2019s attending physician or a nurse practitioner authorized to provide compensable medical services under ORS 656.245",
+    "new": "as defined in ORS 656.005 (12) has determined the worker to be medically stationary and a notice of closure has been entered;\n (b) The worker returns to work for the State of Oregon, after a period of continued coverage under this section, and satisfies any probationary or minimum work requirement to be eligible for group health benefits;\n (c) The worker takes full- or part-time employment with another employer that is comparable in terms of the number of hours per week the worker was employed with the State of Oregon or the worker retires;\n (d) Twelve months have elapsed since the date the State of Oregon received notice that the worker filed a workers\u2019 compensation claim pursuant to ORS chapter 656;\n (e) The claim is denied and the claimant fails to appeal within the time provided by ORS 656.319 or the Workers\u2019 Compensation Board or a workers\u2019 compensation hearings referee or a court issues an order finding the claim is not compensable;\n (f) The worker does not pay the required premium or portion thereof in a timely manner in accordance with the terms and conditions under this section;\n (g) The worker elects to discontinue coverage under this section and notifies the State of Oregon in writing of this election;\n (h) The worker\u2019s attending physician",
+    "occurrences": 1
+  },
+  "expectedNormalizedBodySha256": "f662237cd66ce467efc157ebc859808f25bddcc8ae65535a6acd5559bd629525",
+  "bodyReview": "Complete enacted body independently extracted and visually reviewed before evaluating preview/parser output; frozen in 2026-c109-s58-enacted.txt. Bracketed deletions, discretionary line-break markers, running headers/footers, whitespace and spaces before punctuation left by deletions normalized. Chapter 57 page break rejoins re-view as review. Other printed Act references remain uncodified.",
+  "scope": "Explicitly reviewed amendment only; not an official edition or complete legal history."
+}

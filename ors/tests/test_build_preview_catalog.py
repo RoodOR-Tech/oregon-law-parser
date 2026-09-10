@@ -19,6 +19,9 @@ class PreviewCatalogTests(unittest.TestCase):
         self.entries = [{"base": read(self.directory/e["base"]), "plan": read(self.directory/e["plan"])}
                         for e in read(self.directory/"catalog.json")["entries"]]
         plans = {reference_key(e["plan"]): e["plan"] for e in self.entries}
+        self.all_entries = self.entries
+        # Retain a deliberately incomplete subset for coverage-gap regressions.
+        self.entries = [e for e in self.all_entries if e["plan"]["sessionLawChapter"] in (2, 7, 44, 76, 126)]
         rows = []
         for name in ("2026-amendment-table.json", "2026-amendment-table-expansion.json", "2026-amendment-table-chain.json"):
             review = read(ROOT/"reviews"/name)
@@ -76,6 +79,9 @@ class PreviewCatalogTests(unittest.TestCase):
             self.assertEqual(preview["effectiveDate"], "2027-01-01")
             self.assertEqual(preview["operativeDate"], "2027-01-01")
             self.assertNotEqual(preview["beforeBodyText"], preview["proposedBodyText"])
+            if number == "653.547":
+                self.assertIn("companionship services, as defined", preview["proposedBodyText"])
+                self.assertNotIn("services ,", preview["proposedBodyText"])
 
     def test_pending_plan_requires_its_own_provenance(self):
         key = reference_key(self.entries[-1]["plan"])
@@ -136,6 +142,7 @@ class PreviewCatalogTests(unittest.TestCase):
             self.assertEqual({p.name: p.read_bytes() for p in output.iterdir()}, original)
 
     def test_cli_emits_catalog_and_separate_versions(self):
+        self.entries = self.all_entries
         with tempfile.TemporaryDirectory() as temp:
             proof = Path(temp)/"verification.json"
             proof.write_text(json.dumps(self.proof), encoding="utf-8")
@@ -147,10 +154,40 @@ class PreviewCatalogTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             report = json.loads((output/"catalog.json").read_text(encoding="utf-8"))
             self.assertEqual(report, self.build())
-            self.assertEqual(len(list((output/"previews").glob("preview-*.md"))), 3)
+            self.assertEqual(len(list((output/"previews").glob("preview-*.md"))), 8)
             self.assertTrue((output/"catalog.md").exists())
             again = subprocess.run(command, capture_output=True, text=True, encoding="utf-8")
             self.assertNotEqual(again.returncode, 0)
+
+    def test_complete_reviewed_set_and_all_effective_date_boundaries(self):
+        self.entries = self.all_entries
+        for day, applied in (("2026-03-30", 0), ("2026-03-31", 1), ("2026-04-06", 1),
+                             ("2026-04-07", 6), ("2026-06-04", 6), ("2026-06-05", 8),
+                             ("2026-12-31", 8), ("2027-01-01", 12), ("2027-06-30", 12), ("2027-07-01", 13)):
+            with self.subTest(day=day):
+                report = self.build(day)
+                self.assertEqual(report["plannedReferenceCount"], 13)
+                self.assertEqual(report["referencesNeedingTextReview"], 0)
+                self.assertTrue(report["allReviewedReferencesHavePlans"])
+                self.assertEqual(report["appliedPreviewCount"], applied)
+                self.assertEqual(report["scheduledPreviewCount"], 13 - applied)
+                self.assertEqual(len(report["sections"]), 12)
+
+    def test_final_six_previews_equal_independently_reviewed_complete_bodies(self):
+        self.entries = self.all_entries
+        report = self.build("2027-07-01")
+        for preview in report["batch"]["previews"]:
+            ref = preview["appliedReference"]
+            if ref["sessionLawChapter"] not in (53, 57, 109):
+                continue
+            stem = f"2026-c{ref['sessionLawChapter']}-s{ref['sessionLawSection']}"
+            expected = (self.directory / (stem + "-enacted.txt")).read_text(encoding="utf-8").strip()
+            self.assertEqual(" ".join(preview["proposedBodyText"].split()), expected)
+            self.assertNotIn("OREGON LAWS 2026", preview["proposedBodyText"])
+        base = next(e["base"]["section"] for e in self.entries if e["plan"]["orsSection"] == "658.991")
+        self.assertNotIn("1953 c.694", base["body_text"])
+        self.assertNotIn("___", base["body_text"])
+        self.assertTrue(base["body_text"].endswith("658.511."))
 
 
 if __name__ == "__main__":

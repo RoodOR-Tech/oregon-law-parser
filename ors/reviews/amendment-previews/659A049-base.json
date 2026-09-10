@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "edition": "2025",
+  "source": {
+    "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors659A.html",
+    "sha256": "9ebbd735d2df8ee2f9cb0155bc135856a225394c963686709b449c7f3d66c5d7",
+    "bytes": 670354,
+    "retrievedAt": "2026-09-04T22:46:20Z"
+  },
+  "section": {
+    "section_id": "2025-659A.049",
+    "chapter_id": "2025-659A",
+    "subdivision_id": "2025-659A-sd0004",
+    "section_number": "659A.049",
+    "section_sort_key": "000659A.049",
+    "catchline": "Rights of reinstatement and reemployment protected.",
+    "body_text": "The rights of reinstatement afforded by ORS 659A.043 and 659A.046 shall not be forfeited if the worker refuses to return to the worker\u2019s regular or other offered employment without release to such employment by the worker\u2019s attending physician or a nurse practitioner authorized to provide compensable medical services under ORS 656.245.",
+    "status": "operative",
+    "renumbered_to": null,
+    "ordinal": 15,
+    "char_offset_start": 45170,
+    "char_offset_end": 45625
+  }
+}

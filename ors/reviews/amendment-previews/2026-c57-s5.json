@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "previewId": "preview-2026-c57-s5-2025-659A.885",
+  "baseSectionId": "2025-659A.885",
+  "baseRowSha256": "5744bd432ce42054299d4b57ba3c70f42f731d02575f20d6f8ab79c4f408e201",
+  "baseSourceSha256": "9ebbd735d2df8ee2f9cb0155bc135856a225394c963686709b449c7f3d66c5d7",
+  "orsSection": "659A.885",
+  "sessionYear": 2026,
+  "sessionLawChapter": 57,
+  "sessionLawSection": "5",
+  "action": "A",
+  "measure": "HB 4111",
+  "lawSource": {
+    "url": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orlaw0057.pdf",
+    "sha256": "e96c740d3ca63cfc19614e80a80e893aab9dec4009ee0af94ec96c8449533fbc",
+    "bytes": 34971,
+    "retrievedAt": "2026-09-10T12:48:32.452256+00:00",
+    "pages": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "effectiveDate": "2026-06-05",
+  "operativeDate": "2026-06-05",
+  "dateReview": "Section 9 takes effect on the 91st day after adjournment; final page prints June 5, 2026. Complete four-page act reviewed; no deferred operation of section 5.",
+  "edit": {
+    "old": "; or\n (b) ORS 653.470, except an action may not be brought for a claim relating to ORS 653.450.\n (3) In any action under subsection (1) of this section alleging a violation of ORS 25.337, 25.424, 243.323, 652.220, 652.355, 653.547, 653.549, 657B.060, 657B.070, 659.852, 659A.030, 659A.040, 659A.043, 659A.046, 659A.069, 659A.082, 659A.103 to 659A.145, 659A.199, 659A.203, 659A.228, 659A.230, 659A.250 to 659A.262, 659A.290, 659A.318, 659A.343, 659A.355, 659A.357, 659A.370 or 659A.421:\n",
+    "new": " or section 4 of this 2026 Act; or\n (b) ORS 653.470, except an action may not be brought for a claim relating to ORS 653.450.\n (3) In any action under subsection (1) of this section alleging a violation of ORS 25.337, 25.424, 243.323, 652.220, 652.355, 653.547, 653.549, 657B.060, 657B.070, 659.852, 659A.030, 659A.040, 659A.043, 659A.046, 659A.069, 659A.082, 659A.103 to 659A.145, 659A.199, 659A.203, 659A.228, 659A.230, 659A.250 to 659A.262, 659A.290, 659A.318, 659A.343, 659A.355, 659A.357, 659A.370 or 659A.421 or section 4 of this 2026 Act:",
+    "occurrences": 1
+  },
+  "expectedNormalizedBodySha256": "f7448e5dbe9db73fdac3a588c5d896c66d7a1baacb41df02f9326530dfe7a0f9",
+  "bodyReview": "Complete enacted body independently extracted and visually reviewed before evaluating preview/parser output; frozen in 2026-c57-s5-enacted.txt. Bracketed deletions, discretionary line-break markers, running headers/footers, whitespace and spaces before punctuation left by deletions normalized. Chapter 57 page break rejoins re-view as review. Other printed Act references remain uncodified.",
+  "scope": "Explicitly reviewed amendment only; not an official edition or complete legal history."
+}

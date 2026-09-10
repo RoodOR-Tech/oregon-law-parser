@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "edition": "2025",
+  "source": {
+    "sha256": "d448707161901f117336eb26ba535716ad851c74b5fcb9c8c28d314107608c37",
+    "bytes": 290797,
+    "retrievedAt": "2026-09-10T12:49:50.767846+00:00",
+    "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors658.html"
+  },
+  "section": {
+    "section_id": "2025-658.991",
+    "chapter_id": "2025-658",
+    "subdivision_id": "2025-658-sd0007",
+    "section_number": "658.991",
+    "section_sort_key": "000658 .991",
+    "catchline": "Criminal penalties.",
+    "body_text": "(1) Violation of ORS 658.005 to 658.245 or 658.250 is a Class C misdemeanor.\n (2) Violation of ORS 658.452 is a Class A misdemeanor.\n (3) Any person who intentionally defaces, alters or changes a license or permit to act as a labor contractor, or who uses the license or permit of another or knowingly permits that person\u2019s license or permit to be used by another, or who acts as a labor contractor without a valid license or permit under ORS 658.405 to 658.511, commits a Class A misdemeanor.\n (4) Any person who willfully swears or affirms falsely under ORS 658.415 (1), (2) or (3) in regard to any matter concerning which an oath or affirmation is required, or who solicits or induces another person to do so, whether or not the matter sworn to or affirmed is material, commits a Class A misdemeanor.\n (5) Violation of ORS 658.440 (1)(f), (g) or (h), (2)(c) or (3)(a), (b), (c), (e), (f) or (g) is a Class C misdemeanor.\n (6) Any person who violates the provisions of ORS 658.410 (1) or 658.417 (1) commits a Class C felony if:\n (a) The person has previously been convicted of violating the provisions of ORS 658.410 (1) or 658.417 (1);\n (b) The person\u2019s license to act as a labor contractor has been suspended, revoked or denied; or\n (c) The person is acting in violation of an outstanding order of any court of competent jurisdiction arising out of the enforcement of ORS 658.405 to 658.511.",
+    "status": "operative",
+    "renumbered_to": null,
+    "ordinal": 127,
+    "char_offset_start": 123118,
+    "char_offset_end": 124769
+  }
+}
