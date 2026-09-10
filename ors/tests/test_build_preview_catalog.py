@@ -35,11 +35,11 @@ class PreviewCatalogTests(unittest.TestCase):
 
     def test_real_collection_exposes_all_unplanned_references(self):
         report = self.build()
-        self.assertEqual((report["verifiedReferenceCount"], report["plannedReferenceCount"], report["referencesNeedingTextReview"]), (13, 4, 9))
-        self.assertEqual((report["appliedPreviewCount"], report["scheduledPreviewCount"]), (3, 1))
+        self.assertEqual((report["verifiedReferenceCount"], report["plannedReferenceCount"], report["referencesNeedingTextReview"]), (13, 7, 6))
+        self.assertEqual((report["appliedPreviewCount"], report["scheduledPreviewCount"]), (3, 4))
         self.assertFalse(report["allReviewedReferencesHavePlans"])
         missing = [r for r in report["coverage"] if r["status"] == "needs-text-review"]
-        self.assertEqual(len(missing), 9)
+        self.assertEqual(len(missing), 6)
         self.assertTrue(all(r["operativeDate"] is None and r["effectiveDate"] is None for r in missing))
         self.assertIn("Not reviewed", render_catalog(report))
         section = next(s for s in report["sections"] if s["orsSection"] == "659A.043")
@@ -49,7 +49,7 @@ class PreviewCatalogTests(unittest.TestCase):
     def test_deterministic_collection_preserves_inputs_and_chain(self):
         original = copy.deepcopy((self.entries, self.proof))
         report = self.build("2027-07-01")
-        self.assertEqual(report["appliedPreviewCount"], 4)
+        self.assertEqual(report["appliedPreviewCount"], 7)
         self.assertEqual(report["scheduledPreviewCount"], 0)
         self.assertEqual((self.entries, self.proof), original)
         self.entries.reverse()
@@ -62,6 +62,20 @@ class PreviewCatalogTests(unittest.TestCase):
         self.entries[-1]["plan"]["expectedNormalizedBodySha256"] = "0" * 64
         with self.assertRaisesRegex(ValueError, "independently reviewed"):
             self.build("2026-03-30")
+
+    def test_labor_plans_change_only_at_reviewed_2027_boundary(self):
+        before, after = self.build("2026-12-31"), self.build("2027-01-01")
+        self.assertEqual((before["appliedPreviewCount"], before["scheduledPreviewCount"]), (3, 4))
+        self.assertEqual((after["appliedPreviewCount"], after["scheduledPreviewCount"]), (6, 1))
+        cases = {"653.020": "2026-c2-s1", "653.547": "2026-c2-s2", "653.307": "2026-c7-s1"}
+        self.assertTrue(all(p["sectionNumber"] not in cases for p in before["batch"]["previews"]))
+        for number, stem in cases.items():
+            preview = next(p for p in after["batch"]["previews"] if p["sectionNumber"] == number)
+            expected = (self.directory / (stem + "-enacted.txt")).read_text(encoding="utf-8").strip()
+            self.assertEqual(" ".join(preview["proposedBodyText"].split()), expected)
+            self.assertEqual(preview["effectiveDate"], "2027-01-01")
+            self.assertEqual(preview["operativeDate"], "2027-01-01")
+            self.assertNotEqual(preview["beforeBodyText"], preview["proposedBodyText"])
 
     def test_pending_plan_requires_its_own_provenance(self):
         key = reference_key(self.entries[-1]["plan"])

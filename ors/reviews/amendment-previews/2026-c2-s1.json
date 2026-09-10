@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "previewId": "preview-2026-c2-s1-2025-653.020",
+  "baseSectionId": "2025-653.020",
+  "baseRowSha256": "b89886144f705c779e7beab23e819480869e57a167daf25d91ab91894de641fe",
+  "baseSourceSha256": "a2490ae192873c826e675251d376335520c8cf1f28eed7b0f12aa10e7c687597",
+  "orsSection": "653.020",
+  "sessionYear": 2026,
+  "sessionLawChapter": 2,
+  "sessionLawSection": "1",
+  "action": "A",
+  "measure": "SB 1518",
+  "lawSource": {
+    "url": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orlaw0002.pdf",
+    "sha256": "aeac5d782a418c5e0f766c2000098818e74db89f284d6a5c977c69ba0f4c16e3",
+    "bytes": 34523,
+    "retrievedAt": "2026-09-10T03:23:33.818245+00:00",
+    "pages": [
+      1,
+      2,
+      3
+    ]
+  },
+  "effectiveDate": "2027-01-01",
+  "operativeDate": "2027-01-01",
+  "dateReview": "The complete 3-page act was visually reviewed. Its final page prints effective date January 1, 2027. No emergency, deferred operative or separate applicability clause appears.",
+  "edit": {
+    "old": "(14) An individual employed in domestic service employment in or about a family home to provide companionship services for individuals who, because of age or infirmity, are unable to care for themselves.",
+    "new": "(14) An individual employed in domestic service employment in or about a family home to provide companionship services, as defined in 29 C.F.R. 552.6, as in effect on January 1, 2016, for individuals who, because of age or infirmity, are unable to care for themselves, unless, and only to the extent that, the individual is employed, singly or jointly, by a third party engaged in the business of providing home care or companionship services.",
+    "occurrences": 1
+  },
+  "expectedNormalizedBodySha256": "29514c19dae2db54f8fe8090ddea218b12d206f1776ab2cc7c1ea40d5559e8e9",
+  "bodyReview": "Complete enacted body frozen in 2026-c2-s1-enacted.txt from independent PDFium extraction and visual review before comparing proposed output. Bracketed deletions, U+FFFE discretionary line-break markers, headers/footers and whitespace normalized. No substantive corrections.",
+  "scope": "Explicitly reviewed amendment preview only; not an official edition or complete legal history."
+}

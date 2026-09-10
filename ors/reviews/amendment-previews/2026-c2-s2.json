@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "previewId": "preview-2026-c2-s2-2025-653.547",
+  "baseSectionId": "2025-653.547",
+  "baseRowSha256": "0c0017be59b0394d77f421a0750e98145bb8b6810c7617bd44a5afab9d02ef44",
+  "baseSourceSha256": "a2490ae192873c826e675251d376335520c8cf1f28eed7b0f12aa10e7c687597",
+  "orsSection": "653.547",
+  "sessionYear": 2026,
+  "sessionLawChapter": 2,
+  "sessionLawSection": "2",
+  "action": "A",
+  "measure": "SB 1518",
+  "lawSource": {
+    "url": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orlaw0002.pdf",
+    "sha256": "aeac5d782a418c5e0f766c2000098818e74db89f284d6a5c977c69ba0f4c16e3",
+    "bytes": 34523,
+    "retrievedAt": "2026-09-10T03:23:33.818245+00:00",
+    "pages": [
+      1,
+      2,
+      3
+    ]
+  },
+  "effectiveDate": "2027-01-01",
+  "operativeDate": "2027-01-01",
+  "dateReview": "The complete 3-page act was visually reviewed. Its final page prints effective date January 1, 2027. No emergency, deferred operative or separate applicability clause appears.",
+  "edit": {
+    "old": "(ix) Individuals performing companionship services exempt from the provisions of the Fair Labor Standards Act of 1938 (29 U.S.C. 201 et seq.).",
+    "new": "(ix) Individuals performing companionship services , as defined in 29 C.F.R. 552.6, as in effect on January 1, 2016, unless, and only to the extent that, the individuals are employed, singly or jointly, by a third party engaged in the business of providing home care or companionship services.",
+    "occurrences": 1
+  },
+  "expectedNormalizedBodySha256": "769ab4bcebcdf4596e080c44a868f3a7353b2054817e457d12526d66c7c3cbf5",
+  "bodyReview": "Complete enacted body frozen in 2026-c2-s2-enacted.txt from independent PDFium extraction and visual review before comparing proposed output. Bracketed deletions, U+FFFE discretionary line-break markers, headers/footers and whitespace normalized. No substantive corrections.",
+  "scope": "Explicitly reviewed amendment preview only; not an official edition or complete legal history."
+}
