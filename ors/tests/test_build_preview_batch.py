@@ -7,7 +7,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 from build_preview_batch import build_batch
-from build_amendment_preview import digest, row_digest
+from build_amendment_preview import digest, row_digest, render_markdown
 
 
 class PreviewBatchTests(unittest.TestCase):
@@ -151,6 +151,11 @@ class RealAmendmentChainTests(unittest.TestCase):
         self.entries[1]["plan"]["baseRowSha256"] = self.entries[0]["plan"]["baseRowSha256"]
         with self.assertRaisesRegex(ValueError, "base row changed"):
             self.build(as_of="2027-07-01")
+
+    def test_markdown_distinguishes_effective_from_deferred_operative_date(self):
+        successor = self.build(as_of="2027-07-01")["previews"][1]
+        markdown = render_markdown(successor)
+        self.assertIn("Effective: 2026-03-31. Operative: 2027-07-01.", markdown)
 
     def test_second_clause_needs_its_own_parser_evidence(self):
         proof = self.proof(self.entries[:1])

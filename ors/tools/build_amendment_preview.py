@@ -60,7 +60,8 @@ def build_preview(base, plan, verification, as_of):
 def render_markdown(report):
     return (f"# ORS {report['sectionNumber']} amendment preview\n\n"
             f"{report['scope']}\n\n"
-            f"As of: {report['asOf']}. Effective/operative: {report['operativeDate']}.\n\n"
+            f"As of: {report['asOf']}. Effective: {report['effectiveDate']}. "
+            f"Operative: {report['operativeDate']}.\n\n"
             f"Before: {report['edit']['old']}\n\nAfter: {report['edit']['new']}\n\n"
             f"[Published ORS source]({report['baseSource']['sourceUrl']}) · "
             f"[Session law, §{report['appliedReference']['sessionLawSection']}]({report['amendmentSource']['url']})\n\n"
