@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "edition": "2025",
+  "source": {
+    "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors659A.html",
+    "sha256": "9ebbd735d2df8ee2f9cb0155bc135856a225394c963686709b449c7f3d66c5d7",
+    "bytes": 670354,
+    "retrievedAt": "2026-09-04T22:46:20Z"
+  },
+  "section": {
+    "section_id": "2025-659A.046",
+    "chapter_id": "2025-659A",
+    "subdivision_id": "2025-659A-sd0004",
+    "section_number": "659A.046",
+    "section_sort_key": "000659A.046",
+    "catchline": "Reemployment of injured worker in other available and suitable work; termination of right to reemployment; effect of collective bargaining agreement.",
+    "body_text": "(1) A worker who has sustained a compensable injury and is disabled from performing the duties of the worker\u2019s former regular employment shall, upon demand, be reemployed by the worker\u2019s employer at employment which is available and suitable.\n (2) A certificate of the worker\u2019s attending physician or a nurse practitioner authorized to provide compensable medical services under ORS 656.245 that the worker is able to perform described types of work shall be prima facie evidence of such ability.\n (3) Notwithstanding subsection (1) of this section, the right to reemployment under this section terminates when whichever of the following events first occurs:\n (a) The worker cannot return to reemployment at any position with the employer either by determination of the attending physician or a nurse practitioner authorized to provide compensable medical services under ORS 656.245 or upon appeal of that determination, by determination of a medical arbiter or panel of medical arbiters pursuant to ORS chapter 656.\n (b) The worker is eligible and participates in vocational assistance under ORS 656.340.\n (c) The worker accepts suitable employment with another employer after becoming medically stationary.\n (d) The worker refuses a bona fide offer from the employer of light duty or modified employment that is suitable prior to becoming medically stationary.\n (e) Seven days elapse from the date that the worker is notified by the insurer or self-insured employer by certified mail that the worker\u2019s attending physician or a nurse practitioner authorized to provide compensable medical services under ORS 656.245 has released the worker for reemployment unless the worker requests reemployment within that time period.\n (f) Three years elapse from the date of injury.\n (4) Such right of reemployment shall be subject to the provisions for seniority rights and other employment restrictions contained in a valid collective bargaining agreement between the employer and a representative of the employer\u2019s employees.\n (5) Notwithstanding ORS 659A.165, a worker who refuses an offer of employment under subsection (3)(d) of this section and who otherwise is entitled to family leave under ORS 659A.150 to 659A.186:\n (a) Automatically commences a period of family leave under ORS 659A.150 to 659A.186 upon refusing the offer of employment; and\n (b) Need not give additional written or oral notice to the employer that the employee is commencing a period of family leave.\n (6) Any violation of this section is an unlawful employment practice.\n (7) This section applies only to employers who employ six or more persons.",
+    "status": "operative",
+    "renumbered_to": null,
+    "ordinal": 14,
+    "char_offset_start": 42320,
+    "char_offset_end": 45170
+  }
+}

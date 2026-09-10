@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "previewId": "preview-2026-c53-s4-2025-658.991",
+  "baseSectionId": "2025-658.991",
+  "baseRowSha256": "925fdd347040dacb1793201d417aea65a5e80accc05cd9560207cf511298285b",
+  "baseSourceSha256": "d448707161901f117336eb26ba535716ad851c74b5fcb9c8c28d314107608c37",
+  "orsSection": "658.991",
+  "sessionYear": 2026,
+  "sessionLawChapter": 53,
+  "sessionLawSection": "4",
+  "action": "A",
+  "measure": "HB 4089",
+  "lawSource": {
+    "url": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orlaw0053.pdf",
+    "sha256": "c20d935f87a123131ae728da2c3155ec8787052c0c86313d1f9a299d2896f07b",
+    "bytes": 32316,
+    "retrievedAt": "2026-09-10T12:48:32.269369+00:00",
+    "pages": [
+      1,
+      2
+    ]
+  },
+  "effectiveDate": "2027-01-01",
+  "operativeDate": "2027-01-01",
+  "dateReview": "Complete two-page act reviewed; final page prints January 1, 2027. No emergency or deferred operative clause.",
+  "edit": {
+    "old": " (c) The person is acting in violation of an outstanding order of any court of competent jurisdiction arising out of the enforcement of ORS 658.405 to 658.511.",
+    "new": " (c) The person is acting in violation of an outstanding order of any court of competent jurisdiction arising out of the enforcement of ORS 658.405 to 658.511. (7)(a) A direct contractor or subcontractor commits a Class A misdemeanor if the direct contractor or subcontractor knowingly enters into a contract with a construction labor contractor who is required to be licensed under ORS 658.405 to 658.511 and who is not properly licensed under ORS 658.405 to 658.511. (b) A direct contractor or subcontractor commits a Class C felony if the direct contractor or subcontractor knowingly enters into a contract with a construction labor contractor who is required to be licensed under ORS 658.405 to 658.511 and who is not properly licensed under ORS 658.405 to 658.511, and the direct contractor or subcontractor has a prior conviction under this subsection at the time of the offense. (c) As used in this subsection: (A) \u201cConstruction labor contractor\u201d has the meaning given that term in ORS 658.405, but does not include a person who is licensed under ORS chapter 701. (B) \u201cDirect contractor\u201d has the meaning given that term in ORS 652.197. (C) \u201cSubcontractor\u201d has the meaning given that term in ORS 652.197.",
+    "occurrences": 1
+  },
+  "expectedNormalizedBodySha256": "f4956493b5a723d9aca5852158a4bbe00cf4d2e7046fadaba03957186a0eb8b7",
+  "bodyReview": "Complete enacted body independently extracted and visually reviewed before evaluating preview/parser output; frozen in 2026-c53-s4-enacted.txt. Bracketed deletions, discretionary line-break markers, running headers/footers, whitespace and spaces before punctuation left by deletions normalized. Chapter 57 page break rejoins re-view as review. Other printed Act references remain uncodified.",
+  "scope": "Explicitly reviewed amendment only; not an official edition or complete legal history."
+}

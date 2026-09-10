@@ -28,6 +28,30 @@
     {
       "base": "653307-base.json",
       "plan": "2026-c7-s1.json"
+    },
+    {
+      "base": "659A043-base.json",
+      "plan": "2026-c109-s55.json"
+    },
+    {
+      "base": "659A046-base.json",
+      "plan": "2026-c109-s56.json"
+    },
+    {
+      "base": "659A049-base.json",
+      "plan": "2026-c109-s57.json"
+    },
+    {
+      "base": "659A063-base.json",
+      "plan": "2026-c109-s58.json"
+    },
+    {
+      "base": "659A885-base.json",
+      "plan": "2026-c57-s5.json"
+    },
+    {
+      "base": "658991-base.json",
+      "plan": "2026-c53-s4.json"
     }
   ]
 }

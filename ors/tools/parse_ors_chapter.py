@@ -314,6 +314,10 @@ def split_source_credit(body):
     joined back onto the text ahead of the credit, the same body_text shape
     a section with no trailing note already has.
     """
+    # ORS 658.991 ends with its legislative credit followed by a separate
+    # underscore rule. Only remove that terminal decoration after a dated
+    # source credit; underscores used as blanks inside statutory forms stay.
+    body = re.sub(r"(\[(?:18|19|20)\d{2}\s+c\.[^\[\]]*\])\s*\n[ \t]*_{3,}\s*\Z", r"\1", body)
     # The last such match, not the first: a note's own prose can mention a
     # session-law citation in passing (chapter 88, Oregon Laws 2025 was
     # already seen as one), and if that ever appeared in bracket form

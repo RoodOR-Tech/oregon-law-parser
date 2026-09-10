@@ -1287,5 +1287,29 @@ class ParseCliTest(unittest.TestCase):
             self.assertEqual(json.loads(report_path.read_text())["parsedChapterCount"], 0)
 
 
+class TrailingCreditRuleTests(unittest.TestCase):
+    def test_decorative_rule_after_dated_credit_is_not_statutory_text(self):
+        markup = ('<p>Chapter 658</p><p>Employment Agencies</p><p>2025 EDITION</p>'
+                  '<p><b>658.991 Penalties.</b> (1) A violation is a misdemeanor. '
+                  '[1953 c.694 §26; 2013 c.584 §26]</p><p>_______________</p>')
+        section = parser.parse_chapter(markup, "658")["sections"][0]
+        self.assertEqual(section["bodyText"], "(1) A violation is a misdemeanor.")
+        self.assertEqual(section["sourceCreditRaw"], "[1953 c.694 §26; 2013 c.584 §26]")
+        normalized, _ = parser.normalize_chapter_text(markup)
+        start = section["bodyTextCharOffsetStart"]
+        self.assertEqual(normalized[start:start+len(section["bodyText"])], section["bodyText"])
+
+    def test_statutory_form_blanks_are_preserved(self):
+        for body in ("Signature:\n_______________", "[Signature]\n_______________",
+                     "Name: ___\nMore text. [2025 c.1 §1]", "[2025 c.1 §1]\n___\nMore text."):
+            actual, credit = parser.split_source_credit(body)
+            if body.endswith("[2025 c.1 §1]"):
+                self.assertEqual(actual, "Name: ___\nMore text.")
+                self.assertEqual(credit, "[2025 c.1 §1]")
+            else:
+                self.assertEqual(actual, body)
+                self.assertIsNone(credit)
+
+
 if __name__ == "__main__":
     unittest.main()
