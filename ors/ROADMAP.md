@@ -586,9 +586,18 @@ preview replaces subsection (4) with the enacted cash-rounding exceptions;
 its entire body and date were independently reviewed against PDF pages 2-4.
 Original source references to sections 1 and 2 of the Act are retained without
 inventing future ORS codification. Both real plans affect different sections;
-successive same-section histories are covered by synthetic regression tests,
-not claimed as a real multi-amendment consolidation. This remains a scoped
-preview collection, not an official or complete consolidated ORS edition.
+the separate `696370-chain.json` manifest now adds a real same-section history.
+SB 1513 (2026 c.76) section 1 removes the original name restriction and renumbers
+subsection (6) on March 31, 2026. Section 2 expressly amends that version and
+restores the restriction as subsection (6) on July 1, 2027, under section 3's
+operative clause. Both complete enacted bodies and both A/R references were
+independently reviewed and frozen before evaluating session parser output.
+The full-session gate now requires 13 exact references and builds this chain
+at the day before and on each operative date. Tests preserve the original row,
+verify both complete bodies, and reject a stale predecessor or missing second
+clause evidence. See `reviews/amendment-previews/696370-review.md` for provenance.
+This is a two-stage history within one act, not a harmonization of separate
+acts, an official edition, or complete amendment coverage.
 
 ## Working method
 
