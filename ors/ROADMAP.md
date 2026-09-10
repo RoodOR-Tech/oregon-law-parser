@@ -602,19 +602,23 @@ acts, an official edition, or complete amendment coverage.
 
 ### Dated preview collection and coverage queue
 
-`tools/build_preview_catalog.py` combines all four reviewed plans across three
+`tools/build_preview_catalog.py` combines all seven reviewed plans across six
 ORS sections using `reviews/amendment-previews/catalog.json`. It publishes the
 original bases, every applied version, scheduled plans, and an explicit queue of
 verified references still lacking text/date review. Of 13 verified references,
-four have plans and nine remain unplanned. An unplanned reference has unknown
+seven have plans and six remain unplanned. An unplanned reference has unknown
 dates, not an inferred future date or an assumption that the law is unchanged.
 The latest reviewed preview is explicitly scoped and does not certify current law.
 
 The catalog validates the entire planned history, including scheduled successors,
 before publishing any snapshot. Duplicated references, duplicate plans, unverified
 plans, inconsistent verification counts, altered sources and invalid future bodies
-are rejected. CI builds the collection for September 9, 2026 (three applied,
-one scheduled) and July 1, 2027 (four applied). Both retain all nine review gaps.
+are rejected. CI builds the collection for September 9 and December 31, 2026
+(three applied, four scheduled), January 1, 2027 (six applied, one scheduled)
+and July 1, 2027 (seven applied). All retain the six review gaps. The three
+chapter 653 plans cover 2026 c.2 sections 1-2 and c.7 section 1; each full body
+and its January 1, 2027 date was independently reviewed and frozen. See
+`reviews/amendment-previews/653-review.md` for the source review.
 
 Batch and catalog output paths must be new directories. This prevents a rerun
 for an earlier date from leaving later-version Markdown files in the directory.

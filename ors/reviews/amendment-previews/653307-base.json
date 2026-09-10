@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "edition": "2025",
+  "source": {
+    "sha256": "a2490ae192873c826e675251d376335520c8cf1f28eed7b0f12aa10e7c687597",
+    "bytes": 450152,
+    "retrievedAt": "2026-09-10T03:23:34.368767+00:00",
+    "sourceUrl": "https://www.oregonlegislature.gov/bills_laws/ors/ors653.html"
+  },
+  "section": {
+    "section_id": "2025-653.307",
+    "chapter_id": "2025-653",
+    "subdivision_id": "2025-653-sd0003",
+    "section_number": "653.307",
+    "section_sort_key": "000653 .307",
+    "catchline": "Annual employment certificates; effect of failure by employer to comply; school districts required to cooperate with bureau; rules.",
+    "body_text": "(1) In accordance with the applicable provisions of ORS chapter 183, the Bureau of Labor and Industries shall adopt rules governing annual employment certificates required under this section. After September 9, 1995, the rules governing the total hours a minor can work may not be more restrictive than the requirements of the federal Fair Labor Standards Act (29 U.S.C. 201, et seq.), unless otherwise provided by Oregon law.\n (2) An employer who hires minors shall apply to the bureau for an annual employment certificate to employ minors. The application shall be on a form provided by the bureau and shall include, but need not be limited to:\n (a) The estimated or average number of minors to be employed during the year.\n (b) A description of the activities to be performed.\n (c) A description of the machinery or other equipment to be used by the minors.\n (3) Once a year, the bureau shall provide to all employers applying for an annual employment certificate an information sheet summarizing all rules and laws governing the employment of minors.\n (4) Failure by an employer to comply with ORS 653.305 to 653.340 or with the regulations adopted by the bureau pursuant to this section shall subject the employer to revocation of the right to hire minors in the future at the discretion of the bureau, provided that an employer shall be granted a hearing before the bureau prior to such action being taken.\n (5) All school districts shall cooperate with the bureau and make available, upon request of the bureau, information concerning the age and schooling of minors.",
+    "status": "operative",
+    "renumbered_to": null,
+    "ordinal": 64,
+    "char_offset_start": 94632,
+    "char_offset_end": 96410
+  }
+}

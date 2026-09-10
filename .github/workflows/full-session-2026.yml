@@ -186,7 +186,7 @@ jobs:
 
       - name: Publish reviewed preview collection and explicit coverage gaps
         run: |
-          for boundary in 2026-09-09:3 2027-07-01:4; do
+          for boundary in 2026-09-09:3 2026-12-31:3 2027-01-01:6 2027-07-01:7; do
             day="${boundary%:*}"
             count="${boundary#*:}"
             python3 ors/tools/build_preview_catalog.py \
@@ -194,7 +194,7 @@ jobs:
               --verification session-2026-section-verification.json \
               --as-of "$day" \
               --output-dir "session-2026-preview-catalog/$day"
-            jq -e --argjson count "$count" '.verifiedReferenceCount == 13 and .plannedReferenceCount == 4 and .referencesNeedingTextReview == 9 and .allReviewedReferencesHavePlans == false and .appliedPreviewCount == $count and .scheduledPreviewCount == (4 - $count)' "session-2026-preview-catalog/$day/catalog.json" >/dev/null
+            jq -e --argjson count "$count" '.verifiedReferenceCount == 13 and .plannedReferenceCount == 7 and .referencesNeedingTextReview == 6 and .allReviewedReferencesHavePlans == false and .appliedPreviewCount == $count and .scheduledPreviewCount == (7 - $count)' "session-2026-preview-catalog/$day/catalog.json" >/dev/null
           done
 
       - name: Upload ORS reconciliation report

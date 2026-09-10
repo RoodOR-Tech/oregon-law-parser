@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "previewId": "preview-2026-c7-s1-2025-653.307",
+  "baseSectionId": "2025-653.307",
+  "baseRowSha256": "6c115a9362eb434fbbcc34e712eb0d6084c8eb335eba4acf8353d3bf4105626f",
+  "baseSourceSha256": "a2490ae192873c826e675251d376335520c8cf1f28eed7b0f12aa10e7c687597",
+  "orsSection": "653.307",
+  "sessionYear": 2026,
+  "sessionLawChapter": 7,
+  "sessionLawSection": "1",
+  "action": "A",
+  "measure": "HB 4013",
+  "lawSource": {
+    "url": "https://www.oregonlegislature.gov/bills_laws/lawsstatutes/2026orlaw0007.pdf",
+    "sha256": "86a3deaa1a4f03cd87d479e5edeba9ee9ac03883add8242f5c0ba23cd0a80ad6",
+    "bytes": 24377,
+    "retrievedAt": "2026-09-10T03:23:34.119338+00:00",
+    "pages": [
+      1
+    ]
+  },
+  "effectiveDate": "2027-01-01",
+  "operativeDate": "2027-01-01",
+  "dateReview": "The complete 1-page act was visually reviewed. Its final page prints effective date January 1, 2027. No emergency, deferred operative or separate applicability clause appears.",
+  "edit": {
+    "old": "(1) In accordance with the applicable provisions of ORS chapter 183, the Bureau of Labor and Industries shall adopt rules governing annual employment certificates required under this section. After September 9, 1995, the rules governing the total hours a minor can work may not be more restrictive than the requirements of the federal Fair Labor Standards Act (29 U.S.C. 201, et seq.), unless otherwise provided by Oregon law.",
+    "new": "(1) In accordance with the applicable provisions of ORS chapter 183, the Bureau of Labor and Industries shall adopt rules governing annual employment certificates required under this section. After September 9, 1995, the rules governing the total hours a minor can work may not be less restrictive than the requirements of the federal Fair Labor Standards Act (29 U.S.C. 201, et seq.), as in effect on January 1, 2026, but may be more restrictive only as necessary to implement or conform to changes in the federal Act or state law that increase protections for minors.",
+    "occurrences": 1
+  },
+  "expectedNormalizedBodySha256": "3f3284edc885082b96f91a7f261b438ec7a23db5957aa86a5098b2ba3d67d689",
+  "bodyReview": "Complete enacted body frozen in 2026-c7-s1-enacted.txt from independent PDFium extraction and visual review before comparing proposed output. Bracketed deletions, U+FFFE discretionary line-break markers, headers/footers and whitespace normalized. No substantive corrections.",
+  "scope": "Explicitly reviewed amendment preview only; not an official edition or complete legal history."
+}
