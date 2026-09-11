@@ -3,7 +3,7 @@ import re
 
 from .cache import digest
 
-ORS = r"\d{1,3}[A-Z]?\.\d{3}"
+ORS = r"\d{1,3}[A-Z]?\.\d{3,4}(?!\d)"
 CLAUSE = re.compile(r"(?m)^\s*SECTION\s+(\d+[a-zA-Z]?)\s*\.\s*")
 LEXEME = re.compile(r"\w+(?:['’]\w+)*|[^\w\s]", re.UNICODE)
 
@@ -22,10 +22,20 @@ def token_stream(doc):
             operation = "MARKER"
         elif depth:
             operation = "DELETE"
-        elif any(b or u for b, u in doc.styles[m.start():m.end()]):
-            operation = "ADD"
         else:
-            operation = "KEEP"
+            # A word may contain both unchanged and added characters. Splitting
+            # at style transitions preserves the old spelling as well as new.
+            start = m.start()
+            operation = 'ADD' if any(doc.styles[start]) else 'KEEP'
+            for pos in range(start + 1, m.end()):
+                next_operation = 'ADD' if any(doc.styles[pos]) else 'KEEP'
+                if next_operation != operation:
+                    tokens.append(dict(ordinal=len(tokens), operation=operation,
+                                       text=doc.text[start:pos], start=start, end=pos))
+                    start, operation = pos, next_operation
+            tokens.append(dict(ordinal=len(tokens), operation=operation,
+                               text=doc.text[start:m.end()], start=start, end=m.end()))
+            continue
         tokens.append({"ordinal": len(tokens), "operation": operation, "text": word,
                        "start": m.start(), "end": m.end()})
     if depth:
@@ -33,32 +43,63 @@ def token_stream(doc):
     return tokens
 
 
-def parse_session(doc, source_url, expected_year=None, special_session=0):
+def parse_session(doc, source_url, expected_year=None, special_session=None):
     text = doc.text
-    years = {int(y) for y in re.findall(r"(?m)^(?:Chap\.\s+\d+\s+)?OREGON\s+LAWS\s+((?:18|19|20|21)\d{2})", text)}
+    bill = re.search(r"\b(HB|SB)\s+(\d+)\b|\bBallot\s+Measure\s+(?:No\.\s*)?(\d+)\b", text, re.I)
+    # The title/body can cite earlier Oregon Laws at a wrapped line start.
+    # Only the publication masthead, before the bill citation, states identity.
+    masthead = text[:bill.start()] if bill else text
+    headers = list(re.finditer(r"(?mi)^[ \t]*(?:(?:Chapter|Chap\.)\s+\d+\s+)?OREGON\s+LAWS\s+((?:18|19|20|21)\d{2})([^\n]*)", masthead))
+    years = {int(m[1]) for m in headers}
     if len(years) != 1:
         raise ValueError(f"ambiguous/missing session-law header: {source_url}")
     year = years.pop()
     if expected_year is not None and year != expected_year:
         raise ValueError(f"session year mismatch: {year} != {expected_year}")
+    from .identity import ORDINALS
+    printed_sessions = set()
+    for header in headers:
+        match = re.search(r'(?:(first|second|third|fourth|fifth|\d+)(?:st|nd|rd|th)?\s+)?(special|regular)\s+session', header[2], re.I)
+        if match:
+            if match[2].lower() == 'regular':
+                printed_sessions.add(0)
+            elif match[1]:
+                value = match[1].lower()
+                printed_sessions.add(ORDINALS.get(value) or int(value))
+            elif special_session is None:
+                raise ValueError('special session header has no ordinal; supply special_session in manifest')
+            elif special_session == 0:
+                raise ValueError('special session source conflicts with regular session manifest')
+    if len(printed_sessions) > 1 or (printed_sessions and special_session is not None and special_session not in printed_sessions):
+        raise ValueError('conflicting special-session identity')
+    special_session = next(iter(printed_sessions)) if printed_sessions else (special_session or 0)
     chapter = re.search(r"\b(?:CHAPTER|Chap\.)\s+(\d+)\b", text, re.I)
-    bill = re.search(r"\b(HB|SB)\s+(\d+)\b|\bBallot\s+Measure\s+(?:No\.\s*)?(\d+)\b", text, re.I)
     if chapter is None or bill is None:
         raise ValueError(f"missing session chapter or bill identity: {source_url}")
     bill_number = f"{bill[1].upper()} {bill[2]}" if bill[1] else f"Ballot Measure {bill[3]}"
     clauses = list(CLAUSE.finditer(text))
     if not clauses:
         raise ValueError(f"no operative SECTION clauses: {source_url}")
+    if len({c[1] for c in clauses}) != len(clauses):
+        raise ValueError(f'duplicate operative SECTION identity: {source_url}')
     clause_bodies = {clause[1]: doc.slice(clause.end(), clauses[i+1].start() if i+1 < len(clauses) else len(text))
                      for i, clause in enumerate(clauses)}
+    for number, body in list(clause_bodies.items()):
+        end_note = re.search(r'(?m)^\s*(?:NOTE:|Approved by the Governor\b|Filed in the office of Secretary\b|Effective date\b)', body.text)
+        if end_note:
+            clause_bodies[number] = body.slice(0, end_note.start())
     actions, diagnostics = [], []
     for i, clause in enumerate(clauses):
         end = clauses[i+1].start() if i+1 < len(clauses) else len(text)
         content = doc.slice(clause.end(), end)
+        # Explanatory reviser's notes and approval footers are not enacted text.
+        note = re.search(r'(?m)^\s*(?:NOTE:|Approved by the Governor\b|Filed in the office of Secretary\b|Effective date\b)', content.text)
+        if note:
+            content = content.slice(0, note.start())
         prefix = re.sub(r"\s+", " ", content.text).strip()
         action, targets, body_start = None, [], 0
         amend = re.match(rf"ORS\s+({ORS})(?:,.*?)?\s+is\s+amended\s+to\s+read\s*:", prefix)
-        repeal = re.match(r"ORS\s+(.+?)\s+(?:is|are)\s+repealed\b", prefix)
+        repeal = re.match(r"(?:Repeals\.\s*)?ORS\s+(.+?)\s+(?:is|are)\s+repealed\b", prefix)
         if amend:
             action, targets = "AMEND", [amend[1]]
             marker = re.search(r"amended\s+to\s+read\s*:", content.text)
@@ -68,6 +109,12 @@ def parse_session(doc, source_url, expected_year=None, special_session=0):
             # Do not expand ranges by inventing non-existent ORS section numbers.
             if re.search(r"\bto\b", target_text):
                 diagnostics.append({"clause": clause[1], "reason": "repeal range requires an edition roster", "text": prefix})
+                continue
+            # Accept a list of ORS identifiers only; subordinate act citations
+            # and their incidental ORS references need separate review.
+            remainder = re.sub(ORS, '', target_text)
+            if re.sub(r'\b(?:and|ORS)\b|[,\s]', '', remainder):
+                diagnostics.append({'clause': clause[1], 'reason': 'mixed repeal targets require review', 'text': prefix})
                 continue
             action, targets = "REPEAL", re.findall(ORS, target_text)
         elif re.search(r"\b(?:is|are)\s+added\s+to\s+and\s+made\s+a\s+part\s+of\b", prefix):
@@ -80,9 +127,12 @@ def parse_session(doc, source_url, expected_year=None, special_session=0):
             diagnostics.append({"clause": clause[1], "reason": "non-ORS or unsupported operative target", "text": prefix})
         if action:
             diff = content.slice(body_start)
-            added_clause = None
             if action == "ADD" and targets == [None]:
-                membership = re.match(r"Sections?\s+(.+?)\s+of\s+this\s+\d{4}\s+Act\s+(?:is|are)\s+added", prefix)
+                subject = re.split(r'\s+(?:is|are)\s+added\s+to\s+and\s+made\s+a\s+part\s+of\b', prefix, maxsplit=1)[0]
+                membership = re.search(r'(?:^|\band\s+)Sections?\s+(\d+[A-Za-z]?(?:(?:\s*,\s*(?:and\s+)?|\s+and\s+|\s+to\s+)\d+[A-Za-z]?)*)'
+                    r'(?:\s+of\s+this\s+\d{4}\s+Act)?(?=\s+and\s+ORS\b|\s*$)', subject, re.I)
+                if re.search(r'\bORS\b', subject):
+                    diagnostics.append(dict(clause=clause[1], reason='existing ORS series membership', text=prefix))
                 if membership:
                     numbers = []
                     for part in re.split(r",\s*|\s+and\s+", membership[1]):
@@ -100,7 +150,7 @@ def parse_session(doc, source_url, expected_year=None, special_session=0):
                         added_body = clause_bodies[added_number]
                         # A series-membership clause can include provisions that
                         # amend existing ORS; those already have direct actions.
-                        if re.match(r"\s*ORS\s+", added_body.text):
+                        if re.match(r"\s*ORS\s+.+?\b(?:is\s+amended\s+to\s+read|(?:is|are)\s+repealed)\b", added_body.text, re.S):
                             continue
                         added_tokens = token_stream(added_body)
                         for token in added_tokens:
@@ -113,16 +163,18 @@ def parse_session(doc, source_url, expected_year=None, special_session=0):
                             "special_session": special_session, "source_url": source_url,
                             "token_text": added_body.text})
                     continue
-            if action == "ADD":
-                added = re.match(r"Section\s+(\d+[a-zA-Z]?)\s+of\s+this\s+\d{4}\s+Act\s+is\s+added", prefix)
-                if added:
-                    added_clause = added[1]
-                    if added_clause not in clause_bodies:
-                        raise ValueError(f"ADD refers to missing act section {added_clause}")
-                    diff = clause_bodies[added_clause]
-                elif targets == [None]:
-                    diagnostics.append({"clause": clause[1], "reason": "multi-section ADD requires text mapping", "text": prefix})
+                if not re.search(r'\bORS\b', subject):
+                    diagnostics.append(dict(clause=clause[1], reason='unsupported ADD reference', text=prefix))
+                # Membership changes to existing sections are not newly enacted
+                # text; retain the clause as evidence, not a fictitious ADD row.
+                continue
             tokens = token_stream(diff) if action in ("AMEND", "ADD") else []
+            if action == 'AMEND':
+                label = re.match(r'\s*'+re.escape(targets[0])+r'\.\s*', diff.text)
+                if label:
+                    for token in tokens:
+                        if token['end'] <= label.end():
+                            token['operation'] = 'KEEP'
             if action == "ADD":
                 for token in tokens:
                     token["operation"] = "ADD"
@@ -132,7 +184,7 @@ def parse_session(doc, source_url, expected_year=None, special_session=0):
                                 "session_year": year, "affected_ors_section": target,
                                 "action_type": action, "raw_diff_text": diff.text,
                                 "tokens": tokens, "session_law_chapter": int(chapter[1]),
-                                "session_law_section": added_clause or clause[1], "special_session": special_session,
+                                "session_law_section": clause[1], "special_session": special_session,
                                 "source_url": source_url,
                                 "token_text": diff.text})
     return {"actions": actions, "diagnostics": diagnostics, "session_year": year,

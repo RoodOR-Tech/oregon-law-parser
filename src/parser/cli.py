@@ -7,7 +7,7 @@ import sqlite3
 
 from .cache import Cache, atomic_write
 from .database import export_parquet
-from .discovery import discover, load_manifest
+from .discovery import discover, load_manifest, pin_manifest
 from .pipeline import build
 
 
@@ -26,6 +26,13 @@ def main(argv=None):
     run.add_argument("--parquet-dir", type=Path)
     run.add_argument("--quiet", action="store_true")
     args = parser.parse_args(argv)
+    if not 1800 <= args.year <= 2199:
+        parser.error('--year must be a publication year between 1800 and 2199')
+    chapter_selection = [n.strip().upper() for n in args.chapters.split(',')] if args.chapters else None
+    if chapter_selection:
+        import re
+        if any(not re.fullmatch(r'[1-9]\d{0,2}[A-Z]?', n) for n in chapter_selection):
+            parser.error('--chapters must contain chapter numbers such as 1,161,279A')
     if args.manifest and (args.chapters or args.session_limit):
         parser.error("--chapters/--session-limit cannot be combined with --manifest")
     if args.session_limit is not None and args.session_limit < 1:
@@ -36,9 +43,13 @@ def main(argv=None):
         if args.parquet_dir:
             import duckdb  # fail before publishing SQLite if optional dependency is absent
         manifest = load_manifest(args.manifest) if args.manifest else discover(
-            cache, args.year, args.chapters.split(",") if args.chapters else None, args.session_limit, log)
-        if manifest["edition_year"] != args.year:
+            cache, args.year, chapter_selection, args.session_limit, log)
+        if manifest.get("edition_year") != args.year:
             raise ValueError("manifest edition does not match --year")
+        manifest = pin_manifest(manifest, cache)
+        # Acquisition is useful evidence even when a later parser gate fails.
+        # Retain it so a corrected parser can resume with pinned offline inputs.
+        atomic_write(args.output.with_suffix(".acquired.json"), json.dumps(manifest, indent=2, sort_keys=True).encode())
         report = build(manifest, cache, args.output, log)
         if args.parquet_dir:
             export_parquet(args.output, args.parquet_dir)

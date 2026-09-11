@@ -34,6 +34,10 @@ records under `.ors-cache/urls/`. Cache hits are hash-checked, downloads are
 atomic, transient HTTP errors retry, and 404s are recorded as confirmed
 absences. Use `--refresh` for deliberate reacquisition; source-hash mismatch
 in a pinned manifest still fails. `--offline` refuses uncached network reads.
+Every saved manifest pins every input, including initially unpinned local
+files. Acquisition is checkpointed to `*.acquired.json` before parsing; a
+failed run leaves the previously published database and manifest intact.
+Pass that checkpoint to `--manifest` to resume after a parser correction.
 
 ```sh
 python -m parser.cli run --year 2023 --manifest dist/sample.manifest.json --offline --output dist/replay.db
@@ -69,8 +73,9 @@ locators, not edition evidence. Missing or contradictory identity is an error.
 Use `source_url` instead of `path` for remote sources and `sha256` to pin bytes.
 PDF records default to two columns; explicitly set `columns: 1` for a
 single-column publication. Image-only PDFs require OCR and fail explicitly.
-Special-session identity must be supplied by the source manifest because some
-published headers state only the year. Special sessions have distinct action
+An ordinal printed in a session header (including "second special session")
+is detected and checked against manifest metadata. Supply `special_session`
+when the header omits the ordinal; 0 means regular session. Special sessions have distinct action
 IDs even when chapter numbers coincide with a regular session.
 
 Edition rows do not imply a single legal effective date. `effective_date`
@@ -89,7 +94,9 @@ archive provides no verified edition-specific volume roster.
 | `pending_changes` | `id`, `target_section`, `enacting_measure`, `effective_date`, `note_text` |
 
 Chapter and section numbers are TEXT, including lettered chapters and leading
-fractional zeros. Section/chapter keys include the edition. Each run atomically
+fractional zeros. UCC section numbers retain all four fractional digits, such
+as `71.1010`. Former-provision chapters use their printed edition footers and
+retain repeal/renumbering dispositions. Section/chapter keys include the edition. Each run atomically
 rebuilds one database; it does not append to an existing database. Failed parsing
 preserves an existing SQLite output.
 
@@ -104,6 +111,12 @@ Additional tables preserve facts that the compact schema cannot express:
   hyphenation and whitespace are normalized. Original bytes remain cached.
 - `section_notes`: source credits and editorial notes separated from statute
   text. Strict closed-bracket notes do not consume following statutory text.
+- `section_versions`: all printed section versions in publication order, with
+  status, source credits and publication notes. `sections` contains the first
+  printed version, which can be a future text or repeal stub. This is a
+  publication view, not a selection of the text operative on today's date.
+- `chapter_notes`: full text of chapters publishing an uncodified measure
+  without numbered ORS sections. No ORS numbers are fabricated.
 - `pending_change_sources`: edition/chapter provenance for every notice.
 - `diagnostics`: uncodified or unsupported operative targets requiring review.
 - `build_metadata`: canonical manifest, parser version, scope and review flag.
@@ -132,9 +145,27 @@ with sqlite3.connect("dist/ors_data.db") as db:
         WHERE a.affected_ors_section = ? ORDER BY a.session_year, a.id
     """, ("161.005",)).fetchall()
     review = db.execute("SELECT source_url, clause, reason FROM diagnostics").fetchall()
+    versions = db.execute("""
+        SELECT version_ordinal, content_text, publication_notes
+        FROM section_versions WHERE edition_year = ? AND ors_section = ?
+        ORDER BY version_ordinal
+    """, (2023, "308.411")).fetchall()
 ```
 
 ## Validation scope and limitations
+
+The full cached 2023 run acquired 688 archived ORS chapter documents (matching
+the archive's advertised count) and 615 regular-session laws. It produced
+69,707 sections, 2,298 amendment actions, 1,024 pending notices and 284 alternate
+printed versions. SQLite integrity/foreign-key checks, Parquet row counts and
+all 1,406,994 token offsets were checked. The local suite passes 447 tests,
+with three existing source-staging skips. Wheel and source builds pass.
+
+The 326 retained diagnostics include 311 non-ORS/unsupported operative targets
+and 15 existing-ORS series membership clauses. These remain review evidence;
+moving an existing section into a series is not fabricated as new statutory
+text. The database is a source extraction, not a fully adjudicated legal
+consolidation.
 
 Offline CI covers the existing ORS/review tests and the new cache, edition,
 note-boundary, styled-token, relational integrity and export tests on Windows
@@ -145,9 +176,16 @@ Discovery uses the public archive's edition labels and document-library path,
 the linked table of titles, and comparative section table. The archive list API
 is not anonymously readable. Numeric candidates and consecutive lettered
 families are therefore probed, with 404s distinguished from network failure.
-Historical discovery uses today's largest chapter endpoint; it is not an
-independently certified historical roster. The report labels this scope
-`discovered`, not certified-complete.
+Historical discovery uses today's largest chapter endpoint, then gates on the
+archive's independently published edition document count when supplied. Each
+PDF still has to pass printed chapter and edition identity checks. The report
+labels this scope `discovered`, not certified-complete. Source manifests are
+checkpointed before parsing so failed runs can resume with pinned offline sources.
+Derived PDF text is also cached, keyed by source bytes, extractor code and
+layout options and pdfplumber version; changes invalidate those derived entries.
+Mixed-column forms and full-width tables are read in bands bounded by their
+printed rules. Repeated section headings retain alternate text, and collective
+former-provision notices retain explicitly listed sections and original notes.
 
 The initial Python session parser handles direct amendments/repeals and added
 provisions, including explicit act-section lists and ranges. Repeal ranges and

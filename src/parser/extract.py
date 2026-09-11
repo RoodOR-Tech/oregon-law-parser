@@ -5,17 +5,26 @@ from html.parser import HTMLParser
 from io import BytesIO
 import re
 import unicodedata
+import gzip
+import json
+from pathlib import Path
+from itertools import groupby
+from operator import itemgetter
 
 import pdfplumber
+
+EXTRACTION_FINGERPRINT = Path(__file__).read_bytes()
 
 
 @dataclass
 class Document:
     text: str
     styles: list  # one (bold, underline) pair per normalized character
+    edition_years: tuple = ()  # independently printed PDF running-footer years
+    chapter_heading: tuple = ()
 
     def slice(self, start, end=None):
-        return Document(self.text[start:end], self.styles[start:end])
+        return Document(self.text[start:end], self.styles[start:end], self.edition_years, self.chapter_heading)
 
 
 def normalize(items):
@@ -56,48 +65,129 @@ def _line_text(line):
         if i and char["x0"] - line[i-1]["x1"] > 1.5:
             parts.append(" ")
         parts.append(char["text"])
-    return "".join(parts)
+    return " ".join("".join(parts).split())
 
 
-def pdf_document(data, columns=2, running_headers=True):
+def deduplicate_chars(chars):
+    """Same clustering as pdfplumber, without its quadratic chars.index sort."""
+    key = itemgetter('upright', 'text', 'fontname', 'size')
+    positions = {id(char): i for i, char in enumerate(chars)}
+    result = []
+    for _, group in groupby(sorted(chars, key=key), key=key):
+        for row in pdfplumber.utils.cluster_objects(list(group), itemgetter('doctop'), 1):
+            for cluster in pdfplumber.utils.cluster_objects(row, itemgetter('x0'), 1):
+                result.append(min(cluster, key=itemgetter('doctop', 'x0')))
+    return sorted(result, key=lambda char: positions[id(char)])
+
+
+def reading_regions(chars, mid, heading_bottom=0):
+    """Read columns within horizontal bands separated by full-width rules.
+
+    ORS switches from columns to forms/tables at printed underscore rules.
+    A continuous text run across the gutter marks a full-width band. Title
+    front matter is explicitly bounded by the printed chapter heading.
+    """
+    lines = _lines(chars)
+    left, right = min(c['x0'] for c in chars), max(c['x1'] for c in chars)
+    rules = [line for line in lines if re.fullmatch(r'[_\-]{10,}', _line_text(line))
+             and line[0]['x0'] < mid < line[-1]['x1']
+             and line[-1]['x1'] - line[0]['x0'] > (right-left)*.75]
+    boundaries = sorted({heading_bottom} | {line[0]['top'] for line in rules}
+                        | {max(c['bottom'] for c in line) for line in rules})
+    bands = []
+    previous = float('-inf')
+    for stop in boundaries + [float('inf')]:
+        band = [c for c in chars if previous <= c['top'] < stop]
+        previous = stop
+        if not band:
+            continue
+        band_lines = _lines(band)
+        # Do not mistake a near-gutter edge for crossing: require actual
+        # characters spanning both sides of the gutter within one text run.
+        crosses = any(any(c['x0'] < mid < c['x1'] and c['text'].strip()
+                          for c in line) for line in band_lines)
+        if stop <= heading_bottom or crosses:
+            bands.append(band)
+        else:
+            bands.extend([[c for c in band if c['x0'] < mid],
+                          [c for c in band if c['x0'] >= mid]])
+    return bands
+
+
+def pdf_document(data, columns=2, running_headers=True, cache_dir=None):
+    if cache_dir is not None:
+        from .cache import digest, atomic_write
+        # Invalidate derived text whenever extraction code or options change.
+        key = digest(data + EXTRACTION_FINGERPRINT + pdfplumber.__version__.encode()
+                     + str((columns, running_headers)).encode())
+        cached = Path(cache_dir) / (key + '.json.gz')
+        if cached.exists():
+            return Document(**json.loads(gzip.decompress(cached.read_bytes())))
+        document = pdf_document(data, columns, running_headers)
+        atomic_write(cached, gzip.compress(json.dumps(document.__dict__, ensure_ascii=False).encode(), mtime=0))
+        return document
+    if columns not in (1, 2):
+        raise ValueError('PDF columns must be 1 or 2')
     items = []
+    edition_years = set()
+    chapter_heading = ()
     with pdfplumber.open(BytesIO(data)) as pdf:
         for page_no, page in enumerate(pdf.pages):
             underline_edges = [edge for edge in page.edges if abs(edge["top"] - edge["bottom"]) < .8
                                and edge["x1"] - edge["x0"] < page.width * .6]
-            chars = page.dedupe_chars().chars
+            chars = deduplicate_chars(page.chars)
             if not chars:
+                if not page.images:
+                    page.close()
+                    continue  # a genuinely blank page, not an image-only scan
                 raise ValueError(f"PDF page {page_no + 1} has no text layer; OCR is required")
+            # Running headers/footers establish the binding margins even when
+            # an indented statutory form leaves one body column unusually narrow.
+            page_mid = (min(c['x0'] for c in chars) + max(c['x1'] for c in chars)) / 2
+            header_rules = [e for e in page.edges if abs(e['top']-e['bottom']) < 1
+                            and e['top'] < 110 and e['x1']-e['x0'] > page.width*.65]
+            if header_rules:
+                rule = max(header_rules, key=lambda e: e['x1']-e['x0'])
+                page_mid = (rule['x0']+rule['x1'])/2
             all_lines = _lines(chars)
+            heading_bottom = 0
+            if not chapter_heading:
+                for index, line in enumerate(all_lines[:-2]):
+                    chapter = re.fullmatch(r'Chapter\s+(\d+[A-Z]?)', _line_text(line))
+                    if chapter and re.fullmatch(r'\d{4}\s+EDITION|\(Former Provisions\)', _line_text(all_lines[index+1])):
+                        title_lines = [all_lines[index+2]]
+                        title_size = max(c['size'] for c in title_lines[0])
+                        for following in all_lines[index+3:]:
+                            if abs(max(c['size'] for c in following) - title_size) > .3 or following[0]['top'] - title_lines[-1][0]['top'] > title_size * 2:
+                                break
+                            title_lines.append(following)
+                        chapter_heading = (chapter[1], ' '.join(_line_text(row) for row in title_lines))
+                        heading_bottom = max(c['bottom'] for c in title_lines[-1]) + 1
+                        break
             if running_headers:
                 # Preserve the first session-law header for identity, remove repetitions.
                 first_text = _line_text(all_lines[0])
-                is_law = bool(re.search(r"OREGON LAWS\s+\d{4}", first_text))
+                is_law = bool(re.search(r"OREGON LAWS\s+\d{4}", first_text, re.I))
                 if is_law and page_no == 0:
                     items.append((first_text + "\n", False, False))
-                if is_law or page_no > 0:
+                is_running_header = header_rules and max(c['bottom'] for c in all_lines[0]) <= max(e['top'] for e in header_rules) + 1
+                if is_law or is_running_header:
                     top = max(c["bottom"] for c in all_lines[0]) + 1
                     chars = [c for c in chars if c["top"] >= top]
                 # Published page footers include Title / Page / (YYYY Edition), or page number.
                 footer = [line for line in all_lines if line[0]["top"] > page.height * .90
                           and re.search(r"(?:Title\s+\d+.*Page|^\s*\d+\s*$)", _line_text(line))]
                 if footer:
+                    for line in footer:
+                        edition_years.update(int(y) for y in re.findall(r"\((\d{4})\s+Edition\)", _line_text(line)))
                     bottom = min(c["top"] for line in footer for c in line)
                     chars = [c for c in chars if c["top"] < bottom]
             if not chars:
+                page.close()
                 continue  # printed blank verso carrying only running header/footer
             regions = [chars]
             if columns == 2:
-                mid = (min(c["x0"] for c in chars) + max(c["x1"] for c in chars)) / 2
-                # Full-width chapter/title front matter must precede both columns.
-                crossing = [line for line in _lines(chars)
-                            if any(c["x0"] < mid + 3 and c["x1"] > mid - 3 for c in line)]
-                split_top = max((max(c["bottom"] for c in line) for line in crossing), default=0)
-                if split_top > page.height * .65:
-                    raise ValueError(f"ambiguous two-column PDF layout on page {page_no + 1}; specify columns=1 in the manifest")
-                regions = [[c for c in chars if c["top"] < split_top],
-                           [c for c in chars if c["top"] >= split_top and c["x0"] < mid],
-                           [c for c in chars if c["top"] >= split_top and c["x0"] >= mid]]
+                regions = reading_regions(chars, page_mid, heading_bottom)
             for region in regions:
                 for line in _lines(region):
                     previous = None
@@ -110,7 +200,11 @@ def pdf_document(data, columns=2, running_headers=True):
                         items.append((c["text"], bool(re.search("bold|black|demi", c["fontname"], re.I)), underline))
                         previous = c
                     items.append(("\n", False, False))
-    return normalize(items)
+            page.close()
+    document = normalize(items)
+    document.edition_years = tuple(sorted(edition_years))
+    document.chapter_heading = chapter_heading
+    return document
 
 
 class StyledHTML(HTMLParser):
@@ -158,11 +252,11 @@ def document_markup(doc):
     are section/Note headings; source line breaks otherwise become spaces.
     """
     out, current = ["<p>"], False
+    paragraph_start = re.compile(r"(?:\d+[A-Z]?\.\d{3,4}\s|Notes?:|Chapter\s|\d{4}\s+EDITION)")
     for i, c in enumerate(doc.text):
         bold = doc.styles[i][0]
         if c == "\n":
-            following = doc.text[i+1:]
-            if re.match(r"(?:\d+[A-Z]?\.\d{3}\s|Notes?:|Chapter\s|\d{4}\s+EDITION)", following):
+            if paragraph_start.match(doc.text, i+1):
                 if current:
                     out.append("</b>")
                     current = False

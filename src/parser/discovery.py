@@ -33,6 +33,8 @@ def discover(cache, year, chapters=None, session_limit=None, log=lambda _: None)
     if year not in archived_years and (not current or int(current[1]) != year):
         raise ValueError(f"edition {year} is not advertised by the official indexes")
     archived = year in archived_years
+    archive_count = re.search(rf'groupString="%3B%23{year}%3B%23"(?:(?!</tr>).)*?\((\d+)\)\s*</span>', archive, re.S | re.I)
+    expected_archive_count = int(archive_count[1]) if archive_count else None
     root = re.search(r'ctx\.listUrlDir\s*=\s*"([^"]+)"', archive)
     if archived and not root:
         raise ValueError("archive index contains no document library metadata")
@@ -94,6 +96,8 @@ def discover(cache, year, chapters=None, session_limit=None, log=lambda _: None)
                     break
     if not docs:
         raise ValueError("no ORS chapters discovered")
+    if archived and not chapters and expected_archive_count is not None and len(docs) != expected_archive_count:
+        raise ValueError(f'archive roster count mismatch: found {len(docs)}, published {expected_archive_count}')
     laws_index = cache.get(LAWS_INDEX).decode("utf-8", errors="replace")
     law_root = re.search(r'ctx\.listUrlDir\s*=\s*"([^"]+)"', laws_index)
     if not law_root:
@@ -121,6 +125,7 @@ def discover(cache, year, chapters=None, session_limit=None, log=lambda _: None)
     return {"schema_version": 1, "edition_year": year, "source_url": ARCHIVE_INDEX if archived else ORS_INDEX,
             "scope": "selected" if chapters or session_limit else "discovered",
             "notes": "Archive volume numbers remain unknown; supplements are separate session sources.",
+            "expected_archive_count": expected_archive_count,
             "documents": docs, "provenance": sorted(cache.sources.values(), key=lambda r: r["source_url"])}
 
 
@@ -136,3 +141,48 @@ def load_manifest(path):
         if not record.get("source_url") or record.get("kind") not in ("chapter", "session"):
             raise ValueError("each document needs a kind and source_url or path")
     return manifest
+
+
+def pin_manifest(manifest, cache):
+    """Validate the run contract and freeze all bytes before parsing."""
+    from .cache import digest
+    if manifest.get('schema_version') != 1:
+        raise ValueError('unsupported manifest schema_version')
+    year = manifest.get('edition_year')
+    if type(year) is not int or not 1800 <= year <= 2199:
+        raise ValueError('manifest edition_year must be an integer publication year')
+    records = manifest.get('documents')
+    if not isinstance(records, list) or not records:
+        raise ValueError('manifest requires a nonempty documents list')
+    documents, identities, urls = [], set(), set()
+    for record in records:
+        if not isinstance(record, dict):
+            raise ValueError('manifest document must be an object')
+        record = dict(record)
+        kind, url = record.get('kind'), record.get('source_url')
+        if kind not in ('chapter', 'session') or not isinstance(url, str) or not url:
+            raise ValueError('each document requires chapter/session kind and source_url')
+        if url in urls:
+            raise ValueError(f'duplicate manifest source: {url}')
+        urls.add(url)
+        if type(record.get('columns', 2)) is not int or record.get('columns', 2) not in (1, 2):
+            raise ValueError('columns must be 1 or 2')
+        if kind == 'chapter':
+            number = record.get('chapter_number')
+            if not isinstance(number, str) or not re.fullmatch(r'[1-9]\d{0,2}[A-Z]?', number):
+                raise ValueError(f'invalid chapter_number: {number}')
+            if number in identities:
+                raise ValueError(f'duplicate chapter: {number}')
+            identities.add(number)
+        elif type(record.get('session_year', year)) is not int:
+            raise ValueError('session_year must be an integer')
+        if 'special_session' in record and (type(record['special_session']) is not int or record['special_session'] < 0):
+            raise ValueError('special_session must be a nonnegative integer')
+        record['sha256'] = digest(cache.get(url, record.get('sha256')))
+        documents.append(record)
+    if not identities:
+        raise ValueError('manifest contains no ORS chapters')
+    expected = manifest.get('expected_archive_count')
+    if manifest.get('scope') == 'discovered' and expected is not None and len(identities) != expected:
+        raise ValueError(f'archive roster count mismatch: found {len(identities)}, published {expected}')
+    return dict(manifest, documents=sorted(documents, key=lambda r: (r['kind'], r['source_url'])))

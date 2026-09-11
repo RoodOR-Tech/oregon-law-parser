@@ -4,9 +4,10 @@ import json
 import os
 import tempfile
 import time
+import re
 from pathlib import Path
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlparse, unquote
+from urllib.parse import urlparse
 from urllib.request import Request, urlopen, url2pathname
 
 
@@ -34,21 +35,37 @@ class Cache:
         self.offline, self.refresh = offline, refresh
         self.timeout, self.retries = timeout, retries
         self.sources = {}
+        if retries < 1 or timeout <= 0:
+            raise ValueError('cache retries and timeout must be positive')
 
     def get(self, url, expected_sha256=None):
+        if expected_sha256 is not None and not re.fullmatch(r'[0-9a-f]{64}', expected_sha256):
+            raise ValueError('sha256 must be 64 lowercase hexadecimal characters')
+        if expected_sha256 and not self.refresh:
+            pinned = self.root / 'objects' / expected_sha256
+            if pinned.exists():
+                data = pinned.read_bytes()
+                if digest(data) != expected_sha256:
+                    raise ValueError(f'cache corruption for {url}; use --refresh to reacquire')
+                self.sources[url] = dict(source_url=url, sha256=expected_sha256, bytes=len(data))
+                return data
         key = digest(url.encode())
         metadata = self.root / "urls" / (key + ".json")
-        if metadata.exists() and not self.refresh:
-            record = json.loads(metadata.read_text(encoding="utf-8"))
+        if url in self.sources or (metadata.exists() and not self.refresh):
+            record = self.sources.get(url) or json.loads(metadata.read_text(encoding="utf-8"))
             if record.get("http_status") == 404:
                 raise HTTPError(url, 404, "cached confirmed absence", {}, None)
+            if not re.fullmatch(r'[0-9a-f]{64}', record.get('sha256', '')):
+                raise ValueError(f'invalid cache metadata for {url}')
             data = (self.root / "objects" / record["sha256"]).read_bytes()
             if digest(data) != record["sha256"]:
                 raise ValueError(f"cache corruption for {url}; use --refresh to reacquire")
         else:
             parsed = urlparse(url)
             if parsed.scheme == "file":
-                data = Path(url2pathname(unquote(parsed.path))).read_bytes()
+                # url2pathname performs decoding; applying unquote twice corrupts
+                # paths containing a literal percent escape such as %20.
+                data = Path(url2pathname(('//' + parsed.netloc if parsed.netloc else '') + parsed.path)).read_bytes()
             elif parsed.scheme in ("https", "http"):
                 if self.offline:
                     raise ValueError(f"offline cache miss: {url}")

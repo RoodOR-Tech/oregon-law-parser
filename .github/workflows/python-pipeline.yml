@@ -25,8 +25,12 @@ jobs:
       - name: Build SQLite and Parquet without Java or Haskell
         run: python -m parser.cli run --year 2023 --manifest tests/fixtures/manifest.json --output dist/ors_data.db --parquet-dir dist/parquet --quiet
       - name: Replay cached inputs offline
-        run: python -m parser.cli run --year 2023 --manifest tests/fixtures/manifest.json --output dist/replay.db --offline --quiet
+        run: python -m parser.cli run --year 2023 --manifest dist/ors_data.manifest.json --output dist/replay.db --offline --quiet
+      - name: Require byte-identical SQLite replay
+        run: python -c "from pathlib import Path; assert Path('dist/ors_data.db').read_bytes() == Path('dist/replay.db').read_bytes()"
       - run: python -m build
+      - name: Test installed wheel outside the repository
+        run: python tools/smoke_installed_wheel.py --wheel dist/oregon_law_parser-0.2.0-py3-none-any.whl --manifest tests/fixtures/manifest.json
       - uses: actions/upload-artifact@v4
         with:
           name: portable-pipeline-${{ matrix.os }}-${{ matrix.python }}

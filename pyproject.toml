@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "oregon-law-parser"
-version = "0.1.0"
+version = "0.2.0"
 description = "Reproducible ORS and Oregon session-law relational extraction"
 requires-python = ">=3.10"
 dependencies = ["pdfplumber==0.11.10"]

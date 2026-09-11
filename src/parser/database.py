@@ -18,6 +18,8 @@ CREATE TABLE chapter_sources(edition_year INTEGER, chapter_number TEXT, source_u
 CREATE TABLE amendment_sources(amendment_id TEXT PRIMARY KEY REFERENCES amendments, source_url TEXT REFERENCES sources, session_law_chapter INTEGER, session_law_section TEXT, special_session INTEGER NOT NULL);
 CREATE TABLE amendment_tokens(amendment_id TEXT REFERENCES amendments, ordinal INTEGER, operation TEXT CHECK(operation IN ('KEEP','ADD','DELETE','MARKER')), text TEXT NOT NULL, start INTEGER NOT NULL, end INTEGER NOT NULL, PRIMARY KEY(amendment_id,ordinal));
 CREATE TABLE section_notes(id TEXT PRIMARY KEY, edition_year INTEGER, ors_section TEXT, note_kind TEXT, note_text TEXT NOT NULL, FOREIGN KEY(edition_year,ors_section) REFERENCES sections(edition_year,ors_section));
+CREATE TABLE chapter_notes(id TEXT PRIMARY KEY, edition_year INTEGER, chapter_number TEXT, note_text TEXT NOT NULL, FOREIGN KEY(edition_year,chapter_number) REFERENCES chapters(edition_year,chapter_number));
+CREATE TABLE section_versions(edition_year INTEGER, ors_section TEXT, version_ordinal INTEGER, catchline TEXT, content_text TEXT, status TEXT, source_credit TEXT, publication_notes TEXT, PRIMARY KEY(edition_year,ors_section,version_ordinal), FOREIGN KEY(edition_year,ors_section) REFERENCES sections(edition_year,ors_section));
 CREATE TABLE pending_change_sources(pending_change_id TEXT PRIMARY KEY REFERENCES pending_changes, edition_year INTEGER, chapter_number TEXT, source_url TEXT REFERENCES sources, FOREIGN KEY(edition_year,chapter_number) REFERENCES chapters(edition_year,chapter_number));
 CREATE TABLE diagnostics(id TEXT PRIMARY KEY, source_url TEXT REFERENCES sources, clause TEXT, reason TEXT, text TEXT);
 CREATE TABLE build_metadata(key TEXT PRIMARY KEY, value TEXT NOT NULL);
@@ -55,13 +57,27 @@ def export_parquet(database, directory):
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
     # Use sqlite3 to read rather than DuckDB's network-installed sqlite extension.
-    with sqlite3.connect(database) as db, duckdb.connect() as target:
+    with closing(sqlite3.connect(database)) as db, duckdb.connect() as target, tempfile.TemporaryDirectory(dir=directory) as staging:
         for (table,) in db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"):
             info = db.execute(f'PRAGMA table_info("{table}")').fetchall()
             columns = ",".join(f'"{c[1]}" {"BIGINT" if c[2] == "INTEGER" else "VARCHAR"}' for c in info)
             target.execute(f'CREATE TABLE "{table}" ({columns})')
-            rows = db.execute(f'SELECT * FROM "{table}" ORDER BY ' + ",".join(str(i+1) for i in range(len(info)))).fetchall()
-            if rows:
-                target.executemany(f'INSERT INTO "{table}" VALUES ({",".join("?" for _ in info)})', rows)
-            output = str(directory / (table + ".parquet")).replace("'", "''")
+            ordering = ','.join('"'+c[1]+'"' for c in sorted(info, key=lambda c: c[5]) if c[5])
+            ordering = ordering or ','.join(str(i+1) for i in range(len(info)))
+            cursor = db.execute(f'SELECT * FROM "{table}" ORDER BY {ordering}')
+            # Stream through typed NDJSON. Row-by-row DuckDB inserts are too
+            # slow for a statewide token table; no extension or Arrow required.
+            transfer = Path(staging)/'rows.ndjson'
+            count = 0
+            with transfer.open('w',encoding='utf-8',newline='\n') as stream:
+                while rows := cursor.fetchmany(10000):
+                    count += len(rows)
+                    for row in rows:
+                        stream.write(json.dumps(dict(zip([c[1] for c in info], row)),ensure_ascii=False)+'\n')
+            if count:
+                types = ','.join("'"+c[1]+"': '"+('BIGINT' if c[2]=='INTEGER' else 'VARCHAR')+"'" for c in info)
+                target.execute(f'INSERT INTO "{table}" SELECT * FROM read_json(?, columns={{{types}}}, format=\'newline_delimited\', maximum_object_size=67108864)', [str(transfer)])
+            output = str(Path(staging) / (table + ".parquet")).replace("'", "''")
             target.execute(f'COPY "{table}" TO \'{output}\' (FORMAT PARQUET)')
+            os.replace(Path(staging)/(table+'.parquet'), directory/(table+'.parquet'))
+            target.execute(f'DROP TABLE "{table}"')

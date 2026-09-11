@@ -16,8 +16,21 @@ sources. Full discovery can take considerable time. For a small real-source run,
 add `--chapters 1 --session-limit 2`.
 
 See [portable pipeline usage, schema, queries and validation scope](PORTABLE_PIPELINE.md).
+The first printed section version is the publication view; alternate texts and
+their timing notes remain queryable in `section_versions`. Inspect `diagnostics`
+for session-law clauses that need review. See the [audit](PIPELINE_AUDIT.md) for
+the integration decisions and validation boundaries.
 Run all Python tests with `python -m pytest -q`. The established
 [ORS relational schema](ors/SCHEMA.md) and reviewed preview tools remain available.
+
+```python
+import sqlite3
+with sqlite3.connect("dist/ors_data.db") as db:
+    rows = db.execute("""
+        SELECT ors_section, catchline FROM sections
+        WHERE edition_year = ? AND chapter_number = ? ORDER BY ors_section
+    """, (2023, "161")).fetchall()
+```
 
 ## Legacy session-law parser
 

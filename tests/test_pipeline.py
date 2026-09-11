@@ -33,6 +33,40 @@ def test_reject_unproved_or_conflicting_editions(text):
         edition_identity(text, 2023)
 
 
+def test_edition_citations_in_statute_are_not_publication_banners():
+    assert edition_identity('2023 EDITION\nSee the 1991 Edition of ORS.\nThe 1989 Edition applies.', 2023)['edition_year'] == 2023
+
+
+def test_real_former_provisions_use_printed_footer_identity():
+    data = (FIXTURES / '2023ors004.pdf').read_bytes()
+    metadata = json.loads((FIXTURES / '2023ors004.source.json').read_text())
+    assert digest(data) == metadata['sha256']
+    parsed = parse_source(data, '4', 2023)
+    assert parsed['chapterName'] == 'Circuit Court Terms'
+    assert len(parsed['sections']) == 24
+    assert parsed['sections'][0]['sectionNumber'] == '4.010'
+    assert parsed['sections'][0]['renumberedTo'] == '3.232'
+    assert all(s['status'] in ('repealed', 'renumbered') for s in parsed['sections'])
+
+
+def test_ucc_four_digit_sections_survive_chapters_and_amendments():
+    markup = b'<p>Chapter 71 - Commercial Transactions</p><p>2023 EDITION</p><p><b>71.1010 Short titles.</b> Text. [1961 c.726 section 71.1010]</p>'
+    chapter = parse_source(markup, '71', 2023)
+    assert chapter['sections'][0]['sectionNumber'] == '71.1010'
+    session = html_document('<p>OREGON LAWS 2023 Chap. 1</p><p>HB 1001</p><p>SECTION 1. ORS 71.1010 is amended to read:</p><p>71.1010. <b>New</b> text.</p>')
+    assert parse_session(session, 'fixture', 2023)['actions'][0]['affected_ors_section'] == '71.1010'
+
+
+def test_pdf_derived_cache_preserves_printed_metadata(tmp_path):
+    data = (FIXTURES / '2023ors004.pdf').read_bytes()
+    first = pdf_document(data, cache_dir=tmp_path)
+    replay = pdf_document(data, cache_dir=tmp_path)
+    assert first.text == replay.text
+    assert first.styles == [tuple(style) for style in replay.styles]
+    assert tuple(replay.edition_years) == (2023,)
+    assert tuple(replay.chapter_heading) == ('4', 'Circuit Court Terms')
+
+
 def test_brackets_end_at_closing_delimiter():
     body, notes = split_bracket_notes("Before [2024 c.12 §3 amends ORS 161.005 [with a nested note].] after [name].")
     assert body == "Before after [name]."
