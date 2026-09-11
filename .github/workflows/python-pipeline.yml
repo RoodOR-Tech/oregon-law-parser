@@ -1,0 +1,33 @@
+name: Portable Python pipeline
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.10', '3.12']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: python -m pip install -e ".[test,parquet]"
+      - run: python -m pytest -q
+      - name: Build SQLite and Parquet without Java or Haskell
+        run: python -m parser.cli run --year 2023 --manifest tests/fixtures/manifest.json --output dist/ors_data.db --parquet-dir dist/parquet --quiet
+      - name: Replay cached inputs offline
+        run: python -m parser.cli run --year 2023 --manifest tests/fixtures/manifest.json --output dist/replay.db --offline --quiet
+      - run: python -m build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: portable-pipeline-${{ matrix.os }}-${{ matrix.python }}
+          path: dist/

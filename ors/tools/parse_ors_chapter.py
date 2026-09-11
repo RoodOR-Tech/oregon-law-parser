@@ -368,17 +368,22 @@ def parse_edition_year(lines):
     title's front matter ahead of the banner, which put it out of reach of a
     fixed head window.
     """
+    candidates = set()
     for index, (line, _, _) in enumerate(lines):
+        reverse = re.fullmatch(r"(?:ORS\s+)?EDITION\s*[:\-]?\s*((?:18|19|20|21)\d{2})", line, re.I)
+        extended = re.fullmatch(r"((?:18|19|20|21)\d{2})\s+ORS\s+EDITION", line, re.I)
+        if reverse or extended:
+            candidates.add(int((reverse or extended).group(1)))
         banner = EDITION_BANNER_PATTERN.match(line)
         if banner is not None:
-            return int(banner.group(1))
+            candidates.add(int(banner.group(1)))
         match = EDITION_YEAR_PATTERN.match(line)
         if match is None:
             continue
         following = lines[index + 1][0] if index + 1 < len(lines) else ""
         if following.upper().startswith("EDITION"):
-            return int(match.group(1))
-    return None
+            candidates.add(int(match.group(1)))
+    return next(iter(candidates)) if len(candidates) == 1 else None
 
 
 def heading_diagnostics(lines, chapter_number):

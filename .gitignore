@@ -19,3 +19,8 @@ cabal.sandbox.config
 cabal.project.local
 __pycache__/
 *.pyc
+.venv/
+.pytest_cache/
+.ors-cache/
+*.egg-info/
+build/
