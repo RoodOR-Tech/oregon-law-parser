@@ -19,3 +19,10 @@ cabal.sandbox.config
 cabal.project.local
 __pycache__/
 *.pyc
+
+# Operational scale-test acquisition output (not committed; CI uploads as workflow artifacts)
+session-fixtures/
+session-acquisition-report.json
+session-results/
+session-parser-exit-codes.tsv
+session-operational-report.json
