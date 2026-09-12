@@ -22,6 +22,8 @@ CREATE TABLE chapter_notes(id TEXT PRIMARY KEY, edition_year INTEGER, chapter_nu
 CREATE TABLE section_versions(edition_year INTEGER, ors_section TEXT, version_ordinal INTEGER, catchline TEXT, content_text TEXT, status TEXT, source_credit TEXT, publication_notes TEXT, PRIMARY KEY(edition_year,ors_section,version_ordinal), FOREIGN KEY(edition_year,ors_section) REFERENCES sections(edition_year,ors_section));
 CREATE TABLE pending_change_sources(pending_change_id TEXT PRIMARY KEY REFERENCES pending_changes, edition_year INTEGER, chapter_number TEXT, source_url TEXT REFERENCES sources, FOREIGN KEY(edition_year,chapter_number) REFERENCES chapters(edition_year,chapter_number));
 CREATE TABLE diagnostics(id TEXT PRIMARY KEY, source_url TEXT REFERENCES sources, clause TEXT, reason TEXT, text TEXT);
+CREATE TABLE amendment_context(amendment_id TEXT PRIMARY KEY REFERENCES amendments, condition_text TEXT, operative_text TEXT NOT NULL);
+CREATE TABLE diagnostic_reviews(diagnostic_id TEXT PRIMARY KEY REFERENCES diagnostics, category TEXT NOT NULL, disposition TEXT NOT NULL, explanation TEXT NOT NULL);
 CREATE TABLE build_metadata(key TEXT PRIMARY KEY, value TEXT NOT NULL);
 CREATE INDEX amendments_by_target ON amendments(affected_ors_section,session_year);
 CREATE INDEX pending_by_target ON pending_changes(target_section,effective_date);

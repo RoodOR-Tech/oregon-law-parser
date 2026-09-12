@@ -14,6 +14,9 @@ from .pipeline import build
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+    explorer = commands.add_parser('explorer', help='export a static searchable law explorer')
+    explorer.add_argument('--database', type=Path, required=True)
+    explorer.add_argument('--output', type=Path, required=True)
     run = commands.add_parser("run", help="acquire, parse and atomically publish SQLite")
     run.add_argument("--year", type=int, required=True)
     run.add_argument("--output", type=Path, required=True)
@@ -26,6 +29,10 @@ def main(argv=None):
     run.add_argument("--parquet-dir", type=Path)
     run.add_argument("--quiet", action="store_true")
     args = parser.parse_args(argv)
+    if args.command == 'explorer':
+        from .explorer import export_explorer
+        print(json.dumps(export_explorer(args.database, args.output), sort_keys=True))
+        return 0
     if not 1800 <= args.year <= 2199:
         parser.error('--year must be a publication year between 1800 and 2199')
     chapter_selection = [n.strip().upper() for n in args.chapters.split(',')] if args.chapters else None

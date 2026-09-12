@@ -10,6 +10,7 @@ from .database import write_sqlite
 from .extract import pdf_document, html_document
 from .notes import explicit_effective_date
 from .discovery import pin_manifest
+from .review import classify
 from ors.tools.ors_text import decode_markup, declared_charset
 
 
@@ -21,7 +22,7 @@ def build(manifest, cache, output, log=lambda _: None):
     tables = {name: [] for name in (
         "editions", "chapters", "sections", "amendments", "pending_changes", "sources",
         "chapter_sources", "amendment_sources", "amendment_tokens", "section_notes",
-        "pending_change_sources", "diagnostics", "build_metadata", "chapter_notes", "section_versions")}
+        "pending_change_sources", "diagnostics", "build_metadata", "chapter_notes", "section_versions", "amendment_context", "diagnostic_reviews")}
     supplements = []
     for record in sorted(manifest["documents"], key=lambda r: (r["kind"], r["source_url"])):
         url = record["source_url"]
@@ -84,13 +85,16 @@ def build(manifest, cache, output, log=lambda _: None):
                 document = html_document(markup)
             session = parse_session(document, url, record.get("session_year", year), record.get("special_session"))
             for action in session["actions"]:
+                tables['amendment_context'].append(dict(amendment_id=action['id'], condition_text=action.get('condition_text'), operative_text=action.get('operative_text', action['raw_diff_text'])))
                 tables["amendments"].append({k: action[k] for k in ("id", "bill_number", "session_year", "affected_ors_section", "action_type", "raw_diff_text")})
                 tables["amendment_sources"].append(dict(amendment_id=action["id"], source_url=url,
                     session_law_chapter=action["session_law_chapter"], session_law_section=action["session_law_section"], special_session=action["special_session"]))
                 for token in action["tokens"]:
                     tables["amendment_tokens"].append(dict(amendment_id=action["id"], **token))
             for i, diagnostic in enumerate(session["diagnostics"]):
-                tables["diagnostics"].append(dict(id=digest(f"{url}:{i}".encode()), source_url=url, **diagnostic))
+                identity = digest(f"{url}:{i}".encode())
+                tables["diagnostics"].append(dict(id=identity, source_url=url, **diagnostic))
+                tables['diagnostic_reviews'].append(dict(diagnostic_id=identity, **classify(diagnostic)))
     if not tables["chapters"]:
         raise ValueError("manifest contains no ORS chapters")
     tables["sources"] = sorted(cache.sources.values(), key=lambda r: r["source_url"])
@@ -100,7 +104,7 @@ def build(manifest, cache, output, log=lambda _: None):
         source_url=manifest.get("source_url") or manifest["documents"][0]["source_url"], notes=json.dumps(notes, sort_keys=True)))
     # Foreign keys require sources and edition rows before their dependents.
     ordered = {k: tables[k] for k in ("editions", "sources", "chapters", "sections", "amendments", "pending_changes",
-        "chapter_sources", "amendment_sources", "amendment_tokens", "section_notes", "pending_change_sources", "diagnostics", "build_metadata", "chapter_notes", "section_versions")}
+        "chapter_sources", "amendment_sources", "amendment_tokens", "section_notes", "pending_change_sources", "diagnostics", "build_metadata", "chapter_notes", "section_versions", "amendment_context", "diagnostic_reviews")}
     for key, value in {"parser_version": __version__, "manifest": json.dumps(manifest, sort_keys=True),
                        "section_selection": "First printed version; alternate texts retained in section_versions. Not an as-of-date consolidation.",
                        "scope": manifest.get("scope", "manifest"), "review_required": str(bool(tables["diagnostics"])).lower()}.items():

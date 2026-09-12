@@ -16,6 +16,19 @@ sources. Full discovery can take considerable time. For a small real-source run,
 add `--chapters 1 --session-limit 2`.
 
 See [portable pipeline usage, schema, queries and validation scope](PORTABLE_PIPELINE.md).
+Export a searchable website from the generated database:
+
+```sh
+python -m parser.cli explorer --database ./dist/ors_data.db --output ./dist/explorer
+python -m http.server 8000 --directory ./dist/explorer
+```
+
+Open `http://localhost:8000`. Search exact words across printed versions, browse
+chapters, compare versions, inspect additions/deletions, and follow original
+PDF sources. The export is static and can be served without a Python backend.
+Use a fresh output directory when changing datasets. See [explorer and review
+scope](EXPLORER.md) for search semantics and review classifications.
+
 The first printed section version is the publication view; alternate texts and
 their timing notes remain queryable in `section_versions`. Inspect `diagnostics`
 for session-law clauses that need review. See the [audit](PIPELINE_AUDIT.md) for

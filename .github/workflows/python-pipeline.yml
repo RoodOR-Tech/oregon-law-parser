@@ -30,7 +30,7 @@ jobs:
         run: python -c "from pathlib import Path; assert Path('dist/ors_data.db').read_bytes() == Path('dist/replay.db').read_bytes()"
       - run: python -m build
       - name: Test installed wheel outside the repository
-        run: python tools/smoke_installed_wheel.py --wheel dist/oregon_law_parser-0.2.0-py3-none-any.whl --manifest tests/fixtures/manifest.json
+        run: python tools/smoke_installed_wheel.py --wheel dist/oregon_law_parser-0.3.0-py3-none-any.whl --manifest tests/fixtures/manifest.json
       - uses: actions/upload-artifact@v4
         with:
           name: portable-pipeline-${{ matrix.os }}-${{ matrix.python }}

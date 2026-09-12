@@ -97,6 +97,31 @@ def parse_session(doc, source_url, expected_year=None, special_session=None):
         if note:
             content = content.slice(0, note.start())
         prefix = re.sub(r"\s+", " ", content.text).strip()
+        operative_text = content.text
+        condition_text = None
+        # Only recognize a leading enactment contingency, never an incidental
+        # ORS citation inside the replacement body. Keep the entire instruction.
+        conditional = re.match(r'\s*If\s+(?:House|Senate)\s+Bill\s+\d+\s+becomes\s+law,\s*', content.text)
+        if conditional is None:
+            conditional = re.match(r'\s*Notwithstanding\s+section\s+\d+[a-z]?,\s+chapter\s+\d+,\s+Oregon\s+Laws\s+\d{4}\s+\(Enrolled\s+(?:House|Senate)\s+Bill\s+\d+\)\s+\(amending\s+ORS\s+' + ORS + r'\),\s+if\s+(?:House|Senate)\s+Bill\s+\d+\s+becomes\s+law,\s*', content.text)
+        if conditional:
+            condition_text = conditional[0].strip().rstrip(',')
+            candidate = content.slice(conditional.end())
+            replacement = re.match(r'section\s+.+?\bis\s+repealed\s+and\s+(?=ORS\s)', candidate.text, re.S)
+            if replacement:
+                candidate = candidate.slice(replacement.end())
+            if re.match(r'ORS\s', candidate.text):
+                content = candidate
+                prefix = re.sub(r'\s+', ' ', content.text).strip()
+        # Numbered repeal instructions may mix a direct ORS repeal with the
+        # sunset of a provision in this Act. Retain the latter for review.
+        numbered = re.match(r'\s*\(1\)\s*(ORS\s+.+?\s+(?:is|are)\s+repealed\.)', content.text, re.S)
+        if numbered:
+            remainder = content.text[numbered.end():].strip()
+            if remainder:
+                diagnostics.append(dict(clause=clause[1], reason='remaining numbered provisions', text=re.sub(r'\s+', ' ', remainder)))
+            content = content.slice(numbered.start(1), numbered.end(1))
+            prefix = re.sub(r'\s+', ' ', content.text).strip()
         action, targets, body_start = None, [], 0
         amend = re.match(rf"ORS\s+({ORS})(?:,.*?)?\s+is\s+amended\s+to\s+read\s*:", prefix)
         repeal = re.match(r"(?:Repeals\.\s*)?ORS\s+(.+?)\s+(?:is|are)\s+repealed\b", prefix)
@@ -186,6 +211,7 @@ def parse_session(doc, source_url, expected_year=None, special_session=None):
                                 "tokens": tokens, "session_law_chapter": int(chapter[1]),
                                 "session_law_section": clause[1], "special_session": special_session,
                                 "source_url": source_url,
+                                "condition_text": condition_text, "operative_text": operative_text,
                                 "token_text": diff.text})
     return {"actions": actions, "diagnostics": diagnostics, "session_year": year,
             "bill_number": bill_number, "session_law_chapter": int(chapter[1])}

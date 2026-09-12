@@ -24,6 +24,10 @@ def main():
             "assert Path(ors.__file__).is_relative_to(Path(sys.prefix))"], cwd=root, check=True)
         subprocess.run([str(python), '-m', 'parser.cli', 'run', '--year', '2023',
             '--manifest', str(options.manifest.resolve()), '--output', str(root/'ors.db'), '--quiet'], cwd=root, check=True)
+        subprocess.run([str(python), '-m', 'parser.cli', 'explorer', '--database', str(root/'ors.db'),
+            '--output', str(root/'explorer')], cwd=root, check=True)
+        assert (root/'explorer/index.html').is_file()
+        assert (root/'explorer/app.js').is_file()
 
 
 if __name__ == '__main__':
