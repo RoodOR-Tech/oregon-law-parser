@@ -171,27 +171,42 @@ class ExtractedDefinition:
     definition_text: str
 
 
-# Scoping phrases that introduce a definitions block, e.g.
-# "As used in this chapter, unless the context requires otherwise:" or
-# "As used in ORS 192.311 to 192.478:".
-_SCOPE_PATTERN = re.compile(
-    r"As used in (?:this (?:chapter|section)|ORS[^:]+?)(?:,\s*unless the context requires otherwise)?\s*:",
-    re.IGNORECASE,
-)
+# Scoping phrases that introduce a definitions block. Real ORS text varies
+# a great deal after "As used in" -- "this chapter", "ORS 192.311 to
+# 192.478", "chapter 743, Oregon Laws 1971, and ORS 166.635", "the statute
+# laws of this state" -- and the trailing qualifier varies too ("unless the
+# context requires otherwise" vs. "unless the context otherwise requires").
+# Matching is deliberately loose (anything up to the line's own colon)
+# since this only gates whether a definitions block is present at all; the
+# entry pattern below does the real extraction.
+_SCOPE_PATTERN = re.compile(r"As used in[^\n:]{0,200}:", re.IGNORECASE)
 
 # A single numbered definition entry: (1) "Term" means the rest of the
-# sentence, up to the next numbered entry or the end of the text.
+# sentence, up to the next numbered entry or the end of the text. Also
+# matches ORS's compound form where the first entry under a number carries
+# a lettered subpart, e.g. (2)(a) "Term" means ...; a bare lettered
+# continuation like "(b) ..." has no digit so it never itself matches as a
+# new entry, and stays folded into the (2)(a) entry's own text. A second
+# aliased name joined by "or" -- (5) "Service contract holder" or
+# "contract holder" means ... -- becomes two rows sharing one definition.
+# The verb is deliberately widened past "means"/"includes" to "has" (has
+# the meaning given that term in ORS ...) and "is" (is a contract described
+# in ORS ...), both real cross-reference definition forms.
 _DEFINITION_ENTRY_PATTERN = re.compile(
-    r"""\(\s*(?P<num>\d+)\s*\)\s*
-        [“"'](?P<term>[^”"']{1,160})[”"']\s*
-        (?P<verb>means|includes)[,\s]+
+    r"""\(\s*(?P<num>\d+)\s*\)(?:\([a-z]\))?\s*
+        [“"'](?P<term>[^”"']{1,160})[”"']
+        (?:\s*or\s*[“"'](?P<term2>[^”"']{1,160})[”"'])?
+        \s*
+        (?P<verb>means|includes|has|is)[,\s]+
         (?P<definition>.*?)
-        (?=(?:\n?\s*\(\d+\)\s*[“"'])|\Z)""",
+        (?=(?:\n?\s*\(\d+\)(?:\([a-z]\))?\s*[“"'])|\Z)""",
     re.IGNORECASE | re.DOTALL | re.VERBOSE,
 )
 
 # A "Definitions" catchline with no leading "As used in ..." scope phrase.
 _DEFINITIONS_HEADING_PATTERN = re.compile(r"^\s*Definitions\b", re.IGNORECASE)
+
+_VERBS_KEPT_IN_TEXT = {"includes", "has", "is"}
 
 
 def extract_definitions(statute_text: str, citation: str) -> List[ExtractedDefinition]:
@@ -211,15 +226,21 @@ def extract_definitions(statute_text: str, citation: str) -> List[ExtractedDefin
 
     definitions: List[ExtractedDefinition] = []
     for match in _DEFINITION_ENTRY_PATTERN.finditer(statute_text):
-        term = _normalize_whitespace(match.group("term"))
         body = _normalize_whitespace(match.group("definition")).rstrip(".")
         verb = match.group("verb").lower()
-        definition_text = f"{verb} {body}." if verb == "includes" else f"{body}."
-        if not term or not definition_text:
+        definition_text = f"{verb} {body}." if verb in _VERBS_KEPT_IN_TEXT else f"{body}."
+        if not definition_text.strip("."):
             continue
-        definitions.append(
-            ExtractedDefinition(citation=citation, defined_term=term, definition_text=definition_text)
-        )
+        for group_name in ("term", "term2"):
+            raw_term = match.group(group_name)
+            if raw_term is None:
+                continue
+            term = _normalize_whitespace(raw_term)
+            if not term:
+                continue
+            definitions.append(
+                ExtractedDefinition(citation=citation, defined_term=term, definition_text=definition_text)
+            )
     return definitions
 
 
