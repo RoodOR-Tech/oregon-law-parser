@@ -217,7 +217,7 @@ _DEFINITION_ENTRY_PATTERN = re.compile(
         [“"'](?P<term>[^”"']{1,160})[”"']
         (?:\s*or\s*[“"'](?P<term2>[^”"']{1,160})[”"'])?
         [^“”"'\n]{0,150}?
-        (?:(?P<verb>does not mean|does not include|means|includes|has|is)[,:\s]+|:\s*)
+        (?:(?P<verb>does\s+not\s+mean|does\s+not\s+include|means|includes|has|is)[,:\s]+|:\s*)
         (?P<definition>.*?)
         (?=(?:\n?\s*\(\d+\)(?:\([a-z]\))?\s*[“"'])|\Z)""",
     re.IGNORECASE | re.DOTALL | re.VERBOSE,
@@ -247,7 +247,7 @@ def extract_definitions(statute_text: str, citation: str) -> List[ExtractedDefin
     definitions: List[ExtractedDefinition] = []
     for match in _DEFINITION_ENTRY_PATTERN.finditer(statute_text):
         body = _normalize_whitespace(match.group("definition")).rstrip(".")
-        verb = (match.group("verb") or "").lower()
+        verb = _normalize_whitespace(match.group("verb") or "").lower()
         definition_text = f"{verb} {body}." if verb in _VERBS_KEPT_IN_TEXT else f"{body}."
         if not definition_text.strip("."):
             continue
