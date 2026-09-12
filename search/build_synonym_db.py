@@ -191,13 +191,33 @@ _SCOPE_PATTERN = re.compile(r"As used in[^\n:]{0,200}:", re.IGNORECASE)
 # "contract holder" means ... -- becomes two rows sharing one definition.
 # The verb is deliberately widened past "means"/"includes" to "has" (has
 # the meaning given that term in ORS ...) and "is" (is a contract described
-# in ORS ...), both real cross-reference definition forms.
+# in ORS ...), both real cross-reference definition forms. The verb can
+# also be followed directly by a colon introducing its own lettered
+# sub-list -- (1) "Actual address" means: (a) ... ; or (b) ... -- rather
+# than a plain sentence; the colon is accepted alongside comma/whitespace
+# so that whole sub-list is captured as one run-on definition instead of
+# losing the entry.
+#
+# Two more real forms: a short qualifying clause can sit between the term
+# and its verb -- (7) "Intentionally" or "with intent," when used with
+# respect to..., means... ; (5) "Equity purchaser," except as provided in
+# ORS 646A.730, means... -- handled by a short, non-greedy filler that is
+# capped at 150 characters so it can never swallow past the entry's own
+# verb into a later entry. (It deliberately does not stop at "." the way
+# the definition capture itself would: the qualifier clause routinely
+# cites another ORS section, e.g. "646A.730", whose own decimal point
+# would otherwise cut the filler short before it reaches the verb.) And
+# the verb can be missing from this line entirely, with the whole
+# definition pushed one level down -- (3) "Equity conveyance": / (a) Means
+# a transaction that involves: ... / (b) Does not mean... -- handled by
+# allowing a bare colon in place of a verb, and "does not mean"/"does not
+# include" are recognized alongside the affirmative forms.
 _DEFINITION_ENTRY_PATTERN = re.compile(
     r"""\(\s*(?P<num>\d+)\s*\)(?:\([a-z]\))?\s*
         [“"'](?P<term>[^”"']{1,160})[”"']
         (?:\s*or\s*[“"'](?P<term2>[^”"']{1,160})[”"'])?
-        \s*
-        (?P<verb>means|includes|has|is)[,\s]+
+        [^“”"'\n]{0,150}?
+        (?:(?P<verb>does not mean|does not include|means|includes|has|is)[,:\s]+|:\s*)
         (?P<definition>.*?)
         (?=(?:\n?\s*\(\d+\)(?:\([a-z]\))?\s*[“"'])|\Z)""",
     re.IGNORECASE | re.DOTALL | re.VERBOSE,
@@ -206,7 +226,7 @@ _DEFINITION_ENTRY_PATTERN = re.compile(
 # A "Definitions" catchline with no leading "As used in ..." scope phrase.
 _DEFINITIONS_HEADING_PATTERN = re.compile(r"^\s*Definitions\b", re.IGNORECASE)
 
-_VERBS_KEPT_IN_TEXT = {"includes", "has", "is"}
+_VERBS_KEPT_IN_TEXT = {"includes", "has", "is", "does not mean", "does not include"}
 
 
 def extract_definitions(statute_text: str, citation: str) -> List[ExtractedDefinition]:
@@ -227,7 +247,7 @@ def extract_definitions(statute_text: str, citation: str) -> List[ExtractedDefin
     definitions: List[ExtractedDefinition] = []
     for match in _DEFINITION_ENTRY_PATTERN.finditer(statute_text):
         body = _normalize_whitespace(match.group("definition")).rstrip(".")
-        verb = match.group("verb").lower()
+        verb = (match.group("verb") or "").lower()
         definition_text = f"{verb} {body}." if verb in _VERBS_KEPT_IN_TEXT else f"{body}."
         if not definition_text.strip("."):
             continue
