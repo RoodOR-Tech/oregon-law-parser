@@ -1,0 +1,7 @@
+include PORTABLE_PIPELINE.md
+include PIPELINE_AUDIT.md
+include EXPLORER.md
+recursive-include tests *.py *.html *.json *.pdf
+recursive-include ors/tests *.py *.html *.pdf
+recursive-include fixtures *.pdf
+recursive-include tools *.py

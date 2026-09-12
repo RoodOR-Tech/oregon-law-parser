@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "edition_year": 2023,
+  "scope": "synthetic-test-fixtures",
+  "notes": "Synthetic examples, not Oregon law.",
+  "documents": [
+    {"kind": "chapter", "chapter_number": "161", "volume_number": 4, "path": "chapter.html"},
+    {"kind": "session", "session_year": 2023, "path": "session.html"}
+  ]
+}

@@ -1,0 +1,73 @@
+"""python -m parser.cli run --year 2023 --output ./dist/ors_data.db"""
+import argparse
+import json
+from pathlib import Path
+import sys
+import sqlite3
+
+from .cache import Cache, atomic_write
+from .database import export_parquet
+from .discovery import discover, load_manifest, pin_manifest
+from .pipeline import build
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    commands = parser.add_subparsers(dest="command", required=True)
+    explorer = commands.add_parser('explorer', help='export a static searchable law explorer')
+    explorer.add_argument('--database', type=Path, required=True)
+    explorer.add_argument('--output', type=Path, required=True)
+    run = commands.add_parser("run", help="acquire, parse and atomically publish SQLite")
+    run.add_argument("--year", type=int, required=True)
+    run.add_argument("--output", type=Path, required=True)
+    run.add_argument("--manifest", type=Path, help="pinned source list; local paths are relative to this file")
+    run.add_argument("--cache", type=Path, default=Path(".ors-cache"))
+    run.add_argument("--offline", action="store_true")
+    run.add_argument("--refresh", action="store_true")
+    run.add_argument("--chapters", help="comma-separated chapter selection (marks output as selected)")
+    run.add_argument("--session-limit", type=int, help="limit session documents (marks output as selected)")
+    run.add_argument("--parquet-dir", type=Path)
+    run.add_argument("--quiet", action="store_true")
+    args = parser.parse_args(argv)
+    if args.command == 'explorer':
+        from .explorer import export_explorer
+        print(json.dumps(export_explorer(args.database, args.output), sort_keys=True))
+        return 0
+    if not 1800 <= args.year <= 2199:
+        parser.error('--year must be a publication year between 1800 and 2199')
+    chapter_selection = [n.strip().upper() for n in args.chapters.split(',')] if args.chapters else None
+    if chapter_selection:
+        import re
+        if any(not re.fullmatch(r'[1-9]\d{0,2}[A-Z]?', n) for n in chapter_selection):
+            parser.error('--chapters must contain chapter numbers such as 1,161,279A')
+    if args.manifest and (args.chapters or args.session_limit):
+        parser.error("--chapters/--session-limit cannot be combined with --manifest")
+    if args.session_limit is not None and args.session_limit < 1:
+        parser.error("--session-limit must be positive")
+    log = (lambda text: print(text, file=sys.stderr, flush=True)) if not args.quiet else (lambda _: None)
+    try:
+        cache = Cache(args.cache, args.offline, args.refresh)
+        if args.parquet_dir:
+            import duckdb  # fail before publishing SQLite if optional dependency is absent
+        manifest = load_manifest(args.manifest) if args.manifest else discover(
+            cache, args.year, chapter_selection, args.session_limit, log)
+        if manifest.get("edition_year") != args.year:
+            raise ValueError("manifest edition does not match --year")
+        manifest = pin_manifest(manifest, cache)
+        # Acquisition is useful evidence even when a later parser gate fails.
+        # Retain it so a corrected parser can resume with pinned offline inputs.
+        atomic_write(args.output.with_suffix(".acquired.json"), json.dumps(manifest, indent=2, sort_keys=True).encode())
+        report = build(manifest, cache, args.output, log)
+        if args.parquet_dir:
+            export_parquet(args.output, args.parquet_dir)
+        atomic_write(args.output.with_suffix(".manifest.json"), json.dumps(manifest, indent=2, sort_keys=True).encode())
+        atomic_write(args.output.with_suffix(".report.json"), json.dumps(report, indent=2, sort_keys=True).encode())
+        print(json.dumps(report, sort_keys=True))
+        return 0
+    except (ValueError, OSError, ImportError, sqlite3.Error) as error:
+        print(f"error: {error}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
