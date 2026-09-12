@@ -103,6 +103,48 @@ def load_statute_chunks(input_dir: Path) -> List[StatuteChunk]:
     return chunks
 
 
+_DEFAULT_ORS_ROWS_STATUSES = ("operative",)
+
+
+def load_statute_chunks_from_ors_rows(
+    path: Path, statuses: Sequence[str] = _DEFAULT_ORS_ROWS_STATUSES
+) -> List[StatuteChunk]:
+    """Load ``StatuteChunk``s from ``ors/tools/parse_ors_chapter.py``'s own ``--rows`` output.
+
+    Reads the ``sections`` array of an ``ors-rows.json`` file -- each row
+    carries ``sectionNumber`` (the bare citation, e.g. ``"192.311"``),
+    ``catchline`` and ``bodyText`` (SCHEMA.md's ``ors_section`` table) --
+    and filters to ``statuses`` (``operative`` only by default: a
+    ``repealed``/``renumbered``/``reserved``/``note_only`` row carries no
+    live statutory text worth extracting definitions from). This is the
+    one-directional, data-only join to the ORS relational pipeline this
+    module deliberately keeps independent of: it reads that pipeline's
+    output file, it does not import any of its code.
+    """
+    document = json.loads(path.read_text())
+    sections = document.get("sections")
+    if not isinstance(sections, list):
+        raise ValueError(f"{path} has no 'sections' array -- is this an ors-rows.json file?")
+
+    chunks: List[StatuteChunk] = []
+    for section in sections:
+        if section.get("status") not in statuses:
+            continue
+        citation = section.get("sectionNumber")
+        body_text = section.get("bodyText")
+        if not citation or not body_text:
+            continue
+        chunks.append(
+            StatuteChunk(
+                citation=citation,
+                title=section.get("catchline") or None,
+                text_content=body_text,
+                source_path=str(path),
+            )
+        )
+    return chunks
+
+
 def _parse_xml_chunk(path: Path) -> Optional[StatuteChunk]:
     """Parse ``<statute citation="..." title="...">text</statute>``."""
     root = ET.parse(path).getroot()
@@ -789,6 +831,15 @@ def _parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         help="Directory of .txt/.xml statutory chunks to ingest (default: bundled mock sample).",
     )
     parser.add_argument(
+        "--ors-rows-file",
+        type=Path,
+        default=None,
+        help=(
+            "ors-rows.json produced by ors/tools/parse_ors_chapter.py --rows; "
+            "ingests its operative ors_section rows directly. Mutually exclusive with --input-dir."
+        ),
+    )
+    parser.add_argument(
         "--db-url",
         default="sqlite:///ors_synonym_db.sqlite3",
         help="SQLAlchemy database URL (default: %(default)s). Any PostgreSQL URL also works.",
@@ -802,13 +853,24 @@ def _parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser.add_argument("--llm-model", default=None, help="Override the provider's default model name.")
     parser.add_argument("--concurrency", type=int, default=5, help="Max concurrent LLM requests.")
     parser.add_argument("--verbose", action="store_true")
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    if args.input_dir and args.ors_rows_file:
+        parser.error("--input-dir and --ors-rows-file are mutually exclusive")
+    return args
 
 
 async def _async_main(args: argparse.Namespace) -> None:
-    chunks = load_statute_chunks(args.input_dir) if args.input_dir else _MOCK_CHUNKS
+    if args.ors_rows_file:
+        chunks = load_statute_chunks_from_ors_rows(args.ors_rows_file)
+        source_desc = str(args.ors_rows_file)
+    elif args.input_dir:
+        chunks = load_statute_chunks(args.input_dir)
+        source_desc = str(args.input_dir)
+    else:
+        chunks = _MOCK_CHUNKS
+        source_desc = "bundled mock sample"
     if not chunks:
-        logger.error("no statute chunks found under %s", args.input_dir)
+        logger.error("no statute chunks found in %s", source_desc)
         sys.exit(1)
 
     llm_client = _build_llm_client(args.llm_provider, args.llm_model)

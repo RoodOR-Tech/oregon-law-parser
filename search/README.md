@@ -31,7 +31,34 @@ using a deterministic offline mock LLM client:
 python3 search/build_synonym_db.py
 ```
 
-## Run against real ORS chunks
+## Run against the real ORS relational pipeline
+
+The most direct path: parse real chapters with the existing `ors/`
+pipeline, then hand its rows straight to this module.
+
+```bash
+python3 ors/tools/acquire_ors_chapters.py \
+  --chapters-file ors/sample/chapters.json \
+  --output-dir ors-sources --report ors-acquisition.json
+python3 ors/tools/parse_ors_chapter.py \
+  --acquisition-report ors-acquisition.json \
+  --report ors-parse.json --rows ors-rows.json
+
+python3 search/build_synonym_db.py \
+  --ors-rows-file ors-rows.json \
+  --db-url sqlite:///ors_synonym_db.sqlite3 \
+  --llm-provider anthropic
+```
+
+`--ors-rows-file` reads `ors-rows.json`'s `sections` array directly
+(`sectionNumber`, `catchline`, `bodyText`), filtered to `status:
+"operative"` by default -- a repealed/renumbered/reserved/note_only stub
+carries no live text to extract definitions from. This is a
+one-directional, data-only read of that pipeline's output file; this
+module still does not import any of its code, and the `ors/` pipeline
+does not know this module exists.
+
+## Run against ad hoc statute chunks
 
 ```bash
 python3 search/build_synonym_db.py \
@@ -43,7 +70,8 @@ python3 search/build_synonym_db.py \
 `--input-dir` should contain `.txt` files (optional `CITATION:`/`TITLE:`
 header lines, statute body after) and/or `.xml` files
 (`<statute citation="..." title="..."><body>...</body></statute>`).
-`--db-url` accepts any SQLAlchemy URL, including PostgreSQL
+`--input-dir` and `--ors-rows-file` are mutually exclusive. `--db-url`
+accepts any SQLAlchemy URL, including PostgreSQL
 (`postgresql+psycopg2://...`).
 
 ## Using it from another program

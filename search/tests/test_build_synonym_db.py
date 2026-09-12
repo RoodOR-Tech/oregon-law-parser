@@ -9,6 +9,7 @@ to the regex can't silently regress one of these without a test failing.
 """
 
 import asyncio
+import json
 import sys
 import tempfile
 import unittest
@@ -27,6 +28,7 @@ from build_synonym_db import (  # noqa: E402
     get_session_factory,
     ingest_statute,
     load_statute_chunks,
+    load_statute_chunks_from_ors_rows,
 )
 
 
@@ -240,6 +242,73 @@ class LoadStatuteChunksTests(unittest.TestCase):
             chunks = load_statute_chunks(root)
             citations = sorted(c.citation for c in chunks)
             self.assertEqual(citations, ["167.007", "999.999"])
+
+
+class LoadStatuteChunksFromOrsRowsTests(unittest.TestCase):
+    """The adapter onto ors/tools/parse_ors_chapter.py's own --rows output."""
+
+    def _write_rows_file(self, tmpdir: str, sections: list) -> Path:
+        path = Path(tmpdir) / "ors-rows.json"
+        path.write_text(json.dumps({"sections": sections}))
+        return path
+
+    def test_operative_sections_loaded_others_filtered(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = self._write_rows_file(
+                tmpdir,
+                [
+                    {
+                        "sectionNumber": "192.311",
+                        "catchline": "Definitions for ORS 192.311 to 192.478.",
+                        "bodyText": (
+                            "As used in this section:\n"
+                            '(1) "Public body" means every state officer, agency or board.'
+                        ),
+                        "status": "operative",
+                    },
+                    {
+                        "sectionNumber": "192.312",
+                        "catchline": "Repealed stub.",
+                        "bodyText": None,
+                        "status": "repealed",
+                    },
+                    {
+                        "sectionNumber": "192.313",
+                        "catchline": "Renumbered stub.",
+                        "bodyText": "See 192.320.",
+                        "status": "renumbered",
+                    },
+                ],
+            )
+            chunks = load_statute_chunks_from_ors_rows(path)
+            self.assertEqual([c.citation for c in chunks], ["192.311"])
+            self.assertEqual(chunks[0].title, "Definitions for ORS 192.311 to 192.478.")
+            defs = extract_definitions(chunks[0].text_content, chunks[0].citation)
+            self.assertEqual([d.defined_term for d in defs], ["Public body"])
+
+    def test_custom_statuses_filter(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = self._write_rows_file(
+                tmpdir,
+                [
+                    {
+                        "sectionNumber": "1.001",
+                        "catchline": "C",
+                        "bodyText": "body",
+                        "status": "reserved",
+                    },
+                ],
+            )
+            self.assertEqual(load_statute_chunks_from_ors_rows(path), [])
+            chunks = load_statute_chunks_from_ors_rows(path, statuses=("reserved",))
+            self.assertEqual([c.citation for c in chunks], ["1.001"])
+
+    def test_missing_sections_array_raises(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "not-rows.json"
+            path.write_text(json.dumps({"editions": []}))
+            with self.assertRaises(ValueError):
+                load_statute_chunks_from_ors_rows(path)
 
 
 class LLMExpansionTests(unittest.TestCase):
