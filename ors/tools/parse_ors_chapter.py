@@ -51,7 +51,7 @@ BOLD_CLOSE_PATTERN = re.compile(r"^<\s*/\s*b\b", re.IGNORECASE)
 # quotation mark is accepted here alongside a capital letter, not only the
 # capital letter of an ordinary sentence-initial catchline.
 SECTION_CATCHLINE_PATTERN = re.compile(
-    r"^(?P<number>\d{1,3}[A-Z]?\.\d{3})\s+(?=[A-Z“‘\"'])(?P<catchline>.*)$"
+    r"^(?P<number>\d{1,3}[A-Z]?\.\d{3,4})\s+(?=[A-Z“‘\"'])(?P<catchline>.*)$"
 )
 # A section printed only as a bracketed history: nothing else appears on the
 # line after the number. A keyword leading the bracket ("[Repealed by ...]")
@@ -66,7 +66,7 @@ SECTION_CATCHLINE_PATTERN = re.compile(
 # with a capital letter, never "[") and from an ordinary section whose body
 # ends in a trailing credit (which has statutory text before the bracket).
 SECTION_STUB_PATTERN = re.compile(
-    r"^(?P<number>\d{1,3}[A-Z]?\.\d{3})\s+(?P<stub>\[[^\[\]]*\])\s*$"
+    r"^(?P<number>\d{1,3}[A-Z]?\.\d{3,4})\s+(?P<stub>\[[^\[\]]*\])\s*$"
 )
 # The real published form for a stub-only section, confirmed by dumping raw
 # markup directly (find_embedded_stub_markup_samples): the number is bold on
@@ -80,18 +80,18 @@ SECTION_STUB_PATTERN = re.compile(
 # silently dropped as a non-anchor, which is why two rounds of fixing
 # normalize_chapter_text's newline handling both measured zero change --
 # neither one was the real bug.
-BARE_NUMBER_PATTERN = re.compile(r"^(?P<number>\d{1,3}[A-Z]?\.\d{3})$")
+BARE_NUMBER_PATTERN = re.compile(r"^(?P<number>\d{1,3}[A-Z]?\.\d{3,4})$")
 FOLLOWING_STUB_PATTERN = re.compile(r"^\s*(?P<stub>\[[^\[\]]*\])")
 # A literal source newline immediately followed by a new stub entry's
 # opening. See _collapse_internal_newlines's docstring: this is what tells a
 # real break between consecutive stub-only entries apart from an ordinary
 # wrapped-prose newline, which must still collapse to a space.
-STUB_LINE_BREAK_PATTERN = re.compile(r"\n(?=\s*\d{1,3}[A-Z]?\.\d{3}\s*\[)")
+STUB_LINE_BREAK_PATTERN = re.compile(r"\n(?=\s*\d{1,3}[A-Z]?\.\d{3,4}\s*\[)")
 _NEWLINE_PLACEHOLDER = "\x00"
 # Whether a run of text opens a new stub entry, used to look past a purely
 # whitespace inter-tag run into the next real content -- see
 # normalize_chapter_text's upcoming_run_opens_a_stub.
-STUB_ENTRY_OPEN_PATTERN = re.compile(r"^\d{1,3}[A-Z]?\.\d{3}\s*\[")
+STUB_ENTRY_OPEN_PATTERN = re.compile(r"^\d{1,3}[A-Z]?\.\d{3,4}\s*\[")
 # A trailing bracketed group is the section's source credit. Parsing its
 # contents into rows is increment 3; here it is only separated from the
 # statutory text so body_text holds the text and not the history.
@@ -107,7 +107,7 @@ STUB_ENTRY_OPEN_PATTERN = re.compile(r"^\d{1,3}[A-Z]?\.\d{3}\s*\[")
 # note. The lookahead also accepts a bracket immediately followed by a
 # note introducer, so the credit is still recognized as one.
 TRAILING_CREDIT_PATTERN = re.compile(r"(?P<credit>\[[^\[\]]*\])\s*(?=$|Notes?:\s)")
-RENUMBERED_TO_PATTERN = re.compile(r"\bRenumbered\s+(?P<number>\d{1,3}[A-Z]?\.\d{3})", re.IGNORECASE)
+RENUMBERED_TO_PATTERN = re.compile(r"\bRenumbered\s+(?P<number>\d{1,3}[A-Z]?\.\d{3,4})", re.IGNORECASE)
 
 # The chapter document names itself as "192 - Records; Public Reports and
 # Meetings" and prints its edition as "2025" followed by "EDITION".
@@ -129,7 +129,7 @@ BARE_YEAR_PATTERN = re.compile(r"\b((?:19|20)\d{2})\b")
 # an all-capitals run or as a parenthesized phrase.
 UPPER_HEADING_PATTERN = re.compile(r"^[A-Z][A-Z0-9 ,.;:'&/–—-]{2,}$")
 PAREN_HEADING_PATTERN = re.compile(r"^\([A-Z][^()]{2,}\)$")
-SECTION_NUMBER_ANYWHERE = re.compile(r"\d{1,3}[A-Z]?\.\d{3}")
+SECTION_NUMBER_ANYWHERE = re.compile(r"\d{1,3}[A-Z]?\.\d{3,4}")
 
 # How far into a document to look for a chapter heading when the expected
 # chapter number is unknown. A chapter that opens a title carries that title's
@@ -323,7 +323,10 @@ def split_source_credit(body):
     # already seen as one), and if that ever appeared in bracket form
     # ahead of a real trailing credit, .search()'s leftmost match would
     # seize on it instead of the section's actual credit.
-    matches = list(TRAILING_CREDIT_PATTERN.finditer(body))
+    matches = [m for m in TRAILING_CREDIT_PATTERN.finditer(body)
+               if re.match(r'\[\s*(?:\d{4}\b|Formerly\b|Amended\b|Repealed\b|Renumbered\b|Reserved\b)', m.group('credit'), re.I)
+               if not re.match(r'\[\s*(?:Series\s+enacted|\d{4}\s+c\.\s*\d+\s+§\s*\w+\s+(?:amends?|repeals?|adds?)\s+ORS)',
+                               m.group('credit'), re.I)]
     if not matches:
         return body.strip(), None
     match = matches[-1]
@@ -368,17 +371,22 @@ def parse_edition_year(lines):
     title's front matter ahead of the banner, which put it out of reach of a
     fixed head window.
     """
+    candidates = set()
     for index, (line, _, _) in enumerate(lines):
+        reverse = re.fullmatch(r"(?:ORS\s+)?EDITION\s*[:\-]?\s*((?:18|19|20|21)\d{2})", line, re.I)
+        extended = re.fullmatch(r"((?:18|19|20|21)\d{2})\s+ORS\s+EDITION", line, re.I)
+        if reverse or extended:
+            candidates.add(int((reverse or extended).group(1)))
         banner = EDITION_BANNER_PATTERN.match(line)
         if banner is not None:
-            return int(banner.group(1))
+            candidates.add(int(banner.group(1)))
         match = EDITION_YEAR_PATTERN.match(line)
         if match is None:
             continue
         following = lines[index + 1][0] if index + 1 < len(lines) else ""
         if following.upper().startswith("EDITION"):
-            return int(match.group(1))
-    return None
+            candidates.add(int(match.group(1)))
+    return next(iter(candidates)) if len(candidates) == 1 else None
 
 
 def heading_diagnostics(lines, chapter_number):
@@ -472,7 +480,7 @@ def find_unbolded_stub_lines(lines, bold_spans, anchored_numbers):
     return found
 
 
-EMBEDDED_STUB_PATTERN = re.compile(r"(?P<number>\d{1,3}[A-Z]?\.\d{3})\s*\[")
+EMBEDDED_STUB_PATTERN = re.compile(r"(?P<number>\d{1,3}[A-Z]?\.\d{3,4})\s*\[")
 
 
 def find_embedded_stub_markup_samples(markup, text, anchored_numbers, limit=10):
@@ -514,7 +522,7 @@ def is_subdivision_heading(line):
     return bool(UPPER_HEADING_PATTERN.match(line)) and any(c.isalpha() for c in line)
 
 
-def parse_chapter(markup, chapter_number):
+def parse_chapter(markup, chapter_number, *, preserve_versions=False):
     """Parse one chapter document into edition, chapter, subdivision and section rows."""
     text, bold_spans = normalize_chapter_text(markup)
     lines = list(line_spans(text))
@@ -552,6 +560,10 @@ def parse_chapter(markup, chapter_number):
             # printed in a following non-bold span -- see
             # BARE_NUMBER_PATTERN's comment for the real form this covers.
             bare_match = BARE_NUMBER_PATTERN.match(run)
+            bare_version = re.fullmatch(r'(\d{1,3}[A-Z]?\.\d{3,4})\.', run)
+            if preserve_versions and bare_version and any(a['number'] == bare_version[1] for a in anchors):
+                anchors.append(dict(number=bare_version[1], catchline=None, stub=None,
+                                    start=start, headingEnd=end))
             if bare_match is not None:
                 # No length cap: a stub-only section's credit can run to
                 # many citations (as long as any ordinary operative
@@ -593,7 +605,7 @@ def parse_chapter(markup, chapter_number):
     note_owners = [a for a in anchors if chapter_number is None
                    or a['number'].startswith(f'{chapter_number}.')]
     for start, stop in bold_spans:
-        bare_version = re.fullmatch(r"(\d{1,3}[A-Z]?\.\d{3})\.", text[start:stop].strip())
+        bare_version = re.fullmatch(r"(\d{1,3}[A-Z]?\.\d{3,4})\.", text[start:stop].strip())
         if bare_version and any(a['number'] == bare_version[1] and a['start'] < start for a in anchors):
             note_owners.append({'number': bare_version[1], 'start': start, 'headingEnd': stop})
     note_owners.sort(key=lambda a: a['start'])
@@ -637,7 +649,7 @@ def parse_chapter(markup, chapter_number):
         )
         end = min(next_anchor, following_heading)
         number = anchor["number"]
-        if number in seen:
+        if number in seen and not preserve_versions:
             problems.append(f"duplicate section number in chapter: {number}")
             continue
         seen.add(number)

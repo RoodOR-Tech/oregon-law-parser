@@ -135,7 +135,7 @@ SECTION_LIST_ITEM_PATTERN = re.compile(r"^([0-9]+[a-z]?)")
 # Neither form is a session-law citation, so neither becomes a credit row.
 FORMERLY_REFERENCE_PATTERN = re.compile(
     r"^Formerly\s+(?:subsections?\s*\([^)]*\)(?:\s+to\s*\([^)]*\))?\s+of\s+)?"
-    r"(?P<number>\d{1,3}[A-Z]?\.\d{3})$",
+    r"(?P<number>\d{1,3}[A-Z]?\.\d{3,4})$",
     re.IGNORECASE,
 )
 # "Renumbered 161.045" with no "by" and no session citation: a bare
@@ -144,7 +144,7 @@ FORMERLY_REFERENCE_PATTERN = re.compile(
 # the destination, and is discarded rather than parsed into a session year:
 # it is not stated to be the session that did the renumbering.
 BARE_RENUMBER_PATTERN = re.compile(
-    r"^Renumbered\s+(?P<number>\d{1,3}[A-Z]?\.\d{3})"
+    r"^Renumbered\s+(?P<number>\d{1,3}[A-Z]?\.\d{3,4})"
     r"(?:\s+in\s+(?:18|19|20)\d{2})?$",
     re.IGNORECASE,
 )
@@ -159,7 +159,7 @@ BARE_RENUMBER_PATTERN = re.compile(
 # "in YYYY" states when the enactment happened, discarded the same way as
 # BARE_RENUMBER_PATTERN's own.
 ENACTED_IN_LIEU_PATTERN = re.compile(
-    r"^enacted\s+in\s+lieu\s+of\s+(?P<number>\d{1,3}[A-Z]?\.\d{3})"
+    r"^enacted\s+in\s+lieu\s+of\s+(?P<number>\d{1,3}[A-Z]?\.\d{3,4})"
     r"(?:\s+in\s+(?:18|19|20)\d{2})?$",
     re.IGNORECASE,
 )
@@ -173,7 +173,7 @@ ENACTED_IN_LIEU_PATTERN = re.compile(
 SUBSECTION_RENUMBER_SUFFIX_PATTERN = re.compile(r"\s+in\s+(?:18|19|20)\d{2}$", re.IGNORECASE)
 SUBSECTION_RENUMBER_CLAUSE_PATTERN = re.compile(
     r"^subsections?\s*\([^)]*\)(?:\s+to\s*\([^)]*\))?\s+renumbered\s+"
-    r"(?P<number>\d{1,3}[A-Z]?\.\d{3})$",
+    r"(?P<number>\d{1,3}[A-Z]?\.\d{3,4})$",
     re.IGNORECASE,
 )
 # Two full citations joined by "and" instead of a semicolon: "2009 c.431 §6

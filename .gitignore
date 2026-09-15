@@ -20,3 +20,8 @@ cabal.project.local
 __pycache__/
 *.pyc
 *.sqlite3
+.venv/
+.pytest_cache/
+.ors-cache/
+*.egg-info/
+build/
