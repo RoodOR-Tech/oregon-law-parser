@@ -1,6 +1,8 @@
 include PORTABLE_PIPELINE.md
 include PIPELINE_AUDIT.md
 include EXPLORER.md
+include AGENT_DATA.md
+recursive-include search *.py *.md *.json *.txt *.mjs
 recursive-include tests *.py *.html *.json *.pdf
 recursive-include ors/tests *.py *.html *.pdf
 recursive-include fixtures *.pdf

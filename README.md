@@ -1,5 +1,9 @@
 # Oregon law parser
 
+For agent access, use the [HTTP/JSON and MCP data service](AGENT_DATA.md).
+It provides indexed search, citation lookup, amendments, pending notes and
+dataset provenance from a separate read-only serving snapshot, without an LLM.
+
 Build queryable ORS editions and session-law actions with Python 3.10+:
 
 ```sh
