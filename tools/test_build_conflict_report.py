@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import sys
 import subprocess
 import tempfile
 import unittest
@@ -58,7 +59,7 @@ class ConflictReportTest(unittest.TestCase):
 
             script = Path(__file__).with_name("build_conflict_report.py")
             subprocess.run([
-                "python3", str(script),
+                sys.executable, str(script),
                 "--manifest", str(root / "manifest.json"),
                 "--results-dir", str(results),
                 "--quality-report", str(root / "quality.json"),

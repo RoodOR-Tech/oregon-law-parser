@@ -24,23 +24,23 @@ from ors_text import decode_markup, declared_charset, normalize_spaces  # noqa: 
 
 # Candidate ORS section number as printed: chapter number, optional letter,
 # a period, then exactly three digits. 279A.050 and 161.005 both match.
-SECTION_NUMBER_PATTERN = re.compile(r"\b(\d{1,3}[A-Z]?)\.(\d{3})\b")
+SECTION_NUMBER_PATTERN = re.compile(r"\b(\d{1,3}[A-Z]?)\.(\d{3,4})\b")
 # A line that merely opens with a section number is not necessarily a section
 # start: wrapped statutory text routinely begins with the tail of a cited range,
 # as in "161.055, unless the context requires otherwise:". The stricter anchor
 # additionally requires the number to be followed by a catchline or a bracketed
 # stub. The probe measures both so the gap between them can be reviewed before a
 # segmentation rule is chosen.
-SECTION_LINE_PATTERN = re.compile(r"^\d{1,3}[A-Z]?\.\d{3}\b")
+SECTION_LINE_PATTERN = re.compile(r"^\d{1,3}[A-Z]?\.\d{3,4}\b")
 # A section heading is a number followed by its catchline. An opening
 # parenthesis instead marks a wrapped citation to a subsection — "279A.050 (6)
 # may delegate authority" — so it is excluded rather than accepted.
-SECTION_CATCHLINE_PATTERN = re.compile(r"^\d{1,3}[A-Z]?\.\d{3}\s+(?=[A-Z])")
+SECTION_CATCHLINE_PATTERN = re.compile(r"^\d{1,3}[A-Z]?\.\d{3,4}\s+(?=[A-Z])")
 # A section printed only as a stub opens with a bracketed disposition keyword.
 # A bracket followed by a year is a wrapped source credit, not a stub, so the
 # keyword is required.
 SECTION_STUB_PATTERN = re.compile(
-    r"^\d{1,3}[A-Z]?\.\d{3}\s+\[(?:Repealed|Renumbered|Amended|Formerly|Reserved)\b",
+    r"^\d{1,3}[A-Z]?\.\d{3,4}\s+\[(?:Repealed|Renumbered|Amended|Formerly|Reserved)\b",
     re.IGNORECASE,
 )
 # Word marks a body section's number and catchline in bold. The table of

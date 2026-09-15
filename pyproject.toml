@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "oregon-law-parser"
+version = "0.3.0"
+description = "Reproducible ORS and Oregon session-law relational extraction"
+requires-python = ">=3.10"
+dependencies = ["pdfplumber==0.11.10"]
+
+[project.optional-dependencies]
+parquet = ["duckdb==1.5.5"]
+test = ["pytest==9.1.1", "build>=1.2"]
+
+[project.scripts]
+ors-parser = "parser.cli:main"
+
+[tool.setuptools]
+include-package-data = false
+packages = ["parser", "ors", "ors.tools"]
+package-dir = {parser = "src/parser", ors = "ors", "ors.tools" = "ors/tools"}
+
+[tool.setuptools.package-data]
+parser = ["web/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "ors/tests", "tools"]
+pythonpath = ["src"]

@@ -60,11 +60,11 @@ what this table's own foreign key can point at.
 """
 import re
 
-SECTION_NUMBER_PATTERN = re.compile(r"\d{1,3}[A-Z]?\.\d{3}")
+SECTION_NUMBER_PATTERN = re.compile(r"\d{1,3}[A-Z]?\.\d{3,4}")
 # "161.005 to 161.055" -- a range. Both endpoints are reported once as a
 # single "range" candidate, not also as two separate "section" candidates.
 RANGE_PATTERN = re.compile(
-    r"(?P<start>\d{1,3}[A-Z]?\.\d{3})\s+to\s+(?P<end>\d{1,3}[A-Z]?\.\d{3})"
+    r"(?P<start>\d{1,3}[A-Z]?\.\d{3,4})\s+to\s+(?P<end>\d{1,3}[A-Z]?\.\d{3,4})"
 )
 # Requires the "ORS" prefix (as a lookbehind, so the match itself is still
 # just the "chapter NNN" phrase): see the module docstring for the real
