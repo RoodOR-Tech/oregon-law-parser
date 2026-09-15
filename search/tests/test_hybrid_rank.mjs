@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {fuseResults} from '../../src/parser/web/hybrid-search.mjs';
+const index=[['90.100','90','Definitions','operative',1],['192.311','192','Definitions','operative',1],['90.101','90','Repealed','repealed',1]];
+const expansion={matches:[{statute_citation:'90.100',canonical_term:'Tenant',layperson_synonym:'renter'}]};
+assert.equal(fuseResults('renter',[],index,expansion).rows[0][0],'90.100');
+assert.equal(fuseResults('renter',[],index,expansion,'192').rows.length,0);
+assert.equal(fuseResults('renter',[],index,expansion,'','repealed').rows.length,0);
+assert.equal(fuseResults('ORS 192.311',[],index,expansion).rows[0][0],'192.311');
+assert.equal(fuseResults('renter',[index[0]],index,expansion).rows.length,1);
+console.log('Hybrid ranking: synonym-only recall, filters, exact priority, and deduplication passed.');

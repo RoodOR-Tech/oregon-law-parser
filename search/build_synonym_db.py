@@ -121,7 +121,7 @@ def load_statute_chunks_from_ors_rows(
     module deliberately keeps independent of: it reads that pipeline's
     output file, it does not import any of its code.
     """
-    document = json.loads(path.read_text())
+    document = json.loads(path.read_text(encoding="utf-8"))
     sections = document.get("sections")
     if not isinstance(sections, list):
         raise ValueError(f"{path} has no 'sections' array -- is this an ors-rows.json file?")

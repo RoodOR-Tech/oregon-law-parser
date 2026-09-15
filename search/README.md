@@ -84,3 +84,7 @@ with get_session_factory(engine)() as session:
     result = expand_user_query("who has to hand over government records", session)
     # result["ors_citations"], result["matched_canonical_terms"], result["alternative_phrases"]
 ```
+
+## Oregon Law Explorer
+
+See [EXPLORER.md](EXPLORER.md) for the hybrid search integration, audited real-provider build, pinned browser runtime, and PostgreSQL verification workflow.

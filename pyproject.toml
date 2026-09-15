@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "oregon-law-parser"
-version = "0.3.0"
+version = "0.4.0"
 description = "Reproducible ORS and Oregon session-law relational extraction"
 requires-python = ">=3.10"
 dependencies = ["pdfplumber==0.11.10"]
@@ -12,18 +12,24 @@ dependencies = ["pdfplumber==0.11.10"]
 [project.optional-dependencies]
 parquet = ["duckdb==1.5.5"]
 test = ["pytest==9.1.1", "build>=1.2"]
+search = ["SQLAlchemy>=2.0,<2.1"]
+search-openai = ["SQLAlchemy>=2.0,<2.1", "openai>=1.0"]
+search-anthropic = ["SQLAlchemy>=2.0,<2.1", "anthropic>=0.34"]
+agent = ["mcp>=1.28,<2", "fastapi>=0.115,<1", "uvicorn>=0.30,<1"]
 
 [project.scripts]
 ors-parser = "parser.cli:main"
+ors-agent = "parser.agent_service:main"
 
 [tool.setuptools]
 include-package-data = false
-packages = ["parser", "ors", "ors.tools"]
-package-dir = {parser = "src/parser", ors = "ors", "ors.tools" = "ors/tools"}
+packages = ["parser", "ors", "ors.tools", "search"]
+package-dir = {parser = "src/parser", ors = "ors", "ors.tools" = "ors/tools", search = "search"}
 
 [tool.setuptools.package-data]
 parser = ["web/*"]
+search = ["runtime-lock.json", "*.md"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "ors/tests", "tools"]
+testpaths = ["tests", "ors/tests", "tools", "search/tests"]
 pythonpath = ["src"]

@@ -4,6 +4,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;',
 const cache = new Map();
 async function data(path) { if(!cache.has(path)) cache.set(path,fetch(`data/${path}.json`).then(r=>{if(!r.ok) throw Error(`Could not load ${path}. Try again.`);return r.json();}).catch(e=>{cache.delete(path);throw e;}));return cache.get(path); }
 let catalog,index,actions,reviews,mode='search',page=0,hits=[],epoch=0,detailEpoch=0,routeEpoch=0;
+let hybridReasons=new Map();
 const labels={operative:'Operative text',repealed:'Repealed',renumbered:'Renumbered',note_only:'Note only',series_membership:'Series membership',session_law_provision:'Session-law provision',incidental_repeal_reference:'Incidental repeal reference',unresolved:'Needs review'};
 const fmt=n=>n.toLocaleString();
 function source(url,label='Original PDF') { return /^https:\/\//.test(url||'') ? `<a class="source" href="${esc(url)}" target="_blank" rel="noopener">${label} ↗</a>`:''; }
@@ -14,6 +15,8 @@ async function search(){
   $('summary').textContent='Searching…';
   const q=$('query').value.trim(),chapter=$('chapter').value,filter=$('filter').value;
   let found=[];
+  let hybridNote='';
+  hybridReasons=new Map();
   try {
     if(mode==='search'){
       let candidates=null;
@@ -31,6 +34,18 @@ async function search(){
         if(!terms.length)candidates=new Set();
       }
       found=index.filter((r,i)=>(!candidates||candidates.has(i))&&(!chapter||r[1]===chapter)&&(!filter||r[3]===filter));
+      if(q&&catalog.hybrid?.enabled&&$('hybrid-mode').checked){
+        if(current!==epoch)return;
+        hits=found;renderResults();$('summary').textContent=`${fmt(found.length)} text matches · Loading term and synonym matches…`;
+        try{
+          const {expandQuery,fuseResults}=await import('./hybrid-search.mjs');
+          const expansion=await expandQuery(q);
+          if(current!==epoch)return;
+          const fused=fuseResults(q,found,index,expansion,chapter,filter);
+          found=fused.rows;hybridReasons=fused.reasons;
+          hybridNote=' · Text + term/synonym matches';
+        }catch(e){hybridNote=' · Synonym search unavailable; text matches only';}
+      }
     }else if(mode==='changes'){
       found=actions.filter(a=>(!filter||a.action_type===filter)&&(!chapter||(a.affected_ors_section||'').split('.')[0]===chapter)&&(!q||words(q).every(w=>`${a.bill_number} ${a.affected_ors_section||''} ${a.session_law_chapter} ${a.session_law_section} ${a.condition_text||''}`.toLowerCase().includes(w))));
     }else{
@@ -38,7 +53,7 @@ async function search(){
     }
     if(current!==epoch)return;
     hits=found;
-    $('summary').textContent=`${fmt(hits.length)} ${mode==='search'?'sections':mode==='changes'?'actions':'clauses'}${q?' found':''}${mode==='search'&&q?' · Exact words, across printed versions.':''}`;
+    $('summary').textContent=`${fmt(hits.length)} ${mode==='search'?'sections':mode==='changes'?'actions':'clauses'}${q?' found':''}${hybridNote|| (mode==='search'&&q?' · Exact words, across printed versions.':'')}`;
     renderResults();
   }catch(e){if(current===epoch)error(e,'result-list');}
 }
@@ -50,6 +65,7 @@ function renderResults(){
     if(mode==='search')content=`<span class="number">ORS ${esc(r[0])}</span><strong>${esc(r[2]||'No printed catchline')}</strong><span class="meta">${esc(labels[r[3]]||r[3])}${r[4]>1?` · ${r[4]} printed versions`:''}</span>`;
     else if(mode==='changes')content=`<span class="number">${esc(r.action_type)} · ${esc(r.affected_ors_section?'ORS '+r.affected_ors_section:'Unassigned ORS number')}</span><strong>${esc(r.bill_number)} · § ${esc(r.session_law_section)}</strong><span class="meta">Oregon Laws ${r.session_year}, chapter ${r.session_law_chapter}${r.condition_text?' · Conditional':''}</span>`;
     else content=`<span class="number">${esc(labels[r.category]||r.category)}</span><strong>${esc(r.source_url.split('/').pop())} · § ${esc(r.clause)}</strong><span class="meta">${esc(r.text.slice(0,145))}…</span>`;
+    if(mode==='search'&&hybridReasons.has(id))content+=`<span class="meta" style="display:block">Term match: ${esc(hybridReasons.get(id))}</span>`;
     return `<a class="result${id===selection?' selected':''}" href="#${mode}?id=${encodeURIComponent(id)}">${content}</a>`;
   }).join('')||'<p class="empty">No matches. Try fewer words or a different filter.</p>';
   $('pagination').innerHTML=hits.length?`<button class="secondary" id="prev" ${page===0?'disabled':''}>Previous</button><span>${page+1} / ${Math.ceil(hits.length/40)}</span><button class="secondary" id="next" ${(page+1)*40>=hits.length?'disabled':''}>Next</button>`:'';
@@ -97,6 +113,7 @@ async function route(){
   $('query').placeholder=mode==='search'?'e.g. 161.005 or housing assistance':mode==='changes'?'Bill, ORS number, or law chapter':'Search flagged clause text';
   document.querySelector('label[for="query"]').textContent=mode==='search'?'Find a section or search its text':mode==='changes'?'Find a session-law action':'Find a review item';
   $('chapter').parentElement.hidden=mode==='review';
+  if($('hybrid-controls'))$('hybrid-controls').hidden=mode!=='search';
   document.querySelector('label[for="filter"]').textContent=mode==='search'?'Printed status':mode==='changes'?'Action type':'Review disposition';
   if(changed)$('filter').innerHTML=mode==='search'?'<option value="">All statuses</option><option value="operative">Operative text</option><option value="repealed">Repealed</option><option value="renumbered">Renumbered</option><option value="note_only">Note only</option>':mode==='changes'?'<option value="">All actions</option><option>AMEND</option><option>REPEAL</option><option>ADD</option>':'<option value="">All clauses</option><option value="review_required">Needs review</option><option value="expected_scope">Expected scope exclusion</option>';
   const id=new URLSearchParams(query||'').get('id');
@@ -114,6 +131,11 @@ async function start(){
   $('review-count').textContent=fmt(catalog.unresolved);
   $('metrics').innerHTML=[[catalog.sections,'sections'],[catalog.chapters.length,'chapters'],[catalog.amendments,'actions']].map(([n,label])=>`<div><strong>${fmt(n)}</strong><span>${label}</span></div>`).join('');
   $('integrity').textContent=`Dataset SHA-256 ${catalog.database_sha256.slice(0,12)}…`;
+  if(catalog.hybrid?.enabled){
+    const control=document.createElement('div');control.id='hybrid-controls';
+    control.innerHTML='<label style="margin-top:.8rem;font-weight:400"><input id="hybrid-mode" type="checkbox" checked style="width:auto"> Include defined terms and synonyms</label><p class="note" style="margin:.4rem 0">Definitions across the edition; reviewed LLM phrases for '+catalog.hybrid.llm_citations.length+' sections.</p>';
+    $('search-form').parentElement.appendChild(control);$('hybrid-mode').onchange=search;
+  }
   $('search-form').onsubmit=e=>{e.preventDefault();search();};$('chapter').onchange=chapterDetail;$('filter').onchange=search;
   window.addEventListener('hashchange',route);await route();
   if(document.modelContext?.registerTool){

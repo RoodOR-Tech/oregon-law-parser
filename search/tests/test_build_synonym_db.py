@@ -148,6 +148,7 @@ class QueryExpansionMiddlewareTests(unittest.TestCase):
         self.session_factory = get_session_factory(self.engine)
 
     def tearDown(self):
+        self.engine.dispose()
         self._tmpdir.cleanup()
 
     def test_ingest_and_expand_user_query(self):
@@ -222,6 +223,7 @@ class BuildDatabaseEndToEndTests(unittest.TestCase):
 
                 result = expand_user_query("public body", session)
                 self.assertIn("192.311", result["ors_citations"])
+            engine.dispose()
 
 
 class LoadStatuteChunksTests(unittest.TestCase):
@@ -235,7 +237,7 @@ class LoadStatuteChunksTests(unittest.TestCase):
             (root / "999.999.xml").write_text(
                 '<statute citation="999.999" title="Made up">'
                 "<body>As used in this section: (1) “Widget” means a device.</body>"
-                "</statute>"
+                "</statute>", encoding="utf-8"
             )
             (root / "broken.xml").write_text('<statute citation="broken"><body>unterminated')
 
@@ -312,6 +314,14 @@ class LoadStatuteChunksFromOrsRowsTests(unittest.TestCase):
 
 
 class LLMExpansionTests(unittest.TestCase):
+    def test_ors_rows_utf8_is_independent_of_windows_locale(self):
+        # ORS 192.311 uses curly quotation marks in its real publication text.
+        body = 'As used in ORS 192.311 to 192.478: (1) “Public body” means an agency.'
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'rows.json'
+            path.write_text(json.dumps({'sections': [dict(sectionNumber='192.311', catchline='Definitions', bodyText=body, status='operative')]}, ensure_ascii=False), encoding='utf-8')
+            self.assertEqual(load_statute_chunks_from_ors_rows(path)[0].text_content, body)
+
     def test_expand_definitions_with_mock_llm_batch(self):
         chunk = StatuteChunk(citation="1.001", title="T", text_content="text")
         defs = extract_definitions(
